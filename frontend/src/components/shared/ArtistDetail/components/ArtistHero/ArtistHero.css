@@ -1,0 +1,195 @@
+.artist-hero {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.artist-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.08)"/><circle cx="80" cy="40" r="3" fill="rgba(255,255,255,0.08)"/><circle cx="50" cy="80" r="4" fill="rgba(255,255,255,0.08)"/></svg>');
+    background-repeat: repeat;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.artist-hero__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 60px;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* Левая колонка - фото */
+.artist-hero__image-col {
+    display: flex;
+    justify-content: center;
+}
+
+.artist-hero__image-wrapper {
+    width: 100%;
+    max-width: 320px;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 40px rgba(0, 0, 0, 0.25);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease;
+}
+
+.artist-hero__image-wrapper:hover {
+    transform: scale(1.02);
+}
+
+.artist-hero__image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+}
+
+.artist-hero__image-placeholder {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.artist-hero__placeholder-icon {
+    font-size: 64px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.artist-hero__placeholder-text {
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+}
+
+/* Правая колонка - информация */
+.artist-hero__info-col {
+    color: white;
+}
+
+.artist-hero__name {
+    font-size: 48px;
+    font-weight: 800;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.artist-hero__role {
+    font-size: 18px;
+    opacity: 0.9;
+    margin-bottom: 32px;
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    backdrop-filter: blur(10px);
+}
+
+/* Адаптив */
+@media (max-width: 968px) {
+    .artist-hero {
+        padding: 40px 30px;
+    }
+
+    .artist-hero__container {
+        gap: 40px;
+    }
+
+    .artist-hero__name {
+        font-size: 36px;
+    }
+
+    .artist-hero__image-wrapper {
+        max-width: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .artist-hero {
+        padding: 40px 20px;
+    }
+
+    .artist-hero__container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        text-align: center;
+    }
+
+    .artist-hero__image-col {
+        order: 1;
+    }
+
+    .artist-hero__info-col {
+        order: 2;
+        text-align: center;
+    }
+
+    .artist-hero__image-wrapper {
+        max-width: 240px;
+        margin: 0 auto;
+    }
+
+    .artist-hero__name {
+        font-size: 32px;
+    }
+
+    .artist-hero__role {
+        font-size: 16px;
+        margin-bottom: 24px;
+    }
+
+    .artist-hero__placeholder-icon {
+        font-size: 48px;
+    }
+
+    .artist-hero__placeholder-text {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .artist-hero {
+        padding: 30px 16px;
+    }
+
+    .artist-hero__image-wrapper {
+        max-width: 200px;
+    }
+
+    .artist-hero__name {
+        font-size: 28px;
+    }
+
+    .artist-hero__role {
+        font-size: 14px;
+    }
+
+    .artist-hero__placeholder-icon {
+        font-size: 40px;
+    }
+
+    .artist-hero__placeholder-text {
+        font-size: 24px;
+    }
+}

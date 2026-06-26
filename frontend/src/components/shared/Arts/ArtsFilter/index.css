@@ -1,0 +1,329 @@
+/* ArtsFilter.css */
+
+.arts-filter {
+    background: white;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 80px;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+/* Десктопная версия */
+.arts-filter__desktop {
+    display: block;
+}
+
+.arts-filter__mobile {
+    display: none;
+}
+
+.arts-filter__search {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.arts-filter__search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #718096;
+}
+
+.arts-filter__search-input {
+    width: 100%;
+    padding: 10px 40px 10px 40px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 40px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.arts-filter__search-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.arts-filter__search-clear {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #a0aec0;
+}
+
+.arts-filter__search-clear:hover {
+    color: #e53e3e;
+}
+
+.arts-filter__row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.arts-filter__group {
+    flex: 1;
+    min-width: 120px;
+}
+
+.arts-filter__label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #718096;
+    margin-bottom: 4px;
+}
+
+.arts-filter__select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 13px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.arts-filter__select:hover {
+    border-color: #cbd5e0;
+}
+
+.arts-filter__view-modes {
+    display: flex;
+    gap: 6px;
+    align-items: flex-end;
+}
+
+.arts-filter__view-btn {
+    padding: 8px 12px;
+    background: #f7fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.arts-filter__view-btn:hover {
+    border-color: #667eea;
+    background: #edf2f7;
+}
+
+.arts-filter__view-btn.active {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+/* Активные фильтры */
+.arts-filter__active {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #edf2f7;
+}
+
+.arts-filter__active-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.arts-filter__active-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: #edf2f7;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #2d3748;
+}
+
+.arts-filter__active-tag button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #718096;
+}
+
+.arts-filter__active-tag button:hover {
+    color: #e53e3e;
+}
+
+.arts-filter__reset {
+    padding: 4px 12px;
+    background: none;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #667eea;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.arts-filter__reset:hover {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+/* Мобильная версия */
+@media (max-width: 768px) {
+    .arts-filter__desktop {
+        display: none;
+    }
+
+    .arts-filter__mobile {
+        display: block;
+    }
+
+    .arts-filter {
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        top: 70px;
+    }
+
+    .arts-filter__mobile-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .arts-filter__mobile-search {
+        position: relative;
+        flex: 1;
+    }
+
+    .arts-filter__mobile-search-input {
+        width: 100%;
+        padding: 8px 32px 8px 32px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 30px;
+        font-size: 13px;
+        background: white;
+    }
+
+    .arts-filter__mobile-search-input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .arts-filter__mobile-btn {
+        padding: 8px 12px;
+        background: #f7fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        position: relative;
+        white-space: nowrap;
+    }
+
+    .arts-filter__mobile-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 8px;
+        height: 8px;
+        background: #f56565;
+        border-radius: 50%;
+    }
+
+    /* Модальное окно */
+    .arts-filter__modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .arts-filter__modal-content {
+        background: white;
+        width: 100%;
+        max-height: 80%;
+        border-radius: 24px 24px 0 0;
+        overflow: hidden;
+        animation: slideUp 0.3s ease;
+        z-index: 10000;
+    }
+
+    .arts-filter__modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .arts-filter__modal-header h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .arts-filter__modal-close {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: #718096;
+    }
+
+    .arts-filter__modal-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .arts-filter__modal-reset {
+        padding: 10px;
+        background: #edf2f7;
+        border: none;
+        border-radius: 40px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #667eea;
+        cursor: pointer;
+        margin-top: 8px;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+        }
+
+        to {
+            transform: translateY(0);
+        }
+    }
+}

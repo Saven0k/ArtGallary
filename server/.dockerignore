@@ -1,0 +1,65 @@
+# Зависимости
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Сборки и кэш
+dist/
+build/
+.cache/
+.parcel-cache/
+.next/
+out/
+
+# Логи
+logs/
+*.log
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# IDE
+.vscode/
+.idea/
+
+# Временные файлы
+tmp/
+temp/
+*.tmp
+
+# Тесты
+coverage/
+*.test.js
+*.spec.js
+
+# Бэкапы
+*.sql
+*.dump
+backup/
+
+# Медиа
+uploads/
+*.jpg
+*.png
+*.jpeg
+*.gif
+*.webp
+
+# Документация
+README.md
+CHANGELOG.md
+docs/

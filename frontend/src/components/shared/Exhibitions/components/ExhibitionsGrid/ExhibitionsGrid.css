@@ -1,0 +1,20 @@
+.exhibitions-grid {
+    display: grid;
+    gap: 30px;
+}
+
+.exhibitions-grid--grid {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}
+
+.exhibitions-grid--list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+@media (max-width: 768px) {
+    .exhibitions-grid--grid {
+        grid-template-columns: 1fr;
+    }
+}

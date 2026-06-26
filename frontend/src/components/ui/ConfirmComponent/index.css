@@ -1,0 +1,123 @@
+.confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.confirm-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 28px 32px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease;
+}
+
+.confirm-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.confirm-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    color: #2d3748;
+}
+
+.confirm-message {
+    font-size: 16px;
+    color: #4a5568;
+    line-height: 1.5;
+    margin: 0 0 24px 0;
+}
+
+.confirm-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.confirm-button {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.confirm-button--cancel {
+    background: #e2e8f0;
+    color: #4a5568;
+}
+
+.confirm-button--cancel:hover {
+    background: #cbd5e0;
+    transform: translateY(-1px);
+}
+
+.confirm-button--danger {
+    background: #f56565;
+    color: white;
+}
+
+.confirm-button--danger:hover {
+    background: #e53e3e;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 101, 101, 0.3);
+}
+
+.confirm-button--warning {
+    background: #ed8936;
+    color: white;
+}
+
+.confirm-button--warning:hover {
+    background: #dd6b20;
+    transform: translateY(-1px);
+}
+
+.confirm-button--info {
+    background: #4299e1;
+    color: white;
+}
+
+.confirm-button--info:hover {
+    background: #3182ce;
+    transform: translateY(-1px);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

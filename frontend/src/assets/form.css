@@ -1,0 +1,1006 @@
+/* components/forms/style.css */
+
+/* Root переменные для легкой кастомизации */
+:root {
+    --form-max-width: 800px;
+    --form-min-width: 320px;
+    --form-padding-desktop: 3rem;
+    --form-padding-mobile: 1.5rem;
+    --form-border-radius: 28px;
+    --form-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --input-height: 56px;
+    --input-padding: 0 1.25rem;
+    --input-border-radius: 16px;
+    --gap-small: 0.75rem;
+    --gap-medium: 1.5rem;
+    --gap-large: 2rem;
+
+    /* Цветовая схема */
+    --primary-color: #6366f1;
+    --primary-hover: #4f46e5;
+    --primary-light: #eef2ff;
+    --secondary-color: #8b5cf6;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+    --bg-input: #f8fafc;
+    --error-color: #ef4444;
+    --success-color: #10b981;
+}
+
+.form {
+    max-width: var(--form-max-width);
+    width: 90%;
+    margin: 2rem auto;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    padding: var(--form-padding-desktop);
+    border-radius: var(--form-border-radius);
+    box-shadow: var(--form-shadow);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    animation: formAppear 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
+}
+
+.form__title {
+    text-align: center;
+    margin-bottom: var(--gap-large);
+    color: var(--text-primary);
+    font-size: clamp(1.75rem, 5vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.form__inputs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-medium);
+    margin-bottom: var(--gap-large);
+}
+
+.form__input-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form__label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form__input-box:focus-within .form__label {
+    color: var(--primary-color);
+    transform: translateX(4px);
+}
+
+/* Стили для input */
+.form__input {
+    width: 100%;
+    padding: var(--input-padding);
+    height: var(--input-height);
+    border: 2px solid var(--border-color);
+    border-radius: var(--input-border-radius);
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--bg-input);
+    outline: none;
+    box-sizing: border-box;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.form__input:hover {
+    border-color: var(--primary-color);
+    background: #ffffff;
+}
+
+.form__input:focus {
+    border-color: var(--primary-color);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Стили для select */
+.form__select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.form__select {
+    width: 100%;
+    padding: var(--input-padding);
+    height: var(--input-height);
+    border: 2px solid var(--border-color);
+    border-radius: var(--input-border-radius);
+    font-size: 1rem;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    outline: none;
+}
+
+.form__select:hover {
+    border-color: var(--primary-color);
+    background: #ffffff;
+}
+
+.form__select:focus {
+    border-color: var(--primary-color);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    transform: translateY(-1px);
+}
+
+.form__select:disabled {
+    background: #f1f5f9;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.form__select-arrow {
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.form__select-wrapper:hover .form__select-arrow {
+    color: var(--primary-color);
+    transform: translateY(-50%) rotate(180deg);
+}
+
+/* Стили для опций select */
+.form__select option {
+    padding: 0.75rem;
+    font-size: 1rem;
+    background: #ffffff;
+    color: var(--text-primary);
+}
+
+.form__select option:hover {
+    background: var(--primary-light);
+}
+
+/* Стили для textarea */
+textarea.form__input {
+    height: auto;
+    min-height: 100px;
+    resize: vertical;
+    padding: 1rem;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+textarea.form__input::-webkit-resizer {
+    border-width: 8px;
+    border-style: solid;
+    border-color: transparent var(--primary-color) var(--primary-color) transparent;
+}
+
+/* Стили для input date */
+input[type="date"].form__input {
+    position: relative;
+    cursor: pointer;
+}
+
+input[type="date"].form__input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+input[type="date"].form__input::-webkit-calendar-picker-indicator:hover {
+    background: var(--primary-light);
+    transform: scale(1.1);
+}
+
+/* Стили для input file (аватарка) */
+.form__avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.form__avatar-preview {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+    margin: 0 auto;
+    transition: all 0.3s ease;
+}
+
+.form__avatar-preview:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.2);
+}
+
+.form__avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.form__avatar-remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.95);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+    z-index: 10;
+}
+
+.form__avatar-remove:hover {
+    background: rgb(239, 68, 68);
+    transform: scale(1.1);
+}
+
+.form__file-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-light);
+    border: 2px dashed var(--primary-color);
+    border-radius: var(--input-border-radius);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 250px;
+    margin: 0 auto;
+}
+
+.form__file-label:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.form__file-label:hover .form__file-text,
+.form__file-label:hover .form__file-icon {
+    color: white;
+}
+
+.form__file-label--has-preview {
+    background: var(--bg-input);
+    border-color: var(--border-color);
+}
+
+.form__file-input {
+    display: none;
+}
+
+.form__file-icon {
+    font-size: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.form__file-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+}
+
+/* Стили для ошибок */
+.form__input--error {
+    border-color: var(--error-color) !important;
+    background: #fef2f2 !important;
+}
+
+.form__error {
+    color: var(--error-color);
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    animation: shake 0.3s ease;
+}
+
+.form__error::before {
+    content: "⚠";
+    font-size: 0.75rem;
+}
+
+/* Подсказки */
+.form__hint {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    font-style: italic;
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--primary-color);
+}
+
+/* Стили для кнопок */
+.form__btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    border-radius: var(--input-border-radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+    height: 56px;
+}
+
+.form__btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.form__btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.form__btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+}
+
+.form__btn:active {
+    transform: translateY(0);
+}
+
+.form__btn--secondary {
+    background: linear-gradient(135deg, #64748b, #475569);
+    margin-bottom: 1.5rem;
+}
+
+.form__btn--secondary:hover {
+    box-shadow: 0 10px 25px -5px rgba(71, 85, 105, 0.4);
+}
+
+.form__link {
+    display: inline-block;
+    text-align: center;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: var(--input-border-radius);
+}
+
+.form__link:hover {
+    background: var(--primary-light);
+    color: var(--primary-hover);
+    transform: translateX(4px);
+}
+
+/* Контейнер для арта */
+.form__art-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+/* Превью арта - прямоугольное/квадратное */
+.form__art-preview {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form__art-preview:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Для прямоугольных картин (пейзажи) */
+.form__art-preview--landscape {
+    width: 250px;
+    height: 180px;
+}
+
+/* Для портретных картин */
+.form__art-preview--portrait {
+    width: 180px;
+    height: 250px;
+}
+
+/* Для квадратных картин (по умолчанию) */
+.form__art-preview--square {
+    width: 200px;
+    height: 200px;
+}
+
+/* Изображение арта */
+.form__art-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.form__art-image:hover {
+    transform: scale(1.05);
+}
+
+/* Кнопка удаления */
+.form__art-remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.2s ease;
+    z-index: 2;
+}
+
+.form__art-remove:hover {
+    background: rgba(229, 62, 62, 0.9);
+    transform: scale(1.05);
+}
+
+/* Кнопка увеличения */
+.form__art-expand {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    z-index: 2;
+}
+
+.form__art-expand:hover {
+    background: rgba(66, 153, 225, 0.9);
+    transform: scale(1.05);
+}
+
+/* Label для загрузки файла */
+.form__file-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 200px;
+    height: 200px;
+    border: 2px dashed #cbd5e0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f7fafc;
+}
+
+.form__file-label:hover {
+    border-color: #4299e1;
+    background: #edf2f7;
+    transform: translateY(-2px);
+}
+
+.form__file-label--has-preview {
+    border-style: solid;
+    border-color: #48bb78;
+    background: #f0fff4;
+}
+
+.form__file-label--error {
+    border-color: #f56565;
+    background: #fff5f5;
+}
+
+.form__file-input {
+    display: none;
+}
+
+.form__file-icon {
+    font-size: 40px;
+}
+
+.form__file-text {
+    font-size: 13px;
+    color: #4a5568;
+    text-align: center;
+    font-weight: 500;
+}
+
+.form__file-label:hover .form__file-text {
+    color: #2d3748;
+}
+
+/* Информация о файле */
+.form__file-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #edf2f7;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.form__file-info-icon {
+    font-size: 14px;
+}
+
+.form__file-info-name {
+    color: #2d3748;
+    font-weight: 500;
+    flex: 1;
+    word-break: break-all;
+}
+
+.form__file-info-size {
+    color: #718096;
+}
+
+/* Fullscreen Modal */
+.fullscreen-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    animation: fadeIn 0.3s ease;
+}
+
+.fullscreen-modal__content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    cursor: default;
+}
+
+.fullscreen-modal__image {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    animation: zoomIn 0.3s ease;
+}
+
+.fullscreen-modal__close {
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: all 0.2s ease;
+}
+
+.fullscreen-modal__close:hover {
+    background: rgba(229, 62, 62, 0.9);
+    transform: scale(1.1);
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+    .form__art-preview {
+        width: 150px;
+        height: 150px;
+    }
+
+    .form__art-preview--landscape {
+        width: 180px;
+        height: 130px;
+    }
+
+    .form__art-preview--portrait {
+        width: 130px;
+        height: 180px;
+    }
+
+    .form__file-label {
+        width: 150px;
+        height: 150px;
+    }
+
+    .form__file-icon {
+        font-size: 32px;
+    }
+
+    .form__file-text {
+        font-size: 11px;
+    }
+
+    .fullscreen-modal__close {
+        top: -40px;
+        right: 0px;
+        width: 35px;
+        height: 35px;
+        font-size: 20px;
+    }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 480px) {
+    .form__art-container {
+        justify-content: center;
+    }
+}
+
+/* Анимации */
+@keyframes formAppear {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-4px);
+    }
+
+    75% {
+        transform: translateX(4px);
+    }
+}
+
+/* Grid layout для двух колонок на больших экранах */
+@media (min-width: 768px) {
+    .form__inputs {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--gap-medium);
+    }
+
+    /* Полная ширина для полей, которые должны занимать две колонки */
+    .form__input-box:has(textarea),
+    .form__input-box--full,
+    .form__avatar-container,
+    .form__btn,
+    .form__link {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Адаптив для планшетов */
+@media (max-width: 768px) {
+    :root {
+        --form-padding-desktop: 2rem;
+        --input-height: 52px;
+    }
+
+    .form {
+        width: 95%;
+        margin: 1rem auto;
+    }
+}
+
+/* Адаптив для мобильных (320px и выше) */
+@media (max-width: 640px) {
+    :root {
+        --form-padding-desktop: 1.5rem;
+        --gap-medium: 1rem;
+        --gap-large: 1.5rem;
+        --input-height: 48px;
+        --input-border-radius: 12px;
+    }
+
+    .form {
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .form__title {
+        margin-bottom: var(--gap-large);
+    }
+
+    .form__btn {
+        height: 48px;
+        font-size: 0.9375rem;
+    }
+
+    .form__input,
+    .form__select {
+        font-size: 0.9375rem;
+        height: 48px;
+    }
+
+    .form__avatar-preview {
+        width: 100px;
+        height: 100px;
+    }
+
+    .form__file-label {
+        padding: 0.625rem 1.25rem;
+        max-width: 200px;
+    }
+
+    .form__file-text {
+        font-size: 0.75rem;
+    }
+
+    .form__select-arrow {
+        right: 1rem;
+    }
+}
+
+/* Для очень маленьких экранов (320px) */
+@media (max-width: 380px) {
+    :root {
+        --form-padding-desktop: 1rem;
+        --gap-medium: 0.875rem;
+    }
+
+    .form__label {
+        font-size: 0.75rem;
+    }
+
+    .form__input,
+    .form__select {
+        font-size: 0.875rem;
+        padding: 0 0.875rem;
+    }
+
+    .form__btn {
+        font-size: 0.875rem;
+    }
+
+    .form__avatar-preview {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+/* Кастомный скроллбар для textarea и select */
+.form__input::-webkit-scrollbar,
+.form__select::-webkit-scrollbar {
+    width: 8px;
+}
+
+.form__input::-webkit-scrollbar-track,
+.form__select::-webkit-scrollbar-track {
+    background: var(--border-color);
+    border-radius: 10px;
+}
+
+.form__input::-webkit-scrollbar-thumb,
+.form__select::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+}
+
+.form__input::-webkit-scrollbar-thumb:hover,
+.form__select::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-hover);
+}
+
+/* Стили для автозаполнения */
+.form__input:-webkit-autofill,
+.form__input:-webkit-autofill:hover,
+.form__input:-webkit-autofill:focus,
+.form__select:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px white inset;
+    box-shadow: 0 0 0 1000px white inset;
+    border-color: var(--primary-color);
+}
+
+/* Улучшенные стили для disabled состояния */
+.form__btn:disabled,
+.form__select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Стили для успешного состояния */
+.form__input--success {
+    border-color: var(--success-color);
+}
+
+/* Группа кнопок */
+.form__buttons-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Фокус на элементах формы */
+.form__input:focus-visible,
+.form__select:focus-visible,
+.form__btn:focus-visible,
+.form__link:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Плейсхолдеры */
+.form__input::placeholder,
+.form__select::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+/* Эффект загрузки для кнопки */
+.form__btn--loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.form__btn--loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin-left: -10px;
+    margin-top: -10px;
+    border: 2px solid white;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Стили для чекбокса 18+ */
+.form__label--checkbox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.form__checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #667eea;
+}
+
+.form__checkbox-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.form__checkbox:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.form__input-box:has(.form__checkbox:checked) .form__checkbox-text {
+    color: #fc8181;
+}

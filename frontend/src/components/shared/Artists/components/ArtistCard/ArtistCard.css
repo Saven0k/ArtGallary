@@ -1,0 +1,293 @@
+.artist-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.artist-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 30px rgba(0,0,0,0.1);
+}
+
+.artist-card--grid {
+    display: block;
+}
+
+.artist-card--list {
+    display: flex;
+}
+
+.artist-card--list .artist-card__image-wrapper {
+    width: 120px;
+    flex-shrink: 0;
+}
+
+.artist-card__image-wrapper {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+}
+
+.artist-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.artist-card__image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.artist-card__initials {
+    font-size: 48px;
+    font-weight: 700;
+    color: white;
+}
+
+.artist-card__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.artist-card:hover .artist-card__overlay {
+    opacity: 1;
+}
+
+.artist-card__view-btn {
+    padding: 10px 24px;
+    background: white;
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    color: #667eea;
+    cursor: pointer;
+}
+
+.artist-card__art-count {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    font-size: 12px;
+    color: white;
+}
+
+.artist-card__content {
+    padding: 20px;
+}
+
+.artist-card__name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 8px;
+}
+
+.artist-card__birthday {
+    font-size: 13px;
+    color: #718096;
+    margin-bottom: 8px;
+}
+
+.artist-card__location {
+    font-size: 13px;
+    color: #4a5568;
+    margin-bottom: 12px;
+}
+
+.artist-card__bio {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #4a5568;
+    margin: 0;
+}
+
+.artist-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.artist-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
+}
+
+.artist-card--grid {
+    display: block;
+}
+
+.artist-card--list {
+    display: flex;
+}
+
+.artist-card--list .artist-card__image-wrapper {
+    width: 160px;
+    flex-shrink: 0;
+}
+
+.artist-card__image-wrapper {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.artist-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.artist-card:hover .artist-card__image {
+    transform: scale(1.05);
+}
+
+.artist-card__image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.artist-card__initials {
+    font-size: 56px;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+}
+
+.artist-card__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.artist-card:hover .artist-card__overlay {
+    opacity: 1;
+}
+
+.artist-card__view-btn {
+    padding: 10px 24px;
+    background: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #667eea;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.artist-card__view-btn:hover {
+    transform: scale(1.05);
+    background: #667eea;
+    color: white;
+}
+
+.artist-card__art-count {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    font-size: 12px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.artist-card__content {
+    padding: 20px;
+}
+
+.artist-card__name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.artist-card__birthday {
+    font-size: 13px;
+    color: #718096;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.artist-card__location {
+    font-size: 13px;
+    color: #4a5568;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.artist-card__city, .artist-card__country {
+    color: #4a5568;
+}
+
+.artist-card__bio {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #4a5568;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .artist-card--list {
+        flex-direction: column;
+    }
+    
+    .artist-card--list .artist-card__image-wrapper {
+        width: 100%;
+        aspect-ratio: 1;
+    }
+    
+    .artist-card__initials {
+        font-size: 40px;
+    }
+}

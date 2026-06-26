@@ -1,0 +1,76 @@
+.artist-info-tab__section {
+    margin-bottom: 48px;
+}
+
+.artist-info-tab__section-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #e2e8f0;
+    position: relative;
+}
+
+.artist-info-tab__section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 3px;
+}
+
+.artist-info-tab__biography {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    line-height: 1.8;
+    color: #4a5568;
+    font-size: 16px;
+}
+
+.artist-info-tab__empty-text {
+    color: #718096;
+    font-style: italic;
+}
+
+.artist-info-tab__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.artist-info-tab__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.artist-info-tab__meta-item {
+    padding: 12px 20px;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.artist-info-tab__meta-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #718096;
+    text-transform: uppercase;
+}
+
+.artist-info-tab__meta-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.artist-info-tab__meta-value--verified {
+    color: #48bb78;
+}

@@ -1,0 +1,64 @@
+.artist-exhibition-card {
+    display: flex;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.artist-exhibition-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
+}
+
+.artist-exhibition-card__image {
+    width: 120px;
+    flex-shrink: 0;
+}
+
+.artist-exhibition-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.artist-exhibition-card__info {
+    flex: 1;
+    padding: 16px;
+}
+
+.artist-exhibition-card__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 12px;
+}
+
+.artist-exhibition-card__details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.artist-exhibition-card__date,
+.artist-exhibition-card__location,
+.artist-exhibition-card__cost {
+    font-size: 12px;
+    color: #718096;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+@media (max-width: 768px) {
+    .artist-exhibition-card {
+        flex-direction: column;
+    }
+
+    .artist-exhibition-card__image {
+        width: 100%;
+        height: 200px;
+    }
+}

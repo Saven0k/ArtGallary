@@ -1,0 +1,27 @@
+.art-create__blocked {
+    text-align: center;
+    max-width: 500px;
+    padding: 48px 32px;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.art-create__blocked-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.art-create__blocked h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 12px 0;
+}
+
+.art-create__blocked p {
+    font-size: 16px;
+    color: #718096;
+    margin: 0;
+    line-height: 1.5;
+}

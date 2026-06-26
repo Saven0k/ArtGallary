@@ -1,0 +1,115 @@
+/* ArtsEmpty.css */
+
+.arts-empty {
+    text-align: center;
+    padding: 80px 40px;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    animation: fadeInUp 0.5s ease;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.arts-empty__icon {
+    font-size: 80px;
+    margin-bottom: 24px;
+    display: inline-block;
+    animation: float 3s ease-in-out infinite;
+}
+
+.arts-empty__title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.02em;
+}
+
+.arts-empty__text {
+    font-size: 16px;
+    color: #718096;
+    margin-bottom: 32px;
+    line-height: 1.5;
+}
+
+.arts-empty__btn {
+    padding: 12px 32px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 40px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.arts-empty__btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.arts-empty__btn:active {
+    transform: translateY(0);
+}
+
+/* Анимации */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+    .arts-empty {
+        padding: 60px 24px;
+    }
+    
+    .arts-empty__icon {
+        font-size: 64px;
+    }
+    
+    .arts-empty__title {
+        font-size: 20px;
+    }
+    
+    .arts-empty__text {
+        font-size: 14px;
+    }
+    
+    .arts-empty__btn {
+        padding: 10px 24px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .arts-empty {
+        padding: 40px 20px;
+    }
+    
+    .arts-empty__icon {
+        font-size: 56px;
+    }
+    
+    .arts-empty__title {
+        font-size: 18px;
+    }
+}

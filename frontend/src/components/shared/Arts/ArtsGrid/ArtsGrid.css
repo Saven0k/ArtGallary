@@ -1,0 +1,92 @@
+/* ArtsGrid.css */
+
+/* List режим */
+.arts-grid--list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Masonry grid - основная магия здесь */
+.arts-grid--masonry {
+    display: flex;
+    margin-left: -30px;
+    width: auto;
+}
+
+.arts-grid--masonry-column {
+    padding-left: 30px;
+    background-clip: padding-box;
+}
+
+/* Каждая карточка в своей колонке, высота автоматическая */
+.arts-grid--masonry-column > .art-card {
+    margin-bottom: 30px;
+    break-inside: avoid;
+}
+
+/* Увеличенные карточки */
+.arts-grid--masonry-column .art-card {
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: white;
+}
+
+.arts-grid--masonry-column .art-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.arts-grid--masonry-column .art-card__image-wrapper {
+    aspect-ratio: 3 / 4;
+}
+
+.arts-grid--masonry-column .art-card__content {
+    padding: 16px;
+}
+
+/* Адаптив для отступов */
+@media (max-width: 1200px) {
+    .arts-grid--masonry {
+        margin-left: -25px;
+    }
+    .arts-grid--masonry-column {
+        padding-left: 25px;
+    }
+    .arts-grid--masonry-column > .art-card {
+        margin-bottom: 25px;
+    }
+}
+
+@media (max-width: 992px) {
+    .arts-grid--masonry {
+        margin-left: -20px;
+    }
+    .arts-grid--masonry-column {
+        padding-left: 20px;
+    }
+    .arts-grid--masonry-column > .art-card {
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .arts-grid--masonry {
+        margin-left: -12px;
+    }
+    .arts-grid--masonry-column {
+        padding-left: 12px;
+    }
+    .arts-grid--masonry-column > .art-card {
+        margin-bottom: 12px;
+    }
+    
+    .arts-grid--masonry-column .art-card__content {
+        padding: 12px;
+    }
+    
+    .arts-grid--masonry-column .art-card__title {
+        font-size: 14px;
+    }
+}

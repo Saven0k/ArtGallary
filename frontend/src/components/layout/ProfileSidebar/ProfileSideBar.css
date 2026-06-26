@@ -1,0 +1,660 @@
+/* ProfileSideBar.css */
+
+/* Основные стили */
+.sidebarProfile {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 380px;
+    height: 100vh;
+    background: #ffffff;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sidebarProfile--open {
+    transform: translateX(0);
+}
+
+.sidebarProfile--closing {
+    transform: translateX(100%);
+}
+
+/* Оверлей */
+.sidebarProfile__overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebarProfile__overlay--visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sidebarProfile__overlay--closing {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Хедер - исправлен для мобильных */
+.sidebarProfile__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fafafa;
+    flex-shrink: 0;
+    gap: 12px;
+}
+
+.sidebarProfile__user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.sidebarProfile__avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e9ecef;
+    flex-shrink: 0;
+    transition: 0.3s;
+    font-size: 18px;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebarProfile__avatar:hover {
+    font-size: 25px;
+}
+
+.sidebarProfile__user-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.sidebarProfile__user-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 4px 0;
+    line-height: 1.2;
+    word-wrap: break-word;
+}
+
+.sidebarProfile__user-email {
+    font-size: 13px;
+    color: #718096;
+    margin: 0;
+    line-height: 1.3;
+    word-wrap: break-word;
+}
+
+.sidebarProfile__close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #a0aec0;
+    cursor: pointer;
+    padding: 8px;
+    margin: -8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.sidebarProfile__close:hover {
+    color: #718096;
+    background: #f7fafc;
+}
+
+.sidebarProfile__close:active {
+    transform: scale(0.95);
+}
+
+/* Навигация */
+.sidebarProfile__nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 transparent;
+}
+
+.sidebarProfile__nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebarProfile__nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebarProfile__nav::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 2px;
+}
+
+.sidebarProfile__section {
+    margin: 20px 0;
+}
+
+.sidebarProfile__section:first-child {
+    margin-top: 0;
+}
+
+.sidebarProfile__section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #a0aec0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 12px 8px;
+    user-select: none;
+}
+
+.sidebarProfile__menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebarProfile__menu-item {
+    margin: 2px 0;
+}
+
+.sidebarProfile__link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    text-decoration: none;
+    color: #4a5568;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.sidebarProfile__link:hover {
+    background: #f7fafc;
+    color: #2d3748;
+    transform: translateX(2px);
+}
+
+.sidebarProfile__icon {
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.sidebarProfile__label {
+    font-size: 14px;
+    font-weight: 500;
+    flex: 1;
+    text-align: left;
+}
+
+.sidebarProfile__badge {
+    background: #e53e3e;
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+}
+
+/* Футер */
+.sidebarProfile__footer {
+    border-top: 1px solid #f0f0f0;
+    padding: 16px 20px;
+    background: #fafafa;
+    flex-shrink: 0;
+}
+
+.sidebarProfile__actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.sidebarProfile__action-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    color: #4a5568;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.sidebarProfile__action-btn:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+}
+
+.sidebarProfile__action-btn--secondary {
+    background: #f7fafc;
+    color: #4a5568;
+}
+
+.sidebarProfile__action-btn--danger {
+    background: #fed7d7;
+    color: #c53030;
+    border-color: #feb2b2;
+}
+
+.sidebarProfile__action-btn--danger:hover {
+    background: #feb2b2;
+    color: #9b2c2c;
+}
+
+/* Гостевой режим */
+.sidebarProfile__guest-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.sidebarProfile__guest-icon {
+    font-size: 2rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebarProfile__guest-title {
+    color: #2d3748;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.sidebarProfile__guest-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    flex: 1;
+    justify-content: center;
+}
+
+.sidebarProfile__guest-message {
+    margin-bottom: 2rem;
+}
+
+.sidebarProfile__guest-subtitle {
+    color: #2d3748;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+}
+
+.sidebarProfile__guest-text {
+    color: #718096;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.sidebarProfile__guest-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    width: 100%;
+    max-width: 250px;
+    margin-bottom: 2rem;
+}
+
+.sidebarProfile__login-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0.8rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sidebarProfile__login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.sidebarProfile__guest-btn {
+    background: transparent;
+    color: #667eea;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 0.8rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sidebarProfile__guest-btn:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+}
+
+/* Баннер модерации */
+.sidebarProfile__moderation-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff9e6, #fff3cd);
+    border-left: 4px solid #f59e0b;
+    border-radius: 12px;
+}
+
+.sidebarProfile__moderation-icon {
+    font-size: 28px;
+}
+
+.sidebarProfile__moderation-text h4 {
+    margin: 0 0 4px 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #92400e;
+}
+
+.sidebarProfile__moderation-text p {
+    margin: 0;
+    font-size: 11px;
+    color: #78350f;
+}
+
+/* Мета информация */
+.sidebarProfile__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.sidebarProfile__meta-link {
+    font-size: 11px;
+    color: #718096;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.sidebarProfile__meta-link:hover {
+    color: #4a5568;
+    text-decoration: underline;
+}
+
+.sidebarProfile__version {
+    font-size: 10px;
+    color: #a0aec0;
+    font-family: monospace;
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 768px) {
+    .sidebarProfile {
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .sidebarProfile__header {
+        padding: 16px 20px;
+    }
+
+    .sidebarProfile__user-name {
+        font-size: 15px;
+    }
+
+    .sidebarProfile__user-email {
+        font-size: 12px;
+    }
+
+    .sidebarProfile__avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .sidebarProfile__close {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+        padding: 6px;
+        margin: -6px;
+    }
+
+    .sidebarProfile__nav {
+        padding: 12px;
+    }
+
+    .sidebarProfile__footer {
+        padding: 12px 16px;
+    }
+
+    .sidebarProfile__actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .sidebarProfile__guest-content {
+        padding: 1.5rem 1rem;
+    }
+
+    .sidebarProfile__guest-subtitle {
+        font-size: 1.2rem;
+    }
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    .sidebarProfile {
+        background: #1a202c;
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebarProfile__header,
+    .sidebarProfile__footer {
+        background: #2d3748;
+        border-color: #4a5568;
+    }
+
+    .sidebarProfile__user-name {
+        color: #e2e8f0;
+    }
+
+    .sidebarProfile__user-email {
+        color: #a0aec0;
+    }
+
+    .sidebarProfile__close {
+        color: #718096;
+    }
+
+    .sidebarProfile__close:hover {
+        color: #e2e8f0;
+        background: #4a5568;
+    }
+
+    .sidebarProfile__section-title {
+        color: #718096;
+    }
+
+    .sidebarProfile__link {
+        color: #cbd5e0;
+    }
+
+    .sidebarProfile__link:hover {
+        background: #2d3748;
+        color: #e2e8f0;
+    }
+
+    .sidebarProfile__action-btn {
+        background: #2d3748;
+        color: #cbd5e0;
+        border-color: #4a5568;
+    }
+
+    .sidebarProfile__action-btn:hover {
+        background: #4a5568;
+    }
+
+    .sidebarProfile__guest-title {
+        color: #e2e8f0;
+    }
+
+    .sidebarProfile__guest-subtitle {
+        color: #f7fafc;
+    }
+
+    .sidebarProfile__guest-text {
+        color: #a0aec0;
+    }
+
+    .sidebarProfile__guest-btn {
+        color: #90cdf4;
+        border-color: #4a5568;
+    }
+
+    .sidebarProfile__meta-link {
+        color: #718096;
+    }
+
+    .sidebarProfile__meta-link:hover {
+        color: #cbd5e0;
+    }
+}
+
+/* Фокус состояния */
+.sidebarProfile__link:focus-visible,
+.sidebarProfile__action-btn:focus-visible,
+.sidebarProfile__close:focus-visible {
+    outline: 2px solid #4299e1;
+    outline-offset: 2px;
+}
+
+
+/* Benefits.css - добавь в ProfileSideBar.css */
+
+.sidebarProfile__guest-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.sidebarProfile__benefit {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f7fafc;
+    border-radius: 12px;
+    color: #4a5568;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sidebarProfile__benefit-icon {
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+}
+
+.sidebarProfile__benefit:hover {
+    background: #edf2f7;
+    transform: translateX(4px);
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    .sidebarProfile__benefit {
+        background: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .sidebarProfile__benefit-icon {
+        background: #4a5568;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .sidebarProfile__benefit:hover {
+        background: #4a5568;
+    }
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 768px) {
+    .sidebarProfile__guest-benefits {
+        gap: 10px;
+    }
+    
+    .sidebarProfile__benefit {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+    
+    .sidebarProfile__benefit-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+    }
+}

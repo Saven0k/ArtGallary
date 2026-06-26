@@ -1,0 +1,1079 @@
+
+
+/* Дополнительные стили для админки */
+
+.admin-table__col-id {
+    width: 60px;
+}
+
+.admin-table__col-name,
+.admin-table__col-title {
+    min-width: 180px;
+}
+
+.admin-table__col-email {
+    min-width: 200px;
+}
+
+.admin-table__col-phone,
+.admin-table__col-city {
+    min-width: 130px;
+}
+
+.admin-table__col-date,
+.admin-table__col-cost,
+.admin-table__col-visitors {
+    min-width: 100px;
+}
+
+.admin-table__col-status {
+    width: 100px;
+    text-align: center;
+}
+
+.admin-table__col-address {
+    min-width: 200px;
+}
+
+.admin-table__col-owner {
+    min-width: 150px;
+}
+
+/* Admin View styles */
+.admin-view__section {
+    margin-bottom: 20px;
+}
+
+.admin-view__section h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4a5568;
+    margin: 0 0 12px 0;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-view__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.admin-view__item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    background: #f7fafc;
+    border-radius: 12px;
+}
+
+.admin-view__label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #718096;
+    letter-spacing: 0.5px;
+}
+
+.admin-view__value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2d3748;
+    word-break: break-word;
+}
+
+.admin-view__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-view__tag {
+    padding: 4px 12px;
+    background: #edf2f7;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #4a5568;
+}
+
+/* Empty state */
+.admin-empty {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 20px;
+}
+
+.admin-empty__icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.admin-empty h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 8px;
+}
+
+.admin-empty p {
+    color: #718096;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .admin-view__grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-table {
+        min-width: 800px;
+    }
+}
+
+/* ---------- AdminPage.css (добавь в конец файла) ---------- */
+
+/* Стили для модерации картин */
+.admin-page {
+    animation: fadeIn 0.3s ease;
+}
+
+.admin-page__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.admin-page__header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+}
+
+.admin-page__count {
+    padding: 6px 16px;
+    background: #edf2f7;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.admin-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    font-size: 18px;
+    color: #718096;
+    gap: 12px;
+}
+
+/* Кнопки в таблице */
+.admin-table__view,
+.admin-table__approve,
+.admin-table__reject {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.admin-table__view {
+    background: #edf2f7;
+    color: #4a5568;
+}
+
+.admin-table__view:hover {
+    background: #4a5568;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.admin-table__approve {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.admin-table__approve:hover {
+    background: #059669;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+}
+
+.admin-table__reject {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.admin-table__reject:hover {
+    background: #dc2626;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+/* Админ вью (модальное окно) */
+.admin-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.admin-view__image {
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.admin-view p {
+    margin: 0;
+    line-height: 1.5;
+    color: #2d3748;
+}
+
+.admin-view p strong {
+    color: #4a5568;
+    font-weight: 600;
+    min-width: 100px;
+    display: inline-block;
+}
+
+/* Адаптив для модального окна */
+@media (max-width: 768px) {
+    .admin-view__image {
+        max-height: 200px;
+    }
+    
+    .admin-view p strong {
+        display: block;
+        margin-bottom: 4px;
+    }
+}
+
+/* Пустое состояние */
+.admin-empty {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 20px;
+    animation: slideUp 0.4s ease;
+}
+
+.admin-empty__icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.7;
+}
+
+.admin-empty h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 8px;
+}
+
+.admin-empty p {
+    color: #718096;
+    font-size: 14px;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для таблицы модерации */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.admin-table th {
+    text-align: left;
+    padding: 16px 20px;
+    background: #f7fafc;
+    font-weight: 600;
+    color: #4a5568;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid #edf2f7;
+    color: #2d3748;
+}
+
+.admin-table tr:hover {
+    background: #f7fafc;
+}
+
+.admin-table__actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Скролл для таблицы на мобилках */
+@media (max-width: 768px) {
+    .admin-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .admin-table th,
+    .admin-table td {
+        padding: 12px 16px;
+    }
+    
+    .admin-table__actions {
+        white-space: normal;
+    }
+}
+
+/* Стили для модального окна */
+.admin-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+.admin-modal__content {
+    background: white;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+}
+
+.admin-modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.admin-modal__header h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.admin-modal__close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.admin-modal__close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.admin-modal__body {
+    padding: 24px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.admin-modal__footer {
+    display: flex;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid #e2e8f0;
+    background: #f7fafc;
+}
+
+.admin-modal__cancel,
+.admin-modal__save {
+    flex: 1;
+    padding: 10px;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.admin-modal__cancel {
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #4a5568;
+}
+
+.admin-modal__cancel:hover {
+    background: #edf2f7;
+}
+
+.admin-modal__save {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    color: white;
+}
+
+.admin-modal__save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Дополнительные стили для модального окна с полной информацией */
+
+.admin-view__section {
+    margin-bottom: 20px;
+}
+
+.admin-view__section h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4a5568;
+    margin: 0 0 12px 0;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-view__description {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #2d3748;
+    margin: 0;
+}
+
+.admin-view__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.admin-view__item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    background: #f7fafc;
+    border-radius: 12px;
+}
+
+.admin-view__label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #718096;
+    letter-spacing: 0.5px;
+}
+
+.admin-view__value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.admin-view__metadata {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+}
+
+.admin-view__metadata-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f7fafc;
+    border-radius: 10px;
+}
+
+.admin-view__metadata-key {
+    font-size: 11px;
+    font-weight: 600;
+    color: #718096;
+    text-transform: uppercase;
+}
+
+.admin-view__metadata-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.admin-view__artist {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background: #f7fafc;
+    border-radius: 12px;
+}
+
+.admin-view__artist-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.admin-view__artist-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.admin-view__artist-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+}
+
+.admin-view__artist-info {
+    flex: 1;
+}
+
+.admin-view__artist-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 2px;
+}
+
+.admin-view__artist-email {
+    font-size: 12px;
+    color: #718096;
+}
+
+.admin-view__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-view__tag {
+    padding: 4px 12px;
+    background: #edf2f7;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #4a5568;
+}
+
+.admin-view__location {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 8px 12px;
+    background: #f7fafc;
+    border-radius: 12px;
+    font-size: 14px;
+    color: #4a5568;
+}
+
+.admin-view__image-wrapper {
+    margin-bottom: 16px;
+}
+
+.admin-view__image {
+    width: 100%;
+    max-height: 350px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+}
+
+@media (max-width: 768px) {
+    .admin-view__grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-view__image {
+        max-height: 250px;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===== СТИЛИ ДЛЯ АВАТАРКИ В МОДАЛКЕ (ДОБАВИТЬ В КОНЕЦ ФАЙЛА) ===== */
+
+.admin-view__avatar-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.admin-view__avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+    background: #f0f0f0;
+}
+
+.admin-view__avatar-wrapper:hover {
+    transform: scale(1.02);
+}
+
+.admin-view__avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.admin-view__avatar-expand {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 1000;
+}
+
+.admin-view__avatar-expand:hover {
+    background: #667eea;
+    transform: scale(1.05);
+}
+
+.admin-view__avatar-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 24px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.admin-view__avatar-placeholder-icon {
+    font-size: 32px;
+}
+
+.admin-view__avatar-placeholder-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+}
+
+/* Fullscreen Avatar Modal */
+.fullscreen-avatar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    animation: fadeIn 0.3s ease;
+}
+
+.fullscreen-avatar__content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-avatar__content img {
+    width: 80%;
+    height: auto;
+    max-width: 85vw;
+    max-height: 85vh;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    animation: zoomIn 0.3s ease;
+    object-fit: contain;
+}
+
+.fullscreen-avatar__close {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    color: white;
+    border: 2px solid white;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-avatar__close:hover {
+    background: #f56565;
+    transform: scale(1.05);
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-view__avatar-wrapper {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .admin-view__avatar-placeholder {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .admin-view__avatar-placeholder-icon {
+        font-size: 28px;
+    }
+    
+    .admin-view__avatar-placeholder-text {
+        font-size: 18px;
+    }
+    
+    .fullscreen-avatar__close {
+        top: -35px;
+        right: -5px;
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+    }
+    
+    .fullscreen-avatar__content img {
+        max-width: 75%;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-view__avatar-wrapper {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .admin-view__avatar-placeholder {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .admin-view__avatar-placeholder-icon {
+        font-size: 24px;
+    }
+    
+    .admin-view__avatar-placeholder-text {
+        font-size: 16px;
+    }
+}
+
+
+
+
+
+
+/* ---------- Стили для модалки отклонения ---------- */
+
+.admin-reject {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.admin-reject__warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    border-radius: 12px;
+    font-size: 14px;
+    color: #92400e;
+    margin: 0;
+}
+
+.admin-reject__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.admin-reject__field {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+}
+
+.admin-reject__field-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-reject__field-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-reject__add-error {
+    padding: 4px 12px;
+    background: #e2e8f0;
+    border: none;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-reject__add-error:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.admin-reject__field-value {
+    font-size: 14px;
+    color: #1e293b;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+/* Список ошибок */
+.admin-reject__errors {
+    background: #fef2f2;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #fecaca;
+}
+
+.admin-reject__errors h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #991b1b;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-reject__error-item {
+    background: white;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #fecaca;
+}
+
+.admin-reject__error-item:last-child {
+    margin-bottom: 0;
+}
+
+.admin-reject__error-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.admin-reject__error-field {
+    font-size: 12px;
+    font-weight: 600;
+    color: #dc2626;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-reject__error-remove {
+    padding: 4px 8px;
+    background: #fee2e2;
+    border: none;
+    border-radius: 16px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #dc2626;
+}
+
+.admin-reject__error-remove:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.admin-reject__error-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+    transition: all 0.2s ease;
+}
+
+.admin-reject__error-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+/* Общий комментарий */
+.admin-reject__global {
+    margin-top: 4px;
+}
+
+.admin-reject__global-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+}
+
+.admin-reject__global-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    transition: all 0.2s ease;
+}
+
+.admin-reject__global-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+/* Адаптив */
+@media (max-width: 640px) {
+    .admin-reject__field-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .admin-reject__add-error {
+        align-self: flex-start;
+    }
+    
+    .admin-reject__error-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

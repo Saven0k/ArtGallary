@@ -1,0 +1,47 @@
+.artist-stats {
+    display: flex;
+    justify-content: flex-start;
+    gap: 48px;
+}
+
+.artist-stats__item {
+    text-align: center;
+}
+
+.artist-stats__value {
+    display: block;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.artist-stats__label {
+    display: block;
+    font-size: 14px;
+    opacity: 0.8;
+    margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+    .artist-stats {
+        justify-content: center;
+        gap: 32px;
+    }
+
+    .artist-stats__value {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .artist-stats {
+        gap: 24px;
+    }
+
+    .artist-stats__value {
+        font-size: 24px;
+    }
+
+    .artist-stats__label {
+        font-size: 12px;
+    }
+}

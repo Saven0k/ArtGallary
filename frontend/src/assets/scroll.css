@@ -1,0 +1,264 @@
+/* ============================================
+   ПРЕМИУМ КАСТОМНЫЙ СКРОЛЛБАР
+   Дизайн с эффектами свечения и градиентами
+   ============================================ */
+
+/* Основные настройки для всех элементов */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(102, 126, 234, 0.5) rgba(226, 232, 240, 0.5);
+}
+
+/* WebKit браузеры - базовая настройка */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+/* Дорожка скроллбара - полупрозрачная */
+::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.4);
+    border-radius: 20px;
+    margin: 4px;
+}
+
+/* Ползунок скроллбара - основной */
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+/* Эффект свечения при наведении */
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%);
+    box-shadow: 0 0 6px rgba(102, 126, 234, 0.5);
+}
+
+/* Эффект при нажатии */
+::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(135deg, #4c51bf 0%, #5a3d8c 100%);
+}
+
+/* Уголок для двойной прокрутки */
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* ============================================
+   ТЕМНАЯ ТЕМА - НЕОН
+   ============================================ */
+
+[data-theme="dark"] * {
+    scrollbar-color: rgba(102, 126, 234, 0.6) rgba(30, 41, 59, 0.5);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.5);
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 0 4px rgba(102, 126, 234, 0.3);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #818cf8 0%, #a855f7 100%);
+    box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(135deg, #6366f1 0%, #9333ea 100%);
+}
+
+/* ============================================
+   ПРЕМИУМ ЭФФЕКТЫ
+   ============================================ */
+
+/* Анимация появления с эффектом затухания */
+@keyframes scrollAppear {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+::-webkit-scrollbar-thumb {
+    animation: scrollAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Эффект стекла для дорожки */
+::-webkit-scrollbar-track {
+    backdrop-filter: blur(4px);
+}
+
+/* ============================================
+   СПЕЦИАЛЬНЫЕ СЕКЦИИ
+   ============================================ */
+
+/* Сайдбары - более тонкий скролл */
+.sidebar::-webkit-scrollbar,
+.sidebarProfile__nav::-webkit-scrollbar,
+aside::-webkit-scrollbar {
+    width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.sidebarProfile__nav::-webkit-scrollbar-track,
+aside::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.3);
+    margin: 8px 0;
+}
+
+/* Модальные окна */
+.modal-content::-webkit-scrollbar,
+.modal__content::-webkit-scrollbar,
+.overlay-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track,
+.modal__content::-webkit-scrollbar-track,
+.overlay-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Чат сообщения - фиолетовая тема */
+.chat-messages::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.3);
+    border-radius: 12px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
+}
+
+/* Сетка галереи */
+.arts-grid--masonry-column::-webkit-scrollbar {
+    width: 4px;
+}
+
+.arts-grid--masonry-column::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.2);
+    border-radius: 10px;
+}
+
+/* Таблицы - горизонтальный скролл */
+.table-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.3);
+    border-radius: 10px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Текстовые поля */
+textarea::-webkit-scrollbar {
+    width: 6px;
+}
+
+textarea::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.3);
+    border-radius: 8px;
+    margin: 4px;
+}
+
+/* Выпадающие списки */
+.dropdown-menu::-webkit-scrollbar,
+select::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* ============================================
+   СКРОЛЛ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ
+   ============================================ */
+
+@media (max-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        margin: 2px;
+    }
+}
+
+/* ============================================
+   ПРОИЗВОДИТЕЛЬНОСТЬ И ПЛАВНОСТЬ
+   ============================================ */
+
+/* Плавный скролл для всей страницы */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Инерционный скролл для iOS */
+body {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Аппаратное ускорение для анимаций */
+::-webkit-scrollbar-thumb {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* ============================================
+   FIREFOX - ПОДДЕРЖКА
+   ============================================ */
+
+@supports (scrollbar-width: auto) {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #667eea #e2e8f0;
+    }
+    
+    [data-theme="dark"] * {
+        scrollbar-color: #667eea #1e293b;
+    }
+}
+
+/* ============================================
+   ДОПОЛНИТЕЛЬНЫЕ ЭФФЕКТЫ (опционально)
+   ============================================ */
+
+/* Эффект пульсации при наведении */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.sidebarProfile__nav::-webkit-scrollbar-thumb:hover {
+    animation: pulse 0.5s ease;
+}
+
+/* Градиентная кайма при наведении */
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Прозрачный трек для сайдбаров в темной теме */
+[data-theme="dark"] .sidebar::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.3);
+}
