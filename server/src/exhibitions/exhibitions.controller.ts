@@ -19,7 +19,6 @@ export class ExhibitionsController {
 
     constructor(private exhibitionsService: ExhibitionsService) { }
 
-    // ============ СТАТИЧЕСКИЕ GET РОУТЫ (конкретные пути) ============
 
     @ApiOperation({ summary: 'Получение списка выставок с пагинацией' })
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
@@ -63,7 +62,6 @@ export class ExhibitionsController {
         return this.exhibitionsService.getUserRegisteredExhibitions(userId, lang);
     }
 
-    // ============ ДИНАМИЧЕСКИЕ GET РОУТЫ (с параметрами) ============
 
     @ApiOperation({ summary: 'Получение выставки по ID' })
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
@@ -132,7 +130,6 @@ export class ExhibitionsController {
         return this.exhibitionsService.getAllArtistExhibitions(+artistId, lang);
     }
 
-    // ============ POST РОУТЫ ============
 
     @ApiOperation({ summary: 'Создание выставки' })
     @UsePipes(ValidationPipe)
@@ -208,7 +205,6 @@ export class ExhibitionsController {
         return this.exhibitionsService.update(id, dto, image, userId);
     }
 
-    // ============ DELETE РОУТЫ ============
 
     @ApiOperation({ summary: 'Удаление выставки по ID' })
     @ApiParam({ name: 'id', type: Number, description: 'ID выставки' })

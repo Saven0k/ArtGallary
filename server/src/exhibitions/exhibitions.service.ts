@@ -1,9 +1,8 @@
-// exhibitions.service.ts
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/sequelize';
 import { Exhibition } from './exhibition.model';
 import { ExhibitionArt } from './exhibition-art.model';
-import { Sequelize, Op } from 'sequelize';
+import { Sequelize, Op, Transaction } from 'sequelize';
 import { FilesService } from '../files/files.service';
 import { CreateExhibitionDto } from './dto/create-exhibition.dto';
 import { UpdateExhibitionDto } from './dto/update-exhibition.dto';
@@ -35,59 +34,34 @@ export class ExhibitionsService {
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
         private translationService: TranslationService,
         private locationService: LocationService,
-    ) { }
+    ) {}
+
+    // ============ CRUD ОПЕРАЦИИ ============
 
     async create(dto: CreateExhibitionDto, image?: any) {
-        let userId = Number(dto.owner_id);
-        this.logger.log('info', JSON.stringify({
-            message: '🚀 Создание новой выставки',
-            context: 'ExhibitionsService.create',
-            title: dto.title,
-            userId: userId
-        }));
-
-        if (dto.country_id) {
-            await this.locationService.validateLocation(dto.country_id, dto.city_id);
-        }
+        const userId = Number(dto.owner_id);
+        this.log('create', { userId });
+        
+        if (dto.country_id) await this.locationService.validateLocation(dto.country_id, dto.city_id);
 
         const transaction = await this.sequelize.transaction();
-
         try {
-            const artistProfile = await this.artistRepository.findOne({
-                where: { user_id: userId }
-            });
+            const artistProfile = await this.getArtistProfile(userId, transaction);
+            if (!artistProfile) throw new HttpException('Профиль художника не найден', 404);
 
-            if (!artistProfile) {
-                throw new HttpException('Профиль художника не найден', 404);
-            }
-
-            let imageUrl = "";
-
-            if (image) {
-                imageUrl = await this.fileService.createFile(image);
-            }
-
-            const moderateObject = {
-                moderate: false,
-                moderator_id: null,
-                errors: {},
-                moderated_at: null,
-                comment: null
-            };
+            const imageUrl = image ? await this.fileService.createFile(image) : "";
 
             const exhibition = await this.exhibitionRepository.create({
-                title: dto.title,
-                description: dto.description,
-                address: dto.address,
-                date: dto.date,
-                cost: dto.cost,
-                currency: dto.currency,
-                moderate: JSON.stringify(moderateObject),
-                city_id: dto.city_id,
-                country_id: dto.country_id,
-                genre_id: dto.genre_id,
+                ...this.pick(dto, ['title', 'description', 'address', 'date', 'cost', 'currency', 'city_id', 'country_id', 'genre_id']),
                 image_path: imageUrl,
-                owner_id: userId
+                owner_id: userId,
+                moderate: JSON.stringify({
+                    moderate: false,
+                    moderator_id: null,
+                    errors: {},
+                    moderated_at: null,
+                    comment: null
+                })
             }, { transaction });
 
             await this.exhibitionArtistRepository.create({
@@ -96,619 +70,224 @@ export class ExhibitionsService {
             } as any, { transaction });
 
             await transaction.commit();
-
-            const exhibitionJson = exhibition.toJSON();
-            if (exhibitionJson.moderate) {
-                try {
-                    exhibitionJson.moderate = JSON.parse(exhibitionJson.moderate);
-                } catch (e) {
-                    exhibitionJson.moderate = null;
-                }
-            }
-
-            return exhibitionJson;
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при создании выставки',
-                context: 'ExhibitionsService.create',
-                error: e.message
-            }));
-
+            return this.formatExhibitionResponse(exhibition);
+        } catch (e) {
             await transaction.rollback();
-            throw new HttpException(`Ошибка создания выставки: ${e.message}`, 400);
+            this.handleError('create', e);
         }
     }
 
     async update(id: number, dto: UpdateExhibitionDto, image?: any, userId?: number) {
-        if (!dto) {
-            throw new HttpException('Нет данных для обновления', 400);
-        }
-
-        if (!userId) {
-            throw new HttpException('Не авторизован', 401);
-        }
-
-        if (dto.country_id) {
-            await this.locationService.validateLocation(dto.country_id, dto.city_id);
-        }
+        if (!dto) throw new HttpException('Нет данных для обновления', 400);
+        if (!userId) throw new HttpException('Не авторизован', 401);
+        if (dto.country_id) await this.locationService.validateLocation(dto.country_id, dto.city_id);
 
         try {
-            const exhibition = await this.exhibitionRepository.findByPk(id);
-
-            if (!exhibition) {
-                throw new HttpException('Выставка не найдена', 404);
-            }
-
-            let artistProfile = await this.artistRepository.findOne({
-                where: { user_id: userId }
-            });
-
-            if (!artistProfile) {
-                artistProfile = await this.artistRepository.create({
-                    user_id: userId,
-                    biography: '',
-                    date_birthday: null
-                } as any);
-            }
-
-            const isOwner = exhibition.owner_id === artistProfile.id;
-            const isOwnerByUserId = exhibition.owner_id === userId;
-
-            if (!isOwner && !isOwnerByUserId) {
+            const exhibition = await this.getExhibition(id);
+            const artistProfile = await this.getOrCreateArtistProfile(userId);
+            
+            if (!this.isOwner(exhibition, artistProfile, userId)) {
                 throw new HttpException('У вас нет прав на редактирование этой выставки', 403);
             }
 
-            const updateData: any = {};
-
-            if (dto.title !== undefined && dto.title !== null) updateData.title = dto.title;
-            if (dto.description !== undefined && dto.description !== null) updateData.description = dto.description;
-            if (dto.address !== undefined && dto.address !== null) updateData.address = dto.address;
-            if (dto.date !== undefined && dto.date !== null) updateData.date = dto.date;
-            if (dto.cost !== undefined && dto.cost !== null) updateData.cost = dto.cost;
-            if (dto.currency !== undefined && dto.currency !== null) updateData.currency = dto.currency;
-            if (dto.visitors_count !== undefined && dto.visitors_count !== null) updateData.visitors_count = dto.visitors_count;
-            if (dto.city_id !== undefined && dto.city_id !== null) updateData.city_id = dto.city_id;
-            if (dto.country_id !== undefined && dto.country_id !== null) updateData.country_id = dto.country_id;
-            if (dto.genre_id !== undefined && dto.genre_id !== null) updateData.genre_id = dto.genre_id;
-            if (dto.likes !== undefined && dto.likes !== null) updateData.likes = dto.likes;
-            if (dto.views !== undefined && dto.views !== null) updateData.views = dto.views;
-
-            if (image) {
-                const newImageUrl = await this.fileService.createFile(image);
-                updateData.image_path = newImageUrl;
-                if (exhibition.image_path) {
-                    this.fileService.removeFile(exhibition.image_path).catch(console.error);
-                }
+            const updateData = await this.buildUpdateData(dto, image, exhibition);
+            if (Object.keys(updateData).length) {
+                await this.exhibitionRepository.update(updateData, { where: { id } });
             }
 
-            if (Object.keys(updateData).length > 0) {
-                await this.exhibitionRepository.update(updateData, {
-                    where: { id }
-                });
-            }
+            await this.updateRelations(id, dto, exhibition, artistProfile);
 
-            if (dto.artist_ids !== undefined && Array.isArray(dto.artist_ids)) {
-                await this.exhibitionUserRepository.destroy({
-                    where: { exhibition_id: id }
-                });
-
-                const ownerId = isOwner ? exhibition.owner_id : artistProfile.id;
-                const allArtistIds = [...new Set([ownerId, ...dto.artist_ids])];
-
-                for (const artistId of allArtistIds) {
-                    if (artistId && !isNaN(artistId)) {
-                        await this.exhibitionUserRepository.create({
-                            exhibition_id: id,
-                            artist_id: artistId
-                        } as any);
-                    }
-                }
-            }
-
-            if (dto.art_ids !== undefined && Array.isArray(dto.art_ids)) {
-                await this.exhibitionArtRepository.destroy({
-                    where: { exhibition_id: id }
-                });
-
-                for (const artId of dto.art_ids) {
-                    if (artId && !isNaN(artId)) {
-                        await this.exhibitionArtRepository.create({
-                            exhibition_id: id,
-                            art_id: artId
-                        } as any);
-                    }
-                }
-            }
-
-            const updatedExhibition = await this.exhibitionRepository.findByPk(id);
-
-            return updatedExhibition;
-
-        } catch (e: any) {
-            if (e instanceof HttpException) {
-                throw e;
-            }
-
-            throw new HttpException(`Ошибка обновления выставки: ${e.message}`, 400);
+            return this.getExhibition(id);
+        } catch (e) {
+            this.handleError('update', e);
         }
     }
 
     async remove(id: number) {
-        this.logger.log('info', JSON.stringify({
-            message: '🗑️ Удаление выставки',
-            context: 'ExhibitionsService.remove',
-            exhibitionId: id
-        }));
+        this.log('remove', { exhibitionId: id });
 
         const transaction = await this.sequelize.transaction();
-
         try {
-            const exhibition = await this.exhibitionRepository.findByPk(id);
+            const exhibition = await this.getExhibition(id);
+            if (!exhibition) throw new NotFoundException(`Выставка с ID ${id} не найдена`);
 
-            if (!exhibition) {
-                throw new NotFoundException(`Выставка с ID ${id} не найдена`);
-            }
-
-            await this.exhibitionArtistRepository.destroy({
-                where: { exhibition_id: id },
-                transaction
-            });
-
-            await this.exhibitionArtRepository.destroy({
-                where: { exhibition_id: id },
-                transaction
-            });
-
-            const deletedCount = await this.exhibitionRepository.destroy({
-                where: { id },
-                transaction
-            });
-
-            if (deletedCount === 0) {
-                throw new HttpException('Не удалось удалить выставку', 400);
-            }
+            await this.exhibitionArtistRepository.destroy({ where: { exhibition_id: id }, transaction });
+            await this.exhibitionArtRepository.destroy({ where: { exhibition_id: id }, transaction });
+            await this.exhibitionRepository.destroy({ where: { id }, transaction });
 
             await transaction.commit();
-
             return { success: true, message: 'Выставка удалена' };
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при удалении выставки',
-                context: 'ExhibitionsService.remove',
-                exhibitionId: id,
-                error: e.message,
-                stack: e.stack
-            }));
-
+        } catch (e) {
             await transaction.rollback();
-            throw new HttpException(
-                `Ошибка при удалении выставки: ${e.message}`,
-                HttpStatus.INTERNAL_SERVER_ERROR
-            );
+            this.handleError('remove', e);
         }
     }
 
-    async addArt(exhibition_id: number, art_id: number) {
-        this.logger.log('info', JSON.stringify({
-            message: '➕ Добавление картины на выставку',
-            context: 'ExhibitionsService.addArt',
-            exhibitionId: exhibition_id,
-            artId: art_id
-        }));
+    // ============ УПРАВЛЕНИЕ СВЯЗЯМИ ============
+
+    async addArt(exhibitionId: number, artId: number) {
+        return this.manageRelation(exhibitionId, artId, 'art', 'add');
+    }
+
+    async deleteArt(exhibitionId: number, artId: number) {
+        return this.manageRelation(exhibitionId, artId, 'art', 'remove');
+    }
+
+    async addArtist(exhibitionId: number, artistId: number) {
+        return this.manageRelation(exhibitionId, artistId, 'artist', 'add');
+    }
+
+    async deleteArtist(exhibitionId: number, artistId: number) {
+        return this.manageRelation(exhibitionId, artistId, 'artist', 'remove');
+    }
+
+    private async manageRelation(exhibitionId: number, relatedId: number, type: 'art' | 'artist', action: 'add' | 'remove') {
+        this.log(`${action}${type}`, { exhibitionId, relatedId });
 
         const transaction = await this.sequelize.transaction();
-
         try {
-            const exhibition = await this.exhibitionRepository.findByPk(exhibition_id, { transaction });
+            const exhibition = await this.getExhibition(exhibitionId);
+            if (!exhibition) throw new NotFoundException(`Выставка с ID ${exhibitionId} не найдена`);
 
-            if (!exhibition) {
-                throw new NotFoundException(`Выставка с ID ${exhibition_id} не найдена`);
+            if (type === 'art') {
+                await this.manageArtRelation(exhibitionId, relatedId, action, transaction);
+            } else {
+                await this.manageArtistRelation(exhibitionId, relatedId, action, transaction);
             }
 
-            const art = await this.artRepository.findByPk(art_id, { transaction });
+            await transaction.commit();
+            return { success: true };
+        } catch (e) {
+            await transaction.rollback();
+            this.handleError(`${action}${type}`, e);
+        }
+    }
 
-            if (!art) {
-                throw new NotFoundException(`Арт с ID ${art_id} не найден`);
-            }
+    private async manageArtRelation(exhibitionId: number, artId: number, action: 'add' | 'remove', transaction: Transaction) {
+        const exists = await this.exhibitionArtRepository.findOne({
+            where: { exhibition_id: exhibitionId, art_id: artId },
+            transaction
+        });
 
-            const exhibitionRelative = await this.exhibitionArtRepository.findOne({
-                where: {
-                    exhibition_id,
-                    art_id
-                }, transaction
-            });
+        if (action === 'add' && exists) {
+            throw new HttpException('Картина уже добавлена', 400);
+        }
+        if (action === 'remove' && !exists) {
+            throw new HttpException('Картина не найдена', 400);
+        }
 
-            if (exhibitionRelative) {
-                throw new HttpException(`Выставка с ID ${exhibition_id} уже содержит арт с ID ${art_id}`, 400);
-            }
-
+        if (action === 'add') {
             await this.exhibitionArtRepository.create({
-                exhibition_id: exhibition_id,
-                art_id: art_id
-            } as any, { transaction });
-
-            await transaction.commit();
-
-            return { success: true };
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при добавлении картины на выставку',
-                context: 'ExhibitionsService.addArt',
-                exhibitionId: exhibition_id,
-                artId: art_id,
-                error: e.message,
-                stack: e.stack
-            }));
-
-            await transaction.rollback();
-            throw new HttpException(
-                `Ошибка при добавлении картины на выставку: ${e.message}`,
-                HttpStatus.INTERNAL_SERVER_ERROR
-            );
-        }
-    }
-
-    async deleteArt(exhibition_id: number, art_id: number) {
-        this.logger.log('warn', JSON.stringify({
-            message: '➖ Удаление картины с выставки',
-            context: 'ExhibitionsService.deleteArt',
-            exhibitionId: exhibition_id,
-            artId: art_id
-        }));
-
-        const transaction = await this.sequelize.transaction();
-
-        try {
-            const exhibition = await this.exhibitionRepository.findByPk(exhibition_id, { transaction });
-
-            if (!exhibition) {
-                throw new NotFoundException(`Выставка с ID ${exhibition_id} не найдена`);
-            }
-
-            const art = await this.artRepository.findByPk(art_id, { transaction });
-
-            if (!art) {
-                throw new NotFoundException(`Арт с ID ${art_id} не найден`);
-            }
-
-            const exhibitionRelative = await this.exhibitionArtRepository.findOne({
-                where: {
-                    exhibition_id,
-                    art_id
-                }, transaction
-            });
-
-            if (!exhibitionRelative) {
-                throw new HttpException(`Выставка с ID ${exhibition_id} не содержит арт с ID ${art_id}`, 400);
-            }
-
+                exhibition_id: exhibitionId,
+                art_id: artId
+            }, { transaction });
+        } else {
             await this.exhibitionArtRepository.destroy({
-                where: {
-                    exhibition_id,
-                    art_id
-                },
+                where: { exhibition_id: exhibitionId, art_id: artId },
                 transaction
             });
-
-            await transaction.commit();
-
-            return { success: true };
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при удалении картины с выставки',
-                context: 'ExhibitionsService.deleteArt',
-                exhibitionId: exhibition_id,
-                artId: art_id,
-                error: e.message,
-                stack: e.stack
-            }));
-
-            await transaction.rollback();
-            throw new HttpException(
-                `Ошибка при удалении картины с выставки: ${e.message}`,
-                HttpStatus.INTERNAL_SERVER_ERROR
-            );
         }
     }
 
-    async addArtist(exhibition_id: number, artist_id: number) {
-        this.logger.log('info', JSON.stringify({
-            message: '➕ Добавление художника на выставку',
-            context: 'ExhibitionsService.addArtist',
-            exhibitionId: exhibition_id,
-            artistId: artist_id
-        }));
+    private async manageArtistRelation(exhibitionId: number, artistId: number, action: 'add' | 'remove', transaction: Transaction) {
+        const exists = await this.exhibitionArtistRepository.findOne({
+            where: { exhibition_id: exhibitionId, artist_id: artistId },
+            transaction
+        });
 
-        const transaction = await this.sequelize.transaction();
+        if (action === 'add' && exists) {
+            throw new HttpException('Художник уже добавлен', 400);
+        }
+        if (action === 'remove' && !exists) {
+            throw new HttpException('Художник не найден', 400);
+        }
 
-        try {
-            const exhibition = await this.exhibitionRepository.findByPk(exhibition_id, { transaction });
-
-            if (!exhibition) {
-                throw new NotFoundException(`Выставка с ID ${exhibition_id} не найдена`);
-            }
-
-            const artist = await ArtistProfile.findOne({ where: { user_id: artist_id }, transaction });
-
-            if (!artist) {
-                throw new NotFoundException(`Художник с ID ${artist_id} не найден`);
-            }
-
-            const exhibitionRelative = await this.exhibitionArtistRepository.findOne({
-                where: {
-                    exhibition_id,
-                    artist_id,
-                }, transaction
-            });
-
-            if (exhibitionRelative) {
-                throw new HttpException(`Выставка с ID ${exhibition_id} уже содержит артиста с ID ${artist_id}`, 400);
-            }
-
+        if (action === 'add') {
             await this.exhibitionArtistRepository.create({
-                exhibition_id: exhibition_id,
-                artist_id
-            } as any, { transaction });
-
-            await transaction.commit();
-
-            return true;
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при добавлении художника на выставку',
-                context: 'ExhibitionsService.addArtist',
-                exhibitionId: exhibition_id,
-                artistId: artist_id,
-                error: e.message,
-                stack: e.stack
-            }));
-
-            await transaction.rollback();
-            throw new HttpException(
-                `Ошибка при добавлении художника на выставку: ${e.message}`,
-                HttpStatus.INTERNAL_SERVER_ERROR
-            );
-        }
-    }
-
-    async deleteArtist(exhibition_id: number, artist_id: number) {
-        this.logger.log('warn', JSON.stringify({
-            message: '➖ Удаление художника с выставки',
-            context: 'ExhibitionsService.deleteArtist',
-            exhibitionId: exhibition_id,
-            artistId: artist_id
-        }));
-
-        const transaction = await this.sequelize.transaction();
-
-        try {
-            const exhibition = await this.exhibitionRepository.findByPk(exhibition_id, { transaction });
-
-            if (!exhibition) {
-                throw new NotFoundException(`Выставка с ID ${exhibition_id} не найдена`);
-            }
-
-            const artist = await this.artistRepository.findByPk(artist_id, { transaction });
-
-            if (!artist) {
-                throw new NotFoundException(`Художник с ID ${artist_id} не найден`);
-            }
-
-            const exhibitionRelative = await this.exhibitionArtistRepository.findOne({
-                where: {
-                    exhibition_id,
-                    artist_id
-                }, transaction
-            });
-
-            if (!exhibitionRelative) {
-                throw new HttpException(`Выставка с ID ${exhibition_id} не содержит художника с ID ${artist_id}`, 400);
-            }
-
+                exhibition_id: exhibitionId,
+                artist_id: artistId
+            }, { transaction });
+        } else {
             await this.exhibitionArtistRepository.destroy({
-                where: {
-                    exhibition_id,
-                    artist_id
-                },
+                where: { exhibition_id: exhibitionId, artist_id: artistId },
                 transaction
             });
-
-            await transaction.commit();
-
-            return { success: true };
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при удалении художника с выставки',
-                context: 'ExhibitionsService.deleteArtist',
-                exhibitionId: exhibition_id,
-                artistId: artist_id,
-                error: e.message,
-                stack: e.stack
-            }));
-
-            await transaction.rollback();
-            throw new HttpException(
-                `Ошибка при удалении художника с выставки: ${e.message}`,
-                HttpStatus.INTERNAL_SERVER_ERROR
-            );
         }
     }
 
-    async signUp(exhibition_id: number, user_id: number) {
-        this.logger.log('info', JSON.stringify({
-            message: '📝 Регистрация пользователя на выставку',
-            context: 'ExhibitionsService.signUp',
-            exhibitionId: exhibition_id,
-            userId: user_id
-        }));
+    // ============ РЕГИСТРАЦИЯ ПОЛЬЗОВАТЕЛЯ ============
+
+    async signUp(exhibitionId: number, userId: number) {
+        this.log('signUp', { exhibitionId, userId });
 
         const transaction = await this.sequelize.transaction();
-
         try {
-            const exhibitions = await this.exhibitionRepository.findAll({
-                where: { id: exhibition_id },
-                transaction,
-                limit: 1
+            const exhibition = await this.getExhibition(exhibitionId);
+            if (!exhibition) throw new NotFoundException(`Выставка с ID ${exhibitionId} не найдена`);
+
+            const user = await this.userRepository.findByPk(userId);
+            if (!user) throw new NotFoundException(`Пользователь с ID ${userId} не найден`);
+
+            const existing = await this.exhibitionUserRepository.findOne({
+                where: { exhibition_id: exhibitionId, user_id: userId }
             });
-
-            const exhibition = exhibitions[0];
-
-            if (!exhibition) {
-                throw new NotFoundException(`Выставка с ID ${exhibition_id} не найдена`);
-            }
-
-            const user = await this.userRepository.findByPk(user_id, { transaction });
-
-            if (!user) {
-                throw new NotFoundException(`Пользователь с ID ${user_id} не найден`);
-            }
-
-            const existingRegistration = await this.exhibitionUserRepository.findOne({
-                where: {
-                    exhibition_id,
-                    user_id
-                },
-                transaction
-            });
-
-            if (existingRegistration) {
-                throw new HttpException(`Пользователь уже зарегистрирован на эту выставку`, 400);
-            }
+            if (existing) throw new HttpException('Пользователь уже зарегистрирован', 400);
 
             await this.exhibitionUserRepository.create({
-                exhibition_id: exhibition_id,
-                user_id: user_id
+                exhibition_id: exhibitionId,
+                user_id: userId
             }, { transaction });
 
-            const currentCount = exhibition.visitors_count ?? 0;
-
             await this.exhibitionRepository.update(
-                { visitors_count: currentCount + 1 },
-                { where: { id: exhibition_id }, transaction }
+                { visitors_count: (exhibition.visitors_count || 0) + 1 },
+                { where: { id: exhibitionId }, transaction }
             );
 
             await transaction.commit();
-
             return { success: true, message: 'Вы успешно записаны на выставку' };
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при регистрации пользователя',
-                context: 'ExhibitionsService.signUp',
-                exhibitionId: exhibition_id,
-                userId: user_id,
-                error: e.message
-            }));
-
+        } catch (e) {
             await transaction.rollback();
-            throw new HttpException(`Ошибка при записи на выставку: ${e.message}`, 400);
+            this.handleError('signUp', e);
         }
     }
 
-    async cancelSignUp(exhibition_id: number, user_id: number) {
-        this.logger.log('warn', JSON.stringify({
-            message: '⚠️ Отмена регистрации пользователя',
-            context: 'ExhibitionsService.cancelSignUp',
-            exhibitionId: exhibition_id,
-            userId: user_id
-        }));
+    async cancelSignUp(exhibitionId: number, userId: number) {
+        this.log('cancelSignUp', { exhibitionId, userId });
 
         const transaction = await this.sequelize.transaction();
-
         try {
-            const exhibition = await this.exhibitionRepository.findByPk(exhibition_id, { transaction });
+            const exhibition = await this.getExhibition(exhibitionId);
+            if (!exhibition) throw new NotFoundException(`Выставка с ID ${exhibitionId} не найдена`);
 
-            if (!exhibition) {
-                throw new NotFoundException(`Выставка с ID ${exhibition_id} не найдена`);
-            }
-
-            const user = await this.userRepository.findByPk(user_id, { transaction });
-
-            if (!user) {
-                throw new NotFoundException(`Пользователь с ID ${user_id} не найден`);
-            }
-
-            const exhibitionRelative = await this.exhibitionUserRepository.findOne({
-                where: {
-                    exhibition_id,
-                    user_id
-                },
-                transaction
+            const registration = await this.exhibitionUserRepository.findOne({
+                where: { exhibition_id: exhibitionId, user_id: userId }
             });
+            if (!registration) throw new HttpException('Пользователь не зарегистрирован', 400);
 
-            if (!exhibitionRelative) {
-                throw new HttpException(`Выставка с ID ${exhibition_id} не содержит пользователя с ID ${user_id}`, 400);
-            }
+            await registration.destroy({ transaction });
 
-            await this.exhibitionUserRepository.destroy({
-                where: {
-                    exhibition_id: exhibition_id,
-                    user_id
-                },
-                transaction
-            });
-
-            const currentCount = exhibition.visitors_count;
             await this.exhibitionRepository.update(
-                { visitors_count: currentCount - 1 },
-                { where: { id: exhibition_id }, transaction }
+                { visitors_count: Math.max((exhibition.visitors_count || 0) - 1, 0) },
+                { where: { id: exhibitionId }, transaction }
             );
 
             await transaction.commit();
-
             return { success: true };
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при отмене регистрации',
-                context: 'ExhibitionsService.cancelSignUp',
-                exhibitionId: exhibition_id,
-                userId: user_id,
-                error: e.message,
-                stack: e.stack
-            }));
-
+        } catch (e) {
             await transaction.rollback();
-            throw new HttpException(`Ошибка при отмене записи пользователя на выставку: ${e.message}`, 400);
+            this.handleError('cancelSignUp', e);
         }
     }
 
     async moderate(moderateDto: ModerateExhibitionDto, id: number) {
-        this.logger.log('info', JSON.stringify({
-            message: '🛠️ Модерация выставки',
-            context: 'ExhibitionsService.moderate',
-            exhibitionId: id,
-            moderatorId: moderateDto.moderator_id,
-            status: moderateDto.moderate
-        }));
+        this.log('moderate', { exhibitionId: id });
 
         const transaction = await this.sequelize.transaction();
-
         try {
-            const exhibition = await this.exhibitionRepository.findOne({
-                where: { id },
-                transaction
-            });
+            const exhibition = await this.getExhibition(id);
+            if (!exhibition) throw new NotFoundException(`Выставка с ID ${id} не найдена`);
 
-            if (!exhibition) {
-                throw new NotFoundException(`Выставка с ID ${id} не найдена`);
-            }
-
-            let currentModerate = {};
-            if (exhibition.moderate) {
-                try {
-                    currentModerate = JSON.parse(exhibition.moderate);
-                } catch (e) {
-                    currentModerate = {};
-                }
-            }
-
+            const currentModerate = this.parseModerate(exhibition.moderate);
             const moderateObject = {
                 moderate: moderateDto.moderate,
                 moderator_id: moderateDto.moderator_id,
@@ -718,1140 +297,542 @@ export class ExhibitionsService {
                 previous_moderate: currentModerate
             };
 
-            const [affectedCount] = await this.exhibitionRepository.update(
+            await this.exhibitionRepository.update(
                 { moderate: JSON.stringify(moderateObject) },
                 { where: { id }, transaction }
             );
 
-            if (affectedCount === 0) {
-                throw new NotFoundException(`Выставка с ID ${id} не найдена`);
-            }
-
             await transaction.commit();
-
-            const resultMessage = moderateDto.moderate ? 'одобрена' : 'отклонена';
-
-            const updatedExhibition = await this.findOne(id);
-            return updatedExhibition;
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при модерации выставки',
-                context: 'ExhibitionsService.moderate',
-                exhibitionId: id,
-                error: e.message,
-                stack: e.stack
-            }));
-
+            return this.findOne(id);
+        } catch (e) {
             await transaction.rollback();
-
-            if (e instanceof NotFoundException) {
-                throw e;
-            }
-            throw new HttpException(`Ошибка модерации выставки: ${e.message}`, 400);
+            this.handleError('moderate', e);
         }
     }
 
-    async checkSignUpStatus(exhibition_id: number, user_id: number): Promise<boolean> {
-        this.logger.log('info', JSON.stringify({
-            message: '🔍 Проверка статуса регистрации пользователя',
-            context: 'ExhibitionsService.checkSignUpStatus',
-            exhibitionId: exhibition_id,
-            userId: user_id
-        }));
-
-        try {
-            const signUp = await this.exhibitionUserRepository.findOne({
-                where: {
-                    exhibition_id,
-                    user_id
-                }
-            });
-
-            return !!signUp;
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при проверке статуса регистрации',
-                context: 'ExhibitionsService.checkSignUpStatus',
-                exhibitionId: exhibition_id,
-                userId: user_id,
-                error: e.message
-            }));
-            throw new HttpException(`Ошибка проверки статуса: ${e.message}`, 400);
-        }
-    }
+    // ============ GET МЕТОДЫ ============
 
     async findOne(id: number, lang: string = 'ru') {
-        this.logger.log('info', JSON.stringify({
-            message: '🔍 Получение выставки по ID',
-            context: 'ExhibitionsService.findOne',
-            exhibitionId: id,
-            lang
-        }));
+        this.log('findOne', { exhibitionId: id, lang });
 
-        try {
-            const exhibition = await this.exhibitionRepository.findByPk(id);
+        const exhibition = await this.getExhibition(id);
+        if (!exhibition) throw new HttpException('Выставка не найдена', HttpStatus.NOT_FOUND);
 
-            if (!exhibition) {
-                throw new HttpException('Выставка не найдена', HttpStatus.NOT_FOUND);
-            }
+        const location = await this.getLocationData(exhibition.country_id, exhibition.city_id, lang);
+        const genre = exhibition.genre_id 
+            ? await this.genreRepository.findByPk(exhibition.genre_id, { attributes: ['id', 'title'] })
+            : null;
 
-            let cityData = null;
-            let countryData = null;
+        const [arts, artists] = await Promise.all([
+            this.getExhibitionArts(id),
+            this.getExhibitionArtists(id)
+        ]);
 
-            if (exhibition.country_id) {
-                countryData = await this.locationService.getCountryById(exhibition.country_id, lang);
-            }
+        let result = {
+            ...exhibition.toJSON(),
+            ...location,
+            genre: genre ? { id: genre.id, name: genre.title } : null,
+            arts,
+            artists,
+            moderate: this.parseModerate(exhibition.moderate)?.moderate || false,
+        };
 
-            if (exhibition.city_id && exhibition.country_id) {
-                const cities = await this.locationService.getCitiesByCountry(exhibition.country_id, lang);
-                cityData = cities.find(c => c.id === exhibition.city_id) || null;
-            }
-
-            let genre: Genre | null = null;
-            if (exhibition.genre_id) {
-                genre = await this.genreRepository.findByPk(exhibition.genre_id, {
-                    attributes: ['id', 'title']
-                });
-            }
-
-            const exhibitionArts = await this.exhibitionArtRepository.findAll({
-                where: { exhibition_id: id },
-                include: [{
-                    model: Art,
-                    attributes: ['id', 'title', 'image_path', 'cost', 'likes', 'date_published']
-                }],
-                raw: true,
-                nest: true
-            });
-
-            const arts = exhibitionArts
-                .filter(item => item.art)
-                .map(item => ({
-                    id: item.art!.id,
-                    title: item.art!.title,
-                    image_path: item.art!.image_path,
-                    cost: item.art!.cost,
-                    likes: item.art!.likes,
-                    date_published: item.art!.date_published
-                }));
-
-            const exhibitionArtists = await this.exhibitionArtistRepository.findAll({
-                where: { exhibition_id: id },
-                include: [{
-                    model: ArtistProfile,
-                    attributes: ['user_id', 'biography', 'date_birthday'],
-                    include: [{
-                        model: User,
-                        attributes: ['id', 'name', 'surname', 'avatar_path', 'email', 'phone_number']
-                    }]
-                }],
-                raw: true,
-                nest: true
-            });
-
-            const artists = exhibitionArtists
-                .filter(item => item.artistProfile)
-                .map(item => ({
-                    user_id: item.artistProfile!.user_id,
-                    biography: item.artistProfile!.biography,
-                    date_birthday: item.artistProfile!.date_birthday,
-                    user: item.artistProfile!.user ? {
-                        id: item.artistProfile!.user.id,
-                        name: item.artistProfile!.user.name,
-                        surname: item.artistProfile!.user.surname,
-                        avatar_path: item.artistProfile!.user.avatar_path,
-                        email: item.artistProfile!.user.email,
-                        phone_number: item.artistProfile!.user.phone_number
-                    } : null
-                }));
-
-            let moderateValue = false;
-            if (exhibition.moderate) {
-                try {
-                    const parsed = JSON.parse(exhibition.moderate);
-                    moderateValue = parsed.moderate === true;
-                } catch (e: any) {
-                    moderateValue = false;
-                }
-            }
-
-            let result = {
-                id: exhibition.id,
-                title: exhibition.title,
-                description: exhibition.description,
-                address: exhibition.address,
-                date: exhibition.date,
-                cost: exhibition.cost,
-                currency: exhibition.currency,
-                image_path: exhibition.image_path,
-                visitors_count: exhibition.visitors_count || 0,
-                moderate: moderateValue,
-                city_id: exhibition.city_id,
-                country_id: exhibition.country_id,
-                city: cityData,
-                country: countryData,
-                genre: genre ? {
-                    id: genre.id,
-                    name: genre.title
-                } : null,
-                arts,
-                artists
-            };
-
-            if (lang && lang !== 'ru') {
-                result = await this.translationService.translateEntity(
-                    result,
-                    'exhibition',
-                    id,
-                    lang
-                );
-            }
-
-            this.logger.log('info', JSON.stringify({
-                message: '✅ Выставка успешно получена',
-                context: 'ExhibitionsService.findOne',
-                exhibitionId: id,
-                lang
-            }));
-
-            return result;
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при получении выставки',
-                context: 'ExhibitionsService.findOne',
-                exhibitionId: id,
-                error: e.message,
-                stack: e.stack
-            }));
-            throw new HttpException(`Ошибка при получении выставки: ${e.message}`, 500);
-        }
+        return this.translateIfNeeded(result, 'exhibition', lang);
     }
 
     async getAll(page: number = 1, limit: number = 10, lang: string = 'ru') {
-        this.logger.log('info', JSON.stringify({
-            message: '📋 Запрос списка выставок с пагинацией',
-            context: 'ExhibitionsService.getAll',
-            requestedPage: page,
-            requestedLimit: limit,
-            lang
+        this.log('getAll', { page, limit, lang });
+
+        const offset = (page - 1) * limit;
+        const { count, rows } = await this.exhibitionRepository.findAndCountAll({
+            limit,
+            offset,
+            order: [['date', 'DESC']]
+        });
+
+        if (!rows.length) {
+            return { data: [], pagination: this.buildPagination(0, page, limit) };
+        }
+
+        const exhibitionIds = rows.map(ex => ex.id);
+        const [locationMap, genreMap, artsMap, artistsMap] = await Promise.all([
+            this.getLocationMap(rows),
+            this.getGenreMap(rows),
+            this.getArtsMap(exhibitionIds),
+            this.getArtistsMap(exhibitionIds)
+        ]);
+
+        const formatted = rows.map(ex => ({
+            ...ex.toJSON(),
+            city: locationMap.get(ex.id)?.city || null,
+            country: locationMap.get(ex.id)?.country || null,
+            genre: genreMap.get(ex.genre_id) || null,
+            arts: artsMap.get(ex.id) || [],
+            artists: artistsMap.get(ex.id) || []
         }));
 
-        try {
-            const offset = (page - 1) * limit;
-
-            const { count, rows } = await this.exhibitionRepository.findAndCountAll({
-                limit,
-                offset,
-                order: [['date', 'DESC']]
-            });
-
-            if (rows.length === 0) {
-                return {
-                    data: [],
-                    pagination: {
-                        total: 0,
-                        page,
-                        limit,
-                        totalPages: 0,
-                        hasNextPage: false,
-                        hasPreviousPage: page > 1
-                    }
-                };
-            }
-
-            const exhibitionIds = rows.map(ex => ex.id);
-
-            const countryIds = [...new Set(rows.map(ex => ex.country_id).filter(Boolean))];
-            const countriesMap = new Map();
-            const citiesMap = new Map();
-
-            if (countryIds.length > 0) {
-                for (const id of countryIds) {
-                    const country = await this.locationService.getCountryById(id, lang);
-                    if (country) countriesMap.set(id, country);
-                }
-            }
-
-            if (countryIds.length > 0) {
-                for (const countryId of countryIds) {
-                    const cities = await this.locationService.getCitiesByCountry(countryId, lang);
-                    cities.forEach(city => citiesMap.set(city.id, city));
-                }
-            }
-
-            const genreIds = [...new Set(rows.map(ex => ex.genre_id).filter(Boolean))];
-            const genres = genreIds.length > 0
-                ? await this.genreRepository.findAll({
-                    where: { id: genreIds },
-                    attributes: ['id', 'title']
-                })
-                : [];
-            const genreMap = new Map(genres.map(g => [g.id, { id: g.id, name: g.title }]));
-
-            const artsByExhibition: Record<number, any[]> = {};
-
-            for (const exhibitionId of exhibitionIds) {
-                const exhibitionArts = await this.exhibitionArtRepository.findAll({
-                    where: { exhibition_id: exhibitionId },
-                    include: [{
-                        model: Art,
-                        attributes: ['id', 'title', 'image_path', 'cost', 'likes']
-                    }],
-                    raw: true,
-                    nest: true
-                });
-
-                artsByExhibition[exhibitionId] = exhibitionArts
-                    .filter(item => item.art)
-                    .map(item => ({
-                        id: item.art!.id,
-                        title: item.art!.title,
-                        image_path: item.art!.image_path,
-                        cost: item.art!.cost,
-                        likes: item.art!.likes
-                    }));
-            }
-
-            const artistsByExhibition: Record<number, any[]> = {};
-
-            for (const exhibitionId of exhibitionIds) {
-                const exhibitionArtists = await this.exhibitionArtistRepository.findAll({
-                    where: { exhibition_id: exhibitionId },
-                    include: [{
-                        model: ArtistProfile,
-                        attributes: ['user_id'],
-                        include: [{
-                            model: User,
-                            attributes: ['id', 'name', 'surname', 'avatar_path']
-                        }]
-                    }],
-                    raw: true,
-                    nest: true
-                });
-
-                artistsByExhibition[exhibitionId] = exhibitionArtists
-                    .filter(item => item.artistProfile)
-                    .map(item => ({
-                        user_id: item.artistProfile!.user_id,
-                        user: item.artistProfile!.user ? {
-                            id: item.artistProfile!.user.id,
-                            name: item.artistProfile!.user.name,
-                            surname: item.artistProfile!.user.surname,
-                            avatar_path: item.artistProfile!.user.avatar_path || null
-                        } : null
-                    }));
-            }
-
-            const totalPages = Math.ceil(count / limit);
-
-            let formattedExhibitions = rows.map(exhibition => {
-                return {
-                    id: exhibition.id,
-                    title: exhibition.title,
-                    description: exhibition.description,
-                    address: exhibition.address,
-                    date: exhibition.date,
-                    cost: exhibition.cost,
-                    currency: exhibition.currency,
-                    image_path: exhibition.image_path,
-                    visitors_count: exhibition.visitors_count || 0,
-                    moderate: exhibition.moderate,
-                    city_id: exhibition.city_id,
-                    country_id: exhibition.country_id,
-                    city: exhibition.city_id ? citiesMap.get(exhibition.city_id) || null : null,
-                    country: exhibition.country_id ? countriesMap.get(exhibition.country_id) || null : null,
-                    genre: exhibition.genre_id && genreMap.has(exhibition.genre_id)
-                        ? genreMap.get(exhibition.genre_id)!
-                        : null,
-                    arts: artsByExhibition[exhibition.id] || [],
-                    artists: artistsByExhibition[exhibition.id] || []
-                };
-            });
-
-            if (lang && lang !== 'ru') {
-                formattedExhibitions = await this.translationService.translateEntities(
-                    formattedExhibitions,
-                    'exhibition',
-                    lang
-                );
-            }
-
-            return {
-                data: formattedExhibitions,
-                pagination: {
-                    total: count,
-                    page,
-                    limit,
-                    totalPages,
-                    hasNextPage: page < totalPages,
-                    hasPreviousPage: page > 1
-                }
-            };
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при получении списка выставок',
-                context: 'ExhibitionsService.getAll',
-                error: e.message,
-                stack: e.stack
-            }));
-            throw new HttpException(`Ошибка при получении списка выставок: ${e.message}`, 500);
-        }
+        return this.translateIfNeeded(formatted, 'exhibition', lang);
     }
 
     async getModeratedExhibitions(page: number = 1, limit: number = 12, lang: string = 'ru') {
-        this.logger.log('info', JSON.stringify({
-            message: '📋 Запрос списка модерированных выставок',
-            context: 'ExhibitionsService.getModeratedExhibitions',
-            page,
-            limit,
-            lang
-        }));
-
-        try {
-            const offset = (page - 1) * limit;
-
-            const { count, rows } = await this.exhibitionRepository.findAndCountAll({
-                limit,
-                offset,
-                include: [
-                    { model: Genre, attributes: ['id', 'title'] }
-                ],
-                order: [['date', 'DESC']],
-                distinct: true,
-                raw: true,
-                nest: true
-            });
-
-            const publishedExhibitions = rows.filter(exhibition => {
-                if (!exhibition.moderate) return false;
-                try {
-                    const moderateObj = JSON.parse(exhibition.moderate);
-                    return moderateObj.moderate === true;
-                } catch {
-                    return false;
-                }
-            });
-
-            const countryIds = [...new Set(publishedExhibitions.map(ex => ex.country_id).filter(Boolean))];
-            const countriesMap = new Map();
-            const citiesMap = new Map();
-
-            if (countryIds.length > 0) {
-                for (const id of countryIds) {
-                    const country = await this.locationService.getCountryById(id, lang);
-                    if (country) countriesMap.set(id, country);
-                }
-            }
-
-            if (countryIds.length > 0) {
-                for (const countryId of countryIds) {
-                    const cities = await this.locationService.getCitiesByCountry(countryId, lang);
-                    cities.forEach(city => citiesMap.set(city.id, city));
-                }
-            }
-
-            let formattedExhibitions = publishedExhibitions.map(exhibition => {
-                let moderateData = null;
-                if (exhibition.moderate) {
-                    try {
-                        moderateData = JSON.parse(exhibition.moderate);
-                    } catch (e) {
-                        moderateData = null;
-                    }
-                }
-
-                return {
-                    id: exhibition.id,
-                    title: exhibition.title,
-                    description: exhibition.description,
-                    address: exhibition.address,
-                    date: exhibition.date,
-                    cost: exhibition.cost,
-                    image_path: exhibition.image_path,
-                    visitors_count: exhibition.visitors_count || 0,
-                    moderate: moderateData,
-                    city_id: exhibition.city_id,
-                    country_id: exhibition.country_id,
-                    city: exhibition.city_id ? citiesMap.get(exhibition.city_id) || null : null,
-                    country: exhibition.country_id ? countriesMap.get(exhibition.country_id) || null : null,
-                    genre: exhibition.genre
-                };
-            });
-
-            if (lang && lang !== 'ru') {
-                formattedExhibitions = await this.translationService.translateEntities(
-                    formattedExhibitions,
-                    'exhibition',
-                    lang
-                );
-            }
-
-            const total = publishedExhibitions.length;
-            const totalPages = Math.ceil(total / limit);
-
-            return {
-                data: formattedExhibitions,
-                pagination: {
-                    total,
-                    page,
-                    limit,
-                    totalPages,
-                    hasNextPage: page < totalPages,
-                    hasPreviousPage: page > 1
-                }
-            };
-
-        } catch (e: any) {
-            throw new HttpException(`Ошибка: ${e.message}`, 400);
-        }
+        return this.getExhibitionsByModerationStatus(true, page, limit, lang);
     }
 
     async getUnmoderatedExhibitions(page: number = 1, limit: number = 12, lang: string = 'ru') {
-        this.logger.log('info', JSON.stringify({
-            message: '📋 Запрос списка немодерированных выставок',
-            context: 'ExhibitionsService.getUnmoderatedExhibitions',
-            page,
-            limit,
-            lang
-        }));
-
-        try {
-            const offset = (page - 1) * limit;
-
-            const { count, rows } = await this.exhibitionRepository.findAndCountAll({
-                limit,
-                offset,
-                include: [
-                    { model: Genre, attributes: ['id', 'title'] }
-                ],
-                order: [['createdAt', 'DESC']],
-                distinct: true,
-                raw: true,
-                nest: true
-            });
-
-            const unmoderatedExhibitions = rows.filter(exhibition => {
-                if (!exhibition.moderate) return true;
-                try {
-                    const moderateObj = JSON.parse(exhibition.moderate);
-                    return !moderateObj.moderate;
-                } catch {
-                    return true;
-                }
-            });
-
-            const countryIds = [...new Set(unmoderatedExhibitions.map(ex => ex.country_id).filter(Boolean))];
-            const countriesMap = new Map();
-            const citiesMap = new Map();
-
-            if (countryIds.length > 0) {
-                for (const id of countryIds) {
-                    const country = await this.locationService.getCountryById(id, lang);
-                    if (country) countriesMap.set(id, country);
-                }
-            }
-
-            if (countryIds.length > 0) {
-                for (const countryId of countryIds) {
-                    const cities = await this.locationService.getCitiesByCountry(countryId, lang);
-                    cities.forEach(city => citiesMap.set(city.id, city));
-                }
-            }
-
-            let formattedExhibitions = unmoderatedExhibitions.map(exhibition => {
-                let moderateData = null;
-                if (exhibition.moderate) {
-                    try {
-                        moderateData = JSON.parse(exhibition.moderate);
-                    } catch (e) {
-                        moderateData = null;
-                    }
-                }
-
-                return {
-                    id: exhibition.id,
-                    title: exhibition.title,
-                    description: exhibition.description,
-                    address: exhibition.address,
-                    date: exhibition.date,
-                    cost: exhibition.cost,
-                    image_path: exhibition.image_path,
-                    visitors_count: exhibition.visitors_count || 0,
-                    moderate: moderateData,
-                    city_id: exhibition.city_id,
-                    country_id: exhibition.country_id,
-                    city: exhibition.city_id ? citiesMap.get(exhibition.city_id) || null : null,
-                    country: exhibition.country_id ? countriesMap.get(exhibition.country_id) || null : null,
-                    genre: exhibition.genre
-                };
-            });
-
-            if (lang && lang !== 'ru') {
-                formattedExhibitions = await this.translationService.translateEntities(
-                    formattedExhibitions,
-                    'exhibition',
-                    lang
-                );
-            }
-
-            const total = unmoderatedExhibitions.length;
-            const totalPages = Math.ceil(total / limit);
-
-            return {
-                data: formattedExhibitions,
-                pagination: {
-                    total,
-                    page,
-                    limit,
-                    totalPages,
-                    hasNextPage: page < totalPages,
-                    hasPreviousPage: page > 1
-                }
-            };
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при получении немодерированных выставок',
-                context: 'ExhibitionsService.getUnmoderatedExhibitions',
-                error: e.message
-            }));
-            throw new HttpException(`Ошибка: ${e.message}`, 400);
-        }
+        return this.getExhibitionsByModerationStatus(false, page, limit, lang);
     }
 
     async getByOwnerId(ownerId: number, lang: string = 'ru') {
-        this.logger.log('info', JSON.stringify({
-            message: '🏛️ Запрос выставок по владельцу',
-            context: 'ExhibitionsService.getByOwnerId',
-            ownerId,
-            lang
-        }));
+        this.log('getByOwnerId', { ownerId, lang });
 
-        try {
-            const artistProfile = await this.artistRepository.findOne({
-                where: { user_id: ownerId }
-            });
+        const artistProfile = await this.artistRepository.findOne({ where: { user_id: ownerId } });
+        if (!artistProfile) return [];
 
-            if (!artistProfile) {
-                this.logger.log('warn', JSON.stringify({
-                    message: '⚠️ Профиль художника не найден',
-                    context: 'ExhibitionsService.getByOwnerId',
-                    ownerId
-                }));
-                return [];
-            }
+        const exhibitions = await this.exhibitionRepository.findAll({
+            where: { owner_id: artistProfile.id },
+            include: [
+                { model: ArtistProfile, as: 'artists', through: { attributes: [] } },
+                { model: Art, as: 'arts', through: { attributes: [] } },
+                { model: Genre, as: 'genre' }
+            ],
+            order: [['date', 'DESC']]
+        });
 
-            const exhibitions = await this.exhibitionRepository.findAll({
-                where: { owner_id: artistProfile.id },
-                include: [
-                    {
-                        model: ArtistProfile,
-                        as: 'artists',
-                        through: { attributes: [] }
-                    },
-                    {
-                        model: Art,
-                        as: 'arts',
-                        through: { attributes: [] }
-                    },
-                    {
-                        model: Genre,
-                        as: 'genre'
-                    }
-                ],
-                order: [['date', 'DESC']]
-            });
-
-            const countryIds = [...new Set(exhibitions.map(ex => ex.country_id).filter(Boolean))];
-            const countriesMap = new Map();
-            const citiesMap = new Map();
-
-            if (countryIds.length > 0) {
-                for (const id of countryIds) {
-                    const country = await this.locationService.getCountryById(id, lang);
-                    if (country) countriesMap.set(id, country);
-                }
-            }
-
-            if (countryIds.length > 0) {
-                for (const countryId of countryIds) {
-                    const cities = await this.locationService.getCitiesByCountry(countryId, lang);
-                    cities.forEach(city => citiesMap.set(city.id, city));
-                }
-            }
-
-            let formattedExhibitions = exhibitions.map(exhibition => {
-                const exhibitionJson = exhibition.toJSON();
-                if (exhibitionJson.moderate) {
-                    try {
-                        exhibitionJson.moderate = JSON.parse(exhibitionJson.moderate);
-                    } catch (e: any) {
-                        exhibitionJson.moderate = "";
-                    }
-                }
-
-                return {
-                    ...exhibitionJson,
-                    city_id: exhibitionJson.city_id,
-                    country_id: exhibitionJson.country_id,
-                    city: exhibitionJson.city_id ? citiesMap.get(exhibitionJson.city_id) || null : null,
-                    country: exhibitionJson.country_id ? countriesMap.get(exhibitionJson.country_id) || null : null,
-                };
-            });
-
-            if (lang && lang !== 'ru') {
-                formattedExhibitions = await this.translationService.translateEntities(
-                    formattedExhibitions,
-                    'exhibition',
-                    lang
-                );
-            }
-
-            this.logger.log('info', JSON.stringify({
-                message: '✅ Выставки владельца получены',
-                context: 'ExhibitionsService.getByOwnerId',
-                ownerId,
-                count: formattedExhibitions.length,
-                lang
-            }));
-
-            return formattedExhibitions;
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при получении выставок владельца',
-                context: 'ExhibitionsService.getByOwnerId',
-                ownerId,
-                error: e.message,
-                stack: e.stack
-            }));
-            throw new HttpException(`Ошибка получения выставок: ${e.message}`, 400);
-        }
+        const formatted = await this.enrichWithLocation(exhibitions, lang);
+        return this.translateIfNeeded(formatted, 'exhibition', lang);
     }
 
     async getByParticipantArtistId(artistId: number, lang: string = 'ru') {
-        this.logger.log('info', JSON.stringify({
-            message: '👥 Запрос выставок, где художник участвует (не владелец)',
-            context: 'ExhibitionsService.getByParticipantArtistId',
-            artistId,
-            lang
-        }));
+        this.log('getByParticipantArtistId', { artistId, lang });
 
-        try {
-            const artistProfile = await this.artistRepository.findOne({
-                where: { user_id: artistId }
-            });
+        const artistProfile = await this.artistRepository.findOne({ where: { user_id: artistId } });
+        if (!artistProfile) return [];
 
-            if (!artistProfile) {
-                this.logger.log('warn', JSON.stringify({
-                    message: '⚠️ Профиль художника не найден',
-                    context: 'ExhibitionsService.getByParticipantArtistId',
-                    artistId
-                }));
-                return [];
-            }
+        const exhibitionArtists = await this.exhibitionArtistRepository.findAll({
+            where: { artist_id: artistProfile.id },
+            include: [{
+                model: Exhibition,
+                required: true,
+                where: { owner_id: { [Op.ne]: artistProfile.id } }
+            }]
+        });
 
-            const exhibitionArtists = await this.exhibitionArtistRepository.findAll({
-                where: { artist_id: artistProfile.id },
-                include: [{
-                    model: Exhibition,
-                    required: true,
-                    where: {
-                        owner_id: { [Op.ne]: artistProfile.id }
-                    }
-                }]
-            });
+        const exhibitionIds = exhibitionArtists.map(item => item.exhibition_id);
+        if (!exhibitionIds.length) return [];
 
-            const exhibitionIds = exhibitionArtists
-                .filter(item => item.exhibition)
-                .map(item => item.exhibition!.id);
+        const exhibitions = await this.exhibitionRepository.findAll({
+            where: { id: { [Op.in]: exhibitionIds } },
+            include: [{ model: Genre, as: 'genre' }],
+            order: [['date', 'DESC']]
+        });
 
-            if (exhibitionIds.length === 0) {
-                return [];
-            }
-
-            const exhibitions = await this.exhibitionRepository.findAll({
-                where: { id: { [Op.in]: exhibitionIds } },
-                include: [
-                    { model: Genre, as: 'genre', attributes: ['id', 'title'] }
-                ],
-                order: [['date', 'DESC']]
-            });
-
-            const exhibitionIdList = exhibitions.map(ex => ex.id);
-
-            const exhibitionArts = await this.exhibitionArtRepository.findAll({
-                where: { exhibition_id: { [Op.in]: exhibitionIdList } },
-                include: [{ model: Art, attributes: ['id', 'title', 'image_path', 'cost', 'likes'] }]
-            });
-
-            const exhibitionArtistsList = await this.exhibitionArtistRepository.findAll({
-                where: { exhibition_id: { [Op.in]: exhibitionIdList } },
-                include: [{
-                    model: ArtistProfile,
-                    attributes: ['user_id'],
-                    include: [{ model: User, attributes: ['id', 'name', 'surname', 'avatar_path'] }]
-                }]
-            });
-
-            const countryIds = [...new Set(exhibitions.map(ex => ex.country_id).filter(Boolean))];
-            const countriesMap = new Map();
-            const citiesMap = new Map();
-
-            if (countryIds.length > 0) {
-                for (const id of countryIds) {
-                    const country = await this.locationService.getCountryById(id, lang);
-                    if (country) countriesMap.set(id, country);
-                }
-            }
-
-            if (countryIds.length > 0) {
-                for (const countryId of countryIds) {
-                    const cities = await this.locationService.getCitiesByCountry(countryId, lang);
-                    cities.forEach(city => citiesMap.set(city.id, city));
-                }
-            }
-
-            const artsByExhibition: Record<number, any[]> = {};
-            exhibitionArts.forEach(item => {
-                if (!artsByExhibition[item.exhibition_id]) artsByExhibition[item.exhibition_id] = [];
-                if (item.art) {
-                    artsByExhibition[item.exhibition_id].push({
-                        id: item.art.id,
-                        title: item.art.title,
-                        image_path: item.art.image_path,
-                        cost: item.art.cost,
-                        likes: item.art.likes
-                    });
-                }
-            });
-
-            const artistsByExhibition: Record<number, any[]> = {};
-            exhibitionArtistsList.forEach(item => {
-                if (!artistsByExhibition[item.exhibition_id]) artistsByExhibition[item.exhibition_id] = [];
-                if (item.artistProfile) {
-                    artistsByExhibition[item.exhibition_id].push({
-                        user_id: item.artistProfile.user_id,
-                        user: item.artistProfile.user ? {
-                            id: item.artistProfile.user.id,
-                            name: item.artistProfile.user.name,
-                            surname: item.artistProfile.user.surname,
-                            avatar_path: item.artistProfile.user.avatar_path || null
-                        } : null
-                    });
-                }
-            });
-
-            let formattedExhibitions = exhibitions.map(exhibition => {
-                const exhibitionJson = exhibition.toJSON();
-                let moderateValue = false;
-                if (exhibitionJson.moderate) {
-                    try {
-                        const parsed = JSON.parse(exhibitionJson.moderate);
-                        moderateValue = parsed.moderate === true;
-                    } catch (e: any) { moderateValue = false; }
-                }
-
-                return {
-                    id: exhibitionJson.id,
-                    title: exhibitionJson.title,
-                    description: exhibitionJson.description,
-                    address: exhibitionJson.address,
-                    date: exhibitionJson.date,
-                    cost: exhibitionJson.cost,
-                    image_path: exhibitionJson.image_path,
-                    visitors_count: exhibitionJson.visitors_count || 0,
-                    moderate: moderateValue,
-                    owner_id: exhibitionJson.owner_id,
-                    city_id: exhibitionJson.city_id,
-                    country_id: exhibitionJson.country_id,
-                    city: exhibitionJson.city_id ? citiesMap.get(exhibitionJson.city_id) || null : null,
-                    country: exhibitionJson.country_id ? countriesMap.get(exhibitionJson.country_id) || null : null,
-                    genre: exhibitionJson.genre,
-                    arts: artsByExhibition[exhibitionJson.id] || [],
-                    artists: artistsByExhibition[exhibitionJson.id] || []
-                };
-            });
-
-            if (lang && lang !== 'ru') {
-                formattedExhibitions = await this.translationService.translateEntities(
-                    formattedExhibitions,
-                    'exhibition',
-                    lang
-                );
-            }
-
-            return formattedExhibitions;
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при получении выставок с участием художника',
-                context: 'ExhibitionsService.getByParticipantArtistId',
-                artistId,
-                error: e.message
-            }));
-            throw new HttpException(`Ошибка получения выставок: ${e.message}`, 400);
-        }
+        const formatted = await this.enrichWithLocation(exhibitions, lang);
+        return this.translateIfNeeded(formatted, 'exhibition', lang);
     }
 
     async getAllArtistExhibitions(artistId: number, lang: string = 'ru') {
-        this.logger.log('info', JSON.stringify({
-            message: '🎨 Запрос всех выставок художника (владелец + участник)',
-            context: 'ExhibitionsService.getAllArtistExhibitions',
-            artistId,
-            lang
-        }));
+        this.log('getAllArtistExhibitions', { artistId, lang });
 
-        try {
-            const artistProfile = await this.artistRepository.findOne({
-                where: { user_id: artistId }
-            });
+        const artistProfile = await this.artistRepository.findOne({ where: { user_id: artistId } });
+        if (!artistProfile) return [];
 
-            if (!artistProfile) {
-                this.logger.log('warn', JSON.stringify({
-                    message: '⚠️ Профиль художника не найден',
-                    context: 'ExhibitionsService.getAllArtistExhibitions',
-                    artistId
-                }));
-                return [];
-            }
+        const ownedIds = await this.exhibitionRepository.findAll({
+            where: { owner_id: artistProfile.user_id },
+            attributes: ['id']
+        });
 
-            const exhibitionIds = new Set<number>();
+        const participatedIds = await this.exhibitionArtistRepository.findAll({
+            where: { artist_id: artistProfile.user_id },
+            attributes: ['exhibition_id']
+        });
 
-            const ownedExhibitionsRaw = await this.exhibitionRepository.findAll({
-                where: { owner_id: artistProfile.user_id },
-                attributes: ['id']
-            });
-            ownedExhibitionsRaw.forEach(ex => exhibitionIds.add(ex.id));
+        const exhibitionIds = new Set([
+            ...ownedIds.map(ex => ex.id),
+            ...participatedIds.map(item => item.exhibition_id)
+        ]);
 
-            const participatedExhibitionsRaw = await this.exhibitionArtistRepository.findAll({
-                where: { artist_id: artistProfile.user_id },
-                attributes: ['exhibition_id']
-            });
-            participatedExhibitionsRaw.forEach(item => exhibitionIds.add(item.exhibition_id));
+        if (!exhibitionIds.size) return [];
 
-            if (exhibitionIds.size === 0) {
-                return [];
-            }
+        const exhibitions = await this.exhibitionRepository.findAll({
+            where: { id: { [Op.in]: Array.from(exhibitionIds) } },
+            include: [{ model: Genre, as: 'genre' }],
+            order: [['date', 'DESC']]
+        });
 
-            const exhibitions = await this.exhibitionRepository.findAll({
-                where: { id: { [Op.in]: Array.from(exhibitionIds) } },
-                include: [
-                    { model: Genre, as: 'genre', attributes: ['id', 'title'] }
-                ],
-                order: [['date', 'DESC']],
-                raw: true,
-                nest: true
-            });
-
-            const exhibitionIdList = exhibitions.map(ex => ex.id);
-
-            const exhibitionArts = await this.exhibitionArtRepository.findAll({
-                where: { exhibition_id: { [Op.in]: exhibitionIdList } },
-                include: [{
-                    model: Art,
-                    attributes: ['id', 'title', 'image_path', 'cost', 'likes', 'date_published']
-                }],
-                raw: true,
-                nest: true
-            });
-
-            const exhibitionArtists = await this.exhibitionArtistRepository.findAll({
-                where: { exhibition_id: { [Op.in]: exhibitionIdList } },
-                include: [{
-                    model: ArtistProfile,
-                    attributes: ['user_id'],
-                    include: [{
-                        model: User,
-                        attributes: ['id', 'name', 'surname', 'avatar_path']
-                    }]
-                }],
-                raw: true,
-                nest: true
-            });
-
-            const countryIds = [...new Set(exhibitions.map(ex => ex.country_id).filter(Boolean))];
-            const countriesMap = new Map();
-            const citiesMap = new Map();
-
-            if (countryIds.length > 0) {
-                for (const id of countryIds) {
-                    const country = await this.locationService.getCountryById(id, lang);
-                    if (country) countriesMap.set(id, country);
-                }
-            }
-
-            if (countryIds.length > 0) {
-                for (const countryId of countryIds) {
-                    const cities = await this.locationService.getCitiesByCountry(countryId, lang);
-                    cities.forEach(city => citiesMap.set(city.id, city));
-                }
-            }
-
-            const artsByExhibition: Record<number, any[]> = {};
-            exhibitionArts.forEach(item => {
-                if (!artsByExhibition[item.exhibition_id]) {
-                    artsByExhibition[item.exhibition_id] = [];
-                }
-                if (item.art) {
-                    artsByExhibition[item.exhibition_id].push({
-                        id: item.art.id,
-                        title: item.art.title,
-                        image_path: item.art.image_path,
-                        cost: item.art.cost,
-                        likes: item.art.likes,
-                        date_published: item.art.date_published
-                    });
-                }
-            });
-
-            const artistsByExhibition: Record<number, any[]> = {};
-            exhibitionArtists.forEach(item => {
-                if (!artistsByExhibition[item.exhibition_id]) {
-                    artistsByExhibition[item.exhibition_id] = [];
-                }
-                if (item.artistProfile) {
-                    artistsByExhibition[item.exhibition_id].push({
-                        user_id: item.artistProfile.user_id,
-                        user: item.artistProfile.user ? {
-                            id: item.artistProfile.user.id,
-                            name: item.artistProfile.user.name,
-                            surname: item.artistProfile.user.surname,
-                            avatar_path: item.artistProfile.user.avatar_path || null
-                        } : null
-                    });
-                }
-            });
-
-            let formattedExhibitions = exhibitions.map(exhibition => {
-                let moderateValue = false;
-                if (exhibition.moderate) {
-                    try {
-                        const parsed = JSON.parse(exhibition.moderate);
-                        moderateValue = parsed.moderate === true;
-                    } catch (e: any) {
-                        moderateValue = false;
-                    }
-                }
-
-                return {
-                    id: exhibition.id,
-                    title: exhibition.title,
-                    description: exhibition.description,
-                    address: exhibition.address,
-                    date: exhibition.date,
-                    cost: exhibition.cost,
-                    image_path: exhibition.image_path,
-                    visitors_count: exhibition.visitors_count || 0,
-                    moderate: moderateValue,
-                    owner_id: exhibition.owner_id,
-                    city_id: exhibition.city_id,
-                    country_id: exhibition.country_id,
-                    city: exhibition.city_id ? citiesMap.get(exhibition.city_id) || null : null,
-                    country: exhibition.country_id ? countriesMap.get(exhibition.country_id) || null : null,
-                    genre: exhibition.genre,
-                    arts: artsByExhibition[exhibition.id] || [],
-                    artists: artistsByExhibition[exhibition.id] || []
-                };
-            });
-
-            if (lang && lang !== 'ru') {
-                formattedExhibitions = await this.translationService.translateEntities(
-                    formattedExhibitions,
-                    'exhibition',
-                    lang
-                );
-            }
-
-            this.logger.log('info', JSON.stringify({
-                message: '✅ Все выставки художника получены',
-                context: 'ExhibitionsService.getAllArtistExhibitions',
-                artistId,
-                count: formattedExhibitions.length,
-                lang
-            }));
-
-            return formattedExhibitions;
-
-        } catch (e: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при получении всех выставок художника',
-                context: 'ExhibitionsService.getAllArtistExhibitions',
-                artistId,
-                error: e.message,
-                stack: e.stack
-            }));
-            throw new HttpException(`Ошибка получения выставок: ${e.message}`, 400);
-        }
+        const formatted = await this.enrichWithLocation(exhibitions, lang);
+        return this.translateIfNeeded(formatted, 'exhibition', lang);
     }
 
     async getUserRegisteredExhibitions(userId: number, lang: string = 'ru') {
-        try {
-            const exhibitionUsers = await this.exhibitionUserRepository.findAll({
-                where: { user_id: userId },
-                attributes: ['exhibition_id']
-            });
+        this.log('getUserRegisteredExhibitions', { userId, lang });
 
-            const exhibitionIds = exhibitionUsers.map(eu => eu.exhibition_id);
+        const registrations = await this.exhibitionUserRepository.findAll({
+            where: { user_id: userId },
+            attributes: ['exhibition_id']
+        });
 
-            if (exhibitionIds.length === 0) {
-                return [];
-            }
+        const exhibitionIds = registrations.map(r => r.exhibition_id);
+        if (!exhibitionIds.length) return [];
 
-            let exhibitions = await this.exhibitionRepository.findAll({
-                where: { id: exhibitionIds }
-            });
+        let exhibitions = await this.exhibitionRepository.findAll({
+            where: { id: exhibitionIds }
+        });
 
-            if (lang && lang !== 'ru') {
-                exhibitions = await this.translationService.translateEntities(
-                    exhibitions,
-                    'exhibition',
-                    lang
-                );
-            }
-
-            return exhibitions;
-
-        } catch (error) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при получении выставок пользователя',
-                context: 'ExhibitionsService.getUserRegisteredExhibitions',
-                userId: userId
-            }));
-
-            throw new HttpException(`Ошибка при получении выставок: `, 500);
-        }
+        return this.translateIfNeeded(exhibitions, 'exhibition', lang);
     }
 
     async getRegisteredUsersCount(exhibitionId: number): Promise<number> {
-        try {
-            const count = await this.exhibitionUserRepository.count({
-                where: { exhibition_id: exhibitionId }
-            });
-
-            return count;
-        } catch (error) {
-            console.error('Error getting registered users count:', error);
-            return 0;
-        }
+        return this.exhibitionUserRepository.count({ where: { exhibition_id: exhibitionId } });
     }
 
     async isUserRegisteredToExhibition(exhibitionId: number, userId: number): Promise<boolean> {
-        try {
-            const registration = await this.exhibitionUserRepository.findOne({
-                where: {
-                    exhibition_id: exhibitionId,
-                    user_id: userId
-                }
-            });
+        const registration = await this.exhibitionUserRepository.findOne({
+            where: { exhibition_id: exhibitionId, user_id: userId }
+        });
+        return !!registration;
+    }
 
-            return !!registration;
-        } catch (error) {
-            console.error('Error checking registration:', error);
-            return false;
+    async checkSignUpStatus(exhibitionId: number, userId: number): Promise<boolean> {
+        return this.isUserRegisteredToExhibition(exhibitionId, userId);
+    }
+
+    // ============ ПРИВАТНЫЕ МЕТОДЫ ============
+
+    private async getExhibition(id: number) {
+        return this.exhibitionRepository.findByPk(id);
+    }
+
+    private async getArtistProfile(userId: number, transaction?: Transaction) {
+        return this.artistRepository.findOne({ where: { user_id: userId }, transaction });
+    }
+
+    private async getOrCreateArtistProfile(userId: number) {
+        let profile = await this.artistRepository.findOne({ where: { user_id: userId } });
+        if (!profile) {
+            profile = await this.artistRepository.create({
+                user_id: userId,
+                biography: '',
+                date_birthday: null
+            } as any);
         }
+        return profile;
+    }
+
+    private isOwner(exhibition: Exhibition, artistProfile: ArtistProfile, userId: number): boolean {
+        return exhibition.owner_id === artistProfile.id || exhibition.owner_id === userId;
+    }
+
+    private async getExhibitionArts(exhibitionId: number) {
+        const items = await this.exhibitionArtRepository.findAll({
+            where: { exhibition_id: exhibitionId },
+            include: [{
+                model: Art,
+                attributes: ['id', 'title', 'image_path', 'cost', 'likes', 'date_published']
+            }],
+            raw: true,
+            nest: true
+        });
+
+        return items.filter(item => item.art).map(item => ({
+            id: item.art!.id,
+            title: item.art!.title,
+            image_path: item.art!.image_path,
+            cost: item.art!.cost,
+            likes: item.art!.likes,
+            date_published: item.art!.date_published
+        }));
+    }
+
+    private async getExhibitionArtists(exhibitionId: number) {
+        const items = await this.exhibitionArtistRepository.findAll({
+            where: { exhibition_id: exhibitionId },
+            include: [{
+                model: ArtistProfile,
+                attributes: ['user_id', 'biography', 'date_birthday'],
+                include: [{
+                    model: User,
+                    attributes: ['id', 'name', 'surname', 'avatar_path', 'email', 'phone_number']
+                }]
+            }],
+            raw: true,
+            nest: true
+        });
+
+        return items.filter(item => item.artistProfile).map(item => ({
+            user_id: item.artistProfile!.user_id,
+            biography: item.artistProfile!.biography,
+            date_birthday: item.artistProfile!.date_birthday,
+            user: item.artistProfile!.user ? {
+                id: item.artistProfile!.user.id,
+                name: item.artistProfile!.user.name,
+                surname: item.artistProfile!.user.surname,
+                avatar_path: item.artistProfile!.user.avatar_path,
+                email: item.artistProfile!.user.email,
+                phone_number: item.artistProfile!.user.phone_number
+            } : null
+        }));
+    }
+
+    private async getExhibitionsByModerationStatus(moderated: boolean, page: number, limit: number, lang: string) {
+        this.log('getExhibitionsByModerationStatus', { moderated, page, limit, lang });
+
+        const offset = (page - 1) * limit;
+        const { rows } = await this.exhibitionRepository.findAndCountAll({
+            limit,
+            offset,
+            include: [{ model: Genre, attributes: ['id', 'title'] }],
+            order: [['createdAt', 'DESC']],
+            distinct: true,
+            raw: true,
+            nest: true
+        });
+
+        const filtered = rows.filter(ex => {
+            if (!ex.moderate) return !moderated;
+            try {
+                return JSON.parse(ex.moderate).moderate === moderated;
+            } catch {
+                return !moderated;
+            }
+        });
+
+        const enriched = await this.enrichWithLocation(filtered, lang);
+        const translated = await this.translateIfNeeded(enriched, 'exhibition', lang);
+        return { data: translated, pagination: this.buildPagination(filtered.length, page, limit) };
+    }
+
+    private async enrichWithLocation(exhibitions: any[], lang: string) {
+        const locationMap = await this.getLocationMap(exhibitions);
+        return exhibitions.map(ex => ({
+            ...ex,
+            city: locationMap.get(ex.id)?.city || null,
+            country: locationMap.get(ex.id)?.country || null
+        }));
+    }
+
+    private async getLocationData(countryId: number, cityId: number, lang: string) {
+        let country = null;
+        let city = null;
+
+        if (countryId) country = await this.locationService.getCountryById(countryId, lang);
+        if (cityId && countryId) {
+            const cities = await this.locationService.getCitiesByCountry(countryId, lang);
+            city = cities.find(c => c.id === cityId) || null;
+        }
+
+        return { city, country };
+    }
+
+    private async getLocationMap(exhibitions: any[]) {
+        const map = new Map<number, { city: any; country: any }>();
+        const countryIds = [...new Set(exhibitions.map(ex => ex.country_id).filter(Boolean))];
+
+        for (const id of countryIds) {
+            const country = await this.locationService.getCountryById(id, 'ru');
+            if (country) {
+                const cities = await this.locationService.getCitiesByCountry(id, 'ru');
+                exhibitions.forEach(ex => {
+                    if (ex.country_id === id) {
+                        const city = cities.find(c => c.id === ex.city_id) || null;
+                        if (!map.has(ex.id)) {
+                            map.set(ex.id, { city, country });
+                        } else {
+                            const data = map.get(ex.id);
+                            if (!data.city) data.city = city;
+                            if (!data.country) data.country = country;
+                        }
+                    }
+                });
+            }
+        }
+
+        return map;
+    }
+
+    private async getGenreMap(exhibitions: any[]) {
+        const genreIds = [...new Set(exhibitions.map(ex => ex.genre_id).filter(Boolean))];
+        const genres = await this.genreRepository.findAll({
+            where: { id: genreIds },
+            attributes: ['id', 'title']
+        });
+        return new Map(genres.map(g => [g.id, g]));
+    }
+
+    private async getArtsMap(exhibitionIds: number[]) {
+        const items = await this.exhibitionArtRepository.findAll({
+            where: { exhibition_id: exhibitionIds },
+            include: [{
+                model: Art,
+                attributes: ['id', 'title', 'image_path', 'cost', 'likes']
+            }],
+            raw: true,
+            nest: true
+        });
+
+        const map = new Map<number, any[]>();
+        items.forEach(item => {
+            if (item.art) {
+                const list = map.get(item.exhibition_id) || [];
+                list.push({
+                    id: item.art.id,
+                    title: item.art.title,
+                    image_path: item.art.image_path,
+                    cost: item.art.cost,
+                    likes: item.art.likes
+                });
+                map.set(item.exhibition_id, list);
+            }
+        });
+        return map;
+    }
+
+    private async getArtistsMap(exhibitionIds: number[]) {
+        const items = await this.exhibitionArtistRepository.findAll({
+            where: { exhibition_id: exhibitionIds },
+            include: [{
+                model: ArtistProfile,
+                attributes: ['user_id'],
+                include: [{
+                    model: User,
+                    attributes: ['id', 'name', 'surname', 'avatar_path']
+                }]
+            }],
+            raw: true,
+            nest: true
+        });
+
+        const map = new Map<number, any[]>();
+        items.forEach(item => {
+            if (item.artistProfile) {
+                const list = map.get(item.exhibition_id) || [];
+                list.push({
+                    user_id: item.artistProfile.user_id,
+                    user: item.artistProfile.user ? {
+                        id: item.artistProfile.user.id,
+                        name: item.artistProfile.user.name,
+                        surname: item.artistProfile.user.surname,
+                        avatar_path: item.artistProfile.user.avatar_path
+                    } : null
+                });
+                map.set(item.exhibition_id, list);
+            }
+        });
+        return map;
+    }
+
+    private async buildUpdateData(dto: UpdateExhibitionDto, image: any, exhibition: Exhibition) {
+        const data: any = this.pick(dto, [
+            'title', 'description', 'address', 'date', 'cost', 'currency',
+            'visitors_count', 'city_id', 'country_id', 'genre_id', 'likes', 'views'
+        ]);
+
+        if (image) {
+            data.image_path = await this.fileService.createFile(image);
+            if (exhibition.image_path) {
+                this.fileService.removeFile(exhibition.image_path).catch(console.error);
+            }
+        }
+
+        return data;
+    }
+
+    private async updateRelations(id: number, dto: UpdateExhibitionDto, exhibition: Exhibition, artistProfile: ArtistProfile) {
+        if (dto.artist_ids !== undefined) {
+            await this.exhibitionUserRepository.destroy({ where: { exhibition_id: id } });
+            const ownerId = exhibition.owner_id === artistProfile.id ? exhibition.owner_id : artistProfile.id;
+            const allIds = [...new Set([ownerId, ...dto.artist_ids])];
+            for (const artistId of allIds) {
+                if (artistId && !isNaN(artistId)) {
+                    await this.exhibitionUserRepository.create({ exhibition_id: id, artist_id: artistId } as any);
+                }
+            }
+        }
+
+        if (dto.art_ids !== undefined) {
+            await this.exhibitionArtRepository.destroy({ where: { exhibition_id: id } });
+            for (const artId of dto.art_ids) {
+                if (artId && !isNaN(artId)) {
+                    await this.exhibitionArtRepository.create({ exhibition_id: id, art_id: artId } as any);
+                }
+            }
+        }
+    }
+
+    private formatExhibitionResponse(exhibition: Exhibition) {
+        const json = exhibition.toJSON();
+        if (json.moderate) {
+            try {
+                json.moderate = JSON.parse(json.moderate);
+            } catch {
+                json.moderate = null;
+            }
+        }
+        return json;
+    }
+
+    private parseModerate(moderate: string) {
+        if (!moderate) return null;
+        try {
+            return JSON.parse(moderate);
+        } catch {
+            return null;
+        }
+    }
+
+    private buildPagination(total: number, page: number, limit: number) {
+        const totalPages = Math.ceil(total / limit);
+        return {
+            total,
+            page,
+            limit,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1
+        };
+    }
+
+    private async translateIfNeeded(data: any, type: string, lang: string) {
+        if (lang && lang !== 'ru') {
+            if (Array.isArray(data)) {
+                return this.translationService.translateEntities(data, type, lang);
+            }
+            return this.translationService.translateEntity(data, type, data.id, lang);
+        }
+        return data;
+    }
+
+    private pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+        return keys.reduce((acc, key) => {
+            if (obj[key] !== undefined && obj[key] !== null) {
+                acc[key] = obj[key];
+            }
+            return acc;
+        }, {} as Pick<T, K>);
+    }
+
+    private log(method: string, data: any) {
+        this.logger.log('info', JSON.stringify({
+            message: `📋 ${method}`,
+            context: 'ExhibitionsService',
+            ...data,
+        }));
+    }
+
+    private handleError(method: string, error: any): never {
+        this.logger.log('error', JSON.stringify({
+            message: `❌ Ошибка в ${method}`,
+            context: 'ExhibitionsService',
+            error: error.message,
+            stack: error.stack,
+        }));
+
+        if (error instanceof HttpException || error instanceof NotFoundException) {
+            throw error;
+        }
+
+        throw new HttpException(
+            `Ошибка в ${method}: ${error.message}`,
+            400
+        );
     }
 }
