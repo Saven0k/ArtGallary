@@ -1,19 +1,19 @@
-// src/genres/genres.service.ts
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Genre } from './genre.model';
-import { CreateGenreDto, UpdateGenreDto } from './dto/create-genre.dto';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { Inject } from '@nestjs/common';
 import { ArtType } from '../art-types/art-type.model';
 import { initialGenresData } from './genres.data';
+import { CreateGenreDto } from './dto/create-genre.dto';
+import { UpdateGenreDto } from './dto/update-genre.dto';
 
 @Injectable()
 export class GenresService {
     constructor(
         @InjectModel(Genre) private genreRepository: typeof Genre,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-    ) {}
+    ) { }
 
     async seedGenres() {
         this.log('🌱 Начало заполнения жанров...');
@@ -31,7 +31,11 @@ export class GenresService {
 
                 await this.genreRepository.findOrCreate({
                     where: { title: item.title, art_type_id: artTypeId },
-                    defaults: { title: item.title, art_type_id: artTypeId }
+                    defaults: {
+                        title: item.title,
+                        art_type_id: artTypeId,
+                        description: item.description || null
+                    }
                 });
                 this.logger.debug(`✅ Создан жанр: ${item.title} (${item.artType})`);
             }
@@ -52,16 +56,8 @@ export class GenresService {
 
     async update(id: number, dto: UpdateGenreDto) {
         this.log('update', { genreId: id });
-
-        const [affectedCount] = await this.genreRepository.update(
-            this.pick(dto, ['title', 'art_type_id']),
-            { where: { id } }
-        );
-
-        if (!affectedCount) {
-            throw new HttpException('Genre not found', 404);
-        }
-
+        const [affectedCount] = await this.genreRepository.update(this.pick(dto, ['title', 'description', 'art_type_id']), { where: { id } });
+        if (!affectedCount) throw new HttpException('Genre not found', 404);
         const updated = await this.genreRepository.findByPk(id);
         this.log('updated', { genreId: id });
         return updated;
@@ -69,12 +65,8 @@ export class GenresService {
 
     async delete(id: number) {
         this.log('delete', { genreId: id });
-
         const result = await this.genreRepository.destroy({ where: { id } });
-        if (!result) {
-            throw new HttpException('Genre not found', 404);
-        }
-
+        if (!result) throw new HttpException('Genre not found', 404);
         this.log('deleted', { genreId: id });
         return { success: true };
     }
@@ -88,47 +80,31 @@ export class GenresService {
 
     async getAll(artTypeId?: number) {
         this.log('getAll', { artTypeId });
-
         const where = artTypeId ? { art_type_id: artTypeId } : {};
         const genres = await this.genreRepository.findAll({
             include: [{ model: ArtType }],
             raw: true,
             nest: true
         });
-
         return genres;
     }
 
     async getById(id: number) {
         this.log('getById', { genreId: id });
-
-        const genre = await this.genreRepository.findByPk(id, {
-            include: [{ model: ArtType }]
-        });
-
-        if (!genre) {
-            throw new HttpException('Genre not found', 404);
-        }
-
+        const genre = await this.genreRepository.findByPk(id, { include: [{ model: ArtType }] });
+        if (!genre) throw new HttpException('Genre not found', 404);
         return genre;
     }
 
     async getGenresByArtType(artTypeId: number) {
         this.log('getGenresByArtType', { artTypeId });
-
-        const genres = await this.genreRepository.findAll({
-            where: { art_type_id: artTypeId },
-            include: [{ model: ArtType }]
-        });
-
+        const genres = await this.genreRepository.findAll({ where: { art_type_id: artTypeId }, include: [{ model: ArtType }] });
         return genres;
     }
 
     private pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
         return keys.reduce((acc, key) => {
-            if (obj[key] !== undefined && obj[key] !== null) {
-                acc[key] = obj[key];
-            }
+            if (obj[key] !== undefined && obj[key] !== null) acc[key] = obj[key];
             return acc;
         }, {} as Pick<T, K>);
     }
