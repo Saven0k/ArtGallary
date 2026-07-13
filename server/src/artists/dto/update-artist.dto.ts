@@ -42,9 +42,9 @@ export class UpdateArtistDto {
     moderate?: string;
 
         
-    @ApiProperty({ example: 'photographer', description: 'Вид професии артиста' })
+    @ApiProperty({ example: '5', description: 'Вид професии артиста' })
     @IsString()
-    profession?: string;
+    profession_id?: number;
 
     @ApiProperty({ example: 1, description: 'ID города' })
     @IsNumber()

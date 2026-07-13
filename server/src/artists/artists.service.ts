@@ -56,7 +56,7 @@ export class ArtistsService {
 
             await this.artistProfileModel.create({
                 user_id: user.id,
-                ...this.pick(dto, ['biography', 'date_birthday', 'city_id', 'country_id', 'profession']),
+                ...this.pick(dto, ['biography', 'date_birthday', 'city_id', 'country_id', 'profession_id']),
                 moderate: JSON.stringify({ moderate: false, moderator_id: null, errors: {} }),
             }, { transaction });
 
@@ -69,7 +69,6 @@ export class ArtistsService {
     }
 
     async updateArtist(id: number, dto: UpdateArtistDto, image: any) {
-        // ✅ Валидация страны через LocationService
         if (dto.country_id) {
             const country = await this.locationService.getCountryById(Number(dto.country_id));
             if (!country) {
@@ -585,7 +584,7 @@ export class ArtistsService {
     private buildProfileUpdateData(dto: UpdateArtistDto) {
         return this.pick(dto, [
             'biography', 'date_birthday', 'city_id', 'country_id',
-            'likes', 'views', 'profession'
+            'likes', 'views', 'profession_id'
         ]);
     }
 

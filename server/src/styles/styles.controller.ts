@@ -1,9 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { CreateStyleDto, UpdateStyleDto } from './dto/create-style.dto';
+import { ApiOperation } from '@nestjs/swagger';
+import { CreateStyleDto } from './dto/create-style.dto';
 import { Role } from '../auth/enums/role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { StylesService } from './styles.service';
+import { UpdateStyleDto } from './dto/update-style.dto';
 
 @Controller('styles')
 export class StylesController {

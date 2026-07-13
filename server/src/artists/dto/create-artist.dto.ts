@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsString, IsNumber, MinLength, IsOptional, IsPhoneNumber } from "class-validator";
-import { profession } from "../artist.model";
 
 export class CreateArtistDto {
     @ApiProperty({ example: 'email@email.ru', description: 'Почта' })
@@ -35,9 +34,9 @@ export class CreateArtistDto {
     @IsString()
     biography: string;
     
-    @ApiProperty({ example: 'photographer', description: 'Вид професии артиста' })
+    @ApiProperty({ example: '5', description: 'Вид професии артиста' })
     @IsString()
-    profession: profession;
+    profession_id: number;
     
     @ApiProperty({ example: 1, description: 'ID города' })
     @IsNumber()

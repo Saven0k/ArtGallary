@@ -1,9 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ArtTypesService } from './art-types.service';
-import { CreateArtTypeDto, UpdateArtTypeDto } from './dto/create-art-type.dto';
+import { CreateArtTypeDto } from './dto/create-art-type.dto';
 import { Role } from '../auth/enums/role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { UpdateArtTypeDto } from './dto/update-art-type.dto';
 
 @ApiTags('Виды искусства')
 @Controller('art-types')
