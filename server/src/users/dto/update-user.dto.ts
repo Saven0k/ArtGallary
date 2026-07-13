@@ -25,10 +25,11 @@ export class UpdateuserDto {
     readonly second_name?: string;
 
     @ApiProperty({ example: '+79876543211', description: 'Номер телефона' })
-    @IsPhoneNumber()
     readonly phone_number?: string;
 
+    @ApiProperty({ example: 'F', description: 'Женский пол' })
+    readonly gender?: string;
+
     @ApiProperty({ example: '/awd/photo.png', description: 'Фотография пользователя' })
-    @IsPhoneNumber()
     readonly avatar_path?: string | null;
 }

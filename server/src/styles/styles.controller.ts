@@ -1,14 +1,13 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { StylesSerivce } from './styles.service';
 import { CreateStyleDto, UpdateStyleDto } from './dto/create-style.dto';
 import { Role } from '../auth/enums/role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Language } from 'src/translation/language.decorator';
+import { StylesService } from './styles.service';
 
 @Controller('styles')
 export class StylesController {
-    constructor(private stylesService: StylesSerivce) { }
+    constructor(private stylesService: StylesService) { }
 
 
     @ApiOperation({ summary: 'Добавление стиля' })
@@ -37,17 +36,16 @@ export class StylesController {
     @ApiOperation({ summary: 'Получение списка стилей' })
     @Get()
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
-    getAll(@Language() lang: string) {
-        return this.stylesService.getAll(lang);
+    getAll() {
+        return this.stylesService.getAll();
     }
 
     @ApiOperation({ summary: 'Получение стиля по id' })
     @Get("/:id")
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
     get(
-        @Param('id') id: number,
-        @Language() lang: string
+        @Param('id') id: number
     ) {
-        return this.stylesService.getById(id, lang);
+        return this.stylesService.getById(id);
     }
 }

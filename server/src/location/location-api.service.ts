@@ -2,20 +2,42 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { Country, City, State } from './interfaces/location.interface';
 
 @Injectable()
 export class LocationApiService {
     private readonly logger = new Logger(LocationApiService.name);
-    private readonly BASE_URL = 'https://city-state-country.vercel.app';
+    // ✅ Правильный URL для API с ключом
+    private readonly BASE_URL = 'https://api.restcountries.com/v3.1';
+    private readonly API_KEY: string;
 
-    constructor(private httpService: HttpService) {}
+    constructor(private httpService: HttpService) {
+        this.API_KEY = process.env.REST_COUNTRIES_API_KEY || '';
+        if (!this.API_KEY) {
+            this.logger.warn('⚠️ REST_COUNTRIES_API_KEY не установлен!');
+        }
+    }
 
-    async getAllCountries(): Promise<Country[]> {
+    /**
+     * Получение всех стран через RestCountries API v3.1
+     */
+    async getAllCountries(lang: string = 'ru'): Promise<any[]> {
         try {
             const response = await firstValueFrom(
-                this.httpService.get(`${this.BASE_URL}/countries`)
+                this.httpService.get(`${this.BASE_URL}/all`, {
+                    headers: {
+                        'Authorization': `Bearer ${this.API_KEY}`, 
+                    },
+                    params: {
+                        fields: 'name,cca2,translations',
+                    },
+                })
             );
+
+            if (!response.data || !Array.isArray(response.data)) {
+                this.logger.warn('⚠️ Invalid response from RestCountries API');
+                return [];
+            }
+
             return response.data;
         } catch (error) {
             this.logger.error('Failed to fetch countries:', error);
@@ -23,52 +45,56 @@ export class LocationApiService {
         }
     }
 
-    async getCountryById(id: number): Promise<Country | null> {
+    /**
+     * Получение страны по ISO коду
+     */
+    async getCountryByCode(isoCode: string): Promise<any> {
         try {
             const response = await firstValueFrom(
-                this.httpService.get(`${this.BASE_URL}/countries/${id}`)
+                this.httpService.get(`${this.BASE_URL}/alpha/${isoCode}`, {
+                    headers: {
+                        'Authorization': `Bearer ${this.API_KEY}`,
+                    },
+                    params: {
+                        fields: 'name,cca2,translations',
+                    },
+                })
             );
             return response.data;
         } catch (error) {
-            this.logger.error(`Failed to fetch country ${id}:`, error);
+            this.logger.error(`Failed to fetch country ${isoCode}:`, error);
             return null;
         }
     }
 
-    async getStatesByCountry(countryId: number): Promise<State[]> {
+    /**
+     * Получение городов через OpenStreetMap Nominatim (бесплатно, без ключа)
+     */
+    async getCitiesByCountryCode(countryCode: string, lang: string = 'ru'): Promise<any[]> {
         try {
             const response = await firstValueFrom(
-                this.httpService.get(`${this.BASE_URL}/countries/${countryId}/states`)
+                this.httpService.get('https://nominatim.openstreetmap.org/search', {
+                    params: {
+                        countrycodes: countryCode,
+                        format: 'json',
+                        limit: 50,
+                        featuretype: 'city',
+                        'accept-language': lang,
+                    },
+                    headers: {
+                        'User-Agent': 'GalleryApp/1.0',
+                    },
+                })
             );
+
+            if (!response.data || !Array.isArray(response.data)) {
+                this.logger.warn(`⚠️ Invalid response from Nominatim for ${countryCode}`);
+                return [];
+            }
+
             return response.data;
         } catch (error) {
-            this.logger.error(`Failed to fetch states for country ${countryId}:`, error);
-            return [];
-        }
-    }
-
-    async getCitiesByCountry(countryId: number): Promise<City[]> {
-        try {
-            const response = await firstValueFrom(
-                this.httpService.get(`${this.BASE_URL}/countries/${countryId}/cities`)
-            );
-            return response.data;
-        } catch (error) {
-            this.logger.error(`Failed to fetch cities for country ${countryId}:`, error);
-            return [];
-        }
-    }
-
-    async searchCountries(query: string): Promise<Country[]> {
-        try {
-            const allCountries = await this.getAllCountries();
-            return allCountries.filter(c => 
-                c.name.toLowerCase().includes(query.toLowerCase()) ||
-                c.iso2.toLowerCase().includes(query.toLowerCase()) ||
-                c.iso3.toLowerCase().includes(query.toLowerCase())
-            );
-        } catch (error) {
-            this.logger.error(`Failed to search countries:`, error);
+            this.logger.error(`Failed to fetch cities for country ${countryCode}:`, error);
             return [];
         }
     }

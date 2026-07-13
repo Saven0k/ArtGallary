@@ -1,10 +1,10 @@
+// src/genres/genres.service.ts
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Genre } from './genre.model';
 import { CreateGenreDto, UpdateGenreDto } from './dto/create-genre.dto';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { Inject } from '@nestjs/common';
-import { TranslationService } from 'src/translation/translation.service';
 import { ArtType } from '../art-types/art-type.model';
 import { initialGenresData } from './genres.data';
 
@@ -13,7 +13,6 @@ export class GenresService {
     constructor(
         @InjectModel(Genre) private genreRepository: typeof Genre,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-        private translationService: TranslationService
     ) {}
 
     async seedGenres() {
@@ -43,7 +42,6 @@ export class GenresService {
             throw error;
         }
     }
-
 
     async create(dto: CreateGenreDto) {
         this.log('create', { genreName: dto.title });
@@ -88,23 +86,23 @@ export class GenresService {
         return { success: true };
     }
 
-
-    async getAll(lang: string = 'ru', artTypeId?: number) {
-        this.log('getAll', { lang, artTypeId });
+    async getAll(artTypeId?: number) {
+        this.log('getAll', { artTypeId });
 
         const where = artTypeId ? { art_type_id: artTypeId } : {};
-        let genres = await this.genreRepository.findAll({
-            where,
-            include: [{ model: ArtType }]
+        const genres = await this.genreRepository.findAll({
+            include: [{ model: ArtType }],
+            raw: true,
+            nest: true
         });
 
-        return this.translateIfNeeded(genres, 'genre', lang);
+        return genres;
     }
 
-    async getById(id: number, lang: string = 'ru') {
-        this.log('getById', { genreId: id, lang });
+    async getById(id: number) {
+        this.log('getById', { genreId: id });
 
-        let genre = await this.genreRepository.findByPk(id, {
+        const genre = await this.genreRepository.findByPk(id, {
             include: [{ model: ArtType }]
         });
 
@@ -112,29 +110,18 @@ export class GenresService {
             throw new HttpException('Genre not found', 404);
         }
 
-        return this.translateIfNeeded(genre, 'genre', lang);
+        return genre;
     }
 
-    async getGenresByArtType(artTypeId: number, lang: string = 'ru') {
-        this.log('getGenresByArtType', { artTypeId, lang });
+    async getGenresByArtType(artTypeId: number) {
+        this.log('getGenresByArtType', { artTypeId });
 
-        let genres = await this.genreRepository.findAll({
+        const genres = await this.genreRepository.findAll({
             where: { art_type_id: artTypeId },
             include: [{ model: ArtType }]
         });
 
-        return this.translateIfNeeded(genres, 'genre', lang);
-    }
-
-
-    private async translateIfNeeded(data: any, type: string, lang: string) {
-        if (lang && lang !== 'ru') {
-            if (Array.isArray(data)) {
-                return this.translationService.translateEntities(data, type, lang);
-            }
-            return this.translationService.translateEntity(data, type, data.id, lang);
-        }
-        return data;
+        return genres;
     }
 
     private pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {

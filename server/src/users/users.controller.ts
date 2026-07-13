@@ -7,7 +7,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Role } from '../auth/enums/role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UpdateuserDto } from './dto/update-user.dto';
-import { Language } from 'src/translation/language.decorator';
 
 @ApiTags("Пользователи")
 @Controller('users')
@@ -52,26 +51,38 @@ export class UsersController {
 
     @ApiOperation({ summary: 'Получение списка пользователей' })
     @Get()
-    getAll(@Language() lang: string) {
-        return this.userService.getAllUsers(lang);
+    getAll() {
+        return this.userService.getAllUsers();
     }
 
     @ApiOperation({ summary: 'Получение пользователя по ID' })
     @Get(`/:id`)
     getUser(
-        @Param('id') id: number,
-        @Language() lang: string
+        @Param('id') id: number
     ) {
-        return this.userService.getUserById(id, lang);
+        return this.userService.getUserById(id);
     }
 
     @ApiOperation({ summary: 'Получение данных профиля пользователя по ID' })
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
     @Get(`/:id/profile`)
     getUserData(
-        @Param('id') id: number,
-        @Language() lang: string
+        @Param('id') id: number
     ) {
-        return this.userService.getProfileData(id, lang);
+        return this.userService.getProfileData(id);
+    }
+
+    @ApiOperation({ summary: 'Восстановление пользователя' })
+    @Roles(Role.Admin, Role.Moderator)
+    @Post('/:id/restore')
+    async restoreUser(@Param('id') id: number) {
+        return this.userService.restoreUser(id);
+    }
+
+    @ApiOperation({ summary: 'Получение удаленных пользователей' })
+    @Roles(Role.Admin, Role.Moderator)
+    @Get('/deleted')
+    async getDeletedUsers() {
+        return this.userService.getDeletedUsers();
     }
 }

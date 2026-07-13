@@ -14,21 +14,18 @@ import { resolve } from "path";
 import { StyleModule } from './styles/styles.module';
 import { ArtistsModule } from './artists/artists.module';
 import { PasswordModule } from './password/password.module';
-import { ExhibitionsModule } from './exhibitions/exhibitions.module';
-import { Exhibition } from "./exhibitions/exhibition.model";
 import { ArtistProfile } from "./artists/artist.model";
-import { ExhibitionArtist } from "./exhibitions/exhibition-artist.model";
-import { ExhibitionArt } from "./exhibitions/exhibition-art.model";
 
 import { utilities, WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { RefreshToken } from "./auth/models/refresh-token.model";
-import { ExhibitionUser } from "./exhibitions/exhibition-user.model";
 import { ModeratorsModule } from './moderators/moderators.module';
 import { Moderator } from "./moderators/moderator.model";
-import { TranslationModule } from './translation/translation.module';
-import { LocationModule } from './location/location.module';
 import { ArtTypesModule } from './art-types/art-types.module';
+import { Style } from "./styles/styles.model";
+import { ArtView } from "./arts/art-view.model";
+import { ArtType } from "./art-types/art-type.model";
+import { LocationModule } from './location/location.module';
 
 @Module({
     controllers: [],
@@ -77,7 +74,7 @@ import { ArtTypesModule } from './art-types/art-types.module';
             username: process.env.POSTGRES_USER,
             password: process.env.POSTGRES_PASSWORD,
             database: process.env.POSTGRES_DB,
-            models: [User, Art, Genre, Exhibition, ArtistProfile, ExhibitionArtist, ExhibitionArt, ExhibitionUser, RefreshToken, Moderator],
+            models: [User, Art, Genre,  ArtistProfile, RefreshToken, ArtView, Moderator, ArtType, Style],
             autoLoadModels: true,
             logging: console.log,
             query: {
@@ -92,13 +89,9 @@ import { ArtTypesModule } from './art-types/art-types.module';
         StyleModule,
         ArtistsModule,
         PasswordModule,
-        ExhibitionsModule,
         ModeratorsModule,
-        TranslationModule,
-        LocationModule,
         ArtTypesModule,
+        LocationModule,
     ],
 })
-export class AppModule {
-
-}
+export class AppModule {}

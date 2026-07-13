@@ -1,10 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { GenresService } from './genres.service';
 import { CreateGenreDto, UpdateGenreDto } from './dto/create-genre.dto';
 import { Role } from '../auth/enums/role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Language } from 'src/translation/language.decorator';
 
 @Controller('genres')
 export class GenresController {
@@ -49,27 +48,24 @@ export class GenresController {
     @Get('by-art-type/:artTypeId')
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
     getGenresByArtType(
-        @Param('artTypeId') artTypeId: number,
-        @Language() lang: string
+        @Param('artTypeId') artTypeId: number
     ) {
-        return this.genresService.getGenresByArtType(artTypeId, lang);
+        return this.genresService.getGenresByArtType(artTypeId);
     }
     
     @ApiOperation({ summary: 'Получение списка жанров' })
     @Get()
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
-    getAll(@Language() lang: string) {
-        return this.genresService.getAll(lang);
+    getAll() {
+        return this.genresService.getAll();
     }
 
     @ApiOperation({ summary: 'Получение жанра по id' })
     @Get("/:id")
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
     get(
-        @Param('id') id: number,
-        @Language() lang: string
+        @Param('id') id: number
     ) {
-        return this.genresService.getById(id, lang);
+        return this.genresService.getById(id );
     }
-
 }

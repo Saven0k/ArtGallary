@@ -6,7 +6,6 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/enums/role.enum';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Language } from 'src/translation/language.decorator';
 
 @ApiTags('Модераторы')
 @Controller('moderators')
@@ -37,10 +36,9 @@ export class ModeratorsController {
     @Roles(Role.Admin)
     @Get(':id')
     getModeratorById(
-        @Param('id') id: string,
-        @Language() lang: string
+        @Param('id') id: string
     ) {
-        return this.moderatorsService.getModeratorById(parseInt(id), lang);
+        return this.moderatorsService.getModeratorById(parseInt(id));
     }
 
     @ApiOperation({ summary: 'Получение списка модераторов' })
@@ -50,9 +48,8 @@ export class ModeratorsController {
     @Get()
     getModerators(
         @Query('page') page: string = '1',
-        @Query('limit') limit: string = '10',
-        @Language() lang: string
+        @Query('limit') limit: string = '10'
     ) {
-        return this.moderatorsService.getModerators(parseInt(page), parseInt(limit), lang);
+        return this.moderatorsService.getModerators(parseInt(page), parseInt(limit));
     }
 }

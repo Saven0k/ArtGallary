@@ -3,24 +3,26 @@ import { Injectable, Logger, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { LocationApiService } from './location-api.service';
-import { TranslationService } from '../translation/translation.service';
-import { Country, City, State } from './interfaces/location.interface';
+import { CountryDto } from './dto/country.dto';
+import { CityDto } from './dto/city.dto';
 
 @Injectable()
 export class LocationService {
     private readonly logger = new Logger(LocationService.name);
-    private readonly CACHE_TTL = 24 * 60 * 60 * 1000; // 24 часа
 
     constructor(
         private locationApiService: LocationApiService,
-        private translationService: TranslationService,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) {}
 
-    async getAllCountries(lang: string = 'ru'): Promise<Country[]> {
+    private generateCountryId(iso2: string): number {
+        if (!iso2 || iso2.length < 2) return 0;
+        return parseInt(iso2.charCodeAt(0).toString() + iso2.charCodeAt(1).toString());
+    }
+
+    async getAllCountries(lang: string = 'ru'): Promise<CountryDto[]> {
         const cacheKey = `countries_${lang}`;
-        
-        const cached = await this.cacheManager.get<Country[]>(cacheKey);
+        const cached = await this.cacheManager.get<CountryDto[]>(cacheKey);
         if (cached) {
             this.logger.debug(`✅ Cache hit: ${cacheKey}`);
             return cached;
@@ -28,160 +30,158 @@ export class LocationService {
 
         this.logger.log(`📋 Fetching all countries (lang: ${lang})`);
         
-        let countries = await this.locationApiService.getAllCountries();
+        const data = await this.locationApiService.getAllCountries(lang);
         
-        if (lang && lang !== 'ru') {
-            countries = await this.translationService.translateEntities(
-                countries,
-                'country',
-                lang
-            );
+        if (!data || !Array.isArray(data)) {
+            this.logger.warn('⚠️ Received invalid data from API, returning empty array');
+            return [];
         }
 
-        await this.cacheManager.set(cacheKey, countries, this.CACHE_TTL);
+        const countries = data.map((country: any) => {
+            const iso2 = country.cca2 || '';
+            
+            // ✅ В v5 название находится в country.name.common
+            let name = country.name?.common || 'Unknown';
+            
+            // ✅ Переводы в v5 находятся в country.translations
+            if (lang === 'ru' && country.translations?.rus?.common) {
+                name = country.translations.rus.common;
+            }
+
+            return {
+                id: this.generateCountryId(iso2),
+                name: name,
+                iso2: iso2,
+            };
+        });
+
+        const validCountries = countries.filter(c => c.id > 0 && c.name && c.iso2);
+
+        await this.cacheManager.set(cacheKey, validCountries, 86400000);
+        this.logger.log(`✅ Cached ${validCountries.length} countries`);
         
-        return countries;
+        return validCountries;
     }
 
-    async getCountryById(id: number, lang: string = 'ru'): Promise<Country | null> {
+    async getCountryById(id: number, lang: string = 'ru'): Promise<CountryDto | null> {
         const cacheKey = `country_${id}_${lang}`;
-        
-        const cached = await this.cacheManager.get<Country>(cacheKey);
-        if (cached) {
-            this.logger.debug(`✅ Cache hit: ${cacheKey}`);
-            return cached;
-        }
+        const cached = await this.cacheManager.get<CountryDto>(cacheKey);
+        if (cached) return cached;
 
-        this.logger.log(`📋 Fetching country ${id} (lang: ${lang})`);
+        const allCountries = await this.getAllCountries(lang);
+        const country = allCountries.find(c => c.id === id);
         
-        let country = await this.locationApiService.getCountryById(id);
-        
-        if (country && lang && lang !== 'ru') {
-            country = await this.translationService.translateEntity(
-                country,
-                'country',
-                id,
-                lang
-            );
-        }
-
         if (country) {
-            await this.cacheManager.set(cacheKey, country, this.CACHE_TTL);
+            await this.cacheManager.set(cacheKey, country, 86400000);
         }
         
+        return country || null;
+    }
+
+    async getCountryByCode(isoCode: string, lang: string = 'ru'): Promise<CountryDto | null> {
+        if (!isoCode) return null;
+        
+        const cacheKey = `country_code_${isoCode}_${lang}`;
+        const cached = await this.cacheManager.get<CountryDto>(cacheKey);
+        if (cached) return cached;
+
+        const data = await this.locationApiService.getCountryByCode(isoCode);
+        if (!data || Array.isArray(data)) return null;
+
+        // ✅ В v5 название находится в data.name.common
+        let name = data.name?.common || 'Unknown';
+        
+        // ✅ Переводы в v5 находятся в data.translations
+        if (lang === 'ru' && data.translations?.rus?.common) {
+            name = data.translations.rus.common;
+        }
+
+        const country = {
+            id: this.generateCountryId(isoCode),
+            name: name,
+            iso2: isoCode,
+        };
+
+        await this.cacheManager.set(cacheKey, country, 86400000);
         return country;
     }
 
-    async getCitiesByCountry(countryId: number, lang: string = 'ru'): Promise<City[]> {
+    async getCitiesByCountry(countryId: number, lang: string = 'ru'): Promise<CityDto[]> {
         const cacheKey = `cities_${countryId}_${lang}`;
-        
-        const cached = await this.cacheManager.get<City[]>(cacheKey);
+        const cached = await this.cacheManager.get<CityDto[]>(cacheKey);
         if (cached) {
             this.logger.debug(`✅ Cache hit: ${cacheKey}`);
             return cached;
         }
 
-        this.logger.log(`📋 Fetching cities for country ${countryId} (lang: ${lang})`);
-        
-        let cities = await this.locationApiService.getCitiesByCountry(countryId);
-        
-        if (lang && lang !== 'ru') {
-            cities = await this.translationService.translateEntities(
-                cities,
-                'city',
-                lang
-            );
+        const country = await this.getCountryById(countryId);
+        if (!country || !country.iso2) {
+            this.logger.warn(`Country with ID ${countryId} not found`);
+            return [];
         }
 
-        await this.cacheManager.set(cacheKey, cities, this.CACHE_TTL);
+        this.logger.log(`📋 Fetching cities for country: ${country.iso2} (lang: ${lang})`);
         
+        const data = await this.locationApiService.getCitiesByCountryCode(country.iso2, lang);
+        
+        if (!data || !Array.isArray(data)) {
+            this.logger.warn(`⚠️ Received invalid cities data for ${country.iso2}`);
+            return [];
+        }
+
+        const cities = data.map((city: any) => ({
+            id: city.place_id || parseInt(city.geonameId) || Math.floor(Math.random() * 1000000) + Date.now(),
+            name: city.display_name?.split(',')[0] || city.name || 'Unknown',
+            country_id: country.id,
+        }));
+
+        await this.cacheManager.set(cacheKey, cities, 86400000);
+        this.logger.log(`✅ Cached ${cities.length} cities for country ${country.name}`);
+
         return cities;
     }
 
-    async getStatesByCountry(countryId: number, lang: string = 'ru'): Promise<State[]> {
-        const cacheKey = `states_${countryId}_${lang}`;
+    async getCitiesByCountryCode(isoCode: string, lang: string = 'ru'): Promise<CityDto[]> {
+        if (!isoCode) return [];
         
-        const cached = await this.cacheManager.get<State[]>(cacheKey);
-        if (cached) {
-            this.logger.debug(`✅ Cache hit: ${cacheKey}`);
-            return cached;
-        }
+        const cacheKey = `cities_code_${isoCode}_${lang}`;
+        const cached = await this.cacheManager.get<CityDto[]>(cacheKey);
+        if (cached) return cached;
 
-        this.logger.log(`📋 Fetching states for country ${countryId} (lang: ${lang})`);
-        
-        let states = await this.locationApiService.getStatesByCountry(countryId);
-        
-        if (lang && lang !== 'ru') {
-            states = await this.translationService.translateEntities(
-                states,
-                'state',
-                lang
-            );
-        }
-
-        await this.cacheManager.set(cacheKey, states, this.CACHE_TTL);
-        
-        return states;
-    }
-
-    async searchCountries(query: string, lang: string = 'ru'): Promise<Country[]> {
-        const cacheKey = `search_${query}_${lang}`;
-        
-        const cached = await this.cacheManager.get<Country[]>(cacheKey);
-        if (cached) {
-            this.logger.debug(`✅ Cache hit: ${cacheKey}`);
-            return cached;
-        }
-
-        this.logger.log(`📋 Searching countries: ${query} (lang: ${lang})`);
-        
-        let results = await this.locationApiService.searchCountries(query);
-        
-        if (lang && lang !== 'ru') {
-            results = await this.translationService.translateEntities(
-                results,
-                'country',
-                lang
-            );
-        }
-
-        await this.cacheManager.set(cacheKey, results, this.CACHE_TTL);
-        
-        return results;
-    }
-
-    async validateLocation(countryId: number, cityId?: number): Promise<boolean> {
-        const country = await this.locationApiService.getCountryById(countryId);
+        const country = await this.getCountryByCode(isoCode);
         if (!country) {
-            throw new Error('Страна не найдена');
+            this.logger.warn(`Country with ISO code ${isoCode} not found`);
+            return [];
         }
 
-        if (cityId) {
-            const cities = await this.locationApiService.getCitiesByCountry(countryId);
-            const cityExists = cities.some(c => c.id === cityId);
-            if (!cityExists) {
-                throw new Error('Город не принадлежит выбранной стране');
-            }
-        }
-
-        return true;
+        return this.getCitiesByCountry(country.id, lang);
     }
 
-    // Метод для получения полной информации о локации артиста
-    async getArtistLocation(countryId: number, cityId: number | null, lang: string = 'ru') {
-        const country = await this.getCountryById(countryId, lang);
-        let city = null;
+    async searchCountries(query: string, lang: string = 'ru'): Promise<CountryDto[]> {
+        if (!query) return [];
         
-        if (cityId) {
-            const cities = await this.getCitiesByCountry(countryId, lang);
-            city = cities.find(c => c.id === cityId);
-        }
+        const allCountries = await this.getAllCountries(lang);
+        const lowerQuery = query.toLowerCase();
+        
+        return allCountries.filter(country =>
+            country.name.toLowerCase().includes(lowerQuery) ||
+            country.iso2?.toLowerCase().includes(lowerQuery)
+        );
+    }
 
-        return {
-            country,
-            city,
-            country_id: countryId,
-            city_id: cityId,
-        };
+    async searchCities(countryId: number, query: string, lang: string = 'ru'): Promise<CityDto[]> {
+        if (!query) return [];
+        
+        const cities = await this.getCitiesByCountry(countryId, lang);
+        const lowerQuery = query.toLowerCase();
+        
+        return cities.filter(city =>
+            city.name.toLowerCase().includes(lowerQuery)
+        );
+    }
+
+    async clearCache(): Promise<void> {
+        await this.cacheManager.clear();
+        this.logger.log('🗑️ Cache cleared');
     }
 }

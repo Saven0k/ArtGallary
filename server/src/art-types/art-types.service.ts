@@ -1,10 +1,10 @@
+// src/art-types/art-types.service.ts
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { ArtType } from './art-type.model';
 import { CreateArtTypeDto, UpdateArtTypeDto } from './dto/create-art-type.dto';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { Inject } from '@nestjs/common';
-import { TranslationService } from 'src/translation/translation.service';
 import { initialArtTypesData } from './art-types.data';
 
 @Injectable()
@@ -12,7 +12,6 @@ export class ArtTypesService {
     constructor(
         @InjectModel(ArtType) private artTypeRepository: typeof ArtType,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-        private translationService: TranslationService
     ) {}
 
     async seedArtTypes() {
@@ -103,62 +102,41 @@ export class ArtTypesService {
         return { success: true };
     }
 
-    async getAll(lang: string = 'ru') {
+    async getAll() {
         this.logger.log('info', JSON.stringify({
             message: '📋 Запрос списка всех видов искусства',
-            context: 'ArtTypesService.getAll',
-            lang
+            context: 'ArtTypesService.getAll'
         }));
 
-        let artTypes = await this.artTypeRepository.findAll();
-
-        if (lang && lang !== 'ru') {
-            artTypes = await this.translationService.translateEntities(
-                artTypes,
-                'artType',
-                lang
-            );
-        }
+        const artTypes = await this.artTypeRepository.findAll();
 
         this.logger.log('info', JSON.stringify({
             message: '✅ Список видов искусства получен',
             context: 'ArtTypesService.getAll',
-            count: artTypes.length,
-            lang
+            count: artTypes.length
         }));
 
         return artTypes;
     }
 
-    async getById(id: number, lang: string = 'ru') {
+    async getById(id: number) {
         this.logger.log('info', JSON.stringify({
             message: '🔍 Поиск вида искусства по ID',
             context: 'ArtTypesService.getById',
-            id: id,
-            lang
+            id: id
         }));
 
-        let artType = await this.artTypeRepository.findByPk(id);
+        const artType = await this.artTypeRepository.findByPk(id);
 
         if (!artType) {
             throw new HttpException('Вид искусства не найден', 404);
-        }
-
-        if (lang && lang !== 'ru') {
-            artType = await this.translationService.translateEntity(
-                artType,
-                'artType',
-                id,
-                lang
-            );
         }
 
         this.logger.log('info', JSON.stringify({
             message: '✅ Вид искусства найден',
             context: 'ArtTypesService.getById',
             id: id,
-            name: artType.name,
-            lang
+            name: artType.name
         }));
 
         return artType;

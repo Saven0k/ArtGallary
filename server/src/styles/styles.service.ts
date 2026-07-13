@@ -1,3 +1,4 @@
+// src/styles/styles.service.ts
 import { HttpException, Injectable } from '@nestjs/common';
 import { CreateStyleDto, UpdateStyleDto } from './dto/create-style.dto';
 import { InjectModel } from '@nestjs/sequelize';
@@ -5,14 +6,12 @@ import { Style } from './styles.model';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { Inject } from '@nestjs/common';
 import { Genre } from '../genres/genre.model';
-import { TranslationService } from 'src/translation/translation.service';
 
 @Injectable()
 export class StylesService {
     constructor(
         @InjectModel(Style) private stylesRepository: typeof Style,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-        private translationService: TranslationService
     ) {}
 
     async create(dto: CreateStyleDto) {
@@ -42,42 +41,34 @@ export class StylesService {
     async delete(id: number) {
         this.log('delete', { id });
 
-        const transaction = await this.stylesRepository.sequelize?.transaction();
-        try {
-            const style = await this.stylesRepository.findByPk(id);
-            if (!style) {
-                throw new HttpException('Style not found', 404);
-            }
-
-            const deletedCount = await this.stylesRepository.destroy({
-                where: { id },
-                transaction
-            });
-
-            if (!deletedCount) {
-                throw new HttpException('Style not found', 404);
-            }
-
-            if (transaction) await transaction.commit();
-            this.log('deleted', { id });
-            return { success: true, message: 'Стиль удален' };
-        } catch (e) {
-            if (transaction) await transaction.rollback();
-            this.handleError('delete', e);
+        const style = await this.stylesRepository.findByPk(id);
+        if (!style) {
+            throw new HttpException('Style not found', 404);
         }
+
+        const deletedCount = await this.stylesRepository.destroy({
+            where: { id }
+        });
+
+        if (!deletedCount) {
+            throw new HttpException('Style not found', 404);
+        }
+
+        this.log('deleted', { id });
+        return { success: true, message: 'Стиль удален' };
     }
 
-    async getAll(lang: string = 'ru') {
-        this.log('getAll', { lang });
+    async getAll() {
+        this.log('getAll');
 
-        let styles = await this.stylesRepository.findAll();
-        return this.translateIfNeeded(styles, 'style', lang);
+        const styles = await this.stylesRepository.findAll();
+        return styles;
     }
 
-    async getById(id: number, lang: string = 'ru') {
-        this.log('getById', { id, lang });
+    async getById(id: number) {
+        this.log('getById', { id });
 
-        let style = await this.stylesRepository.findByPk(id, {
+        const style = await this.stylesRepository.findByPk(id, {
             include: [{ model: Genre }]
         });
 
@@ -85,17 +76,7 @@ export class StylesService {
             throw new HttpException('Style not found', 404);
         }
 
-        return this.translateIfNeeded(style, 'style', lang);
-    }
-
-    private async translateIfNeeded(data: any, type: string, lang: string) {
-        if (lang && lang !== 'ru') {
-            if (Array.isArray(data)) {
-                return this.translationService.translateEntities(data, type, lang);
-            }
-            return this.translationService.translateEntity(data, type, data.id, lang);
-        }
-        return data;
+        return style;
     }
 
     private pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {

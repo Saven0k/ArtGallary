@@ -1,7 +1,7 @@
-import { ConflictException, HttpException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { User } from '../users/users.model';
 import { ArtistProfile } from './artist.model';
-import { Sequelize, Transaction } from 'sequelize';
+import { Op, Sequelize, Transaction } from 'sequelize';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { InjectConnection, InjectModel } from '@nestjs/sequelize';
 import bcrypt from 'bcryptjs';
@@ -11,13 +11,10 @@ import { PasswordService } from '../password/password.service';
 import { ModerateArtistDto } from './dto/modarate-artist.dto';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { Art } from '../arts/arts.model';
-import { Exhibition } from '../exhibitions/exhibition.model';
 import { Genre } from '../genres/genre.model';
 import { Style } from '../styles/styles.model';
-import { ExhibitionArtist } from '../exhibitions/exhibition-artist.model';
-import { TranslationService } from 'src/translation/translation.service';
-import { LocationService } from 'src/location/location.service';
 import { ModerateObject, ModerateResponse } from 'src/types/moderate.types';
+import { LocationService } from '../location/location.service';
 
 @Injectable()
 export class ArtistsService {
@@ -29,26 +26,24 @@ export class ArtistsService {
     constructor(
         @InjectModel(User) private userRepository: typeof User,
         @InjectModel(ArtistProfile) private artistProfileModel: typeof ArtistProfile,
-        @InjectModel(ExhibitionArtist) private exhibitionArtistRepository: typeof ExhibitionArtist,
         @InjectModel(Art) private artRepository: typeof Art,
         @InjectConnection() private sequelize: Sequelize,
         private fileSerivce: FilesService,
         private passwordService: PasswordService,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-        private translationService: TranslationService,
-        private locationService: LocationService,
-    ) {}
-
-    // ============ CRUD ОПЕРАЦИИ ============
+        private locationService: LocationService, // ✅ Добавляем LocationService
+    ) { }
 
     async createArtist(dto: CreateArtistDto, image: any) {
         this.log('createArtist', { email: dto.email });
-        if (dto.country_id) await this.locationService.validateLocation(dto.country_id, dto.city_id);
-
+        if (dto.country_id) {
+            const country = await this.locationService.getCountryById(Number(dto.country_id));
+            if (!country) throw new HttpException('Страна не найдена', HttpStatus.BAD_REQUEST);
+        }
         const transaction = await this.sequelize.transaction();
+
         try {
             await this.checkEmailExists(dto.email, transaction);
-
             const hashedPassword = await bcrypt.hash(dto.password, 5);
             const avatarPath = image ? await this.fileSerivce.createFile(image) : "";
 
@@ -74,7 +69,13 @@ export class ArtistsService {
     }
 
     async updateArtist(id: number, dto: UpdateArtistDto, image: any) {
-        if (dto.country_id) await this.locationService.validateLocation(dto.country_id, dto.city_id);
+        // ✅ Валидация страны через LocationService
+        if (dto.country_id) {
+            const country = await this.locationService.getCountryById(Number(dto.country_id));
+            if (!country) {
+                throw new HttpException('Страна не найдена', HttpStatus.BAD_REQUEST);
+            }
+        }
 
         const transaction = await this.sequelize.transaction();
         try {
@@ -107,34 +108,89 @@ export class ArtistsService {
             const user = await this.getUser(id, transaction);
             const artist = await this.getArtistProfile(user.id, transaction);
 
-            if (user.avatar_path) await this.fileSerivce.removeFile(user.avatar_path);
-
-            const arts = await this.artRepository.findAll({ where: { artist_id: user.id }, transaction });
-            for (const art of arts) {
-                if (art.image_path) await this.fileSerivce.removeFile(art.image_path);
-                await art.destroy({ transaction });
+            // Проверяем, не удален ли уже
+            if (artist.is_deleted) {
+                throw new HttpException('Артист уже удален', 400);
             }
 
-            await this.exhibitionArtistRepository.destroy({ where: { artist_id: artist.user_id }, transaction });
-            await artist.destroy({ transaction });
-            await user.destroy({ transaction });
+            // Мягкое удаление артиста
+            await artist.update({
+                is_deleted: true,
+                deleted_at: new Date(),
+            }, { transaction });
+
+            // Также мягко удаляем пользователя
+            await user.update({
+                is_deleted: true,
+                deleted_at: new Date(),
+            }, { transaction });
 
             await transaction.commit();
-            return { success: true, message: 'Артист полностью удален' };
+
+            this.logger.log('info', JSON.stringify({
+                message: '✅ Артист скрыт (мягкое удаление)',
+                context: 'ArtistsService.deleteArtist',
+                userId: id
+            }));
+
+            return {
+                success: true,
+                message: 'Артист скрыт. Восстановление возможно в течение года.'
+            };
         } catch (e) {
             await transaction.rollback();
             this.handleError('deleteArtist', e);
         }
     }
+    async restoreArtist(id: number) {
+        const transaction = await this.sequelize.transaction();
+        try {
+            const user = await this.getUser(id, transaction);
+            const artist = await this.getArtistProfile(user.id, transaction);
 
-    // ============ GET МЕТОДЫ ============
+            if (!artist.is_deleted) {
+                throw new HttpException('Артист не был удален', 400);
+            }
+
+            // Проверяем срок
+            if (artist.deleted_at) {
+                const oneYearAgo = new Date();
+                oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+                if (artist.deleted_at < oneYearAgo) {
+                    throw new HttpException('Срок восстановления истек (более года)', 410);
+                }
+            }
+
+            // Восстанавливаем
+            await artist.update({
+                is_deleted: false,
+                deleted_at: null,
+            }, { transaction });
+
+            await user.update({
+                is_deleted: false,
+                deleted_at: null,
+            }, { transaction });
+
+            await transaction.commit();
+
+            return {
+                success: true,
+                message: 'Артист успешно восстановлен'
+            };
+        } catch (e) {
+            await transaction.rollback();
+            this.handleError('restoreArtist', e);
+        }
+    }
 
     async getArtistById(id: number, lang: string = 'ru') {
         this.log('getArtistById', { artistId: id, lang });
 
         const user = await this.userRepository.findOne({
-            where: { id, role: 'artist' },
-            attributes: this.userAttributes,
+            where: { id, role: 'artist', is_deleted: false },
+            attributes: this.userAttributes
         });
 
         if (!user) return null;
@@ -143,18 +199,19 @@ export class ArtistsService {
         const stats = await this.getArtistStats(id);
         const location = await this.getLocationData(profile?.country_id, profile?.city_id, lang);
         const moderate = this.parseModerate(profile?.moderate);
+        const userData = user;
 
         let result = {
-            ...user.toJSON(),
+            ...userData,
             artistProfile: profile ? {
-                ...this.pick(profile, ['user_id', 'date_birthday', 'biography', 'city_id', 'country_id', 'profession']),
-                moderate,
+                ...profile,
                 ...location,
                 ...stats,
+                moderate,
             } : null,
         };
 
-        return this.translateIfNeeded(result, 'artist', lang);
+        return result;
     }
 
     async getAll(page: number = 1, limit: number = 12, lang: string = 'ru') {
@@ -162,7 +219,7 @@ export class ArtistsService {
 
         const offset = (page - 1) * limit;
         const { count, rows } = await this.userRepository.findAndCountAll({
-            where: { role: 'artist' },
+            where: { role: 'artist', is_deleted: false },
             attributes: this.userAttributes,
             limit,
             offset,
@@ -177,14 +234,15 @@ export class ArtistsService {
         const locationMap = await this.getLocationMap(profiles, lang);
 
         const formatted = rows.map(user => {
+            const userData = user;
             const profile = profiles.get(user.id);
             const location = profile?.country_id ? locationMap.get(profile.country_id) : null;
             const cityData = profile?.city_id ? location?.cities?.get(profile.city_id) : null;
 
             return {
-                ...user.toJSON(),
+                ...userData,
                 artistProfile: profile ? {
-                    ...this.pick(profile, ['user_id', 'date_birthday', 'biography', 'moderate', 'city_id', 'country_id']),
+                    ...profile,
                     city: cityData || null,
                     country: location?.country || null,
                     arts: artsMap.get(user.id) || [],
@@ -192,8 +250,7 @@ export class ArtistsService {
             };
         });
 
-        const translated = await this.translateIfNeeded(formatted, 'artist', lang);
-        return { data: translated, pagination: this.buildPagination(count, page, limit) };
+        return { data: formatted, pagination: this.buildPagination(count, page, limit) };
     }
 
     async getUnmoderatedArtists(page: number = 1, limit: number = 12, lang: string = 'ru') {
@@ -201,7 +258,84 @@ export class ArtistsService {
     }
 
     async getModeratedArtists(page: number = 1, limit: number = 12, lang: string = 'ru') {
-        return this.getArtistsByModerationStatus(true, page, limit, lang);
+        this.log('getModeratedArtists', { page, limit, lang });
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await this.userRepository.findAndCountAll({
+            where: { role: 'artist', is_deleted: false  },
+            include: [{
+                model: ArtistProfile,
+                where: {
+                    moderate: { [Op.ne]: null }
+                }
+            }],
+            limit,
+            offset,
+            distinct: true,
+        });
+
+        const scoredArtists = await Promise.all(
+            rows.map(async (user) => {
+                const profile = user.artistProfile;
+                if (!profile) return null;
+
+                let isModerated = false;
+                if (profile.moderate) {
+                    try {
+                        const moderateObj = JSON.parse(profile.moderate);
+                        isModerated = moderateObj.moderate === true;
+                    } catch {
+                        isModerated = false;
+                    }
+                }
+
+                if (!isModerated) return null;
+
+                const stats = await this.getArtistStats(user.id);
+                const totalLikes = stats.totalLikes || 0;
+                const artsCount = stats.artsCount || 0;
+
+                const planWeight = profile.getPlanWeight ? profile.getPlanWeight() : 0;
+                const isSubscriptionActive = profile.isSubscriptionActive ? profile.isSubscriptionActive() : false;
+
+                const score =
+                    totalLikes * 2 +
+                    artsCount * 10 +
+                    planWeight +
+                    (isSubscriptionActive ? 20 : 0);
+
+                const location = await this.getLocationData(
+                    profile.country_id,
+                    profile.city_id,
+                    lang
+                );
+
+                const userData = user.toJSON ? user.toJSON() : user;
+                const profileData = profile.toJSON ? profile.toJSON() : profile;
+
+                return {
+                    ...userData,
+                    artistProfile: {
+                        ...profileData,
+                        ...location,
+                        score: Math.round(score * 100) / 100,
+                        totalLikes,
+                        artsCount,
+                        planWeight,
+                        isSubscriptionActive
+                    }
+                };
+            })
+        );
+
+        const sorted = scoredArtists
+            .filter(a => a !== null)
+            .sort((a, b) => (b.artistProfile.score || 0) - (a.artistProfile.score || 0));
+
+        return {
+            data: sorted,
+            pagination: this.buildPagination(sorted.length, page, limit)
+        };
     }
 
     async getArtsByArtist(artistId: number, lang: string = 'ru') {
@@ -219,21 +353,7 @@ export class ArtistsService {
             order: [['createdAt', 'DESC']],
         });
 
-        return this.translateIfNeeded(arts, 'art', lang);
-    }
-
-    async getExhibitionsByArtist(artistId: number, lang: string = 'ru') {
-        this.log('getExhibitionsByArtist', { artistId, lang });
-
-        const artist = await this.artistProfileModel.findOne({
-            where: { user_id: artistId },
-            include: [{ model: Exhibition }],
-        });
-
-        if (!artist) throw new NotFoundException('Артист не найден');
-
-        let exhibitions = artist.exhibitions || [];
-        return this.translateIfNeeded(exhibitions, 'exhibition', lang);
+        return arts;
     }
 
     async moderateArtist(moderateDto: ModerateArtistDto, artistId: number): Promise<ModerateResponse> {
@@ -275,8 +395,6 @@ export class ArtistsService {
         }
     }
 
-    // ============ ПРИВАТНЫЕ МЕТОДЫ ============
-
     private async getArtistsByModerationStatus(moderated: boolean, page: number, limit: number, lang: string) {
         this.log('getArtistsByModerationStatus', { moderated, page, limit, lang });
 
@@ -316,8 +434,7 @@ export class ArtistsService {
             };
         }));
 
-        const translated = await this.translateIfNeeded(formatted, 'artist', lang);
-        return { data: translated, pagination: this.buildPagination(filtered.length, page, limit) };
+        return { data: formatted, pagination: this.buildPagination(filtered.length, page, limit) };
     }
 
     private async getUser(id: number, transaction?: Transaction) {
@@ -334,10 +451,22 @@ export class ArtistsService {
     }
 
     private async getUserWithProfile(id: number) {
-        return this.userRepository.findOne({
+        const user = await this.userRepository.findOne({
             where: { id },
-            include: [{ model: this.artistProfileModel, as: 'artistProfile' }],
         });
+
+        if (!user) return null;
+
+        const profile = await this.artistProfileModel.findOne({
+            where: { user_id: id },
+        });
+
+        const result = {
+            ...user.toJSON ? user.toJSON() : user,
+            artistProfile: profile ? (profile.toJSON ? profile.toJSON() : profile) : null
+        };
+
+        return result;
     }
 
     private async checkEmailExists(email: string, transaction?: Transaction) {
@@ -347,11 +476,10 @@ export class ArtistsService {
 
     private async getArtistStats(artistId: number) {
         const artsCount = await this.artRepository.count({ where: { artist_id: artistId } });
-        const exhibitionsCount = await this.exhibitionArtistRepository.count({ where: { artist_id: artistId } });
         const arts = await this.artRepository.findAll({ where: { artist_id: artistId }, attributes: ['likes'] });
         const totalLikes = arts.reduce((sum, a) => sum + (a.likes || 0), 0);
 
-        return { artsCount, exhibitionsCount, totalLikes };
+        return { artsCount, totalLikes };
     }
 
     private async getLocationData(countryId: number, cityId: number, lang: string) {
@@ -359,11 +487,26 @@ export class ArtistsService {
         let cityData = null;
 
         if (countryId) {
-            countryData = await this.locationService.getCountryById(countryId, lang);
+            const country = await this.locationService.getCountryById(Number(countryId), lang);
+            if (country) {
+                countryData = {
+                    id: country.id,
+                    name: country.name,
+                    iso2: country.iso2
+                };
+            }
         }
+
         if (cityId && countryId) {
-            const cities = await this.locationService.getCitiesByCountry(countryId, lang);
-            cityData = cities.find(c => c.id === cityId) || null;
+            const cities = await this.locationService.getCitiesByCountry(Number(countryId), lang);
+            const foundCity = cities.find(c => Number(c.id) === Number(cityId));
+            if (foundCity) {
+                cityData = {
+                    id: foundCity.id,
+                    name: foundCity.name,
+                    country_id: foundCity.country_id
+                };
+            }
         }
 
         return { city: cityData, country: countryData };
@@ -397,11 +540,25 @@ export class ArtistsService {
         const map = new Map<number, { country: any; cities: Map<number, any> }>();
 
         for (const id of countryIds) {
-            const country = await this.locationService.getCountryById(id, lang);
+            const country = await this.locationService.getCountryById(Number(id), lang);
             if (country) {
-                const cities = await this.locationService.getCitiesByCountry(id, lang);
-                const citiesMap = new Map(cities.map(c => [c.id, c]));
-                map.set(id, { country, cities: citiesMap });
+                const cities = await this.locationService.getCitiesByCountry(Number(id), lang);
+                const citiesMap = new Map(cities.map(c => {
+                    const cityId = Number(c.id);
+                    return [cityId, {
+                        id: cityId,
+                        name: c.name,
+                        country_id: Number(c.country_id)
+                    }];
+                }));
+                map.set(id, {
+                    country: {
+                        id: country.id,
+                        name: country.name,
+                        iso2: country.iso2,
+                    },
+                    cities: citiesMap
+                });
             }
         }
 
@@ -453,16 +610,6 @@ export class ArtistsService {
         };
     }
 
-    private async translateIfNeeded(data: any, type: string, lang: string) {
-        if (lang && lang !== 'ru') {
-            if (Array.isArray(data)) {
-                return this.translationService.translateEntities(data, type, lang);
-            }
-            return this.translationService.translateEntity(data, type, data.id, lang);
-        }
-        return data;
-    }
-
     private pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
         return keys.reduce((acc, key) => {
             if (obj[key] !== undefined && obj[key] !== null) {
@@ -496,5 +643,78 @@ export class ArtistsService {
             `Ошибка в ${method}: ${error.message}`,
             400
         );
+    }
+    async getTopArtists(limit: number = 10, lang: string = 'ru') {
+        this.log('getTopArtists', { limit, lang });
+
+        const users = await this.userRepository.findAll({
+            where: { role: 'artist' },
+            attributes: this.userAttributes,
+            include: [{
+                model: ArtistProfile,
+                required: true,
+                where: {
+                    moderate: { [Op.ne]: null }
+                }
+            }]
+        });
+
+        const scoredArtists = await Promise.all(
+            users.map(async (user) => {
+                const profile = user.artistProfile;
+                if (!profile) return null;
+
+                let isModerated = false;
+                if (profile.moderate) {
+                    try {
+                        const moderateObj = JSON.parse(profile.moderate);
+                        isModerated = moderateObj.moderate === true;
+                    } catch {
+                        isModerated = false;
+                    }
+                }
+
+                if (!isModerated) return null;
+
+                const stats = await this.getArtistStats(user.id);
+                const totalLikes = stats.totalLikes || 0;
+                const artsCount = stats.artsCount || 0;
+
+                const planWeight = profile.getPlanWeight ? profile.getPlanWeight() : 0;
+                const isSubscriptionActive = profile.isSubscriptionActive ? profile.isSubscriptionActive() : false;
+
+                const score =
+                    totalLikes * 2 +
+                    artsCount * 10 +
+                    planWeight +
+                    (isSubscriptionActive ? 20 : 0);
+
+                const location = await this.getLocationData(
+                    profile.country_id,
+                    profile.city_id,
+                    lang
+                );
+
+                return {
+                    ...user.toJSON(),
+                    artistProfile: {
+                        ...profile.toJSON(),
+                        ...location,
+                        score: Math.round(score * 100) / 100,
+                        totalLikes,
+                        artsCount,
+                        planWeight,
+                        isSubscriptionActive
+                    }
+                };
+            })
+        );
+
+        const sortedArtists = scoredArtists
+            .filter(a => a !== null)
+            .sort((a, b) => (b.artistProfile.score || 0) - (a.artistProfile.score || 0))
+            .slice(0, limit);
+
+        return sortedArtists;
     }
 }

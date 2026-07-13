@@ -2,15 +2,20 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Column, DataType, HasOne, Model, Table } from "sequelize-typescript";
 import { ArtistProfile } from "../artists/artist.model";
 
-interface UserCreationAttrs {
+export type Gender = "M" | "F";
+
+export interface UserCreationAttrs {
     email: string,
     password: string,
     surname: string,
     name: string,
-    phone_number: string,
-    avatar_path?: string;
     second_name: string,
-    role: "admin" | "moderator" | "artist" | "user"
+    phone_number: string,
+    avatar_path: string;
+    role: "user" | "artist" | "moderator" | "admin",
+    gender: Gender,
+    is_deleted?: boolean;
+    deleted_at?: Date | null;
 }
 
 @Table({ tableName: 'users' })
@@ -32,7 +37,7 @@ export class User extends Model<User, UserCreationAttrs> {
     surname: string;
 
     @ApiProperty({ example: 'Иванов', description: 'Отчество пользователя' })
-    @Column({ type: DataType.STRING, allowNull: true })
+    @Column({ type: DataType.STRING, allowNull: false })
     second_name: string;
 
     @ApiProperty({ example: '+79999999999', description: 'Номер телефона пользователя' })
@@ -40,15 +45,25 @@ export class User extends Model<User, UserCreationAttrs> {
     phone_number: string;
 
     @ApiProperty({ example: 'server/images/1.jpg', description: 'Путь к аватарке на сервере' })
-    @Column({ type: DataType.STRING, allowNull: true })
-    avatar_path?: string | null;
+    @Column({ type: DataType.STRING, allowNull: false })
+    avatar_path: string;
 
     @ApiProperty({ example: 'Админ', description: 'Роль пользователя' })
     @Column({ type: DataType.ENUM('admin', 'visitor', 'moderator', 'artist', 'user'), allowNull: false })
     role: string;
 
+    @ApiProperty({ example: 'F', description: 'Женский пол' })
+    @Column({ type: DataType.ENUM('M', 'F'), allowNull: false })
+    gender: Gender;
+
+    @ApiProperty({ example: false, description: 'Флаг удаления пользователя' })
+    @Column({ type: DataType.BOOLEAN, defaultValue: false })
+    is_deleted: boolean;
+
+    @ApiProperty({ example: '2024-01-01T00:00:00.000Z', description: 'Дата удаления' })
+    @Column({ type: DataType.DATE, allowNull: true })
+    deleted_at: Date | null;
+
     @HasOne(() => ArtistProfile, { foreignKey: 'user_id', as: 'artistProfile' })
     artistProfile: ArtistProfile;
-    
 }
-

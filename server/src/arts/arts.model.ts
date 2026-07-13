@@ -1,11 +1,8 @@
-// arts.model.ts
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, DataType, HasOne, Model, Table, ForeignKey, BelongsTo, BelongsToMany } from "sequelize-typescript";
+import { Column, DataType, Model, Table, ForeignKey, BelongsTo, BelongsToMany } from "sequelize-typescript";
 import { ArtistProfile } from "../artists/artist.model";
-import { ExhibitionArt } from "../exhibitions/exhibition-art.model";
-import { Exhibition } from "../exhibitions/exhibition.model";
 import { Genre } from "../genres/genre.model";
-import { Style } from "src/styles/styles.model";
+import { Style } from "../styles/styles.model";
 
 export type CurrencyType = "USD" | "EUR" | "RUB" | "UAH" | null;
 export interface ArtCreationAttrs {
@@ -25,6 +22,9 @@ export interface ArtCreationAttrs {
     country_id?: number,
     style_id?: number,
     is_adult?: boolean,
+    score?: number;
+    is_featured?: boolean;
+    featured_until?: Date;
 }
 
 @Table({ tableName: 'arts' })
@@ -82,6 +82,18 @@ export class Art extends Model<Art, ArtCreationAttrs> {
     @Column({ type: DataType.BOOLEAN, defaultValue: false })
     is_adult: boolean;
 
+    @ApiProperty({ example: 0, description: 'Score для ранжирования' })
+    @Column({ type: DataType.FLOAT, defaultValue: 0 })
+    score: number;
+
+    @ApiProperty({ example: false, description: 'В топе' })
+    @Column({ type: DataType.BOOLEAN, defaultValue: false })
+    is_featured: boolean;
+
+    @ApiProperty({ example: '2026-07-01T00:00:00.000Z', description: 'До какого времени в топе' })
+    @Column({ type: DataType.DATE, allowNull: true })
+    featured_until: Date;
+
     @ApiProperty({ example: '3', description: 'ID города' })
     @Column({ type: DataType.INTEGER, allowNull: true })
     city_id: number;
@@ -105,7 +117,4 @@ export class Art extends Model<Art, ArtCreationAttrs> {
 
     @BelongsTo(() => Style)
     style: Style;
-
-    @BelongsToMany(() => Exhibition, () => ExhibitionArt)
-    exhibitions: Exhibition[];
 }

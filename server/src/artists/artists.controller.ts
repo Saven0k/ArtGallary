@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiConsumes } from '@nestjs/swagger';
 import { ArtistsService } from './artists.service';
 import { ArtistProfile } from './artist.model';
@@ -8,21 +8,21 @@ import { UpdateArtistDto } from './dto/update-artist.dto';
 import { ModerateArtistDto } from './dto/modarate-artist.dto';
 import { Role } from '../auth/enums/role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Language } from 'src/translation/language.decorator';
+import { PurchaseSubscriptionDto, SubscriptionResponseDto } from './dto/subscription.dto';
+import { SubscriptionService } from './subscription.service';
 
 @Controller('artists')
 export class ArtistsController {
-    constructor(private artistService: ArtistsService) { }
+    constructor(private artistService: ArtistsService, private subscriptionService: SubscriptionService) { }
 
     @ApiOperation({ summary: 'Получение немодерированных артистов' })
     @Roles(Role.Admin, Role.Moderator)
     @Get('unmoderated')
     async getUnmoderatedArtists(
         @Query('page') page: string = '1',
-        @Query('limit') limit: string = '12',
-        @Language() lang: string
+        @Query('limit') limit: string = '12'
     ) {
-        return this.artistService.getUnmoderatedArtists(parseInt(page), parseInt(limit), lang);
+        return this.artistService.getUnmoderatedArtists(parseInt(page), parseInt(limit));
     }
 
     @ApiOperation({ summary: 'Получение модерированных артистов' })
@@ -30,10 +30,9 @@ export class ArtistsController {
     @Get('moderated')
     async getModeratedArtists(
         @Query('page') page: string = '1',
-        @Query('limit') limit: string = '12',
-        @Language() lang: string
+        @Query('limit') limit: string = '12'
     ) {
-        return this.artistService.getModeratedArtists(parseInt(page), parseInt(limit), lang);
+        return this.artistService.getModeratedArtists(parseInt(page), parseInt(limit));
     }
 
     @ApiOperation({ summary: 'Получения списка артистов (с пагинацией)' })
@@ -41,10 +40,9 @@ export class ArtistsController {
     @Get()
     getArtists(
         @Query('page') page: string = '1',
-        @Query('limit') limit: string = '12',
-        @Language() lang: string
+        @Query('limit') limit: string = '12'
     ) {
-        return this.artistService.getAll(parseInt(page), parseInt(limit), lang);
+        return this.artistService.getAll(parseInt(page), parseInt(limit));
     }
 
     @ApiOperation({ summary: 'Получение артиста по Id' })
@@ -52,30 +50,18 @@ export class ArtistsController {
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
     @Get(':id')
     getArtist(
-        @Param('id') id: number,
-        @Language() lang: string
+        @Param('id') id: number
     ) {
-        return this.artistService.getArtistById(id, lang);
+        return this.artistService.getArtistById(id);
     }
 
     @ApiOperation({ summary: 'Получить все работы артиста' })
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.User, Role.Visitor)
     @Get(':id/arts')
     getArtsByArtist(
-        @Param('id') id: number,
-        @Language() lang: string
+        @Param('id') id: number
     ) {
-        return this.artistService.getArtsByArtist(id, lang);
-    }
-
-    @ApiOperation({ summary: 'Получить все выставки артиста' })
-    @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.User, Role.Visitor)
-    @Get(':id/exhibitions')
-    getExhibitionsByArtist(
-        @Param('id') id: number,
-        @Language() lang: string
-    ) {
-        return this.artistService.getExhibitionsByArtist(id, lang);
+        return this.artistService.getArtsByArtist(id);
     }
 
     @ApiOperation({ summary: 'Создание нового артиста' })
@@ -115,5 +101,57 @@ export class ArtistsController {
     @Post(':id/moderate')
     moderateArtist(@Body() moderateDto: ModerateArtistDto, @Param('id') id: number) {
         return this.artistService.moderateArtist(moderateDto, id);
+    }
+
+    @ApiOperation({ summary: 'Получение информации о подписке текущего пользователя' })
+    @ApiResponse({ status: 200, type: SubscriptionResponseDto })
+    @Roles(Role.Admin, Role.Moderator, Role.Artist)
+    @Get('info')
+    async getSubscriptionInfo(@Request() req: any): Promise<SubscriptionResponseDto> {
+        return this.subscriptionService.getSubscriptionInfo(req.user.id);
+    }
+
+    @ApiOperation({ summary: 'Покупка подписки' })
+    @ApiResponse({ status: 200, type: SubscriptionResponseDto })
+    @Roles(Role.Admin, Role.Moderator, Role.Artist)
+    @Post('purchase')
+    async purchaseSubscription(
+        @Request() req: any,
+        @Body() dto: PurchaseSubscriptionDto
+    ): Promise<SubscriptionResponseDto> {
+        return this.subscriptionService.purchaseSubscription(req.user.id, dto);
+    }
+
+    @ApiOperation({ summary: 'Отмена подписки' })
+    @ApiResponse({ status: 200 })
+    @Roles(Role.Admin, Role.Moderator, Role.Artist)
+    @Delete('cancel')
+    async cancelSubscription(@Request() req: any): Promise<{ success: boolean; message: string }> {
+        return this.subscriptionService.cancelSubscription(req.user.id);
+    }
+
+    @ApiOperation({ summary: 'Получение доступных планов подписки' })
+    @ApiResponse({ status: 200 })
+    @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
+    @Get('plans')
+    async getAvailablePlans() {
+        return this.subscriptionService.getAvailablePlans();
+    }
+
+    @ApiOperation({ summary: 'Получение топ-10 артистов по рейтингу' })
+    @ApiResponse({ status: 200, type: [ArtistProfile] })
+    @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
+    @Get('top')
+    async getTopArtists(
+        @Query('limit') limit: string = '10'
+    ) {
+        return this.artistService.getTopArtists(parseInt(limit));
+    }
+    
+    @ApiOperation({ summary: 'Восстановление артиста' })
+    @Roles(Role.Admin, Role.Moderator)
+    @Post(':id/restore')
+    async restoreArtist(@Param('id') id: number) {
+        return this.artistService.restoreArtist(id);
     }
 }

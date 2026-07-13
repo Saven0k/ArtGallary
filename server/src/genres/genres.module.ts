@@ -4,12 +4,10 @@ import { GenresController } from './genres.controller';
 import { GenresService } from './genres.service';
 import { Genre } from './genre.model';
 import { ArtType } from '../art-types/art-type.model';
-import { TranslationModule } from '../translation/translation.module';
 
 @Module({
     imports: [
-        SequelizeModule.forFeature([Genre, ArtType]),
-        TranslationModule,
+        SequelizeModule.forFeature([Genre, ArtType])
     ],
     controllers: [GenresController],
     providers: [GenresService],

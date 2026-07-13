@@ -4,7 +4,6 @@ import { ArtTypesService } from './art-types.service';
 import { CreateArtTypeDto, UpdateArtTypeDto } from './dto/create-art-type.dto';
 import { Role } from '../auth/enums/role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Language } from 'src/translation/language.decorator';
 
 @ApiTags('Виды искусства')
 @Controller('art-types')
@@ -44,14 +43,14 @@ export class ArtTypesController {
     @ApiOperation({ summary: 'Получение списка видов искусства' })
     @Get()
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
-    getAll(@Language() lang: string) {
-        return this.artTypesService.getAll(lang);
+    getAll() {
+        return this.artTypesService.getAll();
     }
 
     @ApiOperation({ summary: 'Получение вида искусства по id' })
     @Get('/:id')
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
-    get(@Param('id') id: number, @Language() lang: string) {
-        return this.artTypesService.getById(id, lang);
+    get(@Param('id') id: number) {
+        return this.artTypesService.getById(id);
     }
 }

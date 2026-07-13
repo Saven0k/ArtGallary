@@ -11,32 +11,49 @@ import { Inject } from '@nestjs/common';
 import { Genre } from '../genres/genre.model';
 import { Style } from '../styles/styles.model';
 import { ModerateArtDto } from './dto/moderate-art.dto';
-import { Sequelize, Transaction } from 'sequelize';
-import { TranslationService } from 'src/translation/translation.service';
+import { Sequelize, Op } from 'sequelize';
+import { ArtView } from './art-view.model';
 import { LocationService } from '../location/location.service';
 
 @Injectable()
 export class ArtsService {
     constructor(
         @InjectModel(Art) private artRepository: typeof Art,
+        @InjectModel(ArtView) private artViewRepository: typeof ArtView,
         @InjectModel(ArtistProfile) private artistProfileModel: typeof ArtistProfile,
         private fileService: FilesService,
         @InjectConnection() private sequelize: Sequelize,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-        private translationService: TranslationService,
-        private locationService: LocationService,
-    ) {}
-ч
+        private locationService: LocationService
+    ) { }
+
+    private readonly PLAN_WEIGHT = {
+        free: 0,
+        pro: 50,
+        vip: 100,
+    };
+
+    private readonly FRESHNESS_DAYS = 30;
+    private readonly FEATURED_BONUS = 200;
+    private readonly FEATURED_DAYS = 7;
+
     async createArt(dto: CreateArtDto, imagePath: any, artistId: number) {
-        if (dto.country_id) await this.locationService.validateLocation(dto.country_id, dto.city_id);
-        
+        // ✅ Валидация страны через LocationService
+        if (dto.country_id) {
+            const country = await this.locationService.getCountryById(Number(dto.country_id));
+            if (!country) {
+                throw new HttpException('Страна не найдена', HttpStatus.BAD_REQUEST);
+            }
+        }
+
         const transaction = await this.sequelize.transaction();
         try {
             const fileName = await this.fileService.createFile(imagePath);
-            
+
             const art = await this.artRepository.create({
                 ...this.buildArtData(dto, artistId),
                 image_path: fileName,
+                score: 0,
                 moderate: JSON.stringify({
                     moderate: false,
                     moderator_id: null,
@@ -46,6 +63,7 @@ export class ArtsService {
                 })
             }, { transaction });
 
+            await this.updateScore(art.id);
             await transaction.commit();
             return this.formatArtResponse(art);
         } catch (e: any) {
@@ -58,7 +76,8 @@ export class ArtsService {
         try {
             const [affectedCount] = await this.artRepository.update(dto, { where: { id } });
             if (affectedCount === 0) throw new HttpException('Art not found', HttpStatus.NOT_FOUND);
-            
+
+            await this.updateScore(id);
             const updatedArt = await this.artRepository.findOne({ where: { id } });
             return updatedArt;
         } catch (e: any) {
@@ -69,7 +88,7 @@ export class ArtsService {
     async deleteArt(id: number) {
         const art = await this.artRepository.findByPk(id);
         if (!art) throw new HttpException('Art not found', HttpStatus.BAD_REQUEST);
-        
+
         try {
             await art.destroy();
             return { success: true };
@@ -80,7 +99,7 @@ export class ArtsService {
 
     async moderateArt(moderateDto: ModerateArtDto, id: number) {
         const transaction = await this.sequelize.transaction();
-        
+
         try {
             const art = await this.artRepository.findByPk(id);
             if (!art) throw new HttpException('Art not found', HttpStatus.NOT_FOUND);
@@ -99,11 +118,11 @@ export class ArtsService {
                 { moderate: JSON.stringify(moderateObject) },
                 { where: { id }, transaction }
             );
-            
+
             if (affectedCount === 0) throw new HttpException('Art not found', HttpStatus.NOT_FOUND);
-            
+
             await transaction.commit();
-            
+            await this.updateScore(id);
             const updatedArt = await this.artRepository.findByPk(id);
             return this.formatArtResponse(updatedArt);
         } catch (e: any) {
@@ -128,42 +147,217 @@ export class ArtsService {
             return null;
         }
 
-        return this.enrichAndTranslateArt(art, id, lang);
+        return this.enrichWithLocation(art, lang);
     }
 
     async getAllArts(page: number = 1, limit: number = 12, lang: string = 'ru') {
-        return this.getArtsWithFilters(page, limit, lang, null);
-    }
-
-    async getModeratedArts(page: number = 1, limit: number = 12, lang: string = 'ru') {
-        return this.getArtsWithFilters(page, limit, lang, true);
+        return this.getArtsWithFilters(page, limit, lang, 'all');
     }
 
     async getUnmoderatedArts(page: number = 1, limit: number = 12, lang: string = 'ru') {
-        return this.getArtsWithFilters(page, limit, lang, false);
+        return this.getArtsWithFilters(page, limit, lang, 'unmoderated');
     }
 
-    async getArtsByArtist(artistId: number, page: number = 1, limit: number = 12, lang: string = 'ru') {
+    async getModeratedArts(page: number = 1, limit: number = 12, lang: string = 'ru') {
         const offset = (page - 1) * limit;
-        
+
         const { count, rows } = await this.artRepository.findAndCountAll({
-            where: { artist_id: artistId },
+            where: {
+                moderate: { [Op.ne]: null },
+            },
+            include: this.getDefaultIncludes(),
+            order: [
+                ['score', 'DESC'],
+                ['likes', 'DESC'],
+                ['views', 'DESC'],
+                ['createdAt', 'DESC'],
+            ],
             limit,
             offset,
-            include: this.getDefaultIncludes(),
-            order: [['createdAt', 'DESC']],
-            distinct: true
+            distinct: true,
+            raw: true,
+            nest: true,
         });
 
-        const formattedArts = await this.enrichAndTranslateArts(rows, lang);
-        
+        const filteredArts = rows.filter(art => {
+            if (!art.moderate) return false;
+            try {
+                const moderateObj = JSON.parse(art.moderate);
+                return moderateObj.moderate === true;
+            } catch {
+                return false;
+            }
+        });
+
+        const formattedArts = await this.enrichWithLocationBatch(filteredArts, lang);
+
         return {
             arts: formattedArts,
-            pagination: this.buildPagination(count, page, limit)
+            pagination: this.buildPagination(filteredArts.length, page, limit)
         };
     }
 
-    // ============ ПРИВАТНЫЕ МЕТОДЫ ============
+    async getTopArts(limit: number = 10, lang: string = 'ru') {
+        const arts = await this.artRepository.findAll({
+            where: {
+                moderate: { [Op.ne]: null },
+            },
+            include: this.getDefaultIncludes(),
+            order: [
+                ['is_featured', 'DESC'],
+                ['score', 'DESC'],
+                ['likes', 'DESC'],
+                ['views', 'DESC'],
+            ],
+            limit: limit * 3,
+        });
+
+        const now = new Date();
+        const validArts = arts.filter(art =>
+            !art.featured_until || new Date(art.featured_until) > now
+        );
+
+        const topArts = this.getWeightedRandomSelection(validArts, limit);
+        const enriched = await this.enrichWithLocationBatch(topArts, lang);
+
+        return enriched;
+    }
+
+    async incrementView(artId: number, userId?: number): Promise<Art> {
+        const art = await this.artRepository.findByPk(artId);
+        if (!art) throw new HttpException('Произведение не найдено', HttpStatus.NOT_FOUND);
+
+        if (!userId) {
+            await art.increment('views', { by: 1 });
+            await art.reload();
+            await this.updateScore(artId);
+            return art;
+        }
+
+        const hasViewedToday = await this.hasUserViewedToday(artId, userId);
+        if (!hasViewedToday) {
+            await art.increment('views', { by: 1 });
+            await art.reload();
+            await this.recordView(artId, userId);
+            await this.updateScore(artId);
+        }
+        return art;
+    }
+
+    private async hasUserViewedToday(artId: number, userId: number): Promise<boolean> {
+        const view = await this.artViewRepository.findOne({
+            where: {
+                art_id: artId,
+                user_id: userId,
+                viewed_at: {
+                    [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0))
+                }
+            }
+        });
+        return !!view;
+    }
+
+    private async recordView(artId: number, userId: number): Promise<void> {
+        await this.artViewRepository.create({
+            art_id: artId,
+            user_id: userId,
+            viewed_at: new Date()
+        });
+    }
+
+    private async calculateScore(art: Art): Promise<number> {
+        const artist = await this.artistProfileModel.findOne({
+            where: { user_id: art.artist_id },
+        });
+
+        const planWeight = artist?.plan ? this.PLAN_WEIGHT[artist.plan as keyof typeof this.PLAN_WEIGHT] || 0 : 0;
+        const ageInDays = this.getAgeInDays(art.date_published);
+        const freshnessWeight = Math.max(this.FRESHNESS_DAYS - ageInDays, 0);
+        const featuredBonus = art.is_featured ? this.FEATURED_BONUS : 0;
+
+        const score =
+            (art.likes || 0) * 5 +
+            (art.views || 0) * 0.1 +
+            planWeight +
+            freshnessWeight +
+            featuredBonus;
+
+        return Math.round(score * 100) / 100;
+    }
+
+    private async updateScore(artId: number): Promise<void> {
+        const art = await this.artRepository.findByPk(artId);
+        if (!art) return;
+
+        const score = await this.calculateScore(art);
+        await art.update({ score });
+    }
+
+    async updateAllScores(): Promise<void> {
+        const arts = await this.artRepository.findAll();
+        for (const art of arts) {
+            const score = await this.calculateScore(art);
+            await art.update({ score });
+        }
+        this.logger.log('info', `✅ Обновлены скоры для ${arts.length} картин`);
+    }
+
+    async addToFeatured(artId: number, days: number = this.FEATURED_DAYS): Promise<void> {
+        const art = await this.artRepository.findByPk(artId);
+        if (!art) return;
+
+        const featuredUntil = new Date();
+        featuredUntil.setDate(featuredUntil.getDate() + days);
+
+        await art.update({
+            is_featured: true,
+            featured_until: featuredUntil,
+        });
+        await this.updateScore(artId);
+    }
+
+    async removeFromFeatured(artId: number): Promise<void> {
+        const art = await this.artRepository.findByPk(artId);
+        if (!art) return;
+
+        await art.update({
+            is_featured: false,
+            featured_until: null,
+        });
+        await this.updateScore(artId);
+    }
+
+    async refreshFeaturedArts(): Promise<void> {
+        const now = new Date();
+
+        await this.artRepository.update(
+            { is_featured: false, featured_until: null },
+            {
+                where: {
+                    is_featured: true,
+                    featured_until: { [Op.lt]: now },
+                },
+            }
+        );
+
+        const topCandidates = await this.artRepository.findAll({
+            where: {
+                is_featured: false,
+                moderate: { [Op.ne]: null },
+            },
+            order: [
+                ['score', 'DESC'],
+                ['likes', 'DESC'],
+            ],
+            limit: 10,
+        });
+
+        for (const art of topCandidates) {
+            await this.addToFeatured(art.id, this.FEATURED_DAYS);
+        }
+
+        this.logger.log('info', `🔄 Обновлен топ: ${topCandidates.length} картин`);
+    }
 
     private getDefaultIncludes() {
         return [
@@ -180,37 +374,77 @@ export class ArtsService {
         ];
     }
 
-    private async getArtsWithFilters(page: number, limit: number, lang: string, moderateStatus: boolean | null) {
+    private async getArtsWithFilters(page: number, limit: number, lang: string, type: 'all' | 'moderated' | 'unmoderated') {
         const offset = (page - 1) * limit;
-        
-        const { count, rows } = await this.artRepository.findAndCountAll({
-            limit,
-            offset,
-            include: this.getDefaultIncludes(),
-            order: [['createdAt', 'DESC']],
-            distinct: true,
-            raw: true,
-            nest: true
-        });
 
-        let filteredArts = rows;
-        if (moderateStatus !== null) {
-            filteredArts = rows.filter(art => {
-                if (!art.moderate) return moderateStatus === false;
-                try {
-                    const moderateObj = JSON.parse(art.moderate);
-                    return moderateObj.moderate === moderateStatus;
-                } catch {
-                    return false;
-                }
-            });
+        const where: any = {};
+
+        if (type === 'moderated') {
+            where.moderate = { [Op.ne]: null };
+        } else if (type === 'unmoderated') {
+            where.moderate = null;
         }
 
-        const formattedArts = await this.enrichAndTranslateArts(filteredArts, lang);
-        
+        const { count, rows } = await this.artRepository.findAndCountAll({
+            where,
+            include: this.getDefaultIncludes(),
+            order: [['createdAt', 'DESC']],
+            limit,
+            offset,
+            distinct: true,
+            raw: true,
+            nest: true,
+        });
+
+        const formattedArts = await this.enrichWithLocationBatch(rows, lang);
+
         return {
             arts: formattedArts,
-            pagination: this.buildPagination(filteredArts.length, page, limit)
+            pagination: this.buildPagination(count, page, limit)
+        };
+    }
+
+    private getWeightedRandomSelection(arts: any[], limit: number): any[] {
+        if (arts.length <= limit) return arts;
+
+        const seed = new Date().toDateString();
+        const shuffled = this.shuffleArray(arts, seed);
+
+        return shuffled
+            .sort((a, b) => b.score - a.score)
+            .slice(0, limit);
+    }
+
+    private shuffleArray(array: any[], seed: string): any[] {
+        const shuffled = [...array];
+        let currentIndex = shuffled.length;
+        let temporaryValue, randomIndex;
+
+        const random = this.seededRandom(seed);
+
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(random() * currentIndex);
+            currentIndex -= 1;
+
+            temporaryValue = shuffled[currentIndex];
+            shuffled[currentIndex] = shuffled[randomIndex];
+            shuffled[randomIndex] = temporaryValue;
+        }
+
+        return shuffled;
+    }
+
+    private seededRandom(seed: string): () => number {
+        let hash = 0;
+        for (let i = 0; i < seed.length; i++) {
+            const char = seed.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+
+        return function () {
+            hash = (hash * 9301 + 49297) % 233280;
+            return hash / 233280;
         };
     }
 
@@ -253,36 +487,32 @@ export class ArtsService {
         }
     }
 
-    private async enrichAndTranslateArt(art: any, id: number, lang: string) {
-        const enriched = await this.enrichWithLocation(art, lang);
-        
-        if (lang && lang !== 'ru') {
-            return this.translationService.translateEntity(enriched, 'art', id, lang);
-        }
-        
-        return enriched;
-    }
-
-    private async enrichAndTranslateArts(arts: any[], lang: string) {
-        const enrichedArts = await this.enrichWithLocationBatch(arts, lang);
-        
-        if (lang && lang !== 'ru') {
-            return this.translationService.translateEntities(enrichedArts, 'art', lang);
-        }
-        
-        return enrichedArts;
-    }
-
+    // ✅ Обновленные методы для работы с локациями через LocationService
     private async enrichWithLocation(art: any, lang: string) {
         let cityData = null;
         let countryData = null;
 
         if (art.country_id) {
-            countryData = await this.locationService.getCountryById(art.country_id, lang);
+            const country = await this.locationService.getCountryById(Number(art.country_id), lang);
+            if (country) {
+                countryData = {
+                    id: country.id,
+                    name: country.name,
+                    iso2: country.iso2
+                };
+            }
         }
+
         if (art.city_id && art.country_id) {
-            const cities = await this.locationService.getCitiesByCountry(art.country_id, lang);
-            cityData = cities.find(c => c.id === art.city_id) || null;
+            const cities = await this.locationService.getCitiesByCountry(Number(art.country_id), lang);
+            const foundCity = cities.find(c => Number(c.id) === Number(art.city_id));
+            if (foundCity) {
+                cityData = {
+                    id: foundCity.id,
+                    name: foundCity.name,
+                    country_id: foundCity.country_id
+                };
+            }
         }
 
         return {
@@ -292,6 +522,7 @@ export class ArtsService {
         };
     }
 
+    // ✅ Обновленный метод для пакетной обработки локаций
     private async enrichWithLocationBatch(arts: any[], lang: string) {
         const countryIds = [...new Set(arts.map(a => a.country_id).filter(Boolean))];
         const countriesMap = new Map();
@@ -299,31 +530,49 @@ export class ArtsService {
 
         if (countryIds.length) {
             for (const id of countryIds) {
-                const country = await this.locationService.getCountryById(id, lang);
-                if (country) countriesMap.set(id, country);
-            }
-            for (const countryId of countryIds) {
-                const cities = await this.locationService.getCitiesByCountry(countryId, lang);
-                cities.forEach(city => citiesMap.set(city.id, city));
+                const country = await this.locationService.getCountryById(Number(id), lang);
+                if (country) {
+                    countriesMap.set(id, {
+                        id: country.id,
+                        name: country.name,
+                        iso2: country.iso2
+                    });
+                }
+
+                const cities = await this.locationService.getCitiesByCountry(Number(id), lang);
+                cities.forEach(city => {
+                    citiesMap.set(city.id, {
+                        id: city.id,
+                        name:  city.name,
+                        country_id: city.country_id
+                    });
+                });
             }
         }
 
         return arts.map(art => ({
             ...art,
-            city: art.city_id ? citiesMap.get(art.city_id) || null : null,
-            country: art.country_id ? countriesMap.get(art.country_id) || null : null
+            city: art.city_id ? citiesMap.get(Number(art.city_id)) || null : null,
+            country: art.country_id ? countriesMap.get(Number(art.country_id)) || null : null
         }));
     }
 
     private buildPagination(total: number, page: number, limit: number) {
+        const totalPages = Math.ceil(total / limit);
         return {
             page,
             limit,
             total,
-            totalPages: Math.ceil(total / limit),
-            hasNextPage: page < Math.ceil(total / limit),
+            totalPages,
+            hasNextPage: page < totalPages,
             hasPreviousPage: page > 1
         };
+    }
+
+    private getAgeInDays(date: Date): number {
+        const now = new Date();
+        const diff = now.getTime() - new Date(date).getTime();
+        return diff / (1000 * 60 * 60 * 24);
     }
 
     private handleError(method: string, error: any, message: string): never {

@@ -7,14 +7,13 @@ import { Art } from '../arts/arts.model';
 import { ArtistProfile } from '../artists/artist.model';
 import { PasswordModule } from '../password/password.module';
 import { FilesModule } from '../files/files.module';
-import { TranslationModule } from 'src/translation/translation.module';
 
 @Module({
   controllers: [UsersController],
   providers: [UsersService],
   imports: [
     SequelizeModule.forFeature([User, Art, ArtistProfile]),
-    PasswordModule, FilesModule, TranslationModule
+    PasswordModule, FilesModule
   ],
   exports: [UsersService, SequelizeModule]
 })

@@ -6,25 +6,21 @@ import { ArtistProfile } from './artist.model';
 import { Art } from '../arts/arts.model';
 import { User } from '../users/users.model';
 import { Genre } from '../genres/genre.model';
-import { Exhibition } from '../exhibitions/exhibition.model';
-import { ExhibitionArtist } from '../exhibitions/exhibition-artist.model';
 import { FilesModule } from '../files/files.module';
 import { PasswordModule } from '../password/password.module';
-import { TranslationModule } from 'src/translation/translation.module';
+import { SubscriptionService } from './subscription.service';
 import { LocationModule } from 'src/location/location.module';
 
 @Module({
-  providers: [ArtistsService],
+  providers: [ArtistsService, SubscriptionService],
   controllers: [ArtistsController],
   imports: [
     SequelizeModule.forFeature([
       Art,
       User,
       ArtistProfile,
-      Genre,
-      Exhibition,
-      ExhibitionArtist
-    ]), FilesModule, PasswordModule, TranslationModule,LocationModule
+      Genre
+    ]), FilesModule, PasswordModule, LocationModule
   ]
 })
 export class ArtistsModule { }

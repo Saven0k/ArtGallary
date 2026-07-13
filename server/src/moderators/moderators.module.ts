@@ -6,13 +6,11 @@ import { ModeratorsController } from './moderators.controller';
 import { ModeratorsService } from './moderators.service';
 import { FilesService } from '../files/files.service';
 import { FilesModule } from '../files/files.module';
-import { TranslationModule } from 'src/translation/translation.module';
 
 @Module({
     imports: [
         SequelizeModule.forFeature([Moderator, User]),
-        FilesModule,
-        TranslationModule
+        FilesModule
     ],
     controllers: [ModeratorsController],
     providers: [ModeratorsService, FilesService],

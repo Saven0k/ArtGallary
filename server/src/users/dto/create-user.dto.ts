@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsPhoneNumber, IsString, Length } from "class-validator";
+import { Gender } from "../users.model";
 
 export class CreateUserDto {
 
@@ -27,6 +28,9 @@ export class CreateUserDto {
     @ApiProperty({ example: '+79876543211', description: 'Номер телефона' })
     readonly phone_number: string;
 
+    @ApiProperty({ example: 'F', description: 'Женский пол' })
+    readonly gender: Gender;
+
     @ApiProperty({ example: '/awd/photo.png', description: 'Фотография пользователя' })
-    readonly avatar_path?: string | null;
+    readonly avatar_path: string;
 }

@@ -1,13 +1,13 @@
+// src/moderators/moderators.service.ts
 import { Injectable, HttpException, HttpStatus, NotFoundException, ConflictException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Moderator } from './moderator.model';
 import { User } from '../users/users.model';
-import { CreateModeratorDto, UpdateModeratorDto } from "./dto/create-moderator.dto";
+import { CreateModeratorDto } from "./dto/create-moderator.dto";
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import * as bcrypt from 'bcryptjs';
 import { FilesService } from '../files/files.service';
-import { TranslationService } from 'src/translation/translation.service';
 
 @Injectable()
 export class ModeratorsService {
@@ -22,7 +22,6 @@ export class ModeratorsService {
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
         private readonly sequelize: Sequelize,
         private readonly fileService: FilesService,
-        private translationService: TranslationService
     ) {}
 
     // ============ CRUD ============
@@ -90,10 +89,10 @@ export class ModeratorsService {
 
     // ============ GETTERS ============
 
-    async getModeratorById(id: number, lang: string = 'ru') {
-        this.log('getModeratorById', { moderatorId: id, lang });
+    async getModeratorById(id: number) {
+        this.log('getModeratorById', { moderatorId: id });
 
-        let moderator = await this.moderatorRepository.findOne({
+        const moderator = await this.moderatorRepository.findOne({
             where: { id },
             include: [{
                 model: User,
@@ -105,13 +104,11 @@ export class ModeratorsService {
             throw new NotFoundException('Модератор не найден');
         }
 
-        let result = moderator.toJSON();
-        // ✅ Исправлено: передаем id как number, метод сам обработает
-        return this.translateIfNeeded(result, 'moderator', lang, id);
+        return moderator.toJSON();
     }
 
-    async getModerators(page: number = 1, limit: number = 10, lang: string = 'ru') {
-        this.log('getModerators', { page, limit, lang });
+    async getModerators(page: number = 1, limit: number = 10) {
+        this.log('getModerators', { page, limit });
 
         const offset = (page - 1) * limit;
         const { count, rows } = await this.moderatorRepository.findAndCountAll({
@@ -124,8 +121,7 @@ export class ModeratorsService {
             order: [['createdAt', 'DESC']]
         });
 
-        let data = rows.map(row => row.toJSON());
-        data = await this.translateIfNeeded(data, 'moderator', lang);
+        const data = rows.map(row => row.toJSON());
 
         return {
             data,
@@ -148,23 +144,6 @@ export class ModeratorsService {
         if (existing) {
             throw new ConflictException('Пользователь с таким email уже существует');
         }
-    }
-
-    // ✅ Исправлен: id теперь может быть number или undefined
-    private async translateIfNeeded(data: any, type: string, lang: string, id?: number) {
-        if (lang && lang !== 'ru') {
-            if (Array.isArray(data)) {
-                return this.translationService.translateEntities(data, type, lang);
-            }
-            // Используем id из data, если не передан явно
-            const entityId = id || data?.id;
-            if (entityId) {
-                // ✅ Приводим к числу, если нужно
-                return this.translationService.translateEntity(data, type, Number(entityId), lang);
-            }
-            return data;
-        }
-        return data;
     }
 
     private pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {

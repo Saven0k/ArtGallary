@@ -1,15 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
 import { User } from "../users/users.model";
-import { Exhibition } from "../exhibitions/exhibition.model";
-import { ExhibitionArtist } from "../exhibitions/exhibition-artist.model";
 import { Art } from "../arts/arts.model";
 
-export type planTypes = 'free' | 'pro' | 'vip' ;
+export type planTypes = 'free' | 'pro' | 'vip';
 
 export type profession = "sculptor" | "painter" | "photographer" | "graphic" | "digital"
 
-interface ArtistCreationAttrs {
+export interface ArtistCreationAttrs {
     user_id: number,
     date_birthday: Date,
     biography: string,
@@ -20,8 +18,10 @@ interface ArtistCreationAttrs {
     views?: number,
     plan: planTypes,
     planExpiresAt: Date | null,
-    playStatus: boolean,
-    profession: string
+    planStatus: boolean,
+    profession: profession,
+    is_deleted?: boolean;
+    deleted_at?: Date | null;
 }
 
 @Table({ tableName: "artist_profiles" })
@@ -51,7 +51,7 @@ export class ArtistProfile extends Model<ArtistProfile, ArtistCreationAttrs> {
     moderate: string;
 
     @ApiProperty({ example: 'photographer', description: 'Вид професии артиста' })
-    @Column({ type: DataType.TEXT})
+    @Column({ type: DataType.TEXT })
     profession: string;
 
     @ApiProperty({ example: 'free', description: 'План подписки' })
@@ -61,30 +61,95 @@ export class ArtistProfile extends Model<ArtistProfile, ArtistCreationAttrs> {
     @ApiProperty({ example: '20.12.2027', description: 'До какого момента действует подписка' })
     @Column({ type: DataType.DATE, allowNull: true, defaultValue: null })
     planExpiresAt: Date;
-    
-    @ApiProperty({ example: '12.12.1212', description: 'Статус подписки: активна/неактивна' })
+
+    @ApiProperty({ example: 'false', description: 'Статус подписки: активна/неактивна' })
     @Column({ type: DataType.BOOLEAN, defaultValue: false })
     playStatus: boolean;
-    
+
     @ApiProperty({ example: '1', description: 'ID города' })
     @Column({ type: DataType.INTEGER })
     city_id: number;
-    
+
     @ApiProperty({ example: '1', description: 'ID страны' })
     @Column({ type: DataType.INTEGER })
     country_id: number;
-    
+
     @ApiProperty({ example: '0', description: 'Количество лайков' })
     @Column({ type: DataType.INTEGER, defaultValue: 0 })
     likes: number;
-    
+
     @ApiProperty({ example: '0', description: 'Количество просмотров' })
     @Column({ type: DataType.INTEGER, defaultValue: 0 })
     views: number;
 
+    @ApiProperty({ example: false, description: 'Флаг удаления артиста' })
+    @Column({ type: DataType.BOOLEAN, defaultValue: false })
+    is_deleted: boolean;
+
+    @ApiProperty({ example: '2024-01-01T00:00:00.000Z', description: 'Дата удаления' })
+    @Column({ type: DataType.DATE, allowNull: true })
+    deleted_at: Date | null;
+
     @HasMany(() => Art)
     arts: Art[];
 
-    @BelongsToMany(() => Exhibition, () => ExhibitionArtist)
-    exhibitions: Exhibition[];
+    isSubscriptionActive(): boolean {
+        if (!this.planExpiresAt) return false;
+        return new Date(this.planExpiresAt) > new Date() && this.playStatus === true;
+    }
+
+    getPlanWeight(): number {
+        const weights = {
+            free: 0,
+            pro: 50,
+            vip: 100,
+        };
+        return weights[this.plan as keyof typeof weights] || 0;
+    }
+
+    getAvailableFeatures(): string[] {
+        const features = {
+            free: ['🔓 Базовый профиль', '🖼️ Добавление работ', '📊 Базовая статистика'],
+            pro: ['🔓 Базовый профиль', '🖼️ Добавление работ', '📊 Расширенная статистика',
+                '⚡ Приоритетная загрузка'],
+            vip: ['🔓 Базовый профиль', '🖼️ Добавление работ', '📊 Расширенная статистика',
+                '⚡ Приоритетная загрузка', '👑 VIP-значок',
+                '🌟 Приоритетная поддержка', '🎯 Продвижение работ'],
+        };
+        return features[this.plan as keyof typeof features] || features.free;
+    }
+    async updateSubscriptionStatus(): Promise<void> {
+        const now = new Date();
+        const isActive = this.planExpiresAt ? new Date(this.planExpiresAt) > now : false;
+
+        if (this.playStatus !== isActive) {
+            this.playStatus = isActive;
+            await this.save();
+        }
+    }
+    async extendSubscription(days: number): Promise<void> {
+        const now = new Date();
+        const currentExpiry = this.planExpiresAt ? new Date(this.planExpiresAt) : now;
+
+        const startDate = currentExpiry > now ? currentExpiry : now;
+        const newExpiry = new Date(startDate);
+        newExpiry.setDate(newExpiry.getDate() + days);
+
+        this.planExpiresAt = newExpiry;
+        this.playStatus = true;
+        await this.save();
+    }
+    async cancelSubscription(): Promise<void> {
+        this.playStatus = false;
+        await this.save();
+    }
+    getDaysLeft(): number | null {
+        if (!this.planExpiresAt) return null;
+        const now = new Date();
+        const expiry = new Date(this.planExpiresAt);
+        if (expiry <= now) return 0;
+
+        const diffTime = expiry.getTime() - now.getTime();
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
 }
