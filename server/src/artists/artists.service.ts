@@ -266,7 +266,7 @@ export class ArtistsService {
             include: [{
                 model: ArtistProfile,
                 where: {
-                    moderate: { [Op.ne]: null }
+                    moderate: { [Op.ne]: null, is_deleted: false }
                 }
             }],
             limit,
@@ -648,13 +648,13 @@ export class ArtistsService {
         this.log('getTopArtists', { limit, lang });
 
         const users = await this.userRepository.findAll({
-            where: { role: 'artist' },
+            where: { role: 'artist', is_deleted: false },
             attributes: this.userAttributes,
             include: [{
                 model: ArtistProfile,
                 required: true,
                 where: {
-                    moderate: { [Op.ne]: null }
+                    moderate: { [Op.ne]: null, is_deleted: false }
                 }
             }]
         });

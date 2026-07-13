@@ -106,7 +106,7 @@ export class ArtistsController {
     @ApiOperation({ summary: 'Получение информации о подписке текущего пользователя' })
     @ApiResponse({ status: 200, type: SubscriptionResponseDto })
     @Roles(Role.Admin, Role.Moderator, Role.Artist)
-    @Get('info')
+    @Get('subscription/info')
     async getSubscriptionInfo(@Request() req: any): Promise<SubscriptionResponseDto> {
         return this.subscriptionService.getSubscriptionInfo(req.user.id);
     }
@@ -114,7 +114,7 @@ export class ArtistsController {
     @ApiOperation({ summary: 'Покупка подписки' })
     @ApiResponse({ status: 200, type: SubscriptionResponseDto })
     @Roles(Role.Admin, Role.Moderator, Role.Artist)
-    @Post('purchase')
+    @Post('subscription/purchase')
     async purchaseSubscription(
         @Request() req: any,
         @Body() dto: PurchaseSubscriptionDto
@@ -125,7 +125,7 @@ export class ArtistsController {
     @ApiOperation({ summary: 'Отмена подписки' })
     @ApiResponse({ status: 200 })
     @Roles(Role.Admin, Role.Moderator, Role.Artist)
-    @Delete('cancel')
+    @Delete('subscription/cancel')
     async cancelSubscription(@Request() req: any): Promise<{ success: boolean; message: string }> {
         return this.subscriptionService.cancelSubscription(req.user.id);
     }
@@ -133,7 +133,7 @@ export class ArtistsController {
     @ApiOperation({ summary: 'Получение доступных планов подписки' })
     @ApiResponse({ status: 200 })
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
-    @Get('plans')
+    @Get('subscription/plans')
     async getAvailablePlans() {
         return this.subscriptionService.getAvailablePlans();
     }
@@ -147,7 +147,7 @@ export class ArtistsController {
     ) {
         return this.artistService.getTopArtists(parseInt(limit));
     }
-    
+
     @ApiOperation({ summary: 'Восстановление артиста' })
     @Roles(Role.Admin, Role.Moderator)
     @Post(':id/restore')

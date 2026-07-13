@@ -2,10 +2,9 @@ import { ApiProperty } from "@nestjs/swagger";
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
 import { User } from "../users/users.model";
 import { Art } from "../arts/arts.model";
+import { Profession } from "src/professions/profession.model";
 
 export type planTypes = 'free' | 'pro' | 'vip';
-
-export type profession = "sculptor" | "painter" | "photographer" | "graphic" | "digital"
 
 export interface ArtistCreationAttrs {
     user_id: number,
@@ -19,7 +18,7 @@ export interface ArtistCreationAttrs {
     plan: planTypes,
     planExpiresAt: Date | null,
     planStatus: boolean,
-    profession: profession,
+    profession_id: number,
     is_deleted?: boolean;
     deleted_at?: Date | null;
 }
@@ -50,9 +49,13 @@ export class ArtistProfile extends Model<ArtistProfile, ArtistCreationAttrs> {
     @Column({ type: DataType.TEXT, allowNull: true })
     moderate: string;
 
-    @ApiProperty({ example: 'photographer', description: 'Вид професии артиста' })
-    @Column({ type: DataType.TEXT })
-    profession: string;
+    @ApiProperty({ example: 1, description: 'ID профессии' })
+    @ForeignKey(() => Profession)
+    @Column({ type: DataType.INTEGER, allowNull: true })
+    profession_id: number;
+
+    @BelongsTo(() => Profession)
+    profession: Profession;
 
     @ApiProperty({ example: 'free', description: 'План подписки' })
     @Column({ type: DataType.TEXT, defaultValue: 'free' })

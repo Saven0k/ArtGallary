@@ -1,29 +1,32 @@
-// src/art-types/art-types.service.ts
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { ArtType } from './art-type.model';
-import { CreateArtTypeDto, UpdateArtTypeDto } from './dto/create-art-type.dto';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { Inject } from '@nestjs/common';
 import { initialArtTypesData } from './art-types.data';
+import { CreateArtTypeDto } from './dto/create-art-type.dto';
+import { UpdateArtTypeDto } from './dto/update-art-type.dto';
 
 @Injectable()
 export class ArtTypesService {
     constructor(
         @InjectModel(ArtType) private artTypeRepository: typeof ArtType,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-    ) {}
+    ) { }
 
     async seedArtTypes() {
         this.logger.log('info', '🌱 Начало заполнения видов искусства...');
 
         try {
-            for (const name of initialArtTypesData) {
+            for (const item of initialArtTypesData) {
                 await this.artTypeRepository.findOrCreate({
-                    where: { name },
-                    defaults: { name }
+                    where: { name: item.name },
+                    defaults: {
+                        name: item.name,
+                        description: item.description || null
+                    }
                 });
-                this.logger.log('debug', `✅ Создан вид искусства: ${name}`);
+                this.logger.log('debug', `✅ Создан вид искусства: ${item.name}`);
             }
 
             this.logger.log('info', '✅ Виды искусства успешно заполнены!');
@@ -60,16 +63,9 @@ export class ArtTypesService {
             updateData: dto
         }));
 
-        const [affectedCount] = await this.artTypeRepository.update(dto, {
-            where: { id }
-        });
-
-        if (affectedCount === 0) {
-            throw new HttpException('Вид искусства не найден', 404);
-        }
-
+        const [affectedCount] = await this.artTypeRepository.update(dto, { where: { id } });
+        if (affectedCount === 0) throw new HttpException('Вид искусства не найден', 404);
         const updatedArtType = await this.artTypeRepository.findByPk(id);
-
         this.logger.log('info', JSON.stringify({
             message: '✅ Вид искусства успешно обновлен',
             context: 'ArtTypesService.update',
@@ -87,18 +83,13 @@ export class ArtTypesService {
         }));
 
         const artType = await this.artTypeRepository.findByPk(id);
-        if (!artType) {
-            throw new HttpException('Вид искусства не найден', 404);
-        }
-
+        if (!artType) throw new HttpException('Вид искусства не найден', 404);
         await artType.destroy();
-
         this.logger.log('info', JSON.stringify({
             message: '✅ Вид искусства успешно удален',
             context: 'ArtTypesService.delete',
             id: id
         }));
-
         return { success: true };
     }
 
@@ -107,9 +98,7 @@ export class ArtTypesService {
             message: '📋 Запрос списка всех видов искусства',
             context: 'ArtTypesService.getAll'
         }));
-
         const artTypes = await this.artTypeRepository.findAll();
-
         this.logger.log('info', JSON.stringify({
             message: '✅ Список видов искусства получен',
             context: 'ArtTypesService.getAll',
@@ -125,12 +114,8 @@ export class ArtTypesService {
             context: 'ArtTypesService.getById',
             id: id
         }));
-
         const artType = await this.artTypeRepository.findByPk(id);
-
-        if (!artType) {
-            throw new HttpException('Вид искусства не найден', 404);
-        }
+        if (!artType)  throw new HttpException('Вид искусства не найден', 404);
 
         this.logger.log('info', JSON.stringify({
             message: '✅ Вид искусства найден',

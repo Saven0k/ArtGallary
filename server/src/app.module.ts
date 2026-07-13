@@ -26,6 +26,7 @@ import { Style } from "./styles/styles.model";
 import { ArtView } from "./arts/art-view.model";
 import { ArtType } from "./art-types/art-type.model";
 import { LocationModule } from './location/location.module';
+import { ProfessionsModule } from './professions/professions.module';
 
 @Module({
     controllers: [],
@@ -92,6 +93,7 @@ import { LocationModule } from './location/location.module';
         ModeratorsModule,
         ArtTypesModule,
         LocationModule,
+        ProfessionsModule,
     ],
 })
 export class AppModule {}

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsOptional, IsDateString } from "class-validator";
+import { IsEnum, IsOptional, IsNumber, Min } from "class-validator";
 
 export enum SubscriptionPlan {
     FREE = 'free',
@@ -7,15 +7,16 @@ export enum SubscriptionPlan {
     VIP = 'vip'
 }
 
-export class UpdateSubscriptionDto {
+export class PurchaseSubscriptionDto {
     @ApiProperty({ enum: SubscriptionPlan, example: 'pro', description: 'План подписки' })
     @IsEnum(SubscriptionPlan)
     plan: SubscriptionPlan;
 
-    @ApiProperty({ example: '2025-12-31T23:59:59.999Z', description: 'Дата окончания подписки', required: false })
+    @ApiProperty({ example: 30, description: 'Количество дней подписки', required: false, default: 30 })
     @IsOptional()
-    @IsDateString()
-    expiresAt?: string;
+    @IsNumber()
+    @Min(1)
+    durationDays?: number;
 }
 
 export class SubscriptionResponseDto {
@@ -31,19 +32,9 @@ export class SubscriptionResponseDto {
     @ApiProperty({ example: 50, description: 'Вес плана для скор' })
     planWeight: number;
 
-    @ApiProperty({ example: '2025-12-20', description: 'Дней до окончания' })
+    @ApiProperty({ example: 30, description: 'Дней до окончания' })
     daysLeft: number | null;
 
-    @ApiProperty({ example: ['vip_badge', 'priority_support', 'analytics'], description: 'Доступные фичи' })
+    @ApiProperty({ example: ['🔓 Базовый профиль', '🖼️ Добавление работ'], description: 'Доступные фичи' })
     features: string[];
-}
-
-export class PurchaseSubscriptionDto {
-    @ApiProperty({ enum: SubscriptionPlan, example: 'pro', description: 'План для покупки' })
-    @IsEnum(SubscriptionPlan)
-    plan: SubscriptionPlan;
-
-    @ApiProperty({ example: 30, description: 'Количество дней подписки', default: 30 })
-    @IsOptional()
-    durationDays?: number;
 }

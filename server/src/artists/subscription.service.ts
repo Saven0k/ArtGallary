@@ -22,19 +22,12 @@ export class SubscriptionService {
     constructor(
         @InjectModel(ArtistProfile) private artistProfileModel: typeof ArtistProfile,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger
-    ) {}
+    ) { }
 
     async getSubscriptionInfo(userId: number): Promise<SubscriptionResponseDto> {
-        const profile = await this.artistProfileModel.findOne({
-            where: { user_id: userId },
-        });
-
-        if (!profile) {
-            throw new HttpException('Профиль артиста не найден', HttpStatus.NOT_FOUND);
-        }
-
+        const profile = await this.artistProfileModel.findOne({ where: { user_id: userId } });
+        if (!profile) throw new HttpException('Профиль артиста не найден', HttpStatus.NOT_FOUND);
         await profile.updateSubscriptionStatus();
-
         return {
             plan: profile.plan,
             expiresAt: profile.planExpiresAt,
@@ -45,22 +38,14 @@ export class SubscriptionService {
         };
     }
 
-    /**
-     * Покупка или обновление подписки
-     */
     async purchaseSubscription(
         userId: number,
         dto: PurchaseSubscriptionDto,
         transaction?: Transaction
     ): Promise<SubscriptionResponseDto> {
-        const profile = await this.artistProfileModel.findOne({
-            where: { user_id: userId },
-            transaction,
-        });
+        const profile = await this.artistProfileModel.findOne({ where: { user_id: userId }, transaction });
 
-        if (!profile) {
-            throw new HttpException('Профиль артиста не найден', HttpStatus.NOT_FOUND);
-        }
+        if (!profile) throw new HttpException('Профиль артиста не найден', HttpStatus.NOT_FOUND);
 
         if (profile.plan === dto.plan && profile.isSubscriptionActive()) {
             throw new HttpException(
@@ -70,11 +55,9 @@ export class SubscriptionService {
         }
 
         const duration = dto.durationDays || this.PLAN_DURATIONS.monthly;
-
         profile.plan = dto.plan;
         await profile.extendSubscription(duration);
         await profile.save({ transaction });
-
         this.logger.log('info', JSON.stringify({
             message: '✅ Подписка приобретена',
             context: 'SubscriptionService',
@@ -86,24 +69,11 @@ export class SubscriptionService {
         return this.getSubscriptionInfo(userId);
     }
 
-    /**
-     * Отмена подписки
-     */
     async cancelSubscription(userId: number): Promise<{ success: boolean; message: string }> {
-        const profile = await this.artistProfileModel.findOne({
-            where: { user_id: userId },
-        });
-
-        if (!profile) {
-            throw new HttpException('Профиль артиста не найден', HttpStatus.NOT_FOUND);
-        }
-
-        if (!profile.isSubscriptionActive()) {
-            throw new HttpException('Подписка не активна', HttpStatus.BAD_REQUEST);
-        }
-
+        const profile = await this.artistProfileModel.findOne({ where: { user_id: userId } });
+        if (!profile) throw new HttpException('Профиль артиста не найден', HttpStatus.NOT_FOUND);
+        if (!profile.isSubscriptionActive()) throw new HttpException('Подписка не активна', HttpStatus.BAD_REQUEST);
         await profile.cancelSubscription();
-
         this.logger.log('info', JSON.stringify({
             message: '⛔ Подписка отменена',
             context: 'SubscriptionService',
@@ -117,9 +87,6 @@ export class SubscriptionService {
         };
     }
 
-    /**
-     * Проверка статуса подписки для всех артистов (для cron задачи)
-     */
     async checkAllSubscriptions(): Promise<void> {
         const profiles = await this.artistProfileModel.findAll();
 
@@ -146,9 +113,6 @@ export class SubscriptionService {
         }));
     }
 
-    /**
-     * Получение доступных планов с ценами
-     */
     getAvailablePlans() {
         return {
             plans: Object.keys(this.PLAN_PRICES).map(plan => ({
@@ -168,9 +132,9 @@ export class SubscriptionService {
         const features = {
             free: ['🔓 Базовый профиль', '🖼️ Добавление работ', '📊 Базовая статистика'],
             pro: ['🔓 Базовый профиль', '🖼️ Добавление работ', '📊 Расширенная статистика',
-                '⚡ Приоритетная загрузка', '🏛️ Доступ к выставкам'],
+                '⚡ Приоритетная загрузка'],
             vip: ['🔓 Базовый профиль', '🖼️ Добавление работ', '📊 Расширенная статистика',
-                '⚡ Приоритетная загрузка', '🏛️ Доступ к выставкам', '👑 VIP-значок',
+                '⚡ Приоритетная загрузка', '👑 VIP-значок',
                 '🌟 Приоритетная поддержка', '🎯 Продвижение работ'],
         };
         return features[plan as keyof typeof features] || features.free;
