@@ -33,22 +33,12 @@ export class ArtsController {
         return this.artsService.getModeratedArts(page || 1, limit || 10);
     }
 
-    @ApiOperation({ summary: 'Получение объекта по Id' })
-    @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
-    @Get("/:id")
-    getArt(
-        @Param("id") id: number
-    ) {
-        return this.artsService.getArtById(id);
-    }
-
-
-    @ApiOperation({ summary: 'Получения списка немодерированных объектов' })
+    @ApiOperation({ summary: 'Получение списка немодерированных объектов' })
     @Roles(Role.Admin, Role.Moderator, Role.Artist)
     @Get('unmoderated')
     getUnmoderatedArts(
         @Query('page') page?: number,
-        @Query('limit') limit?: number
+        @Query('limit') limit?: number,
     ) {
         return this.artsService.getUnmoderatedArts(page || 1, limit || 10);
     }
@@ -61,6 +51,15 @@ export class ArtsController {
         @Query('limit') limit?: number
     ) {
         return this.artsService.getAllArts(page || 1, limit || 10);
+    }
+    
+    @ApiOperation({ summary: 'Получение объекта по Id' })
+    @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
+    @Get("/:id")
+    getArt(
+        @Param("id") id: number
+    ) {
+        return this.artsService.getArtById(id);
     }
 
     @ApiOperation({ summary: 'Добавление картины в топ' })

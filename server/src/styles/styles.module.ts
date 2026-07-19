@@ -1,14 +1,30 @@
-import { Module } from '@nestjs/common';
+// src/styles/styles.module.ts
+import { Module, OnModuleInit } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { Style } from './styles.model';
 import { StylesController } from './styles.controller';
 import { StylesService } from './styles.service';
+import { Style } from './styles.model';
 
 @Module({
-  providers: [StylesService],
-  controllers: [StylesController],
-  imports: [
-      SequelizeModule.forFeature([Style]),
-    ],
+    imports: [SequelizeModule.forFeature([Style])],
+    controllers: [StylesController],
+    providers: [StylesService],
+    exports: [StylesService],
 })
-export class StyleModule {}
+export class StylesModule implements OnModuleInit {
+    constructor(private stylesService: StylesService) {}
+
+    async onModuleInit() {
+        try {
+            const count = await this.stylesService['stylesRepository'].count();
+            if (count === 0) {
+                console.log('🌱 Стили не найдены, запускаем seed...');
+                await this.stylesService.seedStyles();
+            } else {
+                console.log(`✅ Найдено ${count} стилей`);
+            }
+        } catch (error) {
+            console.error('❌ Ошибка при проверке стилей:', error);
+        }
+    }
+}

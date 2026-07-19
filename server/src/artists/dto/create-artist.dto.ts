@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsString, IsNumber, MinLength, IsOptional, IsPhoneNumber } from "class-validator";
+import { IsEmail, IsString, IsNumber, MinLength, IsOptional, IsPhoneNumber, isNumber } from "class-validator";
 
 export class CreateArtistDto {
     @ApiProperty({ example: 'email@email.ru', description: 'Почта' })
@@ -21,8 +21,11 @@ export class CreateArtistDto {
 
     @ApiProperty({ example: 'Иванович', description: 'Отчество', required: false })
     @IsString()
-    @IsOptional()
     second_name: string;
+    
+    @ApiProperty({ example: 'F', description: 'Девушка', required: false })
+    @IsString()
+    gender: "M" | "F";
 
     @ApiProperty({ example: '+79999999999', description: 'Номер телефона' })
     phone_number: string;
@@ -35,16 +38,16 @@ export class CreateArtistDto {
     biography: string;
     
     @ApiProperty({ example: '5', description: 'Вид професии артиста' })
-    @IsString()
+    @IsNumber()
     profession_id: number;
     
     @ApiProperty({ example: 1, description: 'ID города' })
-    @IsNumber()
-    city_id?: number;
-
+    @IsString()
+    city_id?: string;
+    
     @ApiProperty({ example: 1, description: 'ID страны' })
-    @IsNumber()
-    country_id?: number;
+    @IsString()
+    country_id?: string;
 
     @ApiProperty({ example: '/awd/photo.png', description: 'Фотография пользователя' })
     readonly avatar_path?: string | null;

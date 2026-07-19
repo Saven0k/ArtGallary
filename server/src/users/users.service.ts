@@ -44,7 +44,9 @@ export class UsersService {
                     surname: adminSurname,
                     second_name: adminSecondName,
                     phone_number: adminPhone,
-                    role: 'admin'
+                    role: 'admin',
+                    gender: 'M',
+                    avatar_path: '', 
                 });
 
                 this.logger.log('info', JSON.stringify({
@@ -122,10 +124,10 @@ export class UsersService {
     async deleteUserById(id: number): Promise<boolean> {
         const user = await this.userRepository.findByPk(id);
         if (!user) return false;
-        if (user.is_deleted)  throw new HttpException('Пользователь уже удален', 400);
+        if (user.is_deleted) throw new HttpException('Пользователь уже удален', 400);
 
-        const artistProfile = await this.artistProfileModel.findOne({ where: { user_id: id }});
-        await user.update({is_deleted: true,deleted_at: new Date(),});
+        const artistProfile = await this.artistProfileModel.findOne({ where: { user_id: id } });
+        await user.update({ is_deleted: true, deleted_at: new Date(), });
         if (artistProfile) {
             await artistProfile.update({
                 is_deleted: true,
@@ -157,11 +159,11 @@ export class UsersService {
             }
         }
 
-        await user.update({is_deleted: false,deleted_at: null,});
+        await user.update({ is_deleted: false, deleted_at: null, });
 
-        const artistProfile = await this.artistProfileModel.findOne({ where: { user_id: id }});
-        if (artistProfile) await artistProfile.update({is_deleted: false,deleted_at: null,});
-        
+        const artistProfile = await this.artistProfileModel.findOne({ where: { user_id: id } });
+        if (artistProfile) await artistProfile.update({ is_deleted: false, deleted_at: null, });
+
         this.logger.log('info', JSON.stringify({
             message: '✅ Пользователь восстановлен',
             context: 'UsersService.restoreUser',

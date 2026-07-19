@@ -11,8 +11,8 @@ export interface ArtistCreationAttrs {
     date_birthday: Date,
     biography: string,
     moderate: string,
-    city_id?: number,
-    country_id?: number,
+    city_id?: string,
+    country_id?: string,
     likes?: number,
     views?: number,
     plan: planTypes,
@@ -70,12 +70,12 @@ export class ArtistProfile extends Model<ArtistProfile, ArtistCreationAttrs> {
     playStatus: boolean;
 
     @ApiProperty({ example: '1', description: 'ID города' })
-    @Column({ type: DataType.INTEGER })
-    city_id: number;
+    @Column({ type: DataType.TEXT })
+    city_id: string;
 
     @ApiProperty({ example: '1', description: 'ID страны' })
-    @Column({ type: DataType.INTEGER })
-    country_id: number;
+    @Column({ type: DataType.TEXT })
+    country_id: string;
 
     @ApiProperty({ example: '0', description: 'Количество лайков' })
     @Column({ type: DataType.INTEGER, defaultValue: 0 })

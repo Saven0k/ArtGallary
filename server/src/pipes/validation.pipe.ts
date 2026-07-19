@@ -1,27 +1,28 @@
-import { ArgumentMetadata, Injectable, PipeTransform } from "@nestjs/common";
-import { plainToClass } from "class-transformer";
-import { validate } from "class-validator";
-import { ValidationException } from "../exceptions/validation.exception";
+import { Injectable, PipeTransform, ArgumentMetadata, BadRequestException } from '@nestjs/common';
+import { validate } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ValidationPipe implements PipeTransform {
-    async transform(value: any, metadata: ArgumentMetadata): Promise<any> {
-        if (!metadata.metatype) {
+    async transform(value: any, metadata: ArgumentMetadata) {
+        if (!metadata.metatype || !this.toValidate(metadata.metatype)) {
             return value;
         }
-        const obj = plainToClass(metadata.metatype, value);
-        const errors = await validate(obj)
 
-        if (errors.length) {
-            let messages = errors.map(err => {
-                if (err.constraints) {
-                    return `${err.property} - ${Object.values(err.constraints).join(', ')}`;
-                }
-                return `${err.property} - Validation error`;
+        const object = plainToInstance(metadata.metatype, value);
+        const errors = await validate(object);
+
+        if (errors.length > 0) {
+            const messages = errors.map(error => {
+                return Object.values(error.constraints || {}).join(', ');
             });
-            throw new ValidationException(messages);
+            throw new BadRequestException(messages.join('; '));
         }
+        return value;
+    }
 
-        return value; 
+    private toValidate(metatype: Function): boolean {
+        const types: Function[] = [String, Boolean, Number, Array, Object];
+        return !types.includes(metatype);
     }
 }

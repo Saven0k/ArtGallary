@@ -3,25 +3,27 @@ import { Column, DataType, Model, Table, ForeignKey, BelongsTo, BelongsToMany } 
 import { ArtistProfile } from "../artists/artist.model";
 import { Genre } from "../genres/genre.model";
 import { Style } from "../styles/styles.model";
+import { Tag } from "src/tags/tag.model";
+import { ArtTag } from "src/tags/art-tag.model";
 
 export type CurrencyType = "USD" | "EUR" | "RUB" | "UAH" | null;
 export interface ArtCreationAttrs {
-    title: string,
-    description: string,
-    cost?: number | null,
-    currency?: CurrencyType,
-    image_path: string,
-    likes?: number,
-    views?: number,
-    date_published: Date,
-    artist_id?: number,
-    city_id?: number,
-    moderate: string,
-    genre_id?: number,
-    specifications: string,
-    country_id?: number,
-    style_id?: number,
-    is_adult?: boolean,
+    title: string;
+    description: string;
+    cost?: number | null;
+    currency?: CurrencyType;
+    image_path: string;
+    likes?: number;
+    views?: number;
+    date_published: Date;
+    artist_id?: number;
+    city_id?: number;
+    moderate: string;
+    genre_id?: number;
+    specifications: string;
+    country_id?: number;
+    style_id?: number;
+    is_adult?: boolean;
     score?: number;
     is_featured?: boolean;
     featured_until?: Date;
@@ -117,4 +119,7 @@ export class Art extends Model<Art, ArtCreationAttrs> {
 
     @BelongsTo(() => Style)
     style: Style;
+
+    @BelongsToMany(() => Tag, () => ArtTag)
+    tags: Tag[];
 }

@@ -1,187 +1,176 @@
 // src/location/location.service.ts
-import { Injectable, Logger, Inject } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
-import { LocationApiService } from './location-api.service';
-import { CountryDto } from './dto/country.dto';
-import { CityDto } from './dto/city.dto';
+import { Injectable, Logger } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class LocationService {
-    private readonly logger = new Logger(LocationService.name);
+  private readonly logger = new Logger(LocationService.name);
+  private readonly NOMINATIM_URL = 'https://nominatim.openstreetmap.org';
 
-    constructor(
-        private locationApiService: LocationApiService,
-        @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    ) {}
+  constructor(private httpService: HttpService) { }
 
-    private generateCountryId(iso2: string): number {
-        if (!iso2 || iso2.length < 2) return 0;
-        return parseInt(iso2.charCodeAt(0).toString() + iso2.charCodeAt(1).toString());
-    }
+  /**
+   * Поиск стран (возвращает с ISO2 кодом)
+   */
+  async searchCountries(query: string, lang: string = 'ru'): Promise<{ id: string; name: string; iso2: string }[]> {
+    if (!query || query.length < 2) return [];
 
-    async getAllCountries(lang: string = 'ru'): Promise<CountryDto[]> {
-        const cacheKey = `countries_${lang}`;
-        const cached = await this.cacheManager.get<CountryDto[]>(cacheKey);
-        if (cached) {
-            this.logger.debug(`✅ Cache hit: ${cacheKey}`);
-            return cached;
-        }
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.NOMINATIM_URL}/search`, {
+          params: {
+            q: query,
+            format: 'json',
+            limit: 5,
+            featuretype: 'country',
+            'accept-language': lang,
+          },
+          headers: {
+            'User-Agent': 'GalleryApp/1.0',
+          },
+        })
+      );
 
-        this.logger.log(`📋 Fetching all countries (lang: ${lang})`);
+      return response.data.map((item: any) => {
+        // ✅ Извлекаем ISO2 код из address.country_code
+        let iso2 = item.address?.country_code?.toUpperCase() || '';
         
-        const data = await this.locationApiService.getAllCountries(lang);
-        
-        if (!data || !Array.isArray(data)) {
-            this.logger.warn('⚠️ Received invalid data from API, returning empty array');
-            return [];
-        }
-
-        const countries = data.map((country: any) => {
-            const iso2 = country.cca2 || '';
-            
-            // ✅ В v5 название находится в country.name.common
-            let name = country.name?.common || 'Unknown';
-            
-            // ✅ Переводы в v5 находятся в country.translations
-            if (lang === 'ru' && country.translations?.rus?.common) {
-                name = country.translations.rus.common;
-            }
-
-            return {
-                id: this.generateCountryId(iso2),
-                name: name,
-                iso2: iso2,
-            };
-        });
-
-        const validCountries = countries.filter(c => c.id > 0 && c.name && c.iso2);
-
-        await this.cacheManager.set(cacheKey, validCountries, 86400000);
-        this.logger.log(`✅ Cached ${validCountries.length} countries`);
-        
-        return validCountries;
-    }
-
-    async getCountryById(id: number, lang: string = 'ru'): Promise<CountryDto | null> {
-        const cacheKey = `country_${id}_${lang}`;
-        const cached = await this.cacheManager.get<CountryDto>(cacheKey);
-        if (cached) return cached;
-
-        const allCountries = await this.getAllCountries(lang);
-        const country = allCountries.find(c => c.id === id);
-        
-        if (country) {
-            await this.cacheManager.set(cacheKey, country, 86400000);
+        // ✅ Если не нашли в address, пробуем получить из других полей
+        if (!iso2) {
+          // Некоторые ответы могут содержать код в display_name
+          const parts = item.display_name?.split(',') || [];
+          const lastPart = parts[parts.length - 1]?.trim();
+          if (lastPart && lastPart.length === 2) {
+            iso2 = lastPart.toUpperCase();
+          }
         }
         
-        return country || null;
-    }
-
-    async getCountryByCode(isoCode: string, lang: string = 'ru'): Promise<CountryDto | null> {
-        if (!isoCode) return null;
-        
-        const cacheKey = `country_code_${isoCode}_${lang}`;
-        const cached = await this.cacheManager.get<CountryDto>(cacheKey);
-        if (cached) return cached;
-
-        const data = await this.locationApiService.getCountryByCode(isoCode);
-        if (!data || Array.isArray(data)) return null;
-
-        // ✅ В v5 название находится в data.name.common
-        let name = data.name?.common || 'Unknown';
-        
-        // ✅ Переводы в v5 находятся в data.translations
-        if (lang === 'ru' && data.translations?.rus?.common) {
-            name = data.translations.rus.common;
+        // ✅ Если все еще нет, пробуем из class и type
+        if (!iso2 && item.class === 'boundary' && item.type === 'administrative') {
+          // Для некоторых стран код может быть в osm_id
+          const osmType = item.osm_type;
+          const osmId = item.osm_id;
+          // Здесь можно было бы сделать дополнительный запрос, но пока оставляем пустым
         }
 
-        const country = {
-            id: this.generateCountryId(isoCode),
-            name: name,
-            iso2: isoCode,
+        return {
+          id: String(item.place_id),
+          name: item.display_name.split(',')[0] || item.display_name,
+          iso2: iso2 || 'RU', // ✅ Fallback для России
         };
-
-        await this.cacheManager.set(cacheKey, country, 86400000);
-        return country;
+      });
+    } catch (error) {
+      this.logger.error(`Failed to search countries for "${query}":`, error);
+      return [];
     }
+  }
 
-    async getCitiesByCountry(countryId: number, lang: string = 'ru'): Promise<CityDto[]> {
-        const cacheKey = `cities_${countryId}_${lang}`;
-        const cached = await this.cacheManager.get<CityDto[]>(cacheKey);
-        if (cached) {
-            this.logger.debug(`✅ Cache hit: ${cacheKey}`);
-            return cached;
-        }
+  /**
+   * Получение страны по ISO2 коду (основной метод)
+   */
+  async getCountryByCode(iso2: string, lang: string = 'ru'): Promise<{ id: string; name: string; iso2: string } | null> {
+    if (!iso2 || iso2.length !== 2) return null;
 
-        const country = await this.getCountryById(countryId);
-        if (!country || !country.iso2) {
-            this.logger.warn(`Country with ID ${countryId} not found`);
-            return [];
-        }
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.NOMINATIM_URL}/search`, {
+          params: {
+            q: iso2,
+            format: 'json',
+            limit: 1,
+            featuretype: 'country',
+            'accept-language': lang,
+          },
+          headers: {
+            'User-Agent': 'GalleryApp/1.0',
+          },
+        })
+      );
 
-        this.logger.log(`📋 Fetching cities for country: ${country.iso2} (lang: ${lang})`);
-        
-        const data = await this.locationApiService.getCitiesByCountryCode(country.iso2, lang);
-        
-        if (!data || !Array.isArray(data)) {
-            this.logger.warn(`⚠️ Received invalid cities data for ${country.iso2}`);
-            return [];
-        }
+      if (response.data.length === 0) return null;
 
-        const cities = data.map((city: any) => ({
-            id: city.place_id || parseInt(city.geonameId) || Math.floor(Math.random() * 1000000) + Date.now(),
-            name: city.display_name?.split(',')[0] || city.name || 'Unknown',
-            country_id: country.id,
-        }));
-
-        await this.cacheManager.set(cacheKey, cities, 86400000);
-        this.logger.log(`✅ Cached ${cities.length} cities for country ${country.name}`);
-
-        return cities;
+      const item = response.data[0];
+      return {
+        id: String(item.place_id),
+        name: item.display_name.split(',')[0] || item.display_name,
+        iso2: item.address?.country_code?.toUpperCase() || iso2,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to get country by code ${iso2}:`, error);
+      return null;
     }
+  }
 
-    async getCitiesByCountryCode(isoCode: string, lang: string = 'ru'): Promise<CityDto[]> {
-        if (!isoCode) return [];
-        
-        const cacheKey = `cities_code_${isoCode}_${lang}`;
-        const cached = await this.cacheManager.get<CityDto[]>(cacheKey);
-        if (cached) return cached;
+  /**
+   * Получение городов по ISO2 коду страны
+   */
+  async getCitiesByCountryCode(iso2: string, lang: string = 'ru'): Promise<{ id: string; name: string; country_code: string }[]> {
+    if (!iso2 || iso2.length !== 2) return [];
 
-        const country = await this.getCountryByCode(isoCode);
-        if (!country) {
-            this.logger.warn(`Country with ISO code ${isoCode} not found`);
-            return [];
-        }
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.NOMINATIM_URL}/search`, {
+          params: {
+            countrycodes: iso2,
+            format: 'json',
+            limit: 50,
+            featuretype: 'city',
+            'accept-language': lang,
+          },
+          headers: {
+            'User-Agent': 'GalleryApp/1.0',
+          },
+        })
+      );
 
-        return this.getCitiesByCountry(country.id, lang);
+      return response.data.map((item: any) => ({
+        id: String(item.place_id),
+        name: item.display_name.split(',')[0] || item.display_name,
+        country_code: iso2,
+      }));
+    } catch (error) {
+      this.logger.error(`Failed to get cities for country ${iso2}:`, error);
+      return [];
     }
+  }
 
-    async searchCountries(query: string, lang: string = 'ru'): Promise<CountryDto[]> {
-        if (!query) return [];
-        
-        const allCountries = await this.getAllCountries(lang);
-        const lowerQuery = query.toLowerCase();
-        
-        return allCountries.filter(country =>
-            country.name.toLowerCase().includes(lowerQuery) ||
-            country.iso2?.toLowerCase().includes(lowerQuery)
-        );
-    }
+  /**
+   * Поиск городов с фильтром по стране
+   */
+  async searchCities(query: string, countryIso2?: string, lang: string = 'ru'): Promise<{ id: string; name: string; country_code: string }[]> {
+    if (!query || query.length < 2) return [];
 
-    async searchCities(countryId: number, query: string, lang: string = 'ru'): Promise<CityDto[]> {
-        if (!query) return [];
-        
-        const cities = await this.getCitiesByCountry(countryId, lang);
-        const lowerQuery = query.toLowerCase();
-        
-        return cities.filter(city =>
-            city.name.toLowerCase().includes(lowerQuery)
-        );
-    }
+    try {
+      const params: any = {
+        q: query,
+        format: 'json',
+        limit: 5,
+        featuretype: 'city',
+        'accept-language': lang,
+      };
 
-    async clearCache(): Promise<void> {
-        await this.cacheManager.clear();
-        this.logger.log('🗑️ Cache cleared');
+      if (countryIso2) {
+        params.countrycodes = countryIso2;
+      }
+
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.NOMINATIM_URL}/search`, {
+          params,
+          headers: {
+            'User-Agent': 'GalleryApp/1.0',
+          },
+        })
+      );
+
+      return response.data.map((item: any) => ({
+        id: String(item.place_id),
+        name: item.display_name.split(',')[0] || item.display_name,
+        country_code: item.address?.country_code?.toUpperCase() || countryIso2 || '',
+      }));
+    } catch (error) {
+      this.logger.error(`Failed to search cities for "${query}":`, error);
+      return [];
     }
+  }
 }

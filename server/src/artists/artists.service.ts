@@ -36,8 +36,9 @@ export class ArtistsService {
 
     async createArtist(dto: CreateArtistDto, image: any) {
         this.log('createArtist', { email: dto.email });
+        console.log(dto.country_id)
         if (dto.country_id) {
-            const country = await this.locationService.getCountryById(Number(dto.country_id));
+            const country = await this.locationService.getCountryByCode(String(dto.country_id));
             if (!country) throw new HttpException('Страна не найдена', HttpStatus.BAD_REQUEST);
         }
         const transaction = await this.sequelize.transaction();
@@ -52,6 +53,7 @@ export class ArtistsService {
                 password: hashedPassword,
                 avatar_path: avatarPath,
                 role: 'artist',
+                gender: dto.gender as 'M' | 'F',
             }, { transaction });
 
             await this.artistProfileModel.create({
@@ -70,7 +72,7 @@ export class ArtistsService {
 
     async updateArtist(id: number, dto: UpdateArtistDto, image: any) {
         if (dto.country_id) {
-            const country = await this.locationService.getCountryById(Number(dto.country_id));
+            const country = await this.locationService.getCountryByCode(dto.country_id);
             if (!country) {
                 throw new HttpException('Страна не найдена', HttpStatus.BAD_REQUEST);
             }
@@ -236,8 +238,7 @@ export class ArtistsService {
             const userData = user;
             const profile = profiles.get(user.id);
             const location = profile?.country_id ? locationMap.get(profile.country_id) : null;
-            const cityData = profile?.city_id ? location?.cities?.get(profile.city_id) : null;
-
+            const cityData = profile?.city_id ? location?.cities?.get(String(profile.city_id)) : null;
             return {
                 ...userData,
                 artistProfile: profile ? {
@@ -261,7 +262,7 @@ export class ArtistsService {
         const offset = (page - 1) * limit;
 
         const { count, rows } = await this.userRepository.findAndCountAll({
-            where: { role: 'artist', is_deleted: false  },
+            where: { role: 'artist', is_deleted: false },
             include: [{
                 model: ArtistProfile,
                 where: {
@@ -303,9 +304,10 @@ export class ArtistsService {
                     planWeight +
                     (isSubscriptionActive ? 20 : 0);
 
+                // ✅ Передаем правильные типы
                 const location = await this.getLocationData(
-                    profile.country_id,
-                    profile.city_id,
+                    profile.country_id ?? null,
+                    profile.city_id ?? null,
                     lang
                 );
 
@@ -480,13 +482,13 @@ export class ArtistsService {
 
         return { artsCount, totalLikes };
     }
-
-    private async getLocationData(countryId: number, cityId: number, lang: string) {
+    private async getLocationData(countryCode: string | null, cityId: string | null, lang: string) {
         let countryData = null;
         let cityData = null;
 
-        if (countryId) {
-            const country = await this.locationService.getCountryById(Number(countryId), lang);
+        // ✅ countryCode уже строка (ISO2)
+        if (countryCode) {
+            const country = await this.locationService.getCountryByCode(countryCode, lang);
             if (country) {
                 countryData = {
                     id: country.id,
@@ -496,21 +498,21 @@ export class ArtistsService {
             }
         }
 
-        if (cityId && countryId) {
-            const cities = await this.locationService.getCitiesByCountry(Number(countryId), lang);
-            const foundCity = cities.find(c => Number(c.id) === Number(cityId));
+        // ✅ cityId тоже строка
+        if (cityId && countryCode) {
+            const cities = await this.locationService.getCitiesByCountryCode(countryCode, lang);
+            const foundCity = cities.find(c => String(c.id) === String(cityId));
             if (foundCity) {
                 cityData = {
                     id: foundCity.id,
                     name: foundCity.name,
-                    country_id: foundCity.country_id
+                    country_code: foundCity.country_code
                 };
             }
         }
 
         return { city: cityData, country: countryData };
     }
-
     private async getArtistProfiles(userIds: number[]) {
         const profiles = await this.artistProfileModel.findAll({
             where: { user_id: userIds },
@@ -534,23 +536,29 @@ export class ArtistsService {
         return map;
     }
 
-    private async getLocationMap(profiles: Map<number, ArtistProfile>, lang: string) {
-        const countryIds = [...new Set([...profiles.values()].map(p => p.country_id).filter(Boolean))];
-        const map = new Map<number, { country: any; cities: Map<number, any> }>();
 
-        for (const id of countryIds) {
-            const country = await this.locationService.getCountryById(Number(id), lang);
+    private async getLocationMap(profiles: Map<number, ArtistProfile>, lang: string) {
+        const map = new Map<number, { country: any; cities: Map<string, any> }>();
+
+        for (const [userId, profile] of profiles) {
+            if (!profile?.country_id) continue;
+
+            // ✅ country_id теперь строка (ISO2 код)
+            const countryCode = profile.country_id;
+
+            // ✅ Получаем страну по ISO2 коду
+            const country = await this.locationService.getCountryByCode(countryCode, lang);
             if (country) {
-                const cities = await this.locationService.getCitiesByCountry(Number(id), lang);
-                const citiesMap = new Map(cities.map(c => {
-                    const cityId = Number(c.id);
-                    return [cityId, {
-                        id: cityId,
+                const cities = await this.locationService.getCitiesByCountryCode(countryCode, lang);
+                const citiesMap = new Map<string, any>(
+                    cities.map(c => [String(c.id), {
+                        id: c.id,
                         name: c.name,
-                        country_id: Number(c.country_id)
-                    }];
-                }));
-                map.set(id, {
+                        country_code: c.country_code
+                    }])
+                );
+
+                map.set(userId, {
                     country: {
                         id: country.id,
                         name: country.name,

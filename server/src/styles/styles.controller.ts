@@ -1,3 +1,4 @@
+// src/styles/styles.controller.ts
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { CreateStyleDto } from './dto/create-style.dto';
@@ -10,6 +11,12 @@ import { UpdateStyleDto } from './dto/update-style.dto';
 export class StylesController {
     constructor(private stylesService: StylesService) { }
 
+    @ApiOperation({ summary: 'Заполнение стилей начальными данными' })
+    @Post('seed')
+    @Roles(Role.Admin)
+    async seed() {
+        return this.stylesService.seedStyles();
+    }
 
     @ApiOperation({ summary: 'Добавление стиля' })
     @UsePipes(ValidationPipe)
@@ -44,9 +51,7 @@ export class StylesController {
     @ApiOperation({ summary: 'Получение стиля по id' })
     @Get("/:id")
     @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
-    get(
-        @Param('id') id: number
-    ) {
+    get(@Param('id') id: number) {
         return this.stylesService.getById(id);
     }
 }

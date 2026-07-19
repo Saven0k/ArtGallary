@@ -1,6 +1,6 @@
 // dto/create-artist.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsString, IsDateString, IsNumber, MinLength, IsOptional, IsPhoneNumber } from "class-validator";
+import { IsEmail, IsString, IsDateString, IsNumber, MinLength, IsOptional, IsPhoneNumber, isString } from "class-validator";
 
 export class UpdateArtistDto {
     @ApiProperty({ example: 'email@email.ru', description: 'Почта' })
@@ -45,14 +45,14 @@ export class UpdateArtistDto {
     @ApiProperty({ example: '5', description: 'Вид професии артиста' })
     @IsString()
     profession_id?: number;
-
+    
     @ApiProperty({ example: 1, description: 'ID города' })
-    @IsNumber()
-    city_id?: number;
-
+    @IsString()
+    city_id?: string;
+    
     @ApiProperty({ example: 1, description: 'ID страны' })
-    @IsNumber()
-    country_id?: number;
+    @IsString()
+    country_id?: string;
 
     @ApiProperty({ example: '/awd/photo.png', description: 'Фотография пользователя' })
     readonly avatar_path?: string | null;

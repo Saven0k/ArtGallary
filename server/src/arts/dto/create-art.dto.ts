@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsNumber, IsOptional, IsString, IsArray } from "class-validator";
 import { type CurrencyType } from "../arts.model";
 
 export class CreateArtDto {
@@ -36,4 +36,11 @@ export class CreateArtDto {
     @ApiProperty({ required: false, default: false })
     @IsOptional()
     is_adult?: boolean;
+    @ApiProperty({ 
+        example: ['пейзаж', 'природа', 'лето'], 
+        description: 'Ключевые слова/теги картины (от 1 до 20)' 
+    })
+    @IsArray()
+    @IsOptional()
+    tags?: string[];
 }

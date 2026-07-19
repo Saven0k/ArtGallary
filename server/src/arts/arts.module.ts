@@ -11,6 +11,8 @@ import { ArtsCron } from './arts.cron';
 import { ArtView } from './art-view.model';
 import { Style } from 'src/styles/styles.model';
 import { LocationModule } from 'src/location/location.module';
+import { TagsModule } from 'src/tags/tags.module';
+import { Tag } from 'src/tags/tag.model';
 
 @Module({
   providers: [ArtsService, ArtsCron],
@@ -22,10 +24,12 @@ import { LocationModule } from 'src/location/location.module';
       Genre,
       ArtistProfile,
       ArtView,
-      Style
+      Style,
+      Tag
     ]), 
     FilesModule,
-    LocationModule
+    LocationModule,
+    TagsModule
   ],
 })
 export class ArtsModule { }

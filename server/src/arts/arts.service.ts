@@ -14,6 +14,8 @@ import { ModerateArtDto } from './dto/moderate-art.dto';
 import { Sequelize, Op } from 'sequelize';
 import { ArtView } from './art-view.model';
 import { LocationService } from '../location/location.service';
+import { TagsService } from 'src/tags/tags.service';
+import { Tag } from 'src/tags/tag.model';
 
 @Injectable()
 export class ArtsService {
@@ -24,7 +26,8 @@ export class ArtsService {
         private fileService: FilesService,
         @InjectConnection() private sequelize: Sequelize,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-        private locationService: LocationService
+        private locationService: LocationService,
+        private tagsService: TagsService,
     ) { }
 
     private readonly PLAN_WEIGHT = {
@@ -38,9 +41,8 @@ export class ArtsService {
     private readonly FEATURED_DAYS = 7;
 
     async createArt(dto: CreateArtDto, imagePath: any, artistId: number) {
-        // ✅ Валидация страны через LocationService
         if (dto.country_id) {
-            const country = await this.locationService.getCountryById(Number(dto.country_id));
+            const country = await this.locationService.getCountryByCode(String(dto.country_id));
             if (!country) {
                 throw new HttpException('Страна не найдена', HttpStatus.BAD_REQUEST);
             }
@@ -63,6 +65,11 @@ export class ArtsService {
                 })
             }, { transaction });
 
+            if (dto.tags && dto.tags.length > 0) {
+                const tags = await this.tagsService.findOrCreateTags(dto.tags);
+                await art.$set('tags', tags);
+            }
+
             await this.updateScore(art.id);
             await transaction.commit();
             return this.formatArtResponse(art);
@@ -73,12 +80,22 @@ export class ArtsService {
     }
 
     async updateArt(id: number, dto: UpdateArtDTO) {
-        try {
-            const [affectedCount] = await this.artRepository.update(dto, { where: { id } });
-            if (affectedCount === 0) throw new HttpException('Art not found', HttpStatus.NOT_FOUND);
+        // Получаем картину с тегами
+        const art = await this.artRepository.findByPk(id, { include: [{ model: Tag, as: 'tags' }] });
+        if (!art) throw new HttpException('Art not found', HttpStatus.NOT_FOUND);
 
+        try {
+            const { tags, ...updateData } = dto;
+            if (Object.keys(updateData).length > 0) {
+                const [affectedCount] = await this.artRepository.update(updateData, { where: { id } });
+                if (affectedCount === 0) throw new HttpException('Art not found', HttpStatus.NOT_FOUND);
+            }
+            if (tags !== undefined) await this.tagsService.updateTagsForArt(art, tags);
             await this.updateScore(id);
-            const updatedArt = await this.artRepository.findOne({ where: { id } });
+            const updatedArt = await this.artRepository.findOne({
+                where: { id },
+                include: [{ model: Tag, as: 'tags' }]
+            });
             return updatedArt;
         } catch (e: any) {
             this.handleError('updateArt', e, `Art update not success: ${e.message}`);
@@ -136,7 +153,8 @@ export class ArtsService {
             include: [
                 { model: ArtistProfile, include: [User] },
                 { model: Genre, required: false, attributes: ['id', 'title'] },
-                { model: Style, required: false, attributes: ['id', 'name'] }
+                { model: Style, required: false, attributes: ['id', 'name'] },
+                { model: Tag, as: 'tags', attributes: ['id', 'name'] }
             ],
             raw: true,
             nest: true
@@ -463,6 +481,7 @@ export class ArtsService {
             style_id: dto.style_id || null,
             specifications: dto.specifications || null,
             is_adult: dto.is_adult || false,
+            tags: dto.tags || null
         };
     }
 
@@ -487,13 +506,12 @@ export class ArtsService {
         }
     }
 
-    // ✅ Обновленные методы для работы с локациями через LocationService
     private async enrichWithLocation(art: any, lang: string) {
         let cityData = null;
         let countryData = null;
 
         if (art.country_id) {
-            const country = await this.locationService.getCountryById(Number(art.country_id), lang);
+            const country = await this.locationService.getCountryByCode(String(art.country_id), lang);
             if (country) {
                 countryData = {
                     id: country.id,
@@ -504,13 +522,13 @@ export class ArtsService {
         }
 
         if (art.city_id && art.country_id) {
-            const cities = await this.locationService.getCitiesByCountry(Number(art.country_id), lang);
+            const cities = await this.locationService.getCitiesByCountryCode(String(art.country_id), lang);
             const foundCity = cities.find(c => Number(c.id) === Number(art.city_id));
             if (foundCity) {
                 cityData = {
                     id: foundCity.id,
                     name: foundCity.name,
-                    country_id: foundCity.country_id
+                    country_id: foundCity.country_code
                 };
             }
         }
@@ -530,7 +548,7 @@ export class ArtsService {
 
         if (countryIds.length) {
             for (const id of countryIds) {
-                const country = await this.locationService.getCountryById(Number(id), lang);
+                const country = await this.locationService.getCountryByCode(String(id), lang);
                 if (country) {
                     countriesMap.set(id, {
                         id: country.id,
@@ -539,12 +557,12 @@ export class ArtsService {
                     });
                 }
 
-                const cities = await this.locationService.getCitiesByCountry(Number(id), lang);
+                const cities = await this.locationService.getCitiesByCountryCode(String(id), lang);
                 cities.forEach(city => {
                     citiesMap.set(city.id, {
                         id: city.id,
-                        name:  city.name,
-                        country_id: city.country_id
+                        name: city.name,
+                        country_id: city.country_code
                     });
                 });
             }

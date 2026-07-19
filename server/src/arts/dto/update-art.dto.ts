@@ -1,5 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { type CurrencyType } from "../arts.model";
+import { IsArray, IsOptional } from "class-validator";
+import { Tag } from "src/tags/tag.model";
 
 export class UpdateArtDTO {
     @ApiProperty({ example: 'Шишкин Лес', description: 'Название картины' })
@@ -49,4 +51,12 @@ export class UpdateArtDTO {
     
     @ApiProperty({ required: false, default: false })
     is_adult?: boolean;
+
+    @ApiProperty({ 
+        example: ['пейзаж', 'природа', 'лето'], 
+        description: 'Ключевые слова/теги картины'
+    })
+    @IsArray()
+    @IsOptional()
+    tags?: string[];
 }
