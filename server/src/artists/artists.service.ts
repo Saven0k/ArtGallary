@@ -1,3 +1,4 @@
+// src/artists/artists.service.ts
 import { ConflictException, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { User } from '../users/users.model';
 import { ArtistProfile } from './artist.model';
@@ -14,7 +15,6 @@ import { Art } from '../arts/arts.model';
 import { Genre } from '../genres/genre.model';
 import { Style } from '../styles/styles.model';
 import { ModerateObject, ModerateResponse } from 'src/types/moderate.types';
-import { LocationService } from '../location/location.service';
 
 @Injectable()
 export class ArtistsService {
@@ -31,16 +31,11 @@ export class ArtistsService {
         private fileSerivce: FilesService,
         private passwordService: PasswordService,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-        private locationService: LocationService, // ✅ Добавляем LocationService
     ) { }
 
     async createArtist(dto: CreateArtistDto, image: any) {
         this.log('createArtist', { email: dto.email });
-        console.log(dto.country_id)
-        if (dto.country_id) {
-            const country = await this.locationService.getCountryByCode(String(dto.country_id));
-            if (!country) throw new HttpException('Страна не найдена', HttpStatus.BAD_REQUEST);
-        }
+
         const transaction = await this.sequelize.transaction();
 
         try {
@@ -49,16 +44,24 @@ export class ArtistsService {
             const avatarPath = image ? await this.fileSerivce.createFile(image) : "";
 
             const user = await this.userRepository.create({
-                ...this.pick(dto, ['email', 'name', 'surname', 'second_name', 'phone_number']),
+                email: dto.email,
                 password: hashedPassword,
+                name: dto.name,
+                surname: dto.surname,
+                second_name: dto.second_name || '',
+                phone_number: dto.phone_number,
+                gender: dto.gender as 'M' | 'F',
                 avatar_path: avatarPath,
                 role: 'artist',
-                gender: dto.gender as 'M' | 'F',
+                city_id: dto.city_id || null,
+                country_id: dto.country_id || null,
             }, { transaction });
 
             await this.artistProfileModel.create({
                 user_id: user.id,
-                ...this.pick(dto, ['biography', 'date_birthday', 'city_id', 'country_id', 'profession_id']),
+                biography: dto.biography,
+                date_birthday: dto.date_birthday,
+                profession_id: dto.profession_id,
                 moderate: JSON.stringify({ moderate: false, moderator_id: null, errors: {} }),
             }, { transaction });
 
@@ -71,13 +74,6 @@ export class ArtistsService {
     }
 
     async updateArtist(id: number, dto: UpdateArtistDto, image: any) {
-        if (dto.country_id) {
-            const country = await this.locationService.getCountryByCode(dto.country_id);
-            if (!country) {
-                throw new HttpException('Страна не найдена', HttpStatus.BAD_REQUEST);
-            }
-        }
-
         const transaction = await this.sequelize.transaction();
         try {
             const user = await this.getUser(id, transaction);
@@ -109,18 +105,15 @@ export class ArtistsService {
             const user = await this.getUser(id, transaction);
             const artist = await this.getArtistProfile(user.id, transaction);
 
-            // Проверяем, не удален ли уже
             if (artist.is_deleted) {
                 throw new HttpException('Артист уже удален', 400);
             }
 
-            // Мягкое удаление артиста
             await artist.update({
                 is_deleted: true,
                 deleted_at: new Date(),
             }, { transaction });
 
-            // Также мягко удаляем пользователя
             await user.update({
                 is_deleted: true,
                 deleted_at: new Date(),
@@ -143,6 +136,7 @@ export class ArtistsService {
             this.handleError('deleteArtist', e);
         }
     }
+
     async restoreArtist(id: number) {
         const transaction = await this.sequelize.transaction();
         try {
@@ -153,7 +147,6 @@ export class ArtistsService {
                 throw new HttpException('Артист не был удален', 400);
             }
 
-            // Проверяем срок
             if (artist.deleted_at) {
                 const oneYearAgo = new Date();
                 oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
@@ -163,7 +156,6 @@ export class ArtistsService {
                 }
             }
 
-            // Восстанавливаем
             await artist.update({
                 is_deleted: false,
                 deleted_at: null,
@@ -198,7 +190,6 @@ export class ArtistsService {
 
         const profile = await this.getArtistProfile(id);
         const stats = await this.getArtistStats(id);
-        const location = await this.getLocationData(profile?.country_id, profile?.city_id, lang);
         const moderate = this.parseModerate(profile?.moderate);
         const userData = user;
 
@@ -206,7 +197,6 @@ export class ArtistsService {
             ...userData,
             artistProfile: profile ? {
                 ...profile,
-                ...location,
                 ...stats,
                 moderate,
             } : null,
@@ -232,19 +222,15 @@ export class ArtistsService {
 
         const profiles = await this.getArtistProfiles(rows.map(u => u.id));
         const artsMap = await this.getArtsMap(rows.map(u => u.id));
-        const locationMap = await this.getLocationMap(profiles, lang);
 
         const formatted = rows.map(user => {
             const userData = user;
             const profile = profiles.get(user.id);
-            const location = profile?.country_id ? locationMap.get(profile.country_id) : null;
-            const cityData = profile?.city_id ? location?.cities?.get(String(profile.city_id)) : null;
+
             return {
                 ...userData,
                 artistProfile: profile ? {
                     ...profile,
-                    city: cityData || null,
-                    country: location?.country || null,
                     arts: artsMap.get(user.id) || [],
                 } : null,
             };
@@ -304,13 +290,6 @@ export class ArtistsService {
                     planWeight +
                     (isSubscriptionActive ? 20 : 0);
 
-                // ✅ Передаем правильные типы
-                const location = await this.getLocationData(
-                    profile.country_id ?? null,
-                    profile.city_id ?? null,
-                    lang
-                );
-
                 const userData = user.toJSON ? user.toJSON() : user;
                 const profileData = profile.toJSON ? profile.toJSON() : profile;
 
@@ -318,7 +297,6 @@ export class ArtistsService {
                     ...userData,
                     artistProfile: {
                         ...profileData,
-                        ...location,
                         score: Math.round(score * 100) / 100,
                         totalLikes,
                         artsCount,
@@ -396,6 +374,8 @@ export class ArtistsService {
         }
     }
 
+    // ============ ПРИВАТНЫЕ МЕТОДЫ ============
+
     private async getArtistsByModerationStatus(moderated: boolean, page: number, limit: number, lang: string) {
         this.log('getArtistsByModerationStatus', { moderated, page, limit, lang });
 
@@ -421,16 +401,10 @@ export class ArtistsService {
         });
 
         const formatted = await Promise.all(filtered.map(async (user) => {
-            const location = await this.getLocationData(
-                user.artistProfile?.country_id,
-                user.artistProfile?.city_id,
-                lang
-            );
             return {
                 ...user.toJSON(),
                 artistProfile: {
                     ...user.artistProfile?.toJSON(),
-                    ...location,
                 },
             };
         }));
@@ -482,37 +456,7 @@ export class ArtistsService {
 
         return { artsCount, totalLikes };
     }
-    private async getLocationData(countryCode: string | null, cityId: string | null, lang: string) {
-        let countryData = null;
-        let cityData = null;
 
-        // ✅ countryCode уже строка (ISO2)
-        if (countryCode) {
-            const country = await this.locationService.getCountryByCode(countryCode, lang);
-            if (country) {
-                countryData = {
-                    id: country.id,
-                    name: country.name,
-                    iso2: country.iso2
-                };
-            }
-        }
-
-        // ✅ cityId тоже строка
-        if (cityId && countryCode) {
-            const cities = await this.locationService.getCitiesByCountryCode(countryCode, lang);
-            const foundCity = cities.find(c => String(c.id) === String(cityId));
-            if (foundCity) {
-                cityData = {
-                    id: foundCity.id,
-                    name: foundCity.name,
-                    country_code: foundCity.country_code
-                };
-            }
-        }
-
-        return { city: cityData, country: countryData };
-    }
     private async getArtistProfiles(userIds: number[]) {
         const profiles = await this.artistProfileModel.findAll({
             where: { user_id: userIds },
@@ -536,42 +480,6 @@ export class ArtistsService {
         return map;
     }
 
-
-    private async getLocationMap(profiles: Map<number, ArtistProfile>, lang: string) {
-        const map = new Map<number, { country: any; cities: Map<string, any> }>();
-
-        for (const [userId, profile] of profiles) {
-            if (!profile?.country_id) continue;
-
-            // ✅ country_id теперь строка (ISO2 код)
-            const countryCode = profile.country_id;
-
-            // ✅ Получаем страну по ISO2 коду
-            const country = await this.locationService.getCountryByCode(countryCode, lang);
-            if (country) {
-                const cities = await this.locationService.getCitiesByCountryCode(countryCode, lang);
-                const citiesMap = new Map<string, any>(
-                    cities.map(c => [String(c.id), {
-                        id: c.id,
-                        name: c.name,
-                        country_code: c.country_code
-                    }])
-                );
-
-                map.set(userId, {
-                    country: {
-                        id: country.id,
-                        name: country.name,
-                        iso2: country.iso2,
-                    },
-                    cities: citiesMap
-                });
-            }
-        }
-
-        return map;
-    }
-
     private async buildUserUpdateData(dto: UpdateArtistDto, image: any, user: any) {
         const data: any = this.pick(dto, ['email', 'name', 'surname', 'second_name', 'phone_number']);
 
@@ -591,8 +499,7 @@ export class ArtistsService {
 
     private buildProfileUpdateData(dto: UpdateArtistDto) {
         return this.pick(dto, [
-            'biography', 'date_birthday', 'city_id', 'country_id',
-            'likes', 'views', 'profession_id'
+            'biography', 'date_birthday', 'likes', 'views', 'profession_id'
         ]);
     }
 
@@ -651,6 +558,7 @@ export class ArtistsService {
             400
         );
     }
+
     async getTopArtists(limit: number = 10, lang: string = 'ru') {
         this.log('getTopArtists', { limit, lang });
 
@@ -696,17 +604,10 @@ export class ArtistsService {
                     planWeight +
                     (isSubscriptionActive ? 20 : 0);
 
-                const location = await this.getLocationData(
-                    profile.country_id,
-                    profile.city_id,
-                    lang
-                );
-
                 return {
                     ...user.toJSON(),
                     artistProfile: {
                         ...profile.toJSON(),
-                        ...location,
                         score: Math.round(score * 100) / 100,
                         totalLikes,
                         artsCount,

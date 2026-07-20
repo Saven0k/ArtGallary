@@ -1,76 +1,294 @@
-// src/location/location.service.ts
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
 import { HttpService } from '@nestjs/axios';
+import { Op } from 'sequelize';
 import { firstValueFrom } from 'rxjs';
+import { Country } from './models/country.model';
+import { City } from './models/city.model';
+
+
+export interface CountryDto {
+  id: number;
+  name: string;
+  iso2: string;
+  iso3?: string;
+  phone_code?: string;
+  currency?: string;
+  continent?: string;
+}
+
+export interface CityDto {
+  id: number;
+  name: string;
+  country_code: string;
+  region?: string;
+  population?: number;
+  timezone?: string;
+}
+
+type Lang = 'ru' | 'en';
 
 @Injectable()
-export class LocationService {
+export class LocationService implements OnModuleInit {
   private readonly logger = new Logger(LocationService.name);
   private readonly NOMINATIM_URL = 'https://nominatim.openstreetmap.org';
 
-  constructor(private httpService: HttpService) { }
+  // Простой in-memory кэш для Nominatim fallback (ключ → результат)
+  private readonly nominatimCache = new Map<string, any>();
 
-  /**
-   * Поиск стран (возвращает с ISO2 кодом)
-   */
-  async searchCountries(query: string, lang: string = 'ru'): Promise<{ id: string; name: string; iso2: string }[]> {
-    if (!query || query.length < 2) return [];
+  constructor(
+    @InjectModel(Country) private readonly countryModel: typeof Country,
+    @InjectModel(City) private readonly cityModel: typeof City,
+    private readonly httpService: HttpService,
+  ) {}
 
-    try {
-      const response = await firstValueFrom(
-        this.httpService.get(`${this.NOMINATIM_URL}/search`, {
-          params: {
-            q: query,
-            format: 'json',
-            limit: 5,
-            featuretype: 'country',
-            'accept-language': lang,
-          },
-          headers: {
-            'User-Agent': 'GalleryApp/1.0',
-          },
-        })
+  async onModuleInit() {
+    const count = await this.countryModel.count();
+    if (count === 0) {
+      this.logger.warn(
+        'Таблица стран пуста! Запустите сидер: npx ts-node src/location/seeders/geonames.seeder.ts',
       );
-
-      return response.data.map((item: any) => {
-        // ✅ Извлекаем ISO2 код из address.country_code
-        let iso2 = item.address?.country_code?.toUpperCase() || '';
-        
-        // ✅ Если не нашли в address, пробуем получить из других полей
-        if (!iso2) {
-          // Некоторые ответы могут содержать код в display_name
-          const parts = item.display_name?.split(',') || [];
-          const lastPart = parts[parts.length - 1]?.trim();
-          if (lastPart && lastPart.length === 2) {
-            iso2 = lastPart.toUpperCase();
-          }
-        }
-        
-        // ✅ Если все еще нет, пробуем из class и type
-        if (!iso2 && item.class === 'boundary' && item.type === 'administrative') {
-          // Для некоторых стран код может быть в osm_id
-          const osmType = item.osm_type;
-          const osmId = item.osm_id;
-          // Здесь можно было бы сделать дополнительный запрос, но пока оставляем пустым
-        }
-
-        return {
-          id: String(item.place_id),
-          name: item.display_name.split(',')[0] || item.display_name,
-          iso2: iso2 || 'RU', // ✅ Fallback для России
-        };
-      });
-    } catch (error) {
-      this.logger.error(`Failed to search countries for "${query}":`, error);
-      return [];
+    } else {
+      this.logger.log(`Сервис геолокации готов. Стран: ${count}`);
     }
   }
 
+  // ──────────────────────────────────────────────────────────────────────────
+  // СТРАНЫ
+  // ──────────────────────────────────────────────────────────────────────────
+
   /**
-   * Получение страны по ISO2 коду (основной метод)
+   * Поиск стран по названию (autocomplete).
+   * Ищет по ru и en, сортирует по релевантности (starts-with приоритетнее).
    */
-  async getCountryByCode(iso2: string, lang: string = 'ru'): Promise<{ id: string; name: string; iso2: string } | null> {
+  async searchCountries(query: string, lang: Lang = 'ru'): Promise<CountryDto[]> {
+    if (!query || query.length < 2) return [];
+
+    const q = query.trim();
+
+    // Ищем в БД — сначала те, что начинаются с запроса, потом содержат
+    const [startsWith, contains] = await Promise.all([
+      this.countryModel.findAll({
+        where: {
+          [Op.or]: [
+            { name_ru: { [Op.iLike]: `${q}%` } },
+            { name_en: { [Op.iLike]: `${q}%` } },
+          ],
+        },
+        limit: 5,
+        order: [['name_en', 'ASC']],
+      }),
+      this.countryModel.findAll({
+        where: {
+          [Op.or]: [
+            { name_ru: { [Op.iLike]: `%${q}%` } },
+            { name_en: { [Op.iLike]: `%${q}%` } },
+          ],
+        },
+        limit: 10,
+        order: [['name_en', 'ASC']],
+      }),
+    ]);
+
+    // Дедупликация: startsWith первыми, потом остальные из contains
+    const seen = new Set<number>();
+    const merged: Country[] = [];
+
+    for (const c of [...startsWith, ...contains]) {
+      if (!seen.has(c.id)) {
+        seen.add(c.id);
+        merged.push(c);
+      }
+    }
+
+    return merged.slice(0, 10).map(c => this.toCountryDto(c, lang));
+  }
+
+  /**
+   * Получить страну по ISO2 коду (RU, US, DE...).
+   */
+  async getCountryByCode(iso2: string, lang: Lang = 'ru'): Promise<CountryDto | null> {
     if (!iso2 || iso2.length !== 2) return null;
+
+    const country = await this.countryModel.findOne({
+      where: { iso2: iso2.toUpperCase() },
+    });
+
+    if (country) return this.toCountryDto(country, lang);
+
+    // Fallback — пытаемся найти через Nominatim и сохранить
+    this.logger.warn(`Страна ${iso2} не найдена в БД, запрашиваю Nominatim...`);
+    return this.fetchCountryFromNominatim(iso2, lang);
+  }
+
+  /**
+   * Получить страну по внутреннему ID.
+   */
+  async getCountryById(id: number, lang: Lang = 'ru'): Promise<CountryDto | null> {
+    const country = await this.countryModel.findByPk(id);
+    return country ? this.toCountryDto(country, lang) : null;
+  }
+
+  /**
+   * Получить все страны (для выпадающего списка, если нужно).
+   */
+  async getAllCountries(lang: Lang = 'ru'): Promise<CountryDto[]> {
+    const countries = await this.countryModel.findAll({
+      order: lang === 'ru'
+        ? [['name_ru', 'ASC']]
+        : [['name_en', 'ASC']],
+    });
+    return countries.map(c => this.toCountryDto(c, lang));
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // ГОРОДА
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Поиск городов (autocomplete).
+   * Если передан countryCode — ищет только в этой стране.
+   * Результаты сортируются по населению (крупные первыми).
+   */
+  async searchCities(
+    query: string,
+    countryCode?: string,
+    lang: Lang = 'ru',
+  ): Promise<CityDto[]> {
+    if (!query || query.length < 2) return [];
+
+    const q = query.trim();
+    const where: any = {
+      [Op.or]: [
+        { name_ru: { [Op.iLike]: `${q}%` } },
+        { name_en: { [Op.iLike]: `${q}%` } },
+      ],
+    };
+
+    if (countryCode) {
+      where.country_code = countryCode.toUpperCase();
+    }
+
+    const cities = await this.cityModel.findAll({
+      where,
+      limit: 10,
+      order: [['population', 'DESC']]
+    });
+
+    return cities.map(c => this.toCityDto(c, lang));
+  }
+
+  /**
+   * Получить список городов страны (топ по населению).
+   */
+  async getCitiesByCountryCode(
+    iso2: string,
+    lang: Lang = 'ru',
+    limit: number = 50,
+  ): Promise<CityDto[]> {
+    if (!iso2 || iso2.length !== 2) return [];
+
+    const cities = await this.cityModel.findAll({
+      where: { country_code: iso2.toUpperCase() },
+      order: [['population', 'DESC']],
+      limit,
+    });
+
+    return cities.map(c => this.toCityDto(c, lang));
+  }
+
+  /**
+   * Получить город по внутреннему ID.
+   */
+  async getCityById(id: number, lang: Lang = 'ru'): Promise<CityDto | null> {
+    const city = await this.cityModel.findByPk(id, {
+      include: [{ model: Country, attributes: ['iso2', 'name_en', 'name_ru'] }],
+    });
+    return city ? this.toCityDto(city, lang) : null;
+  }
+
+  /**
+   * Получить город по GeoNames ID (если храните его в профиле пользователя).
+   */
+  async getCityByGeonamesId(geonamesId: number, lang: Lang = 'ru'): Promise<CityDto | null> {
+    const city = await this.cityModel.findOne({ where: { geonames_id: geonamesId } });
+    return city ? this.toCityDto(city, lang) : null;
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // ФИЛЬТРАЦИЯ (для будущего использования)
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Универсальный метод для фильтрации записей по стране/городу.
+   * Возвращает { country_id?, city_id? } для использования в WHERE других сущностей.
+   *
+   * Пример использования:
+   *   const { country_id, city_id } = await locationService.resolveFilter('RU', 'Москва');
+   *   await ArtistModel.findAll({ where: { country_id, city_id } });
+   */
+  async resolveFilter(
+    countryCode?: string,
+    cityQuery?: string,
+    lang: Lang = 'ru',
+  ): Promise<{ country_id?: number; city_id?: number }> {
+    const result: { country_id?: number; city_id?: number } = {};
+
+    if (countryCode) {
+      const country = await this.countryModel.findOne({
+        where: { iso2: countryCode.toUpperCase() },
+        attributes: ['id'],
+      });
+      if (country) result.country_id = country.id;
+    }
+
+    if (cityQuery && result.country_id) {
+      const cities = await this.searchCities(cityQuery, countryCode, lang);
+      if (cities.length > 0) result.city_id = cities[0].id;
+    }
+
+    return result;
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // ПРИВАТНЫЕ МЕТОДЫ
+  // ──────────────────────────────────────────────────────────────────────────
+
+  private toCountryDto(country: Country, lang: Lang): CountryDto {
+    return {
+      id: country.id,
+      name: lang === 'ru' ? (country.name_ru || country.name_en) : country.name_en,
+      iso2: country.iso2,
+      iso3: country.iso3,
+      phone_code: country.phone_code,
+      currency: country.currency,
+      continent: country.continent,
+    };
+  }
+
+  private toCityDto(city: City, lang: Lang): CityDto {
+    return {
+      id: city.id,
+      name: lang === 'ru' ? (city.name_ru || city.name_en) : city.name_en,
+      country_code: city.country_code,
+      region: city.region,
+      population: city.population,
+      timezone: city.timezone,
+    };
+  }
+
+  /**
+   * Fallback — запросить страну из Nominatim и сохранить в БД.
+   * Вызывается редко (только если в БД нет страны по коду).
+   */
+  private async fetchCountryFromNominatim(
+    iso2: string,
+    lang: Lang,
+  ): Promise<CountryDto | null> {
+    const cacheKey = `country:${iso2}:${lang}`;
+    if (this.nominatimCache.has(cacheKey)) {
+      return this.nominatimCache.get(cacheKey);
+    }
 
     try {
       const response = await firstValueFrom(
@@ -82,95 +300,33 @@ export class LocationService {
             featuretype: 'country',
             'accept-language': lang,
           },
-          headers: {
-            'User-Agent': 'GalleryApp/1.0',
-          },
-        })
+          headers: { 'User-Agent': 'GalleryApp/1.0' },
+        }),
       );
 
-      if (response.data.length === 0) return null;
+      if (!response.data.length) return null;
 
       const item = response.data[0];
-      return {
-        id: String(item.place_id),
-        name: item.display_name.split(',')[0] || item.display_name,
-        iso2: item.address?.country_code?.toUpperCase() || iso2,
-      };
+      const name = item.display_name.split(',')[0].trim();
+      const returnedIso2 =
+        item.address?.country_code?.toUpperCase() || iso2.toUpperCase();
+
+      // Сохраняем в БД чтобы в следующий раз брать из кэша
+      const [country] = await this.countryModel.findOrCreate({
+        where: { iso2: returnedIso2 },
+        defaults: {
+          iso2: returnedIso2,
+          name_en: name,
+          name_ru: lang === 'ru' ? name : null,
+        } as any,
+      });
+
+      const dto = this.toCountryDto(country, lang);
+      this.nominatimCache.set(cacheKey, dto);
+      return dto;
     } catch (error) {
-      this.logger.error(`Failed to get country by code ${iso2}:`, error);
+      this.logger.error(`Nominatim fallback failed for ${iso2}:`, error);
       return null;
-    }
-  }
-
-  /**
-   * Получение городов по ISO2 коду страны
-   */
-  async getCitiesByCountryCode(iso2: string, lang: string = 'ru'): Promise<{ id: string; name: string; country_code: string }[]> {
-    if (!iso2 || iso2.length !== 2) return [];
-
-    try {
-      const response = await firstValueFrom(
-        this.httpService.get(`${this.NOMINATIM_URL}/search`, {
-          params: {
-            countrycodes: iso2,
-            format: 'json',
-            limit: 50,
-            featuretype: 'city',
-            'accept-language': lang,
-          },
-          headers: {
-            'User-Agent': 'GalleryApp/1.0',
-          },
-        })
-      );
-
-      return response.data.map((item: any) => ({
-        id: String(item.place_id),
-        name: item.display_name.split(',')[0] || item.display_name,
-        country_code: iso2,
-      }));
-    } catch (error) {
-      this.logger.error(`Failed to get cities for country ${iso2}:`, error);
-      return [];
-    }
-  }
-
-  /**
-   * Поиск городов с фильтром по стране
-   */
-  async searchCities(query: string, countryIso2?: string, lang: string = 'ru'): Promise<{ id: string; name: string; country_code: string }[]> {
-    if (!query || query.length < 2) return [];
-
-    try {
-      const params: any = {
-        q: query,
-        format: 'json',
-        limit: 5,
-        featuretype: 'city',
-        'accept-language': lang,
-      };
-
-      if (countryIso2) {
-        params.countrycodes = countryIso2;
-      }
-
-      const response = await firstValueFrom(
-        this.httpService.get(`${this.NOMINATIM_URL}/search`, {
-          params,
-          headers: {
-            'User-Agent': 'GalleryApp/1.0',
-          },
-        })
-      );
-
-      return response.data.map((item: any) => ({
-        id: String(item.place_id),
-        name: item.display_name.split(',')[0] || item.display_name,
-        country_code: item.address?.country_code?.toUpperCase() || countryIso2 || '',
-      }));
-    } catch (error) {
-      this.logger.error(`Failed to search cities for "${query}":`, error);
-      return [];
     }
   }
 }

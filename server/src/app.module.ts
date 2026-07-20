@@ -31,6 +31,8 @@ import { Profession } from "./professions/profession.model";
 import { TagsModule } from './tags/tags.module';
 import { Tag } from "./tags/tag.model";
 import { ArtTag } from "./tags/art-tag.model";
+import { City } from "./location/models/city.model";
+import { Country } from "./location/models/country.model";
 
 @Module({
     controllers: [],
@@ -79,7 +81,7 @@ import { ArtTag } from "./tags/art-tag.model";
             username: process.env.POSTGRES_USER,
             password: process.env.POSTGRES_PASSWORD,
             database: process.env.POSTGRES_DB,
-            models: [User, Art, Genre,  ArtistProfile, RefreshToken, ArtView, Moderator, ArtType, Profession, Style, Tag,ArtTag],
+            models: [User, Art, Genre,  ArtistProfile, RefreshToken, ArtView, Moderator, ArtType, Profession, Style, Tag,ArtTag, City, Country],
             autoLoadModels: true,
             logging: console.log,
             query: {

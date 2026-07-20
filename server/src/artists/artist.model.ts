@@ -11,8 +11,6 @@ export interface ArtistCreationAttrs {
     date_birthday: Date,
     biography: string,
     moderate: string,
-    city_id?: string,
-    country_id?: string,
     likes?: number,
     views?: number,
     plan: planTypes,
@@ -67,15 +65,9 @@ export class ArtistProfile extends Model<ArtistProfile, ArtistCreationAttrs> {
 
     @ApiProperty({ example: 'false', description: 'Статус подписки: активна/неактивна' })
     @Column({ type: DataType.BOOLEAN, defaultValue: false })
-    playStatus: boolean;
+    planStatus: boolean;
 
-    @ApiProperty({ example: '1', description: 'ID города' })
-    @Column({ type: DataType.TEXT })
-    city_id: string;
 
-    @ApiProperty({ example: '1', description: 'ID страны' })
-    @Column({ type: DataType.TEXT })
-    country_id: string;
 
     @ApiProperty({ example: '0', description: 'Количество лайков' })
     @Column({ type: DataType.INTEGER, defaultValue: 0 })
@@ -98,7 +90,7 @@ export class ArtistProfile extends Model<ArtistProfile, ArtistCreationAttrs> {
 
     isSubscriptionActive(): boolean {
         if (!this.planExpiresAt) return false;
-        return new Date(this.planExpiresAt) > new Date() && this.playStatus === true;
+        return new Date(this.planExpiresAt) > new Date() && this.planStatus === true;
     }
 
     getPlanWeight(): number {
@@ -125,8 +117,8 @@ export class ArtistProfile extends Model<ArtistProfile, ArtistCreationAttrs> {
         const now = new Date();
         const isActive = this.planExpiresAt ? new Date(this.planExpiresAt) > now : false;
 
-        if (this.playStatus !== isActive) {
-            this.playStatus = isActive;
+        if (this.planStatus !== isActive) {
+            this.planStatus = isActive;
             await this.save();
         }
     }
@@ -139,11 +131,11 @@ export class ArtistProfile extends Model<ArtistProfile, ArtistCreationAttrs> {
         newExpiry.setDate(newExpiry.getDate() + days);
 
         this.planExpiresAt = newExpiry;
-        this.playStatus = true;
+        this.planStatus = true;
         await this.save();
     }
     async cancelSubscription(): Promise<void> {
-        this.playStatus = false;
+        this.planStatus = false;
         await this.save();
     }
     getDaysLeft(): number | null {

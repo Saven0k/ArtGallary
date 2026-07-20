@@ -5,6 +5,8 @@ import { Genre } from "../genres/genre.model";
 import { Style } from "../styles/styles.model";
 import { Tag } from "src/tags/tag.model";
 import { ArtTag } from "src/tags/art-tag.model";
+import { Country } from "src/location/models/country.model";
+import { City } from "src/location/models/city.model";
 
 export type CurrencyType = "USD" | "EUR" | "RUB" | "UAH" | null;
 export interface ArtCreationAttrs {
@@ -17,11 +19,11 @@ export interface ArtCreationAttrs {
     views?: number;
     date_published: Date;
     artist_id?: number;
-    city_id?: number;
     moderate: string;
     genre_id?: number;
     specifications: string;
-    country_id?: number;
+    city_id?: number | null;
+    country_id?: number | null;
     style_id?: number;
     is_adult?: boolean;
     score?: number;
@@ -96,14 +98,21 @@ export class Art extends Model<Art, ArtCreationAttrs> {
     @Column({ type: DataType.DATE, allowNull: true })
     featured_until: Date;
 
-    @ApiProperty({ example: '3', description: 'ID города' })
+    @ApiProperty({ example: 1, description: 'ID страны из таблицы countries' })
+    @ForeignKey(() => Country)
     @Column({ type: DataType.INTEGER, allowNull: true })
-    city_id: number;
-
-    @ApiProperty({ example: '5', description: 'ID страны' })
+    country_id: number | null;
+ 
+    @BelongsTo(() => Country)
+    country: Country;
+ 
+    @ApiProperty({ example: 42, description: 'ID города из таблицы cities' })
+    @ForeignKey(() => City)
     @Column({ type: DataType.INTEGER, allowNull: true })
-    country_id: number;
-
+    city_id: number | null;
+ 
+    @BelongsTo(() => City)
+    city: City;
     @ApiProperty({ example: '1', description: 'ID жанра' })
     @ForeignKey(() => Genre)
     @Column({ type: DataType.INTEGER, allowNull: true })

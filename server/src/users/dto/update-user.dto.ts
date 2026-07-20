@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import { IsEmail, IsPhoneNumber, IsString, Length } from "class-validator";
 
 export class UpdateuserDto {
@@ -32,4 +33,12 @@ export class UpdateuserDto {
 
     @ApiProperty({ example: '/awd/photo.png', description: 'Фотография пользователя' })
     readonly avatar_path?: string | null;
+
+    @ApiProperty({ example: 1, description: 'ID страны (countries.id)', required: false })
+    @Type(() => Number)
+    country_id?: number;
+ 
+    @ApiProperty({ example: 42, description: 'ID города (cities.id)', required: false })
+    @Type(() => Number)
+    city_id?: number;
 }

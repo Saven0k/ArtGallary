@@ -7,6 +7,10 @@
 /node_modules/
 node_modules/
 
+./.geonames_tmp
+.geonames_tmp
+/.geonames_tmp
+
 # Logs
 logs/
 *.log

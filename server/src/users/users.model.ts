@@ -1,6 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, DataType, HasOne, Model, Table } from "sequelize-typescript";
+import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from "sequelize-typescript";
 import { ArtistProfile } from "../artists/artist.model";
+import { Country } from "src/location/models/country.model";
+import { City } from "src/location/models/city.model";
 
 export type Gender = "M" | "F";
 
@@ -16,6 +18,8 @@ export interface UserCreationAttrs {
     gender: Gender,
     is_deleted?: boolean;
     deleted_at?: Date | null;
+    city_id?: number | null;
+    country_id?: number | null;
 }
 
 @Table({ tableName: 'users' })
@@ -63,6 +67,22 @@ export class User extends Model<User, UserCreationAttrs> {
     @ApiProperty({ example: '2024-01-01T00:00:00.000Z', description: 'Дата удаления' })
     @Column({ type: DataType.DATE, allowNull: true })
     deleted_at: Date | null;
+
+    @ApiProperty({ example: 1, description: 'ID страны из таблицы countries' })
+    @ForeignKey(() => Country)
+    @Column({ type: DataType.INTEGER, allowNull: true })
+    country_id: number | null;
+ 
+    @BelongsTo(() => Country)
+    country: Country;
+ 
+    @ApiProperty({ example: 42, description: 'ID города из таблицы cities' })
+    @ForeignKey(() => City)
+    @Column({ type: DataType.INTEGER, allowNull: true })
+    city_id: number | null;
+ 
+    @BelongsTo(() => City)
+    city: City;
 
     @HasOne(() => ArtistProfile, { foreignKey: 'user_id', as: 'artistProfile' })
     artistProfile: ArtistProfile;

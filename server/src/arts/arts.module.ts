@@ -13,6 +13,8 @@ import { Style } from 'src/styles/styles.model';
 import { LocationModule } from 'src/location/location.module';
 import { TagsModule } from 'src/tags/tags.module';
 import { Tag } from 'src/tags/tag.model';
+import { City } from 'src/location/models/city.model';
+import { Country } from 'src/location/models/country.model';
 
 @Module({
   providers: [ArtsService, ArtsCron],
@@ -25,7 +27,9 @@ import { Tag } from 'src/tags/tag.model';
       ArtistProfile,
       ArtView,
       Style,
-      Tag
+      Tag,
+      City,
+      Country
     ]), 
     FilesModule,
     LocationModule,

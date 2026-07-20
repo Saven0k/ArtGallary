@@ -1,5 +1,6 @@
 // dto/create-artist.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import { IsEmail, IsString, IsDateString, IsNumber, MinLength, IsOptional, IsPhoneNumber, isString } from "class-validator";
 
 export class UpdateArtistDto {
@@ -41,18 +42,11 @@ export class UpdateArtistDto {
     @IsString()
     moderate?: string;
 
-        
+
     @ApiProperty({ example: '5', description: 'Вид професии артиста' })
     @IsString()
     profession_id?: number;
-    
-    @ApiProperty({ example: 1, description: 'ID города' })
-    @IsString()
-    city_id?: string;
-    
-    @ApiProperty({ example: 1, description: 'ID страны' })
-    @IsString()
-    country_id?: string;
+
 
     @ApiProperty({ example: '/awd/photo.png', description: 'Фотография пользователя' })
     readonly avatar_path?: string | null;
@@ -64,4 +58,14 @@ export class UpdateArtistDto {
     @ApiProperty({ example: 1, description: 'Колличество просмотров' })
     @IsNumber()
     views?: number;
+
+    @ApiProperty({ example: 1, description: 'ID страны (countries.id)', required: false })
+    @IsOptional()
+    @Type(() => Number)
+    country_id?: number;
+
+    @ApiProperty({ example: 42, description: 'ID города (cities.id)', required: false })
+    @IsOptional()
+    @Type(() => Number)
+    city_id?: number;
 }
