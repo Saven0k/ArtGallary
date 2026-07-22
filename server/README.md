@@ -1,88 +1,118 @@
-<!-- Сделать модерацию вывода для артиста в профиле картины и выставки для картин и выставок -->
-<!-- Сделать проверку на то что мы хотим удалить из понравившегося юзер, выставка, картина ( добавляем всем лайки) -->
+# GalleryTema Server
 
-<!-- ДОбить города нету спб почему то не факт что всё сохранилось -->
-<!-- Разобратся с кодексом -->
+NestJS-сервер для платформы цифрового искусства и галереи.
 
-# 1. Остановить все контейнеры если запущены
-docker-compose down -v
+## 🚀 Быстрый старт
 
-# 2. Собрать и запустить контейнеры
-docker-compose up -d --build
+```bash
+npm install
+npm run start:dev
+```
 
-# 3. Посмотреть логи для проверки подключения
-docker-compose logs -f main
+Сервер запустится на порту `5000`. Swagger API доступен по адресу: http://localhost:5000/api/docs
 
-# Запуск всех сервисов
-docker-compose up -d
+## 📁 Структура проекта
 
-# Перезапуск конкретного сервиса
-docker-compose restart main
-docker-compose restart postgres
+```
+server/
+├── src/
+│   ├── main.ts                    # Точка входа приложения
+│   ├── app.module.ts              # Корневой модуль
+│   ├── auth/                      # Аутентификация и авторизация
+│   ├── users/                     # Пользователи
+│   ├── artists/                   # Артисты и подписки
+│   ├── arts/                      # Произведения искусства
+│   ├── genres/                    # Жанры
+│   ├── styles/                    # Стили
+│   ├── art-types/                 # Типы артов
+│   ├── tags/                      # Теги
+│   ├── location/                  # География (страны, города)
+│   ├── moderators/                # Модерация контента
+│   ├── professions/               # Профессии
+│   ├── files/                     # Работа с файлами
+│   ├── password/                  # Восстановление пароля
+│   ├── shared/                    # Общие хелперы
+│   └── types/                     # Типы и интерфейсы
+├── docs/                          # Дополнительная документация
+├── services/                      # Микросервисы
+└── README.md                      # Этот файл
+```
 
-# Просмотр статуса контейнеров
-docker-compose ps
+## 🔧 Основные команды
 
-# Просмотр логов конкретного сервиса
-docker-compose logs -f main
-docker-compose logs -f postgres
+| Команда | Описание |
+|---------|----------|
+| `npm run build` | Сборка проекта |
+| `npm run start:dev` | Запуск в режиме разработки |
+| `npm run start:prod` | Запуск в production режиме |
 
-# Выполнить команду в контейнере
-docker exec -it gallery_main sh
-docker exec -it gallery_postgres psql -U postgres -d gallery
+## 🔐 Переменные окружения
 
-# Подключиться к PostgreSQL через терминал
-docker exec -it gallery_postgres psql -U postgres -d gallery
+| Переменная | По умолчанию | Описание |
+|------------|-------------|----------|
+| `PORT` | `5000` | Порт сервера |
+| `DATABASE_URL` | — | URL подключения к PostgreSQL |
+| `JWT_ACCESS_SECRET` | — | Секрет для access-токенов |
+| `JWT_REFRESH_SECRET` | — | Секрет для refresh-токенов |
+| `CORS_ORIGINS` | `http://localhost:3000` | Разрешённые CORS origins |
+| `ADMIN_PASSWORD` | — | Пароль администратора (обязателен в production) |
+| `ADMIN_EMAIL` | `admin@mail.ru` | Email администратора |
+| `BASE_URL` | `http://localhost:5000` | Базовый URL сервера |
+| `NODE_ENV` | `development` | Окружение (development/production) |
 
-# Создать бэкап БД
-docker exec gallery_postgres pg_dump -U postgres gallery > backup.sql
+## 📚 Документация
 
-# Восстановить БД из бэкапа
-cat backup.sql | docker exec -i gallery_postgres psql -U postgres gallery
+### Глобальная
 
-# Просмотр списка таблиц
-docker exec -it gallery_postgres psql -U postgres -d gallery -c "\dt"
+- [Обзор API](docs/API-OVERVIEW.md)
 
-# Описание таблицы
-docker exec -it gallery_postgres psql -U postgres -d gallery -c "\d users"
+### По модулям
 
-# Проверить соединение
-docker exec -it gallery_main sh -c "nc -zv postgres 5432"
+| Модуль | Описание | Документация |
+|--------|----------|--------------|
+| Auth | Аутентификация и авторизация | [README](src/auth/README.md) |
+| Users | Пользователи | [README](src/users/README.md) |
+| Artists | Артисты и подписки | [README](src/artists/README.md) |
+| Arts | Произведения искусства | [README](src/arts/README.md) |
+| Genres | Жанры | [README](src/genres/README.md) |
+| Styles | Стили | [README](src/styles/README.md) |
+| Art Types | Типы артов | [README](src/art-types/README.md) |
+| Tags | Теги | [README](src/tags/README.md) |
+| Location | География | [README](src/location/README.md) |
+| Moderators | Модерация | [README](src/moderators/README.md) |
+| Professions | Профессии | [README](src/professions/README.md) |
+| Files | Файлы | [README](src/files/README.md) |
+| Password | Пароли | [README](src/password/README.md) |
+| Shared | Общие хелперы | [README](src/shared/README.md) |
 
+### Микросервисы
 
-# 1. Проверить что контейнеры запущены
-docker ps
+| Сервис | Описание | Документация |
+|--------|----------|--------------|
+| Files Service | Выделенный микросервис файлов | [README](services/files-service/README.md) |
 
-# 2. Проверить логи main контейнера
-docker-compose logs main | grep -i "database\|connected\|error"
+## 🏗 Архитектура
 
-# 3. Проверить что БД принимает подключения
-docker exec -it gallery_postgres pg_isready -U postgres
+Проект построен на **NestJS** с использованием:
+- **PostgreSQL** + **Sequelize ORM**
+- **JWT-аутентификация** (access + refresh токены)
+- **Swagger** для документации API
+- **Winston** для логирования
 
-# 4. Проверить переменные окружения в контейнере
-docker exec -it gallery_main env | grep POSTGRES
+### Микросервисы
 
-# 5. Проверить сеть между контейнерами
-docker exec -it gallery_main ping postgres
+Проект декомпозируется на микросервисы:
+- ✅ `files-service` — выделен в отдельный микросервис
 
+## 🔒 Безопасность
 
-# Запустить всё в фоне
-docker-compose up -d
+- bcrypt с cost factor ≥ 10
+- CORS ограничен по разрешённым origin
+- Защита от path traversal
+- Валидация загружаемых файлов (MIME + размер)
+- JWT-токены в httpOnly cookies
+- Refresh tokens с JTI привязкой
 
-# Смотреть логи в реальном времени
-docker-compose logs -f --tail=100
+## 📝 Лицензия
 
-# Пересобрать только main контейнер после изменений в package.json
-docker-compose build main
-docker-compose up -d main
-
-
-
-Доступ к сервисам:
-Сервис	URL	Данные для входа
-API сервер	http://localhost:5000	-
-pgAdmin	http://localhost:5050	email: admin@admin.com
-password: admin
-PostgreSQL	localhost:5432	user: postgres
-password: root
-Redis	localhost:6379	
+MIT
