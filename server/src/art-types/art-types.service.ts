@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { ArtType } from './art-type.model';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
@@ -76,15 +76,8 @@ export class ArtTypesService {
     }
 
     async delete(id: number) {
-        this.logger.log('warn', JSON.stringify({
-            message: '⚠️ Попытка удаления вида искусства',
-            context: 'ArtTypesService.delete',
-            id: id
-        }));
-
-        const artType = await this.artTypeRepository.findByPk(id);
-        if (!artType) throw new HttpException('Вид искусства не найден', 404);
-        await artType.destroy();
+        const deletedCount = await this.artTypeRepository.destroy({ where: { id } });
+        if (deletedCount === 0) throw new HttpException('Профессия не найдена', HttpStatus.NOT_FOUND);
         this.logger.log('info', JSON.stringify({
             message: '✅ Вид искусства успешно удален',
             context: 'ArtTypesService.delete',
@@ -115,7 +108,7 @@ export class ArtTypesService {
             id: id
         }));
         const artType = await this.artTypeRepository.findByPk(id);
-        if (!artType)  throw new HttpException('Вид искусства не найден', 404);
+        if (!artType) throw new HttpException('Вид искусства не найден', 404);
 
         this.logger.log('info', JSON.stringify({
             message: '✅ Вид искусства найден',

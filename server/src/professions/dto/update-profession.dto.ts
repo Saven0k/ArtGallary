@@ -1,4 +1,3 @@
-// src/professions/dto/update-profession.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsOptional } from "class-validator";
 

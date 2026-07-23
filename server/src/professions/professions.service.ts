@@ -19,24 +19,19 @@ export class ProfessionsService {
     async update(id: number, dto: UpdateProfessionDto): Promise<Profession> {
         const profession = await this.professionRepository.findByPk(id);
         if (!profession) throw new HttpException('Профессия не найдена', HttpStatus.NOT_FOUND);
-
-        if (dto.name) {
-            const existing = await this.professionRepository.findOne({ where: { name: dto.name } });
-            if (existing && existing.id !== id) throw new HttpException('Профессия с таким названием уже существует', HttpStatus.CONFLICT);
-        }
-        await profession.update(dto);
-        return profession;
+        await this.professionRepository.update(dto, { where: { id }, });
+        const updated = await this.professionRepository.findByPk(id);
+        return updated;
     }
 
     async delete(id: number): Promise<{ success: boolean; message: string }> {
-        const profession = await this.professionRepository.findByPk(id);
-        if (!profession) throw new HttpException('Профессия не найдена', HttpStatus.NOT_FOUND);
-        await profession.destroy();
+        const deletedCount = await this.professionRepository.destroy({ where: { id } });
+        if (deletedCount === 0) throw new HttpException('Профессия не найдена', HttpStatus.NOT_FOUND);
         return { success: true, message: 'Профессия успешно удалена' };
     }
 
-    async getAll(): Promise<Profession[]> {return this.professionRepository.findAll({order: [['name', 'ASC']]});}
-    
+    async getAll(): Promise<Profession[]> { return this.professionRepository.findAll({ order: [['name', 'ASC']] }); }
+
 
     async getById(id: number): Promise<Profession> {
         const profession = await this.professionRepository.findByPk(id);

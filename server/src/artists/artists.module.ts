@@ -10,6 +10,7 @@ import { FilesModule } from '../files/files.module';
 import { PasswordModule } from '../password/password.module';
 import { SubscriptionService } from './subscription.service';
 import { LocationModule } from 'src/location/location.module';
+import { Profession } from 'src/professions/profession.model';
 
 @Module({
   providers: [ArtistsService, SubscriptionService],
@@ -19,7 +20,8 @@ import { LocationModule } from 'src/location/location.module';
       Art,
       User,
       ArtistProfile,
-      Genre
+      Genre,
+      Profession
     ]), FilesModule, PasswordModule, LocationModule
   ]
 })

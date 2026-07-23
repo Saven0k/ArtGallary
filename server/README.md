@@ -116,3 +116,135 @@ server/
 ## 📝 Лицензия
 
 MIT
+
+
+
+## 1. Country 🌍
+
+Таблица: `countries`
+
+| Поле | Тип данных | Описание |
+|------|-----------|----------|
+| `id` | INTEGER | Первичный ключ |
+| `iso2` | STRING(2) | Код ISO 3166-1 alpha-2 |
+| `iso3` | STRING(3) | Код ISO 3166-1 alpha-3 |
+| `name_en` | STRING | Название на английском |
+| `name_ru` | STRING | Название на русском |
+| `geonames_id` | INTEGER | ID из GeoNames |
+| `phone_code` | STRING | Телефонный код |
+| `currency` | STRING | Валюта |
+| `continent` | STRING | Континент |
+| `is_deleted` | BOOLEAN | Флаг удаления |
+| `deleted_at` | TIMESTAMP | Дата удаления |
+
+### Атрибуты создания
+
+```ts
+{
+  iso2?: string;
+  iso3?: string;
+  name_en?: string;
+  name_ru?: string;
+  geonames_id?: number;
+  phone_code?: string;
+  currency?: string;
+  continent?: string;
+}
+```
+
+---
+
+## 2. City 🏙️
+
+Таблица: `cities`
+
+| Поле | Тип данных | Описание |
+|------|-----------|----------|
+| `id` | INTEGER | Первичный ключ |
+| `geonames_id` | INTEGER | ID из GeoNames |
+| `name_en` | STRING | Название на английском |
+| `name_ru` | STRING | Название на русском |
+| `country_id` | INTEGER | Страна (FK → `countries.id`) |
+| `country_code` | STRING(2) | ISO 3166-1 alpha-2 код страны |
+| `region` | STRING | Регион |
+| `latitude` | DECIMAL | Широта |
+| `longitude` | DECIMAL | Долгота |
+| `population` | INTEGER | Население |
+| `timezone` | STRING | Часовой пояс |
+| `is_deleted` | BOOLEAN | Флаг удаления |
+| `deleted_at` | TIMESTAMP | Дата удаления |
+
+### Атрибуты создания
+
+```ts
+{
+  geonames_id: number;
+  name_en?: string;
+  name_ru?: string;
+  country_id: number;
+  country_code: string;
+  region?: string;
+  latitude?: number;
+  longitude?: number;
+  population?: number;
+  timezone?: string;
+}
+```
+
+## 4. Genre 🖌️
+
+Таблица: `genres`
+
+| Поле | Тип данных | Описание |
+|------|-----------|----------|
+| `id` | INTEGER | Первичный ключ |
+| `name_en` | STRING | Название на английском |
+| `name_ru` | STRING | Название на русском |
+| `is_deleted` | BOOLEAN | Флаг удаления |
+| `deleted_at` | TIMESTAMP | Дата удаления |
+
+## . Style 🎨
+
+Таблица: `styles`
+
+| Поле | Тип данных | Описание |
+|------|-----------|----------|
+| `id` | INTEGER | Первичный ключ |
+| `name_en` | STRING | Название на английском |
+| `name_ru` | STRING | Название на русском |
+| `is_deleted` | BOOLEAN | Флаг удаления |
+| `deleted_at` | TIMESTAMP | Дата удаления |
+
+### Атрибуты создания
+
+```ts
+{
+  name_en?: string;
+  name_ru?: string;
+}
+```
+
+---
+
+## 6. Profession 💼
+
+Таблица: `professions`
+
+| Поле | Тип данных | Описание |
+|------|-----------|----------|
+| `id` | INTEGER | Первичный ключ |
+| `name_en` | STRING | Название на английском |
+| `name_ru` | STRING | Название на русском |
+| `is_deleted` | BOOLEAN | Флаг удаления |
+| `deleted_at` | TIMESTAMP | Дата удаления |
+
+### Атрибуты создания
+
+```ts
+{
+  name_en?: string;
+  name_ru?: string;
+}
+```
+
+---

@@ -1,4 +1,3 @@
-// src/location/models/city.model.ts
 import {
   Table,
   Column,
@@ -24,7 +23,6 @@ export class City extends Model {
   })
   id: number;
 
-  // GeoNames ID (уникальный идентификатор из датасета)
   @Index({ unique: true })
   @Column({
     type: DataType.INTEGER,
@@ -33,7 +31,6 @@ export class City extends Model {
   })
   geonames_id: number;
 
-  // Название на английском (ASCII, без диакритики)
   @Index
   @Column({
     type: DataType.STRING(200),
@@ -41,7 +38,6 @@ export class City extends Model {
   })
   name_en: string;
 
-  // Название на русском (из alternateNames)
   @Index
   @Column({
     type: DataType.STRING(200),
@@ -49,7 +45,6 @@ export class City extends Model {
   })
   name_ru: string;
 
-  // Связь со страной
   @ForeignKey(() => Country)
   @Index
   @Column({
@@ -61,7 +56,6 @@ export class City extends Model {
   @BelongsTo(() => Country)
   country: Country;
 
-  // ISO2 код для быстрой фильтрации без JOIN
   @Index
   @Column({
     type: DataType.CHAR(2),
@@ -69,14 +63,12 @@ export class City extends Model {
   })
   country_code: string;
 
-  // Регион/штат (например, "Московская область")
   @Column({
     type: DataType.STRING(200),
     allowNull: true,
   })
   region: string;
 
-  // Координаты для возможной геофильтрации в будущем
   @Column({
     type: DataType.DECIMAL(9, 6),
     allowNull: true,
@@ -89,7 +81,6 @@ export class City extends Model {
   })
   longitude: number;
 
-  // Население (для сортировки по значимости)
   @Index
   @Column({
     type: DataType.INTEGER,
@@ -98,7 +89,6 @@ export class City extends Model {
   })
   population: number;
 
-  // Часовой пояс
   @Column({
     type: DataType.STRING(50),
     allowNull: true,
@@ -111,7 +101,6 @@ export class City extends Model {
   @UpdatedAt
   updated_at: Date;
 
-  // Хелпер: вернуть нужное название по языку
   getName(lang: 'ru' | 'en' = 'ru'): string {
     if (lang === 'ru') return this.name_ru || this.name_en;
     return this.name_en;

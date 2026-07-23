@@ -1,4 +1,3 @@
-// src/styles/styles.controller.ts
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { CreateStyleDto } from './dto/create-style.dto';

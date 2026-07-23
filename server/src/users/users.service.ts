@@ -1,4 +1,3 @@
-// src/users/users.service.ts
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './users.model';
@@ -12,6 +11,7 @@ import { LocationService } from '../location/location.service';
 import { Country } from '../location/models/country.model';
 import { City } from '../location/models/city.model';
 import { UpdateuserDto } from './dto/update-user.dto';
+import { Profession } from 'src/professions/profession.model';
 
 @Injectable()
 export class UsersService {
@@ -22,20 +22,18 @@ export class UsersService {
         private fileService: FilesService,
         private passwordService: PasswordService,
         private locationService: LocationService,
-    ) {}
+    ) { }
 
     async onModuleInit() {
         await this.createAdminIfNotExists();
     }
 
-    // ─── CREATE ─────────────────────────────────────────────────────────────
 
     async createUser(dto: CreateUserDto, image?: any) {
         if (await this.getUserByEmail(dto.email)) {
             throw new HttpException('Пользователь с такой почтой уже существует', 400);
         }
 
-        // ✅ Валидация по числовому ID (не ISO2)
         if (dto.country_id) {
             const country = await this.locationService.getCountryById(dto.country_id);
             if (!country) throw new HttpException('Страна не найдена', HttpStatus.BAD_REQUEST);
@@ -57,7 +55,6 @@ export class UsersService {
             gender: dto.gender as 'M' | 'F',
             avatar_path: filename,
             role: 'user',
-            // ✅ Числовые ID
             city_id: dto.city_id ?? null,
             country_id: dto.country_id ?? null,
         });
@@ -70,13 +67,11 @@ export class UsersService {
         return user;
     }
 
-    // ─── UPDATE ─────────────────────────────────────────────────────────────
 
     async updateUser(id: number, dto: UpdateuserDto, image?: any) {
         const user = await this.userRepository.findByPk(id);
         if (!user) throw new HttpException('Пользователь не найден', 404);
 
-        // ✅ Валидация по числовому ID
         if (dto.country_id) {
             const country = await this.locationService.getCountryById(dto.country_id);
             if (!country) throw new HttpException('Страна не найдена', HttpStatus.BAD_REQUEST);
@@ -100,7 +95,6 @@ export class UsersService {
         if (dto.second_name !== undefined) updateData.second_name = dto.second_name;
         if (dto.phone_number) updateData.phone_number = dto.phone_number;
         if (dto.gender) updateData.gender = dto.gender;
-        // ✅ Разрешаем обнулять (null = убрать локацию)
         if (dto.city_id !== undefined) updateData.city_id = dto.city_id ?? null;
         if (dto.country_id !== undefined) updateData.country_id = dto.country_id ?? null;
         if (filename) updateData.avatar_path = filename;
@@ -109,12 +103,10 @@ export class UsersService {
         return this.getUserById(id);
     }
 
-    // ─── READ ────────────────────────────────────────────────────────────────
 
     async getAllUsers() {
         return this.userRepository.findAll({
             where: { is_deleted: false },
-            // ✅ Локация через JOIN — никаких доп. запросов
             include: [
                 { model: Country, as: 'country', attributes: ['id', 'iso2', 'name_ru', 'name_en'], required: false },
                 { model: City, as: 'city', attributes: ['id', 'name_ru', 'name_en', 'country_code'], required: false },
@@ -134,10 +126,9 @@ export class UsersService {
                     model: ArtistProfile,
                     as: 'artistProfile',
                     attributes: ['user_id', 'date_birthday', 'biography', 'moderate',
-                        'profession', 'plan', 'planExpiresAt', 'playStatus',
-                        'city_id', 'country_id', 'likes', 'views', 'is_deleted', 'deleted_at'],
+                        'plan', 'planExpiresAt', 'planStatus', 'likes', 'views', 'is_deleted', 'deleted_at'],
+                    include: [{ model: Profession, attributes: ['id', 'name', 'description'], required: false }]
                 },
-                // ✅ Локация через JOIN
                 { model: Country, as: 'country', attributes: ['id', 'iso2', 'name_ru', 'name_en'], required: false },
                 { model: City, as: 'city', attributes: ['id', 'name_ru', 'name_en', 'country_code'], required: false },
             ],
@@ -154,7 +145,6 @@ export class UsersService {
         });
     }
 
-    // ─── DELETE / RESTORE ────────────────────────────────────────────────────
 
     async deleteUserById(id: number): Promise<boolean> {
         const user = await this.userRepository.findByPk(id);
@@ -210,11 +200,13 @@ export class UsersService {
         }
     }
 
-    // ─── PRIVATE ─────────────────────────────────────────────────────────────
 
     private async createAdminIfNotExists() {
         const adminEmail = process.env.ADMIN_EMAIL || 'admin@mail.ru';
-        const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
+        if (!process.env.ADMIN_PASSWORD) {
+            throw new Error('ADMIN_PASSWORD must be set in production');
+        }
+        const adminPassword = process.env.ADMIN_PASSWORD;
 
         try {
             const exists = await this.userRepository.findOne({ where: { email: adminEmail } });

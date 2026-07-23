@@ -1,4 +1,3 @@
-// dto/create-artist.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsEmail, IsString, IsDateString, IsNumber, MinLength, IsOptional, IsPhoneNumber, isString } from "class-validator";

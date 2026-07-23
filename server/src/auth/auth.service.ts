@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { User } from '../users/users.model';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { Inject } from '@nestjs/common';
@@ -175,7 +175,7 @@ export class AuthService {
 
         const [accessToken, refreshToken] = await Promise.all([
             this.signAccessToken(user.id, user.email, user.role),
-            this.signRefershToken(user.id, user.email, user.role, jti),
+            this.signRefreshToken(user.id, user.email, user.role, jti),
         ])
 
         const tokenHash = await bcrypt.hash(refreshToken, 10);
@@ -194,7 +194,7 @@ export class AuthService {
             maxAge: ACCESS_TOKEN_TTL_MS,
             httpOnly: true,
             sameSite: "lax",
-            secure: false
+            secure: process.env.NODE_ENV === 'production'
         })
 
         res.cookie('refreshToken', refreshToken, {
@@ -214,17 +214,17 @@ export class AuthService {
         return this.jwtService.signAsync(
             { sub: userId, email, role },
             {
-                secret: this.config.get("JWT_ACCESS_SECRET"),
+                secret: this.config.getOrThrow<string>('JWT_ACCESS_SECRET'),
                 expiresIn: '15m',
             } as any
         )
     }
 
-    async signRefershToken(userId: number, email: string, role: string, jti: string): Promise<string> {
+    async signRefreshToken(userId: number, email: string, role: string, jti: string): Promise<string> {
         return this.jwtService.signAsync(
             { sub: userId, email, role, jti },
             {
-                secret: this.config.get("JWT_REFRESH_SECRET"),
+                secret: this.config.getOrThrow<string>('JWT_REFRESH_SECRET'),
                 expiresIn: '7d',
             } as any,
         )

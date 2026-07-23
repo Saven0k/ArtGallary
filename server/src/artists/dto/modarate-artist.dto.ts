@@ -1,4 +1,3 @@
-// dto/moderate-artist.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNumber, IsOptional, IsString, IsObject } from 'class-validator';
 

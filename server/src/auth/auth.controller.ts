@@ -18,6 +18,7 @@ export class AuthController {
     constructor(private authService: AuthService) { }
 
     @Post("/login")
+    @UsePipes(ValidationPipe)
     login(@Body() userDto: AuthUserDto, @Req() req: any, @Res({ passthrough: true }) res: Response) {
         return this.authService.login(userDto, req, res)
     }

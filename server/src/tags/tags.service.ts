@@ -12,7 +12,6 @@ export class TagsService {
     async findOrCreateTags(tagNames: string[]): Promise<Tag[]> {
         if (!tagNames || tagNames.length === 0) return [];
 
-        // Ограничиваем количество тегов
         const limitedTags = tagNames.slice(0, 20);
 
         const tags: Tag[] = [];
@@ -25,7 +24,6 @@ export class TagsService {
                 defaults: { name: normalizedName },
             });
             
-            // Увеличиваем счетчик использования
             await tag.increment('usage_count');
             tags.push(tag);
         }

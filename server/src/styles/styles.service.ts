@@ -1,4 +1,3 @@
-// src/styles/styles.service.ts
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Style } from './styles.model';

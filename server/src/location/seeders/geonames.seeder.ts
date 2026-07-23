@@ -1,10 +1,3 @@
-// src/location/seeders/geonames.seeder.ts
-//
-// Запуск: npx ts-node -r tsconfig-paths/register src/location/seeders/geonames.seeder.ts
-//
-// Зависимости (установи перед запуском):
-//   npm install adm-zip pg dotenv --save-dev
-//   npm install @types/adm-zip @types/pg --save-dev
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -18,7 +11,6 @@ import * as dotenv from 'dotenv';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
-// ─── Подключение напрямую через pg (без Sequelize/sync) ──────────────────────
 const client = new Client({
   host:     process.env.POSTGRES_HOST     || 'localhost',
   port:     Number(process.env.POSTGRES_PORT) || 5432,
@@ -29,11 +21,7 @@ const client = new Client({
 
 const TMP_DIR = path.join(process.cwd(), '.geonames_tmp');
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Создание таблиц через чистый SQL (не зависит от моделей и sync)
-// ─────────────────────────────────────────────────────────────────────────────
 async function createTables() {
-  // Создаём таблицы если не существуют
   await client.query(`
     CREATE TABLE IF NOT EXISTS countries (
       id           SERIAL PRIMARY KEY,
@@ -68,8 +56,6 @@ async function createTables() {
     );
   `);
 
-  // Фикс: если таблицы уже существовали без DEFAULT на created_at/updated_at —
-  // добавляем DEFAULT и заполняем NULL-значения
   await client.query(`
     ALTER TABLE countries
       ALTER COLUMN created_at SET DEFAULT NOW(),
@@ -86,7 +72,6 @@ async function createTables() {
     UPDATE cities SET updated_at = NOW() WHERE updated_at IS NULL;
   `);
 
-  // Индексы для быстрого поиска
   await client.query(`CREATE INDEX IF NOT EXISTS idx_countries_iso2    ON countries(iso2);`);
   await client.query(`CREATE INDEX IF NOT EXISTS idx_countries_name_ru ON countries(name_ru);`);
   await client.query(`CREATE INDEX IF NOT EXISTS idx_countries_name_en ON countries(name_en);`);
@@ -98,9 +83,6 @@ async function createTables() {
   console.log('  ✅ Таблицы и индексы готовы');
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// downloadFile
-// ─────────────────────────────────────────────────────────────────────────────
 async function downloadFile(url: string, dest: string, attempt = 1): Promise<void> {
   if (fs.existsSync(dest) && fs.statSync(dest).size > 0) {
     console.log(`  ↩  Уже скачан: ${path.basename(dest)}`);
@@ -179,9 +161,6 @@ async function downloadFile(url: string, dest: string, attempt = 1): Promise<voi
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// extractZip — через adm-zip (без системного unzip)
-// ─────────────────────────────────────────────────────────────────────────────
 function extractZip(zipPath: string, destDir: string, filename: string): string {
   const outPath = path.join(destDir, filename);
   if (fs.existsSync(outPath) && fs.statSync(outPath).size > 0) {
@@ -203,9 +182,6 @@ function extractZip(zipPath: string, destDir: string, filename: string): string 
   return outPath;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// parseCountryInfo
-// ─────────────────────────────────────────────────────────────────────────────
 interface RawCountry {
   iso2: string; iso3: string; name_en: string;
   geonames_id: number; phone_code: string; currency: string; continent: string;
@@ -226,9 +202,6 @@ function parseCountryInfo(filePath: string): RawCountry[] {
   return result;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// parseAlternateNames — потоковое чтение
-// ─────────────────────────────────────────────────────────────────────────────
 async function parseAlternateNames(
   filePath: string, targetIds: Set<number>, lang = 'ru',
 ): Promise<Map<number, string>> {
@@ -262,9 +235,6 @@ async function parseAlternateNames(
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// parseCitiesFile
-// ─────────────────────────────────────────────────────────────────────────────
 interface RawCity {
   geonames_id: number; name_en: string; country_code: string;
   region: string; lat: number; lon: number; population: number; timezone: string;
@@ -291,25 +261,19 @@ function parseCitiesFile(filePath: string): RawCity[] {
   return result;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MAIN
-// ─────────────────────────────────────────────────────────────────────────────
 async function seed() {
   console.log('\n🌍 GeoNames Seeder\n');
   if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR, { recursive: true });
 
-  // ── 1. Подключение ─────────────────────────────────────────────────────────
   console.log('📦 Подключение к БД...');
   console.log(`   ${process.env.POSTGRES_USER}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/${process.env.POSTGRES_DB}`);
   await client.connect();
   console.log('  ✅ Подключено\n');
 
-  // ── 2. Создание таблиц ─────────────────────────────────────────────────────
   console.log('🏗  Создание таблиц...');
   await createTables();
   console.log();
 
-  // ── 3. Файлы ───────────────────────────────────────────────────────────────
   console.log('📥 Файлы GeoNames...\n');
   const countryInfoPath = path.join(TMP_DIR, 'countryInfo.txt');
   const citiesZipPath   = path.join(TMP_DIR, 'cities1000.zip');
@@ -320,12 +284,10 @@ async function seed() {
   await downloadFile('http://download.geonames.org/export/dump/alternateNames.zip', altNamesZipPath);
   console.log();
 
-  // ── 4. Распаковка ──────────────────────────────────────────────────────────
   const citiesTxtPath   = extractZip(citiesZipPath,   TMP_DIR, 'cities1000.txt');
   const altNamesTxtPath = extractZip(altNamesZipPath, TMP_DIR, 'alternateNames.txt');
   console.log();
 
-  // ── 5. Парсинг ─────────────────────────────────────────────────────────────
   console.log('🗺  Парсинг стран...');
   const rawCountries = parseCountryInfo(countryInfoPath);
   console.log(`  ✅ Стран: ${rawCountries.length}`);
@@ -334,7 +296,6 @@ async function seed() {
   const rawCities = parseCitiesFile(citiesTxtPath);
   console.log(`  ✅ Городов: ${rawCities.length}\n`);
 
-  // ── 6. Переводы ────────────────────────────────────────────────────────────
   console.log('🔤 Русские переводы...');
   const allIds = new Set<number>([
     ...rawCountries.map(c => c.geonames_id).filter(Boolean),
@@ -343,7 +304,6 @@ async function seed() {
   const ruNames = await parseAlternateNames(altNamesTxtPath, allIds, 'ru');
   console.log();
 
-  // ── 7. Сохранение стран ────────────────────────────────────────────────────
   console.log('💾 Сохранение стран...');
   for (const raw of rawCountries) {
     await client.query(`
@@ -363,11 +323,9 @@ async function seed() {
   }
   console.log(`  ✅ Стран: ${rawCountries.length}`);
 
-  // Map iso2 → id
   const { rows: countryRows } = await client.query('SELECT id, iso2 FROM countries');
   const countryIdByIso2 = new Map<string, number>(countryRows.map((r: any) => [r.iso2, r.id]));
 
-  // ── 8. Сохранение городов батчами ──────────────────────────────────────────
   console.log('💾 Сохранение городов...');
   const BATCH = 500;
   let saved = 0, skipped = 0;
@@ -393,7 +351,6 @@ async function seed() {
 
     if (records.length === 0) continue;
 
-    // Формируем VALUES ($1,$2,...),($11,$12,...) динамически
     const cols = 10;
     const placeholders = records.map((_, ri) =>
       `(${Array.from({ length: cols }, (__, ci) => `$${ri * cols + ci + 1}`).join(',')})`
@@ -421,7 +378,6 @@ async function seed() {
   console.log(`\n  ✅ Городов: ${saved}`);
   if (skipped > 0) console.log(`  ⚠️  Пропущено: ${skipped}`);
 
-  // ── 9. Итог ────────────────────────────────────────────────────────────────
   const { rows: [{ count: cCount }] } = await client.query('SELECT COUNT(*) FROM countries');
   const { rows: [{ count: ciCount }] } = await client.query('SELECT COUNT(*) FROM cities');
   console.log(`\n📊 Итого: стран ${cCount}, городов ${ciCount}`);

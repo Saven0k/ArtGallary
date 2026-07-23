@@ -3,10 +3,11 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { ArtTypesController } from './art-types.controller';
 import { ArtTypesService } from './art-types.service';
 import { ArtType } from './art-type.model';
+import { Genre } from 'src/genres/genre.model';
 
 @Module({
     imports: [
-        SequelizeModule.forFeature([ArtType])
+        SequelizeModule.forFeature([Genre,ArtType])
     ],
     controllers: [ArtTypesController],
     providers: [ArtTypesService],

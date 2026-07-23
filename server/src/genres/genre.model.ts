@@ -23,6 +23,10 @@ export class Genre extends Model<Genre, GenreCreationAttrs> {
     @Column({ type: DataType.INTEGER, allowNull: false })
     art_type_id: number;
 
+    // {
+    //     onDelete: 'CASCADE'
+    // }
+    
     @BelongsTo(() => ArtType)
     artType: ArtType;
 }

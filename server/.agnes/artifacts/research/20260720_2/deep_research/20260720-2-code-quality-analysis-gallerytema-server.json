@@ -1,0 +1,26 @@
+{
+  "kind": "agnes_artifact",
+  "artifact_type": "research_markdown_report",
+  "research_kind": "deep_research",
+  "mode": "deep_research",
+  "session_id": "20260720_2",
+  "title": "Code Quality Analysis — GalleryTema Server",
+  "local_path": "C:\\Users\\Savenok\\Projects\\GallaryTema\\server\\.agnes\\artifacts\\research\\20260720_2\\deep_research\\20260720-2-code-quality-analysis-gallerytema-server.md",
+  "manifest_path": "C:\\Users\\Savenok\\Projects\\GallaryTema\\server\\.agnes\\artifacts\\research\\20260720_2\\deep_research\\20260720-2-code-quality-analysis-gallerytema-server.json",
+  "repo_path": "C:\\Users\\Savenok\\Projects\\GallaryTema\\server\\.agnes\\work\\research\\20260720_2\\deep_research\\repo",
+  "preview_uri": "ui://agnes-research/deep_research/20260720-2-code-quality-analysis-gallerytema-server",
+  "sources_count": 0,
+  "evidence_count": 0,
+  "conflicts_count": 0,
+  "blocked_sources_count": 0,
+  "confidence": "unknown",
+  "quality_warnings": [
+    "Deep research report has no sources in the manifest.",
+    "Deep research report has no structured evidence ledger; important claims may be hard to audit."
+  ],
+  "created_at": "2026-07-20T16:21:42.340821300+00:00",
+  "sources": [],
+  "evidence": [],
+  "conflicts": [],
+  "blocked_sources": []
+}

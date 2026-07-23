@@ -33,7 +33,6 @@ export class LocationService implements OnModuleInit {
   private readonly logger = new Logger(LocationService.name);
   private readonly NOMINATIM_URL = 'https://nominatim.openstreetmap.org';
 
-  // Простой in-memory кэш для Nominatim fallback (ключ → результат)
   private readonly nominatimCache = new Map<string, any>();
 
   constructor(
@@ -53,9 +52,6 @@ export class LocationService implements OnModuleInit {
     }
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // СТРАНЫ
-  // ──────────────────────────────────────────────────────────────────────────
 
   /**
    * Поиск стран по названию (autocomplete).

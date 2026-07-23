@@ -1,4 +1,3 @@
-// src/styles/styles.module.ts
 import { Module, OnModuleInit } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { StylesController } from './styles.controller';

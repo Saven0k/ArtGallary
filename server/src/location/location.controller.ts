@@ -1,4 +1,3 @@
-// src/location/location.controller.ts
 import {
   Controller,
   Get,
@@ -24,7 +23,6 @@ import { Role } from '../auth/enums/role.enum';
 export class LocationController {
   constructor(private readonly locationService: LocationService) {}
 
-  // ── Страны ──────────────────────────────────────────────────────────────
 
   @ApiOperation({ summary: 'Поиск стран (autocomplete, из БД, быстро)' })
   @ApiQuery({ name: 'q', description: 'Запрос (минимум 2 символа)' })
@@ -66,7 +64,6 @@ export class LocationController {
     return this.locationService.getCountryById(id, lang);
   }
 
-  // ── Города ──────────────────────────────────────────────────────────────
 
   @ApiOperation({ summary: 'Поиск городов (autocomplete, из БД, быстро)' })
   @ApiQuery({ name: 'q', description: 'Запрос (минимум 2 символа)' })

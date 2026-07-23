@@ -1,10 +1,3 @@
-// src/arts/arts.service.ts
-//
-// Ключевые изменения vs старая версия:
-//   - country_id / city_id теперь INTEGER FK → используем BelongsTo JOIN
-//   - enrichWithLocation / enrichWithLocationBatch УДАЛЕНЫ — данные приходят через include
-//   - locationService.getCountryByCode больше не вызывается для каждой картины
-//   - валидация при создании/обновлении — через locationService.getCountryById / getCityById
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Art } from './arts.model';
@@ -45,11 +38,7 @@ export class ArtsService {
     private readonly FEATURED_BONUS = 200;
     private readonly FEATURED_DAYS = 7;
 
-    // ────────────────────────────────────────────────────────────────────────
-    // CREATE
-    // ────────────────────────────────────────────────────────────────────────
     async createArt(dto: CreateArtDto, imagePath: any, artistId: number) {
-        // ✅ Валидация: country_id — числовой ID из нашей таблицы
         if (dto.country_id) {
             const country = await this.locationService.getCountryById(dto.country_id);
             if (!country) {
@@ -57,7 +46,6 @@ export class ArtsService {
             }
         }
 
-        // ✅ Валидация: city_id — числовой ID из нашей таблицы
         if (dto.city_id) {
             const city = await this.locationService.getCityById(dto.city_id);
             if (!city) {
@@ -90,7 +78,6 @@ export class ArtsService {
             await this.updateScore(art.id);
             await transaction.commit();
 
-            // Возвращаем с join-данными локации
             return this.findArtWithLocation(art.id);
         } catch (e: any) {
             await transaction.rollback();
@@ -98,15 +85,11 @@ export class ArtsService {
         }
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // READ — локация через JOIN, никаких доп. запросов
-    // ────────────────────────────────────────────────────────────────────────
 
     async getArtById(id: number, lang: string = 'ru') {
         const art = await this.artRepository.findByPk(id, {
             include: [
                 ...this.getDefaultIncludes(),
-                // ✅ Локация через JOIN — один запрос, данные уже внутри
                 {
                     model: Country,
                     as: 'country',
@@ -186,9 +169,6 @@ export class ArtsService {
             ));
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // UPDATE / DELETE
-    // ────────────────────────────────────────────────────────────────────────
 
     async updateArt(id: number, dto: UpdateArtDTO) {
         const art = await this.artRepository.findByPk(id, {
@@ -246,9 +226,6 @@ export class ArtsService {
         }
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // VIEWS / FEATURED / SCORES
-    // ────────────────────────────────────────────────────────────────────────
 
     async incrementView(artId: number, userId?: number): Promise<Art> {
         const art = await this.artRepository.findByPk(artId);
@@ -307,9 +284,6 @@ export class ArtsService {
         this.logger.log('info', `✅ Обновлены скоры для ${arts.length} картин`);
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // PRIVATE HELPERS
-    // ────────────────────────────────────────────────────────────────────────
 
     /**
      * Найти арт с локацией через JOIN (без доп. запросов к location service).
@@ -559,8 +533,8 @@ export class ArtsService {
 
         return arts.map(art => ({
             ...art,
-            city: art.city_id ? citiesMap.get(Number(art.city_id)) || null : null,
-            country: art.country_id ? countriesMap.get(Number(art.country_id)) || null : null
+            city: art.city_id ? citiesMap.get(art.city_id) || null : null,
+            country: art.country_id ? countriesMap.get(art.country_id) || null : null
         }));
     }
 }

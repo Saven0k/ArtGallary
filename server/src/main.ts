@@ -6,20 +6,22 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { join } from "path";
 
 async function start() {
-    const PORT = process.env.port || 5000;
-    const app = await NestFactory.create<NestExpressApplication>(AppModule)
+    const PORT = process.env.PORT || 5000;
+    const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+    const allowedOrigins = process.env.CORS_ORIGINS?.split(',') ?? ['http://localhost:5173', 'http://localhost:3000'];
     app.enableCors({
-        origin: true,
+        origin: allowedOrigins,
         credentials: true,
     });
 
     app.use(cookieParser());
     const config = new DocumentBuilder()
-        .setTitle('Галерея')
-        .setDescription("Документация REST API")
+        .setTitle('GalleryTema')
+        .setDescription('REST API Documentation')
         .setVersion('1.0.0')
         .addTag('Gallery')
-        .build()
+        .build();
 
     app.useStaticAssets(join(process.cwd(), 'src', 'static'), {
         prefix: '/static/',
@@ -27,9 +29,9 @@ async function start() {
     const document = SwaggerModule.createDocument(app, config, {
         deepScanRoutes: true,
     });
-    SwaggerModule.setup("/api/docs", app, document);
+    SwaggerModule.setup('/api/docs', app, document);
 
-    await app.listen(PORT, () => console.log("Server start", { PORT }))
+    await app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 }
 
-start()
+start();

@@ -1,4 +1,3 @@
-// src/professions/professions.module.ts
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ProfessionsController } from './professions.controller';

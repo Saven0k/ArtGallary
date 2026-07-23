@@ -17,6 +17,11 @@ export class ArtType extends Model<ArtType, ArtTypeCreationAttrs> {
     @Column({ type: DataType.TEXT, allowNull: true })
     description: string;
 
+
+    // , {
+    //     onDelete: 'CASCADE'
+    // }
+
     @HasMany(() => Genre)
     genres: Genre[];
 }

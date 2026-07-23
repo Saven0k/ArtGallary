@@ -67,8 +67,6 @@ export class ArtistProfile extends Model<ArtistProfile, ArtistCreationAttrs> {
     @Column({ type: DataType.BOOLEAN, defaultValue: false })
     planStatus: boolean;
 
-
-
     @ApiProperty({ example: '0', description: 'Количество лайков' })
     @Column({ type: DataType.INTEGER, defaultValue: 0 })
     likes: number;

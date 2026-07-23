@@ -1,4 +1,3 @@
-// src/genres/genres.data.ts
 export const initialGenresData = [
     { title: 'Пейзаж', artType: 'Живопись', description: 'Изображение природы и окружающего мира' },
     { title: 'Натюрморт', artType: 'Живопись', description: 'Изображение неодушевленных предметов' },
