@@ -1,7 +1,6 @@
-## 1 ArtistProfile 🎭
+## 1 AuthorProfile 🎭
 
-Таблица: `artist_profiles`  
-Файл: `server/src/artists/artist.model.ts`
+Таблица: `author_profiles`  
 
 | Поле | Тип данных | Описание | Видимость
 |------|-----------|----------|----------
@@ -47,7 +46,7 @@
 | `likes` | INTEGER DEFAULT 0 | Количество лайков | Да
 | `views` | INTEGER DEFAULT 0 | Количество просмотров | Да
 | `moderate` | TEXT | Данные модерации (JSON-строка) | Не модерированные
-| `artist_id` | INTEGER | Художник (FK → `artist_profiles.user_id`) | Да (баннер)
+| `author_id` | INTEGER | Художник (FK → `artist_profiles.user_id`) | Да (баннер)
 | `genre_id` | INTEGER | Жанр (FK → `genres.id`) | Да (Название)
 | `style_id` | INTEGER | Стиль (FK → `styles.id`) | Да (Название)
 | `city_id` | INTEGER NULL | Город (FK → `cities.id`) | Да (Название)
