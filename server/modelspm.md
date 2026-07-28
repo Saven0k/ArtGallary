@@ -6,7 +6,6 @@
 | Поле | Тип данных | Описание | Видимость
 |------|-----------|----------|----------
 | `user_id` | INTEGER PK/UNIQUE | Пользователь (FK → `users.id`) | Нет
-| `date_birthday` | DATE | Дата рождения | Да
 | `biography` | TEXT('long') | Биография | Да
 | `moderate` | TEXT | Данные модерации (JSON-строка) | Не модерированный
 | `profession_id` | INTEGER | Профессия (FK → `professions.id`) | Да (Название)
@@ -72,8 +71,9 @@
 | `name` | STRING | Имя | Да
 | `second_name` | STRING | Отчество / второе имя | Да
 | `phone_number` | STRING | Номер телефона | Да
-| `avatar_path` | STRING | Путь к аватару | Картинка
+| `avatar_path` | STRING | Путь к аватару | Картинка / только артист
 | `role` | ENUM | Роль | Нет
+| `date_birthday` | DATE | Дата рождения | Да
 | `gender` | ENUM | Пол | Да
 | `is_deleted` | BOOLEAN | Флаг удаления | Нет
 | `deleted_at` | TIMESTAMP | Дата удаления | При восстановлении
