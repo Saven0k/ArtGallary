@@ -1,0 +1,97 @@
+.help-page {
+    background: var(--bg-default);
+    padding: 68px 80px;
+    padding-bottom: 0;
+    margin-bottom: 108px;
+}
+
+.help-page__container {
+    width: min(1400px, calc(100% - 120px));
+    margin: 0 auto;
+}
+
+.help-page__header {
+    margin-bottom: 44px;
+}
+
+.help-page__title {
+    color: var(--neutral-black-900);
+    font-weight: var(--font-weight-regular);
+}
+
+.help-page__subtitle {
+    font-size: var(--font-body-large);
+    line-height: var(--line-height-body);
+    color: var(--neutral-grey-800);
+    max-width: 571px;
+}
+
+.help-page__content {
+    display: flex;
+    gap: 36px;
+    align-items: flex-start;
+    justify-content: center;
+    margin-bottom: 36px;
+    gap: 24px;
+}
+
+
+@media (max-width: 1100px) {
+    .help-page__container {
+        width: calc(100% - 60px);
+    }
+
+    .help-page__content {
+        grid-template-columns: 1fr;
+    }
+
+    .help-page__sidebar {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .help-page__faq {
+        min-height: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .help-page {
+        padding: 32px 0 60px;
+    }
+
+    .help-page__container {
+        width: calc(100% - 32px);
+    }
+
+    .help-page__header {
+        margin-bottom: 28px;
+    }
+
+    .help-page__title {
+        font-size: 32px;
+    }
+
+    .help-page__subtitle {
+        font-size: 15px;
+    }
+
+    .help-page__content {
+        gap: 24px;
+        margin-bottom: 42px;
+    }
+
+    .help-page__sidebar {
+        flex-direction: column;
+    }
+
+    .help-page__faq {
+        padding: 20px;
+        border-radius: var(--radius-l);
+    }
+
+    .help-page__resources {
+        padding: 20px;
+        border-radius: var(--radius-l);
+    }
+}
