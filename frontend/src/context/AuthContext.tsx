@@ -2,13 +2,11 @@ import { createContext, useEffect, useState, useRef, useCallback, type FC } from
 import type { User } from "../api/users/main.api";
 import { logout, me, refresh } from "../api/auth/main.api";
 import { useNavigate } from "react-router-dom";
-import { guestStorage } from "../services/guest.service";
 
 export const AuthContext = createContext<{
     user: User | null,
     isLoading: boolean,
     isAuthenticated: boolean,
-    isGuestRef: boolean,
     logout: () => Promise<void>;
     refetch: () => Promise<void>;
     checkAuth: (force?: boolean) => Promise<void>;
@@ -18,35 +16,13 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
     const [user, setUser] = useState<User | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const isGuestRef = useRef<boolean>(false);
     const navigate = useNavigate();
     const isCheckingRef = useRef(false);
     const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastCheckTimeRef = useRef<number>(0);
     const MIN_CHECK_INTERVAL = 5 * 60 * 1000;
 
-    useEffect(() => {
-        const checkGuest = async () => {
-            setIsLoading(true);
-            const guest = guestStorage.isGuest();
-            if (guest) {
-                isGuestRef.current = true;
-                setIsAuthenticated(false);
-                setUser(null);
-            } else {
-                isGuestRef.current = false;
-                setIsAuthenticated(false);
-                setUser(null);
-                checkAuth();
-            }
-            setIsLoading(false);
-        };
-        checkGuest();
-    }, []);
-
     const checkAuth = useCallback(async (force: boolean = false) => {
-
-        if (isGuestRef.current) return;
         const now = Date.now();
         if (!force && (now - lastCheckTimeRef.current) < MIN_CHECK_INTERVAL) return;
         if (isCheckingRef.current) return;
@@ -83,31 +59,21 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
         } finally {
             isCheckingRef.current = false;
         }
-    }, [navigate, isGuestRef]);
+    }, [navigate]);
     const refetch = useCallback(async () => {
-        if (isGuestRef) return;
         await checkAuth(true);
-    }, [checkAuth, isGuestRef]);
+    }, [checkAuth]);
     useEffect(() => {
 
         const initAuth = async () => {
-            if (isGuestRef) {
-                setIsLoading(false);
-                return;
-            }
+
             setIsLoading(true);
             await checkAuth(true);
             setIsLoading(false);
         };
         initAuth();
-    }, [checkAuth, isGuestRef]);
+    }, [checkAuth]);
     useEffect(() => {
-        if (isGuestRef) {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
-            return;
-        }
         intervalRef.current = setInterval(() => {
             checkAuth(false);
         }, 10 * 60 * 1000);
@@ -116,10 +82,9 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
                 clearInterval(intervalRef.current);
             }
         };
-    }, [checkAuth, isGuestRef]);
+    }, [checkAuth]);
 
     useEffect(() => {
-        if (isGuestRef) return;
         let activityTimeout: ReturnType<typeof setTimeout>;
         const resetActivityTimer = () => {
             if (activityTimeout) {
@@ -142,23 +107,11 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
                 window.removeEventListener(event, resetActivityTimer);
             });
         };
-    }, [checkAuth, isGuestRef]);
+    }, [checkAuth]);
 
     const handleLogout = useCallback(async (): Promise<void> => {
         try {
             setIsLoading(true);
-            if (guestStorage.isGuest()) {
-                guestStorage.clearGuest();
-                isGuestRef.current = false;
-            }
-            if (isGuestRef.current) {
-                guestStorage.clearGuest();
-                isGuestRef.current = false;
-                setUser(null);
-                setIsAuthenticated(false);
-                navigate("/login");
-                return;
-            }
             await logout();
             setUser(null);
             setIsAuthenticated(false);
@@ -171,10 +124,6 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
         } catch (error) {
             setUser(null);
             setIsAuthenticated(false);
-            if (isGuestRef.current) {
-                guestStorage.clearGuest();
-                isGuestRef.current = false;
-            }
             navigate("/login", { replace: true });
         } finally {
             setIsLoading(false);
@@ -185,7 +134,6 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
         user,
         isLoading,
         isAuthenticated,
-        isGuestRef: isGuestRef.current,
         refetch,
         logout: handleLogout,
         checkAuth

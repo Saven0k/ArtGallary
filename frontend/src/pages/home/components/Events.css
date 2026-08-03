@@ -28,6 +28,22 @@
     transition:
         transform .3s ease,
         box-shadow .3s ease;
+
+
+}
+
+.events__card-all {
+    display: none;
+    position: absolute;
+    bottom: 32px;
+    right: 32px;
+
+
+    font-size: 24px;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    color: var(--bg-default);
+    font-weight: var(--font-weight-medium);
 }
 
 .events__card:nth-child(1) {
@@ -36,6 +52,10 @@
 
     .events__card-image {
         height: 741px;
+    }
+
+    .events__card-all {
+        display: block;
     }
 }
 

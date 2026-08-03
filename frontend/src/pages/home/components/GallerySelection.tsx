@@ -5,6 +5,7 @@ import { useLanguage } from '../../../hooks/useLanguage';
 
 import Photo1 from "../images/photo1.png"
 import LikeIcon from "../icons/like.svg"
+import CartIcon from "../icons/cart.svg"
 interface Artwork {
     id: number;
     image: string;
@@ -47,7 +48,9 @@ const GallerySelection = () => {
             <ul className="gallery-selection__list">
                 {artworksData.map((item) => (
                     <li key={item.id} className="gallery-selection__item">
-                        <img src={item.image} alt={item.title} className="gallery-selection__item-image" />
+                        <div className="gallery-selection__item-image">
+                            <img src={item.image} alt={item.title} className="gallery-selection__item-image__img" />
+                        </div>
                         <div className="gallery-selection__item-info">
                             <div className="gallery-selection__item-details">
                                 <span className="gallery-selection__item-artist">{item.artistName}</span>
@@ -55,7 +58,10 @@ const GallerySelection = () => {
                                 <span className="gallery-selection__item-materials">{item.materials}</span>
                             </div>
                             <button className="gallery-selection__item-like" aria-label="Нравится">
-                                <img src={LikeIcon} alt="#" className="gallery-selection__item-like__img" />
+                                <img src={LikeIcon} alt="Like" className="gallery-selection__item-like__img" />
+                            </button>
+                            <button className="gallery-selection__item-cart" aria-label="Купить">
+                                <img src={CartIcon} alt="Go to cart" className="gallery-selection__item-like__img" />
                             </button>
                         </div>
                     </li>

@@ -54,10 +54,11 @@
 
 .about__stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 172px 202px 188px;
     gap: 102px;
     margin: 0px 49px 140px 49px;
     list-style: none;
+    align-items: start;
 }
 
 .about__stat {
@@ -76,7 +77,7 @@
 .about__stat-label {
     color: var(--neutral-grey-800);
     font-weight: var(--font-weight-regular);
-    text-align: center;
+    text-align: start;
 }
 
 

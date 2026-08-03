@@ -16,10 +16,6 @@
     list-style: none;
 }
 
-/* ==========================================
-   CARD
-========================================== */
-
 .gallery-selection__item {
     display: flex;
     flex-direction: column;
@@ -37,26 +33,19 @@
         transform .25s ease,
         box-shadow .25s ease;
 }
-
-.gallery-selection__item:hover {
-    transform: translateY(-6px);
-
-    box-shadow:
-        0 18px 40px rgba(0,0,0,.10);
-}
-
 /* ==========================================
    IMAGE
 ========================================== */
-
 .gallery-selection__item-image {
     width: 100%;
-    aspect-ratio: 4 / 5;
+    padding: 32px;
 
+}
+
+.gallery-selection__item-image__img {
+    width: 100%;
     object-fit: cover;
-
     display: block;
-
     background: var(--neutral-grey);
 }
 
@@ -65,11 +54,8 @@
 ========================================== */
 
 .gallery-selection__item-info {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto;
-
-    
+    display: flex;
+    justify-content: start;
     padding: 30px 0 0;
 }
 
@@ -77,6 +63,8 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    margin-right: auto;
+
 }
 
 .gallery-selection__item-artist {
@@ -104,7 +92,7 @@
     line-height: 1.4;
 }
 
-.gallery-selection__item-like {
+.gallery-selection__item-like,.gallery-selection__item-cart {
     width: 40px;
     height: 40px;
 
@@ -120,9 +108,12 @@
         color .25s ease,
         transform .25s ease;
 }
+.gallery-selection__item-like {
+    margin-right: 20px;
+}
 
 .gallery-selection__link {
-    display:block;
+    display: block;
     margin-top: 30px;
     color: var(--neutral-black-900);
     font-size: var(--font-body-large);

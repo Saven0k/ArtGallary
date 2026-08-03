@@ -1,5 +1,3 @@
-/* src/pages/Home/components/Hero.css */
-
 .hero {
     position: relative;
     min-height: 871px;
@@ -12,9 +10,7 @@
 
     color: #ffffff;
 
-    background-image:
-        linear-gradient(rgba(0, 0, 0, .45), rgba(0, 0, 0, .45)),
-        url("../images/hero.png"); /* заменить на свою картинку */
+    background-image: url("../images/hero.png");
 
     background-size: cover;
     background-position: center;
@@ -23,40 +19,25 @@
     overflow: hidden;
 }
 
-.hero::before {
-    content: "";
-
-    position: absolute;
-    inset: 0;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(0,0,0,.18) 0%,
-            rgba(0,0,0,.08) 35%,
-            rgba(0,0,0,.32) 100%
-        );
-
-    pointer-events: none;
-}
-
 .hero>* {
     position: relative;
     z-index: 2;
 }
 
 .hero__title {
-    max-width: 720px;
+    max-width: 1010px;
     margin-bottom: 24px;
     font-weight: var(--font-weight-regular);
-    letter-spacing: -.03em;
+    letter-spacing: 0.03em;
 }
 
 .hero__subtitle {
-    max-width: 620px;
+    max-width: 1060px;
     margin-bottom: 20px;
     font-weight: var(--font-weight-regular);
-    color: rgba(255,255,255,.95);
+    color: rgba(255, 255, 255, .95);
+    font-size: 40px;
+    letter-spacing: 0.03em;
 }
 
 .hero__button {
@@ -72,7 +53,7 @@
     background: #ffffff;
     color: var(--neutral-black-900);
     text-decoration: none;
-    font-size: var(--font-body-large);
+    font-size: 28px;
     font-weight: var(--font-weight-medium);
 
     transition:
@@ -89,7 +70,7 @@
     transform: translateY(-2px);
 
     box-shadow:
-        0 10px 28px rgba(188,149,71,.35);
+        0 10px 28px rgba(188, 149, 71, .35);
 }
 
 .hero__button:active {

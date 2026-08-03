@@ -54,6 +54,9 @@ const Events = () => {
                         <Link to="/" className="events__card-link">
                             {t.button}
                         </Link>
+                        <Link to={`/${event.id}`} className="events__card-all">
+                            {t.link}
+                        </Link>
                     </article>
                 ))}
             </div>

@@ -60,7 +60,8 @@ export const translations = {
             },
             events: {
                 title: 'События галереи',
-                button: 'ЧИТАТЬ ПОЛНОСТЬЮ'
+                button: 'ЧИТАТЬ ПОЛНОСТЬЮ',
+                link: 'УЗНАТЬ БОЛЬШЕ'
             },
             consultation: {
                 title: 'Арт-консультация',
@@ -124,7 +125,8 @@ export const translations = {
             },
             events: {
                 title: 'Gallery events',
-                button: 'READ FULL'
+                button: 'READ FULL',
+                link: 'LEARN MORE'
             },
             consultation: {
                 title: 'Art consultation',
@@ -163,7 +165,7 @@ export const translations = {
                     {
                         title: '可靠的配送',
                         description: '小心包装和配送艺术品',
-                         icon: CarIcon
+                        icon: CarIcon
                     },
                     {
                         title: '发展您在艺术界的名声',
@@ -178,7 +180,7 @@ export const translations = {
                     {
                         title: '详细查看作品',
                         description: '能够以高分辨率查看画作',
-                         icon: SearchIcon
+                        icon: SearchIcon
                     }
                 ]
             },
@@ -188,7 +190,8 @@ export const translations = {
             },
             events: {
                 title: '画廊活动',
-                button: '阅读全文'
+                button: '阅读全文',
+                link: '了解更多'
             },
             consultation: {
                 title: '艺术咨询',
