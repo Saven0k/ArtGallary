@@ -224,3 +224,77 @@ npm run dev
 
 # Дизайн
 https://www.figma.com/design/eCdWxp4FNr9xLkZFT8Cwo8/Untitled?node-id=0-1&t=oZ30f5qOtwxqu7No-1 -- дизайн
+
+
+
+
+Слушай, я не верю что нету возможности, что бы бесплатно сделать так что бы им написал мне react компонент по фигме, то есть у меня есть фирма и я хочу полный дизайн со стилями и всем
+
+https://www.figma.com/design/eCdWxp4FNr9xLkZFT8Cwo8/Gallary?node-id=325-1446&t=IRWQrt6iAgQjEcu0-4
+
+ пожалуйста со стилями, аккуратно если что у меня на проекте есть переменные 
+:root {
+  /* ===== RADIUS ===== */
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+  --radius-xl: 20px;
+  --radius-full: 100px;
+
+  /* ===== BACKGROUND ===== */
+  --bg-default: #F8F8F8;
+
+  /* ===== NEUTRAL ===== */
+  --neutral-black-900: #000000;
+  --neutral-grey-800: #222222;
+  --neutral-grey-600: #727272;
+  --neutral-grey: #E5E5E5;
+
+  /* ===== BRAND ===== */
+  --brand-primary-gold: #BC9547;
+  --brand-gold-light: #ECDCBD;
+  --overlay-gold: rgba(206, 166, 86, 0.16);
+
+  /* ===== NAVIGATION ===== */
+  --nav-brown: #35281E;
+
+  /* ===== OVERLAY ===== */
+  --overlay: rgba(0, 0, 0, 0.52);
+
+  /* ===== PROFILE / ICON ===== */
+  --profile-icon-default: #ffffff;
+
+  /* ===== ERROR ===== */
+  --error-background: #B80707;
+  --error-border: #C99F9F;
+
+  /* ===== SUCCESS ===== */
+  --success-background: #3E691B;
+  --success-border: #DEEFD1;
+
+  /* ===== TYPOGRAPHY ===== */
+  --font-h1: 96px;
+  --font-h2: 64px;
+  --font-h3: 52px;
+  --font-h4: 36px;
+  --font-h5: 32px;
+  --font-body-large: 24px;
+  --font-body-medium: 20px;
+  --font-label: 16px;
+  --font-caption-light: 10px;
+
+  /* ===== LINE HEIGHTS (опционально) ===== */
+  --line-height-h1: 1.1;
+  --line-height-h2: 1.15;
+  --line-height-h3: 1.2;
+  --line-height-h4: 1.25;
+  --line-height-h5: 1.3;
+  --line-height-body: 1.5;
+
+  /* ===== FONT WEIGHTS (опционально) ===== */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}

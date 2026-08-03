@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNotification } from '../../../../context/NotificationContext';
 import { useConfirm } from '../../../../hooks/useConfirm';
 import "../AdminPage.css"
 import { deleteArt, getAllArts, moderateArt, type Art } from '../../../../api/arts/main.api';
@@ -7,6 +6,7 @@ import { AdminTable } from '../components/AdminTable';
 import { AdminModal } from '../components/AdminModal';
 import { StatusBadge } from '../components/StatusBadge';
 import { useAuth } from '../../../../hooks/useAuth';
+import { useNotification } from '../../../../hooks/useNotification';
 
 export const ArtsAdmin = () => {
     const { showNotification } = useNotification();

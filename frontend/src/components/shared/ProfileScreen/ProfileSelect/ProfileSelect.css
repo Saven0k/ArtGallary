@@ -1,0 +1,126 @@
+/* src/pages/Profile/components/ProfileSelect/ProfileSelect.css */
+
+.profile-select {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    width: 100%;
+}
+
+/* ===================== */
+
+.profile-select__label {
+    color: var(--neutral-grey-800);
+
+    font-size: 15px;
+    font-weight: var(--font-weight-medium);
+}
+
+/* ===================== */
+
+.profile-select__wrapper {
+    position: relative;
+}
+
+/* ===================== */
+
+.profile-select__field {
+    width: 100%;
+    height: 52px;
+
+    padding: 0 46px 0 18px;
+
+    border: 1px solid var(--neutral-grey);
+    border-radius: var(--radius-m);
+
+    background: #fff;
+
+    color: var(--neutral-grey-800);
+
+    font-size: 15px;
+
+    cursor: pointer;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    transition:
+        border-color .25s ease,
+        box-shadow .25s ease;
+}
+
+.profile-select__field:hover {
+    border-color: var(--brand-gold-light);
+}
+
+.profile-select__field:focus {
+    outline: none;
+
+    border-color: var(--brand-primary-gold);
+
+    box-shadow: 0 0 0 3px rgba(188,149,71,.15);
+}
+
+/* ===================== */
+
+.profile-select__icon {
+    position: absolute;
+
+    top: 50%;
+    right: 16px;
+
+    transform: translateY(-50%);
+
+    pointer-events: none;
+
+    color: var(--neutral-grey-600);
+
+    transition: color .25s ease;
+}
+
+.profile-select__field:focus + .profile-select__icon {
+    color: var(--brand-primary-gold);
+}
+
+/* ===================== */
+
+.profile-select__field--error {
+    border-color: var(--error-background);
+}
+
+.profile-select__field--error:focus {
+    border-color: var(--error-background);
+
+    box-shadow: 0 0 0 3px rgba(184,7,7,.12);
+}
+
+.profile-select__error {
+    color: var(--error-background);
+
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* ===================== */
+
+.profile-select__field:disabled {
+    background: #f4f4f4;
+
+    cursor: not-allowed;
+
+    opacity: .8;
+}
+
+/* ===================== */
+
+@media (max-width: 768px) {
+
+    .profile-select__field {
+        height: 48px;
+
+        font-size: 14px;
+    }
+
+}

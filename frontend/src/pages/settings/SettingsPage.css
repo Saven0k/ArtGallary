@@ -1,0 +1,122 @@
+/* src/pages/Settings/SettingsPage.css */
+
+.settings-page {
+    width: 100%;
+    min-height: 100vh;
+
+    background: var(--bg-default);
+
+    padding: 72px 0 100px;
+}
+
+.settings-page__container {
+    width: min(1200px, calc(100% - 48px));
+    margin: 0 auto;
+}
+
+.settings-page__header {
+    margin-bottom: 32px;
+}
+
+.settings-page__title {
+    margin-bottom: 4px;
+    color: var(--neutral-grey-800);
+    font-weight: var(--font-weight-regular);
+}
+
+.settings-page__subtitle {
+    margin: 8px 0 0;
+
+    color: var(--neutral-grey-600);
+
+    font-size: var(--font-label);
+
+    line-height: var(--line-height-body);
+}
+
+.settings-page__content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ==========================================
+   RESET BUTTON
+========================================== */
+
+.settings-page__reset {
+    padding: 12px 22px;
+
+    border: 1.5px solid var(--brand-primary-gold);
+    border-radius: var(--radius-full);
+
+    background: transparent;
+
+    color: var(--brand-primary-gold);
+
+    font-size: var(--font-label);
+    font-weight: var(--font-weight-medium);
+
+    cursor: pointer;
+
+    transition:
+        background .25s ease,
+        color .25s ease,
+        transform .2s ease;
+}
+
+.settings-page__reset:hover {
+    background: var(--brand-primary-gold);
+    color: #fff;
+}
+
+.settings-page__reset:active {
+    transform: scale(.97);
+}
+
+/* ==========================================
+   TABLET
+========================================== */
+
+@media (max-width: 992px) {
+
+    .settings-page {
+        padding: 56px 0 80px;
+    }
+
+    .settings-page__container {
+        width: calc(100% - 40px);
+    }
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 768px) {
+
+    .settings-page {
+        padding: 40px 0 60px;
+    }
+
+    .settings-page__container {
+        width: calc(100% - 24px);
+    }
+
+    .settings-page__title {
+        font-size: 32px;
+    }
+
+    .settings-page__subtitle {
+        font-size: 15px;
+    }
+
+    .settings-page__content {
+        gap: 18px;
+    }
+
+    .settings-page__reset {
+        width: 100%;
+        justify-content: center;
+    }
+}

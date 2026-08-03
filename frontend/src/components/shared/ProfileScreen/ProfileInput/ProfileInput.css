@@ -1,0 +1,101 @@
+/* src/pages/Profile/components/ProfileInput/ProfileInput.css */
+
+.profile-input {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    width: 100%;
+}
+
+/* ===================== */
+
+.profile-input__label {
+    color: var(--neutral-grey-800);
+
+    font-size: 15px;
+    font-weight: var(--font-weight-medium);
+}
+
+/* ===================== */
+
+.profile-input__field {
+    width: 100%;
+
+    height: 52px;
+
+    padding: 0 18px;
+
+    border: 1px solid var(--neutral-grey);
+
+    border-radius: var(--radius-m);
+
+    background: #fff;
+
+    color: var(--neutral-grey-800);
+
+    font-size: 15px;
+
+    transition:
+        border-color .25s ease,
+        box-shadow .25s ease,
+        background .25s ease;
+}
+
+.profile-input__field::placeholder {
+    color: var(--neutral-grey-600);
+}
+
+.profile-input__field:hover {
+    border-color: var(--brand-gold-light);
+}
+
+.profile-input__field:focus {
+    outline: none;
+
+    border-color: var(--brand-primary-gold);
+
+    box-shadow: 0 0 0 3px rgba(188,149,71,.15);
+}
+
+/* ===================== */
+
+.profile-input__field:disabled {
+    background: #f3f3f3;
+
+    cursor: not-allowed;
+
+    opacity: .8;
+}
+
+/* ===================== */
+
+.profile-input__field--error {
+    border-color: var(--error-background);
+}
+
+.profile-input__field--error:focus {
+    border-color: var(--error-background);
+
+    box-shadow: 0 0 0 3px rgba(184,7,7,.12);
+}
+
+.profile-input__error {
+    color: var(--error-background);
+
+    font-size: 13px;
+
+    font-weight: 500;
+}
+
+/* ===================== */
+
+@media (max-width: 768px) {
+
+    .profile-input__field {
+        height: 48px;
+
+        font-size: 14px;
+    }
+
+}

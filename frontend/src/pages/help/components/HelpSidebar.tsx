@@ -1,9 +1,8 @@
 import "./HelpSidebar.css";
-
-import { useLanguage } from "../../../context/LanguageContext";
 import { translations } from "../lang";
 import BookIcon from "../icons/book.svg"
 import ChatIcon from "../icons/chat.svg"
+import { useLanguage } from "../../../hooks/useLanguage";
 
 const HelpSidebar = () => {
     const { language } = useLanguage();

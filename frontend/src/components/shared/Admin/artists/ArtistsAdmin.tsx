@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNotification } from '../../../../context/NotificationContext';
 import { useConfirm } from '../../../../hooks/useConfirm';
 import "../AdminPage.css"
 import type { ArtistUser } from '../../../../types/user.types';
@@ -8,6 +7,7 @@ import { StatusBadge } from '../components/StatusBadge';
 import { AdminModal } from '../components/AdminModal';
 import { AdminTable } from '../components/AdminTable';
 import { useAuth } from '../../../../hooks/useAuth';
+import { useNotification } from '../../../../hooks/useNotification';
 
 export const ArtistsAdmin = () => {
     const { showNotification } = useNotification();
@@ -153,10 +153,8 @@ export const ArtistsAdmin = () => {
 
     const getFullImageUrl = (avatarPath?: string | null) => {
         if (!avatarPath) return null;
-        // Если путь уже полный
         if (avatarPath.startsWith('http')) return avatarPath;
-        // Если путь относительный, добавляем базовый URL
-        const baseUrl =  'http://localhost:5000';
+        const baseUrl = 'http://localhost:5000';
         return `${baseUrl}${avatarPath.startsWith('/') ? avatarPath : `/${avatarPath}`}`;
     };
 
@@ -174,7 +172,7 @@ export const ArtistsAdmin = () => {
             key: 'artistCity', 
             header: 'Город', 
             className: 'admin-table__col-city',
-            render: (item: ArtistUser) => item.artistProfile?.city?.name || '-'
+            render: (item: ArtistUser) => item.artistProfile?.city?.name_en || '-'
         },
         { 
             key: 'artistProfile', 
@@ -205,12 +203,11 @@ export const ArtistsAdmin = () => {
                 <span className="admin-page__count">Всего: {data.length}</span>
             </div>
 
-            <AdminTable data={data} columns={columns} actions={actions} emptyMessage="Художники не найдены" />
+            <AdminTable data={data} columns={columns as any} actions={actions} emptyMessage="Художники не найдены" />
             
             <AdminModal isOpen={viewModalOpen} onClose={() => { setViewModalOpen(false); setSelectedArtist(null); }} title={`${selectedArtist?.surname} ${selectedArtist?.name}`}>
                 {selectedArtist && (
                     <div className="admin-view">
-                        {/* Аватарка с возможностью увеличения */}
                         <div className="admin-view__avatar-section">
                             {selectedArtist.avatar_path ? (
                                 <div className="admin-view__avatar-wrapper">
@@ -241,8 +238,8 @@ export const ArtistsAdmin = () => {
                             <div className="admin-view__item"><span className="admin-view__label">📧 Email</span><span className="admin-view__value">{selectedArtist.email}</span></div>
                             <div className="admin-view__item"><span className="admin-view__label">📱 Телефон</span><span className="admin-view__value">{selectedArtist.phone_number}</span></div>
                             <div className="admin-view__item"><span className="admin-view__label">📅 Дата рождения</span><span className="admin-view__value">{formatDate(selectedArtist.artistProfile?.date_birthday?.toString())}</span></div>
-                            <div className="admin-view__item"><span className="admin-view__label">🏙️ Город</span><span className="admin-view__value">{selectedArtist.artistProfile?.city?.name || '-'}</span></div>
-                            <div className="admin-view__item"><span className="admin-view__label">🌍 Страна</span><span className="admin-view__value">{selectedArtist.artistProfile?.country?.name || '-'}</span></div>
+                            <div className="admin-view__item"><span className="admin-view__label">🏙️ Город</span><span className="admin-view__value">{selectedArtist.artistProfile?.city?.name_en || '-'}</span></div>
+                            <div className="admin-view__item"><span className="admin-view__label">🌍 Страна</span><span className="admin-view__value">{selectedArtist.artistProfile?.country?.name_en || '-'}</span></div>
                             <div className="admin-view__item"><span className="admin-view__label">🖼️ Работ</span><span className="admin-view__value">{selectedArtist.artistProfile?.artsCount || 0}</span></div>
                             <div className="admin-view__item"><span className="admin-view__label">🏛️ Выставок</span><span className="admin-view__value">{selectedArtist.artistProfile?.exhibitionsCount || 0}</span></div>
                         </div>
@@ -264,7 +261,7 @@ export const ArtistsAdmin = () => {
                                     <span className="admin-reject__field-label">ФИО</span>
                                     <button className="admin-reject__add-error" onClick={() => addRejectError('name')}>✏️ Добавить замечание</button>
                                 </div>
-                                <div className="admin-reject__field-value">{artistToReject.surname} {artistToReject.name}</div>
+                                <div className="admin-reject__field-value">{artistToReject.surname} {artistToReject.name} {artistToReject.second_name}</div>
                             </div>
                             <div className="admin-reject__field">
                                 <div className="admin-reject__field-header">

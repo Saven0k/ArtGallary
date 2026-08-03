@@ -3,9 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 
 import ProfileSidebar from "../ProfileSidebar/ProfileSidebar";
 import { useAuth } from "../../../hooks/useAuth";
-import { useLanguage } from "../../../context/LanguageContext";
 import { headerTranslations } from "./lang";
 import "./Header.css";
+import { useLanguage } from "../../../hooks/useLanguage";
 
 const Header = memo(() => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -79,9 +79,6 @@ const Header = memo(() => {
             <header className="header" id="header" role="banner">
                 <div className="header__left">
                     <Link to="/" className="header__logo">
-                        <div className="header__logo-icon" aria-hidden="true">
-                            🎨
-                        </div>
                         <div className="header__logo-text">
                             <span className="header__logo-title">{lang.logoTitle}</span>
                             <span className="header__logo-subtitle">{lang.logoSubtitle}</span>
@@ -97,12 +94,7 @@ const Header = memo(() => {
                         </li>
                         <li className="header__nav-item">
                             <Link to="/artists" className="header__nav-link">
-                                {lang.nav.artists}
-                            </Link>
-                        </li>
-                        <li className="header__nav-item">
-                            <Link to="/exhibitions" className="header__nav-link">
-                                {lang.nav.exhibitions}
+                                {lang.nav.authors}
                             </Link>
                         </li>
                     </ul>

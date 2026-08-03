@@ -1,3 +1,4 @@
+// components/forms/lang.ts
 export const registerFormTranslations = {
     ru: {
         title: {
@@ -10,13 +11,17 @@ export const registerFormTranslations = {
             surname: "Фамилия",
             name: "Имя",
             second_name: "Отчество",
-            phone_number: "Номер телефона"
+            phone_number: "Номер телефона",
+            gender: "Пол", 
+            male: "Мужской", 
+            female: "Женский", 
         },
         artistFields: {
             avatar: "Фотография профиля",
             changePhoto: "Изменить фото",
             selectPhoto: "Выберите фото профиля",
             birthday: "Дата рождения",
+            location: "Местоположение",
             country: "Страна",
             city: "Город",
             biography: "Биография",
@@ -48,13 +53,17 @@ export const registerFormTranslations = {
             surname: "Last Name",
             name: "First Name",
             second_name: "Middle Name",
-            phone_number: "Phone Number"
+            phone_number: "Phone Number",
+            gender: "Gender",
+            male: "Male",
+            female: "Female", 
         },
         artistFields: {
             avatar: "Profile Photo",
             changePhoto: "Change photo",
             selectPhoto: "Select profile photo",
             birthday: "Date of Birth",
+            location: "Location",
             country: "Country",
             city: "City",
             biography: "Biography",

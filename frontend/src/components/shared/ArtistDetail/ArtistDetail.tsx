@@ -4,14 +4,11 @@ import { useNotification } from '../../../context/NotificationContext';
 import { useAuth } from '../../../hooks/useAuth';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getArtistById, getArtsByArtist, type ArtistProfileResponse } from '../../../api/artists/main.api';
-import { getAllArtistExhibitions } from '../../../api/exhibitions/main.api';
 import { ArtistHero } from './components/ArtistHero/ArtistHero';
 import { ArtistNav } from './components/ArtistNav/ArtistNav';
 import { ArtistArtsTab } from './components/ArtistArtsTab/ArtistArtsTab';
-import { ArtistExhibitionsTab } from './components/ArtistExhibitionsTab/ArtistExhibitionsTab';
 import { ArtistInfoTab } from './components/ArtistInfoTab/ArtistInfoTab';
 import { artistDetailTranslations } from './lang';
-import type { Exhibition } from '../../../api/exhibitions/main.api';
 import type { Art } from '../../../api/arts/main.api';
 import './ArtistDetail.css';
 
@@ -26,12 +23,10 @@ export const ArtistDetail = () => {
     const [artist, setArtist] = useState<ArtistProfileResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [loadingArts, setLoadingArts] = useState(false);
-    const [loadingExhibitions, setLoadingExhibitions] = useState(false);
-    const [activeTab, setActiveTab] = useState<'arts' | 'exhibitions' | 'info'>('info');
+    const [activeTab, setActiveTab] = useState<'arts' | 'info'>('info');
     const [accessDenied, setAccessDenied] = useState(false);
 
     const [arts, setArts] = useState<Art[]>([]);
-    const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
 
     useEffect(() => {
         loadArtist();
@@ -40,9 +35,6 @@ export const ArtistDetail = () => {
     useEffect(() => {
         if (activeTab === 'arts' && arts.length === 0 && artist && !accessDenied) {
             loadArts();
-        }
-        if (activeTab === 'exhibitions' && exhibitions.length === 0 && artist && !accessDenied) {
-            loadExhibitions();
         }
     }, [activeTab, artist, accessDenied]);
 
@@ -90,23 +82,6 @@ export const ArtistDetail = () => {
         }
     };
 
-    const loadExhibitions = async () => {
-        setLoadingExhibitions(true);
-        try {
-            const data = await getAllArtistExhibitions(Number(id));
-            if (data) {
-                setExhibitions(data);
-            } else {
-                setExhibitions([]);
-            }
-        } catch (error) {
-            console.error('Error loading exhibitions:', error);
-            setExhibitions([]);
-        } finally {
-            setLoadingExhibitions(false);
-        }
-    };
-
     if (loading) {
         return (
             <div className="artist-detail__loading">
@@ -132,7 +107,7 @@ export const ArtistDetail = () => {
     if (!artist) {
         return (
             <div className="artist-detail__error">
-                <div className="artist-detail__error-icon">🎨</div>
+                <div className="artist-detail__error-icon">❌</div>
                 <h2>{lang.error.title}</h2>
                 <p>{lang.error.description}</p>
                 <button className="artist-detail__error-btn" onClick={() => navigate('/artists')}>
@@ -151,7 +126,6 @@ export const ArtistDetail = () => {
                     activeTab={activeTab}
                     onTabChange={setActiveTab}
                     artsCount={artist.artistProfile?.artsCount || 0}
-                    exhibitionsCount={artist.artistProfile?.exhibitionsCount || 0}
                     onBack={() => navigate('/artists')}
                     artistUserId={artist.id}
                 />
@@ -165,15 +139,6 @@ export const ArtistDetail = () => {
                             artistUserId={artist.id}
                         />
                     )}
-
-                    {activeTab === 'exhibitions' && (
-                        <ArtistExhibitionsTab
-                            exhibitions={exhibitions}
-                            loading={loadingExhibitions}
-                            onExhibitionClick={(exhibitionId) => navigate(`/exhibitions/${exhibitionId}`)}
-                        />
-                    )}
-
                     {activeTab === 'info' && (
                         <ArtistInfoTab artist={artist} />
                     )}

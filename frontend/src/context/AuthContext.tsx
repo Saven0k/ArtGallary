@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState, useRef, useCallback, type FC } from "react";
-import type { User } from "../types/user.types";
+import type { User } from "../api/users/main.api";
 import { logout, me, refresh } from "../api/auth/main.api";
 import { useNavigate } from "react-router-dom";
 import { guestStorage } from "../services/guest.service";

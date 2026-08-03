@@ -1,0 +1,136 @@
+/* src/pages/Profile/components/NotificationCard/NotificationCard.css */
+
+.notification-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    width: 100%;
+
+    padding: 18px 22px;
+
+    background: #fff;
+
+    border: 1px solid rgba(188, 149, 71, .12);
+    border-radius: var(--radius-m);
+
+    cursor: pointer;
+
+    text-align: left;
+
+    transition:
+        background .25s ease,
+        border-color .25s ease,
+        transform .2s ease,
+        box-shadow .25s ease;
+}
+
+.notification-card:hover {
+    transform: translateY(-2px);
+
+    border-color: var(--brand-primary-gold);
+
+    box-shadow: 0 10px 28px rgba(0,0,0,.08);
+}
+
+.notification-card:active {
+    transform: scale(.99);
+}
+
+/* ===============================
+   Unread
+================================ */
+
+.notification-card--unread {
+    background: var(--overlay-gold);
+}
+
+/* ===============================
+   Icon
+================================ */
+
+.notification-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: rgba(188,149,71,.12);
+
+    color: var(--neutral-grey-800);
+}
+
+/* ===============================
+   Content
+================================ */
+
+.notification-card__content {
+    flex: 1;
+}
+
+.notification-card__title {
+    margin: 0 0 6px;
+
+    color: var(--neutral-grey-800);
+
+    font-size: 18px;
+    font-weight: var(--font-weight-semibold);
+}
+
+.notification-card__description {
+    margin: 0;
+
+    color: var(--neutral-grey-600);
+
+    font-size: 14px;
+
+    line-height: 1.45;
+}
+
+/* ===============================
+   Time
+================================ */
+
+.notification-card__time {
+    flex-shrink: 0;
+
+    align-self: flex-start;
+
+    color: var(--neutral-grey-600);
+
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* ===============================
+   Responsive
+================================ */
+
+@media (max-width: 768px) {
+
+    .notification-card {
+        align-items: flex-start;
+        gap: 14px;
+
+        padding: 16px;
+    }
+
+    .notification-card__title {
+        font-size: 16px;
+    }
+
+    .notification-card__description {
+        font-size: 13px;
+    }
+
+    .notification-card__time {
+        font-size: 12px;
+    }
+
+}

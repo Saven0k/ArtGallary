@@ -1,0 +1,135 @@
+/* src/pages/Profile/components/ProfileHeader/ProfileHeader.css */
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    width: 100%;
+
+    padding: 18px;
+
+    background: #ffffff;
+
+    border-radius: var(--radius-l);
+
+    box-shadow:
+        0 8px 22px rgba(0,0,0,.06);
+}
+
+/* ======================================
+   Avatar
+====================================== */
+
+.profile-header__avatar {
+    flex-shrink: 0;
+
+    width: 72px;
+    height: 72px;
+
+    border-radius: 50%;
+
+    overflow: hidden;
+
+    border: 3px solid var(--brand-gold-light);
+
+    background: #f4f4f4;
+}
+
+.profile-header__avatar img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+}
+
+.profile-header__placeholder {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--brand-primary-gold);
+
+    color: #fff;
+
+    font-size: 28px;
+    font-weight: 600;
+}
+
+/* ======================================
+   Content
+====================================== */
+
+.profile-header__content {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-header__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    width: fit-content;
+
+    margin-bottom: 6px;
+
+    padding: 3px 8px;
+
+    border-radius: var(--radius-full);
+
+    background: rgba(188,149,71,.12);
+
+    color: var(--brand-primary-gold);
+
+    font-size: 11px;
+    font-weight: 700;
+
+    letter-spacing: .08em;
+
+    text-transform: uppercase;
+}
+
+.profile-header__name {
+    margin: 0;
+
+    font-size: 22px;
+    font-weight: 700;
+
+    color: var(--neutral-grey-800);
+
+    line-height: 1.2;
+}
+
+.profile-header__role {
+    margin-top: 4px;
+
+    font-size: 15px;
+    color: var(--neutral-grey-600);
+}
+
+/* ======================================
+   Responsive
+====================================== */
+
+@media (max-width: 768px) {
+
+    .profile-header {
+        padding: 16px;
+    }
+
+    .profile-header__avatar {
+        width: 60px;
+        height: 60px;
+    }
+
+    .profile-header__name {
+        font-size: 18px;
+    }
+
+}

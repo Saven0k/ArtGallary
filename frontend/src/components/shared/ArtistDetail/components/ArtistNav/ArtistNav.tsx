@@ -1,23 +1,23 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../../hooks/useAuth';
-import { useLanguage } from '../../../../../context/LanguageContext';
+import { useLanguage } from '../../../../../hooks/useLanguage';
 import { artistNavTranslations } from './lang';
 import './ArtistNav.css';
 
 interface ArtistNavProps {
-    activeTab: 'arts' | 'exhibitions' | 'info';
-    onTabChange: (tab: 'arts' | 'exhibitions' | 'info') => void;
+    activeTab: 'arts'  | 'info';
+    onTabChange: (tab: 'arts' |  'info') => void;
     artsCount: number;
-    exhibitionsCount: number;
+
     onBack: () => void;
     artistUserId?: number;
 }
 
+
 export const ArtistNav = ({ 
     activeTab, 
     onTabChange, 
-    artsCount, 
-    exhibitionsCount, 
+    artsCount,
     onBack,
     artistUserId 
 }: ArtistNavProps) => {
@@ -46,12 +46,6 @@ export const ArtistNav = ({
                         onClick={() => onTabChange('arts')}
                     >
                         {lang.tabs.arts} ({artsCount})
-                    </button>
-                    <button
-                        className={`artist-nav__tab ${activeTab === 'exhibitions' ? 'active' : ''}`}
-                        onClick={() => onTabChange('exhibitions')}
-                    >
-                        {lang.tabs.exhibitions} ({exhibitionsCount})
                     </button>
                     <button
                         className={`artist-nav__tab ${activeTab === 'info' ? 'active' : ''}`}

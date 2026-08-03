@@ -1,8 +1,8 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../hooks/useAuth";
-import { useLanguage } from "../../../context/LanguageContext";
 import { protectedRouteTranslations } from "./lang";
+import { useLanguage } from "../../../hooks/useLanguage";
 
 interface ProtectedRouteProps {
     children?: React.ReactNode;

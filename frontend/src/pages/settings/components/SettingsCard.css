@@ -1,0 +1,116 @@
+/* src/pages/Settings/components/SettingsCard.css */
+
+.settings-card {
+    width: min(720px, 100%);
+
+    background: #ffffff;
+
+    border-radius: var(--radius-xl);
+
+    border: 1px solid rgba(188, 149, 71, 0.18);
+
+    padding: 22px 26px;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, .05),
+        0 12px 28px rgba(0, 0, 0, .08);
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease,
+        border-color .25s ease;
+}
+
+.settings-card:hover {
+    border-color: rgba(188,149,71,.45);
+
+    box-shadow:
+        0 10px 28px rgba(0,0,0,.08),
+        0 20px 42px rgba(188,149,71,.12);
+}
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.settings-card__header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.settings-card__icon {
+    width: 40px;
+    height: 40px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--nav-brown);
+    color: #ffffff;
+}
+
+.settings-card__title {
+    margin: 0;
+
+    color: var(--neutral-grey-800);
+
+    font-size: 22px;
+    font-weight: var(--font-weight-medium);
+
+    line-height: 1.3;
+}
+
+/* ==========================================
+   DIVIDER
+========================================== */
+
+.settings-card__divider {
+    width: 100%;
+    height: 1px;
+
+    margin: 18px 0 22px;
+
+    background: rgba(53, 40, 30, .25);
+}
+
+/* ==========================================
+   CONTENT
+========================================== */
+
+.settings-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ==========================================
+   TABLET
+========================================== */
+
+@media (max-width: 768px) {
+
+    .settings-card {
+        width: 100%;
+
+        padding: 20px;
+    }
+
+    .settings-card__title {
+        font-size: 20px;
+    }
+
+    .settings-card__divider {
+        margin: 16px 0 18px;
+    }
+
+    .settings-card__icon {
+        width: 36px;
+        height: 36px;
+    }
+}

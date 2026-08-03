@@ -3,15 +3,6 @@ import './AdminMenu.css';
 
 const menuItems = [
     {
-        title: 'Справочники',
-        items: [
-            { path: '/admin/cities', icon: '🏙️', label: 'Города' },
-            { path: '/admin/countries', icon: '🌍', label: 'Страны' },
-            { path: '/admin/genres', icon: '🎨', label: 'Жанры' },
-            { path: '/admin/types', icon: '🏷️', label: 'Типы' },
-        ]
-    },
-    {
         title: 'Пользователи',
         items: [
             { path: '/admin/users', icon: '👥', label: 'Пользователи' },
@@ -22,7 +13,6 @@ const menuItems = [
         title: 'Контент',
         items: [
             { path: '/admin/arts', icon: '🖼️', label: 'Картины' },
-            { path: '/admin/exhibitions', icon: '🏛️', label: 'Выставки' },
             { path: '/admin/artists', icon: '👨‍🎨', label: 'Художники' },
         ]
     }

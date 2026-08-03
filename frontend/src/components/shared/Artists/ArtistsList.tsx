@@ -7,10 +7,11 @@ import { ArtistsFilter } from './components/ArtistsFilter/ArtistsFilter';
 import { ArtistsGrid } from './components/ArtistsGrid/ArtistsGrid';
 import { ArtistsEmpty } from './components/ArtistsEmpty/ArtistsEmpty';
 import { useNotification } from '../../../context/NotificationContext';
+import { getModeratedArtists, type ArtistProfileResponse } from '../../../api/artists/main.api';
 import type { ArtistUser } from '../../../types/user.types';
-import { getAllCities, type City } from '../../../api/cities/main.api';
-import { getAllCountries, type Country } from '../../../api/contries/main.api';
-import { getModeratedArtists } from '../../../api/artists/main.api';
+
+// ✅ Правильные импорты из location API
+import { getAllCountries, getCitiesByCountryCode, type CountrySuggestion, type CitySuggestion } from '../../../api/location/main.api';
 
 export const ArtistsList = () => {
     const navigate = useNavigate();
@@ -18,8 +19,8 @@ export const ArtistsList = () => {
     const { language } = useLanguage();
     const lang = artistsListTranslations[language];
 
-    const [artistsList, setArtistsList] = useState<ArtistUser[]>([]);
-    const [filteredArtists, setFilteredArtists] = useState<ArtistUser[]>([]);
+    const [artistsList, setArtistsList] = useState<any[]>([]);
+    const [filteredArtists, setFilteredArtists] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
@@ -30,8 +31,10 @@ export const ArtistsList = () => {
         sortBy: 'newest' as 'newest' | 'oldest' | 'popular'
     });
 
-    const [cities, setCities] = useState<City[]>([]);
-    const [countries, setCountries] = useState<Country[]>([]);
+    const [cities, setCities] = useState<CitySuggestion[]>([]);
+    const [countries, setCountries] = useState<CountrySuggestion[]>([]);
+    // Для фильтра по стране (используем ISO2 код страны)
+    const [selectedCountryIso, setSelectedCountryIso] = useState<string | null>(null);
 
     useEffect(() => {
         loadFilters();
@@ -40,27 +43,56 @@ export const ArtistsList = () => {
 
     const loadFilters = async () => {
         try {
-            const [citiesData, countriesData] = await Promise.all([
-                getAllCities(),
-                getAllCountries()
-            ]);
-            setCities(citiesData);
+            const countriesData = await getAllCountries();
             setCountries(countriesData);
+            
+            if (selectedCountryIso) {
+                const citiesData = await getCitiesByCountryCode(selectedCountryIso);
+                setCities(citiesData);
+            } else {
+                setCities([]);
+            }
         } catch (error) {
             console.error('Error loading filters:', error);
         }
     };
 
+    useEffect(() => {
+        if (selectedCountryIso) {
+            const loadCitiesForCountry = async () => {
+                try {
+                    const citiesData = await getCitiesByCountryCode(selectedCountryIso);
+                    setCities(citiesData);
+                } catch (error) {
+                    console.error('Error loading cities:', error);
+                }
+            };
+            loadCitiesForCountry();
+        } else {
+            setCities([]);
+        }
+    }, [selectedCountryIso]);
+
     const loadArtists = async () => {
         setLoading(true);
         try {
             const data = await getModeratedArtists();
-            setArtistsList(data?.data || []);
-            setFilteredArtists(data?.data || []);
+            const listData = (data?.data as unknown as ArtistUser[]) || [];
+            setArtistsList(listData);
+            setFilteredArtists(listData);
         } catch (error) {
             showNotification(lang.notifications.loadError, "error");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleFilterChange = (key: string, value: string | number) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
+        
+        if (key === 'selectedCountry') {
+            const iso2 = value === 'all' ? null : String(value);
+            setSelectedCountryIso(iso2);
         }
     };
 
@@ -85,23 +117,21 @@ export const ArtistsList = () => {
 
         if (filters.selectedCountry !== 'all') {
             filtered = filtered.filter(artist =>
-                String(artist.artistProfile?.country?.id) === filters.selectedCountry
+                (artist.artistProfile?.country?.iso2 || artist.artistProfile?.country?.code || artist.artistProfile?.country_id?.toString()) === filters.selectedCountry
             );
         }
 
         const sortFunctions = {
-            newest: (a: ArtistUser, b: ArtistUser) => {
+            newest: (a: ArtistProfileResponse, b: ArtistProfileResponse) => {
                 const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
                 const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
                 return dateB - dateA;
             },
-            oldest: (a: ArtistUser, b: ArtistUser) => {
+            oldest: (a: ArtistProfileResponse, b: ArtistProfileResponse) => {
                 const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
                 const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
                 return dateA - dateB;
-            },
-            popular: (a: ArtistUser, b: ArtistUser) =>
-                (b.artistProfile?.arts?.length || 0) - (a.artistProfile?.arts?.length || 0)
+            }
         };
 
         const sortKey = filters.sortBy as keyof typeof sortFunctions;
@@ -110,10 +140,6 @@ export const ArtistsList = () => {
         setFilteredArtists(filtered);
     }, [filters, artistsList]);
 
-    const handleFilterChange = (key: string, value: string | number) => {
-        setFilters(prev => ({ ...prev, [key]: value }));
-    };
-
     const resetFilters = () => {
         setFilters({
             searchQuery: '',
@@ -121,6 +147,8 @@ export const ArtistsList = () => {
             selectedCountry: 'all',
             sortBy: 'newest'
         });
+        setSelectedCountryIso(null);
+        setCities([]);
     };
 
     const handleArtistClick = (id: number) => {

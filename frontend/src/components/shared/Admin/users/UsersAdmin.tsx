@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNotification } from '../../../../context/NotificationContext';
 import { useConfirm } from '../../../../hooks/useConfirm';
 import '../AdminPage.css';
 import { deleteUserById, getAllUsers } from '../../../../api/users/main.api';
-import type { User } from '../../../../types/user.types';
+import type { User } from '../../../../api/users/main.api';
 import { AdminTable } from '../components/AdminTable';
 import { AdminModal } from '../components/AdminModal';
 import { StatusBadge } from '../components/StatusBadge';
+import { useNotification } from '../../../../hooks/useNotification';
 
 export const UsersAdmin = () => {
     const { showNotification } = useNotification();

@@ -1,6 +1,6 @@
 import "./Resources.css";
-import { useLanguage } from "../../../context/LanguageContext";
 import { translations } from "../lang";
+import { useLanguage } from "../../../hooks/useLanguage";
 
 export interface ResourceItem {
     title: string;

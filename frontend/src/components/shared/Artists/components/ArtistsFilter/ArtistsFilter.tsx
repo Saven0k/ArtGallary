@@ -1,6 +1,6 @@
 import { artistsFilterTranslations } from './lang';
 import './ArtistsFilter.css';
-import { useLanguage } from '../../../../../context/LanguageContext';
+import { useLanguage } from '../../../../../hooks/useLanguage';
 
 interface ArtistsFilterProps {
     filters: {

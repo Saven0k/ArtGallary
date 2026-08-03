@@ -1,0 +1,117 @@
+/* src/components/TagInput/TagInput.css */
+.tag-input {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.tag-input__container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    min-height: 42px;
+    transition: border-color 0.3s ease;
+}
+
+.tag-input__container:focus-within {
+    border-color: #4a90d9;
+    box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2);
+}
+
+.tag-input__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px 4px 12px;
+    background: #e9ecef;
+    border-radius: 16px;
+    font-size: 13px;
+    color: #2d3748;
+    animation: tagAppear 0.2s ease;
+}
+
+.tag-input__remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: #718096;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.tag-input__remove:hover {
+    background: #cbd5e0;
+    color: #2d3748;
+}
+
+.tag-input__field {
+    flex: 1;
+    min-width: 100px;
+    padding: 4px 0;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background: transparent;
+}
+
+.tag-input__field::placeholder {
+    color: #a0aec0;
+}
+
+.tag-input__field:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.tag-input__info {
+    font-size: 12px;
+    color: #a0aec0;
+    text-align: right;
+}
+
+.tag-input__suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tag-input__suggestion {
+    padding: 4px 12px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    font-size: 13px;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tag-input__suggestion:hover {
+    background: #edf2f7;
+    border-color: #4a90d9;
+    color: #2d3748;
+}
+
+@keyframes tagAppear {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

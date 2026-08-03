@@ -1,14 +1,12 @@
-// components/forms/RegisterForm.tsx
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useLanguage } from "../../../../context/LanguageContext";
+import { useLanguage } from "../../../../hooks/useLanguage";
 import { registerFormTranslations } from './lang';
 import "./style.css";
 import { register } from "../../../../api/auth/main.api";
-import { useRegisterForm, type RegisterArtistData } from "./useRegisterForm";
-import { getAllCities, type City } from "../../../../api/cities/main.api";
-import { getAllCountries, type Country } from "../../../../api/contries/main.api";
+import { useRegisterForm, type RegisterArtistData, type RegisterUserData, type FormDataType } from "./useRegisterForm";
 import { createArtist } from "../../../../api/artists/main.api";
+import { LocationSelect } from "../../../layout/LocationSelect/LocationSelect";
 
 export const RegisterForm = () => {
     const navigate = useNavigate();
@@ -16,25 +14,8 @@ export const RegisterForm = () => {
     const lang = registerFormTranslations[language];
     
     const [isArtist, setIsArtist] = useState(false);
-    const { formData, errors, handleInputChange, validateForm, setFormData } = useRegisterForm(isArtist);
-    const [cities, setCities] = useState<City[] | null>(null);
-    const [countries, setCountries] = useState<null | Country[]>(null);
+    const { formData, errors, handleInputChange, validateForm, setFormData, setErrors } = useRegisterForm(isArtist);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const citiesRes = await getAllCities();
-                const countriesRes = await getAllCountries();
-                setCities(citiesRes);
-                setCountries(countriesRes);
-            } catch (error) {
-                console.error("Failed to load cities/countries:", error);
-            }
-        }
-
-        loadData();
-    }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
@@ -52,13 +33,35 @@ export const RegisterForm = () => {
         setFormData(prev => ({ ...prev, avatar_path: file }));
     };
 
-    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => {
-            if (isArtist) {
-                return { ...prev, [name]: value || null } as RegisterArtistData;
-            }
-            return prev;
+    const handleGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value as "M" | "F";
+        setFormData(prev => ({ ...prev, gender: value }));
+        if (errors.gender) {
+            setErrors(prev => ({ ...prev, gender: "" }));
+        }
+    };
+
+    // Backend expects integer IDs for country_id and city_id
+    const handleCountrySelect = (_iso2: string, _name: string, countryId: number | string) => {
+        if (!isArtist) return;
+        
+        const artistData = formData as RegisterArtistData;
+        const parsedId = typeof countryId === 'number' ? countryId : Number(countryId) || null;
+        setFormData({
+            ...artistData,
+            country_id: parsedId,
+            city_id: null,
+        });
+    };
+
+    // cityId теперь может приходить как string (от LocationSelect) — конвертируем в number
+    const handleCitySelect = (cityId: number | null, _cityName: string) => {
+        if (!isArtist) return;
+        
+        const artistData = formData as RegisterArtistData;
+        setFormData({
+            ...artistData,
+            city_id: cityId,
         });
     };
 
@@ -69,13 +72,31 @@ export const RegisterForm = () => {
 
         try {
             if (isArtist) {
-                const res = await createArtist(formData);
+                const artistData = formData as RegisterArtistData;
+                const res = await createArtist({
+                    email: artistData.email,
+                    password: artistData.password,
+                    name: artistData.name,
+                    surname: artistData.surname,
+                    second_name: artistData.second_name || '',
+                    phone_number: artistData.phone_number,
+                    avatar_path: artistData.avatar_path as any || null,
+                    date_birthday: artistData.date_birthday as any || null,
+                    biography: artistData.biography || null,
+                    gender: artistData.gender || "M",
+                    country_id: (artistData as any).country_id || null,
+                    city_id: (artistData as any).city_id || null,
+                });
                 if (!res) {
                     console.log('error');
                     return;
                 }
             } else {
-                const res = await register(formData);
+                const userData = formData as RegisterUserData;
+                const res = await register({
+                    ...userData,
+                    gender: userData.gender || "M",
+                });
                 if (!res) {
                     console.log('e');
                     return;
@@ -96,11 +117,11 @@ export const RegisterForm = () => {
         { name: "phone_number", label: lang.commonFields.phone_number, type: "tel" },
     ];
 
-    const getArtistFieldValue = (fieldName: keyof RegisterArtistData): string => {
-        if (!isArtist) return "";
-        const artistData = formData as RegisterArtistData;
-        const value = artistData[fieldName];
-        return value?.toString() || "";
+    const getArtistValue = (field: keyof RegisterArtistData): string | number | null => {
+        if (!isArtist) return '';
+        const data = formData as RegisterArtistData;
+        const val = data[field];
+        return val != null ? String(val) : null;
     };
 
     return (
@@ -116,7 +137,7 @@ export const RegisterForm = () => {
                         <input
                             type={field.type}
                             name={field.name}
-                            value={formData[field.name as keyof typeof formData] as string || ""}
+                            value={formData[field.name as keyof FormDataType] as string || ""}
                             className={`form__input ${errors[field.name as keyof typeof errors] ? "form__input--error" : ""}`}
                             onChange={handleInputChange}
                         />
@@ -125,6 +146,26 @@ export const RegisterForm = () => {
                         )}
                     </div>
                 ))}
+
+                {/* ✅ Поле выбора пола */}
+                <div className="form__input-box">
+                    <label className="form__label">{lang.commonFields.gender}</label>
+                    <div className="form__select-wrapper">
+                        <select
+                            name="gender"
+                            value={formData.gender || "M"}
+                            className={`form__select ${errors.gender ? "form__select--error" : ""}`}
+                            onChange={handleGenderChange}
+                        >
+                            <option value="M">{lang.commonFields.male}</option>
+                            <option value="F">{lang.commonFields.female}</option>
+                        </select>
+                        <span className="form__select-arrow">▼</span>
+                    </div>
+                    {errors.gender && (
+                        <span className="form__error">{errors.gender}</span>
+                    )}
+                </div>
 
                 {isArtist && (
                     <>
@@ -139,7 +180,7 @@ export const RegisterForm = () => {
                                             className="form__avatar-remove"
                                             onClick={() => {
                                                 setAvatarPreview(null);
-                                                setFormData(prev => ({ ...prev, avatar_path: null }) as RegisterArtistData);
+                                                setFormData(prev => ({ ...prev, avatar_path: null }));
                                             }}
                                         >
                                             ×
@@ -167,57 +208,32 @@ export const RegisterForm = () => {
                             <input
                                 type="date"
                                 name="date_birthday"
-                                value={getArtistFieldValue("date_birthday")}
+                                value={getArtistValue("date_birthday") || ""}
                                 className="form__input"
                                 onChange={handleInputChange}
                             />
+                            {errors.date_birthday && (
+                                <span className="form__error">{errors.date_birthday}</span>
+                            )}
                         </div>
 
-                        <div className="form__input-box">
-                            <label className="form__label">{lang.artistFields.country}</label>
-                            <div className="form__select-wrapper">
-                                <select
-                                    name="country_id"
-                                    value={getArtistFieldValue("country_id")}
-                                    className="form__select"
-                                    onChange={handleSelectChange}
-                                >
-                                    <option value="">{lang.artistFields.selectCountry}</option>
-                                    {countries?.map(country => (
-                                        <option key={country.id} value={country.id}>
-                                            {country.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <span className="form__select-arrow">▼</span>
-                            </div>
-                        </div>
-
-                        <div className="form__input-box">
-                            <label className="form__label">{lang.artistFields.city}</label>
-                            <div className="form__select-wrapper">
-                                <select
-                                    name="city_id"
-                                    value={getArtistFieldValue("city_id")}
-                                    className="form__select"
-                                    onChange={handleSelectChange}
-                                >
-                                    <option value="">{lang.artistFields.selectCity}</option>
-                                    {cities?.map(city => (
-                                        <option key={city.id} value={city.id}>
-                                            {city.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <span className="form__select-arrow">▼</span>
-                            </div>
+                        <div className="form__input-box form__input-box--full">
+                            <label className="form__label">{lang.artistFields.location}</label>
+                            <LocationSelect
+                                countryValue={getArtistValue("country_id") as string | number | undefined}
+                                cityValue={getArtistValue("city_id") as number | undefined}
+                                onCountryChange={handleCountrySelect}
+                                onCityChange={handleCitySelect}
+                                isEditing={true}
+                                lang={language}
+                            />
                         </div>
 
                         <div className="form__input-box form__input-box--full">
                             <label className="form__label">{lang.artistFields.biography}</label>
                             <textarea
                                 name="biography"
-                                value={getArtistFieldValue("biography")}
+                                value={getArtistValue("biography") || ""}
                                 className="form__input"
                                 onChange={handleInputChange}
                                 rows={4}
@@ -238,6 +254,36 @@ export const RegisterForm = () => {
                 onClick={() => {
                     setIsArtist(!isArtist);
                     setAvatarPreview(null);
+                    if (!isArtist) {
+                        setFormData({
+                            email: "",
+                            password: "",
+                            name: "",
+                            surname: "",
+                            second_name: "",
+                            phone_number: "",
+                            avatar_path: null,
+                            gender: "M",
+                            date_birthday: null,
+                            biography: null,
+                            city_id: null,
+                            country_id: null,
+                            moderate: false,
+                            role: "artist",
+                        } as RegisterArtistData);
+                    } else {
+                        setFormData({
+                            email: "",
+                            password: "",
+                            name: "",
+                            surname: "",
+                            second_name: "",
+                            phone_number: "",
+                            avatar_path: null,
+                            gender: "M",
+                            role: "user",
+                        } as RegisterUserData);
+                    }
                 }}
             >
                 {isArtist ? lang.buttons.registerAsUser : lang.buttons.registerAsArtist}

@@ -1,0 +1,163 @@
+/* src/pages/Profile/components/AnalyticsCard/AnalyticsCard.css */
+
+.analytics-card {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    width: 250px;
+}
+
+/* =========================
+   Edit button
+========================= */
+
+.analytics-card__edit {
+    width: 100%;
+
+    padding: 12px 16px;
+
+    border: 1px solid var(--nav-brown);
+    border-radius: var(--radius-m);
+
+    background: #fff;
+
+    cursor: pointer;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    transition: .25s;
+}
+
+.analytics-card__edit:hover {
+    background: var(--brand-gold-light);
+    border-color: var(--brand-primary-gold);
+}
+
+/* =========================
+   Analytics
+========================= */
+
+.analytics-card__panel {
+    padding: 22px;
+
+    background: var(--overlay-gold);
+
+    border-radius: var(--radius-l);
+
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+}
+
+.analytics-card__title {
+    margin: 0 0 18px;
+
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.analytics-card__stats {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.analytics-card__stat {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 14px;
+
+    background: #fff;
+
+    border-radius: var(--radius-m);
+
+    box-shadow: 0 3px 10px rgba(0,0,0,.06);
+}
+
+.analytics-card__icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: var(--brand-gold-light);
+
+    color: var(--brand-primary-gold);
+}
+
+.analytics-card__number {
+    display: block;
+
+    font-size: 28px;
+    font-weight: 700;
+
+    color: var(--neutral-grey-800);
+}
+
+.analytics-card__label {
+    margin: 2px 0 0;
+
+    color: var(--neutral-grey-600);
+
+    font-size: 14px;
+}
+
+/* =========================
+   Tip
+========================= */
+
+.analytics-card__tip {
+    display: flex;
+    gap: 12px;
+
+    padding: 18px;
+
+    background: #fff;
+
+    border-radius: var(--radius-l);
+
+    box-shadow: 0 8px 20px rgba(0,0,0,.06);
+}
+
+.analytics-card__tip-icon {
+    flex-shrink: 0;
+
+    color: var(--brand-primary-gold);
+
+    margin-top: 2px;
+}
+
+.analytics-card__tip-title {
+    margin: 0 0 6px;
+
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.analytics-card__tip-text {
+    margin: 0;
+
+    color: var(--neutral-grey-600);
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 992px) {
+
+    .analytics-card {
+        width: 100%;
+    }
+
+}

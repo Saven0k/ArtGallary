@@ -1,5 +1,5 @@
 import type { Art } from '../../../../../api/arts/main.api';
-import { useLanguage } from '../../../../../context/LanguageContext';
+import { useLanguage } from '../../../../../hooks/useLanguage';
 import { artistArtCardTranslations } from './lang';
 import './ArtistArtCard.css';
 

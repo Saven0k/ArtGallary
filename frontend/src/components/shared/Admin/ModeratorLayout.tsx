@@ -3,7 +3,6 @@ import './ModeratorLayout.css';
 
 const moderatorMenuItems = [
     { path: '/moderation/arts', icon: '🖼️', label: 'Модерация картин' },
-    { path: '/moderation/exhibitions', icon: '🏛️', label: 'Модерация выставок' },
     { path: '/moderation/artists', icon: '👨‍🎨', label: 'Модерация артистов' },
 ];
 

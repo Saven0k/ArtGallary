@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../../../hooks/useAuth';
-import { useLanguage } from '../../../../context/LanguageContext';
+import { useLanguage } from '../../../../hooks/useLanguage';
 import type { Art } from '../../../../api/arts/main.api';
 import { artCardTranslations } from './lang';
 import './index.css';

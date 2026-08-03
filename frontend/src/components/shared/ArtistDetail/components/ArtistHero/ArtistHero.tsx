@@ -1,5 +1,5 @@
 import type { ArtistProfileResponse } from '../../../../../api/artists/main.api';
-import { useLanguage } from '../../../../../context/LanguageContext';
+import { useLanguage } from '../../../../../hooks/useLanguage';
 import { ArtistStats } from '../ArtistStats/ArtistStats';
 import { artistHeroTranslations } from './lang';
 import './ArtistHero.css';
@@ -44,13 +44,11 @@ export const ArtistHero = ({ artist, artsCount }: ArtistHeroProps) => {
                     </div>
                 </div>
 
-                {/* Правая колонка - информация */}
                 <div className="artist-hero__info-col">
                     <h1 className="artist-hero__name">{fullName}</h1>
                     <p className="artist-hero__role">{getRoleText()}</p>
                     <ArtistStats 
                         artsCount={artsCount}
-                        exhibitionsCount={artist.artistProfile?.exhibitionsCount || 0}
                     />
                 </div>
             </div>

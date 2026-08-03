@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNotification } from '../../../../context/NotificationContext';
 import { useConfirm } from '../../../../hooks/useConfirm';
 import '../AdminPage.css';
 import { getUnmoderatedArts, moderateArt, type Art } from '../../../../api/arts/main.api';
 import { AdminTable } from '../components/AdminTable';
 import { AdminModal } from '../components/AdminModal';
 import { useAuth } from '../../../../hooks/useAuth';
+import { useNotification } from '../../../../hooks/useNotification';
 
 export const ArtsModerate = () => {
     const { showNotification } = useNotification();
@@ -23,20 +23,15 @@ export const ArtsModerate = () => {
 
     useEffect(() => { loadData(); }, []);
 
-    // Функция для парсинга moderate (проверка, не одобрена ли уже)
-    const isModerated = (moderate: any): boolean => {
+    const parseModerate = (moderate: any): boolean => {
         if (!moderate) return false;
         if (typeof moderate === 'string') {
             try {
                 const parsed = JSON.parse(moderate);
                 return parsed.moderate === true;
-            } catch {
-                return false;
-            }
+            } catch { return false; }
         }
-        if (typeof moderate === 'object') {
-            return moderate.moderate === true;
-        }
+        if (typeof moderate === 'object') return moderate.moderate === true;
         return false;
     };
 
@@ -44,26 +39,25 @@ export const ArtsModerate = () => {
         setLoading(true);
         try {
             const response = await getUnmoderatedArts();
-            // Фильтруем только те, где moderate === false (не одобрены)
-            const unmoderatedArts = response?.arts?.filter(art => !isModerated(art.moderate)) || [];
-            setData(unmoderatedArts);
+            setData(response?.arts || []);
         } catch (error) {
-            showNotification("Ошибка при загрузке", "error");
+            showNotification("Ошибка при загрузке артов", "error");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleApprove = async (id: number, title: string) => {
-        const confirmed = await confirm({
-            title: "Одобрить",
-            message: `Одобрить "${title}"?`,
-            confirmText: "Одобрить",
-            type: "info"
-        });
+    const handleApprove = async (id: number, name: string) => {
+        const confirmed = await confirm({ title: "Одобрить картину", message: `Вы уверены, что хотите одобрить "${name}"?`, confirmText: "Одобрить", cancelText: "Отмена", type: "info" });
         if (confirmed) {
             try {
-                await moderateArt(id, { moderate: true, moderator_id: Number(user?.id), comment: null, errors: {} });
+                // Server Art.moderate = string (JSON). Send object.
+                await moderateArt(id, {
+                    moderate: true,
+                    moderator_id: Number(user?.id),
+                    comment: '',
+                    errors: {}
+                });
                 showNotification("Картина одобрена", "success");
                 loadData();
             } catch (error) {
@@ -79,14 +73,8 @@ export const ArtsModerate = () => {
         setRejectModalOpen(true);
     };
 
-    const addRejectError = (field: string) => {
-        setRejectErrors([...rejectErrors, { field, message: '' }]);
-    };
-
-    const removeRejectError = (index: number) => {
-        setRejectErrors(rejectErrors.filter((_, i) => i !== index));
-    };
-
+    const addRejectError = (field: string) => setRejectErrors([...rejectErrors, { field, message: '' }]);
+    const removeRejectError = (index: number) => setRejectErrors(rejectErrors.filter((_, i) => i !== index));
     const updateRejectError = (index: number, message: string) => {
         const newErrors = [...rejectErrors];
         newErrors[index].message = message;
@@ -95,12 +83,15 @@ export const ArtsModerate = () => {
 
     const handleRejectConfirm = async () => {
         const errorsObject: Record<string, string> = {};
-        rejectErrors.forEach(error => {
-            if (error.message.trim()) errorsObject[error.field] = error.message;
-        });
+        rejectErrors.forEach(error => { if (error.message.trim()) errorsObject[error.field] = error.message; });
 
         try {
-            await moderateArt(artToReject!.id, { moderate: false, moderator_id: Number(user?.id), comment: rejectComment || null, errors: errorsObject });
+            await moderateArt(artToReject!.id, {
+                moderate: false,
+                moderator_id: Number(user?.id),
+                comment: rejectComment || '',
+                errors: errorsObject
+            });
             showNotification("Картина отклонена", "success");
             setRejectModalOpen(false);
             setArtToReject(null);
@@ -110,66 +101,21 @@ export const ArtsModerate = () => {
         }
     };
 
-    const handleRowClick = (art: Art) => {
-        setSelectedArt(art);
-        setViewModalOpen(true);
-    };
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('ru-RU', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    };
-
-    const formatCurrency = (cost?: number, currency?: string) => {
-        if (!cost) return 'Не указана';
-        const symbols: Record<string, string> = { USD: "$", EUR: "€", RUB: "₽", UAH: "₴" };
-        return `${cost.toLocaleString()} ${symbols[currency || 'USD'] || currency}`;
-    };
-
-    const parseMetadata = (metadata?: string) => {
-        if (!metadata) return [];
-        try {
-            return Object.entries(JSON.parse(metadata));
-        } catch {
-            return [];
-        }
-    };
-
     const columns = [
         { key: 'id', header: 'ID', className: 'admin-table__col-id' },
-        { key: 'title', header: 'Название', className: 'admin-table__col-title' },
-        {
-            key: 'artist', header: 'Художник', className: 'admin-table__col-artist',
-            render: (item: Art) => `${item.artist?.user?.surname} ${item.artist?.user?.name}` || '-'
-        }
+        { key: 'title', header: 'Название', className: 'admin-table__col-name', render: (item: Art) => item.title },
+        { key: 'description', header: 'Описание', className: 'admin-table__col-description', render: (item: Art) => item.description?.substring(0, 100) },
+        { key: 'artistName', header: 'Автор', className: 'admin-table__col-artist', render: (item: Art) => item.artist?.user?.name || 'Неизвестно' },
+        { key: 'date_published', header: 'Дата', className: 'admin-table__col-date', render: (item: Art) => new Date(item.date_published).toLocaleDateString() },
+        { key: 'likes', header: 'Лайки', className: 'admin-table__col-likes', render: (item: Art) => item.likes || 0 },
+        { key: 'views', header: 'Просмотры', className: 'admin-table__col-views', render: (item: Art) => item.views || 0 },
     ];
 
     const actions = (item: Art) => (
         <>
-            <button
-                className="admin-table__view"
-                onClick={(e) => { e.stopPropagation(); setSelectedArt(item); setViewModalOpen(true); }}
-                title="Просмотр"
-            >
-                👁️
-            </button>
-            <button
-                className="admin-table__approve"
-                onClick={(e) => { e.stopPropagation(); handleApprove(item.id, item.title); }}
-                title="Одобрить"
-            >
-                ✅ Одобрить
-            </button>
-            <button
-                className="admin-table__reject"
-                onClick={(e) => { e.stopPropagation(); openRejectModal(item); }}
-                title="Отклонить"
-            >
-                ❌ Отклонить
-            </button>
+            <button className="admin-table__view" onClick={() => { setSelectedArt(item); setViewModalOpen(true); }}>👁️</button>
+            <button className="admin-table__approve" onClick={() => handleApprove(item.id, item.title)}>✅ Одобрить</button>
+            <button className="admin-table__reject" onClick={() => openRejectModal(item)}>❌ Отклонить</button>
         </>
     );
 
@@ -178,53 +124,83 @@ export const ArtsModerate = () => {
     return (
         <div className="admin-page">
             <div className="admin-page__header">
-                <h1>🖼️ Модерация картин</h1>
+                <h1>🎨 Модерация картин</h1>
                 <span className="admin-page__count">На модерации: {data.length}</span>
             </div>
 
-            <AdminTable
-                data={data}
-                columns={columns}
-                actions={actions}
-                onRowClick={handleRowClick}
-                emptyMessage="Нет картин на модерации"
-            />
+            {data.length === 0 ? (
+                <div className="admin-empty">
+                    <div className="admin-empty__icon">✅</div>
+                    <h3>Нет картин на модерации</h3>
+                    <p>Все картины уже проверены</p>
+                </div>
+            ) : (
+                <AdminTable data={data} columns={columns as any} actions={actions} emptyMessage="Нет картин на модерации" />
+            )}
 
-            <AdminModal
-                isOpen={viewModalOpen}
-                onClose={() => { setViewModalOpen(false); setSelectedArt(null); }}
-                title={selectedArt?.title || 'Детали картины'}
-            >
+            <AdminModal isOpen={viewModalOpen} onClose={() => { setViewModalOpen(false); setSelectedArt(null); }} title={selectedArt?.title}>
                 {selectedArt && (
                     <div className="admin-view">
-                        <div className="admin-view__image-wrapper">
-                            <img src={selectedArt.image_path} alt={selectedArt.title} className="admin-view__image" />
-                        </div>
                         <div className="admin-view__section">
-                            <h4>📋 Основная информация</h4>
+                            <h4>📋 Информация</h4>
                             <div className="admin-view__grid">
-                                <div className="admin-view__item"><span className="admin-view__label">ID</span><span className="admin-view__value">{selectedArt.id}</span></div>
-                                <div className="admin-view__item"><span className="admin-view__label">Название</span><span className="admin-view__value">{selectedArt.title}</span></div>
-                                <div className="admin-view__item"><span className="admin-view__label">Дата создания</span><span className="admin-view__value">{formatDate(selectedArt.date_published)}</span></div>
-                                <div className="admin-view__item"><span className="admin-view__label">Стоимость</span><span className="admin-view__value">{formatCurrency(selectedArt.cost, selectedArt.currency)}</span></div>
-                                <div className="admin-view__item"><span className="admin-view__label">Лайки</span><span className="admin-view__value">❤️ {selectedArt.likes || 0}</span></div>
-                                <div className="admin-view__item"><span className="admin-view__label">18+ контент</span><span className="admin-view__value">{selectedArt.is_adult ? '🔞 Да' : '✅ Нет'}</span></div>
+                                <div className="admin-view__item"><span className="admin-view__label">🆔 ID</span><span className="admin-view__value">{selectedArt.id}</span></div>
+                                <div className="admin-view__item"><span className="admin-view__label">📝 Название</span><span className="admin-view__value">{selectedArt.title}</span></div>
+                                <div className="admin-view__item"><span className="admin-view__label">📄 Описание</span><span className="admin-view__value">{selectedArt.description}</span></div>
+                                <div className="admin-view__item"><span className="admin-view__label">🖼️ Автор</span><span className="admin-view__value">{selectedArt.artist?.user?.surname} {selectedArt.artist?.user?.name}</span></div>
+                                <div className="admin-view__item"><span className="admin-view__label">📅 Дата публикации</span><span className="admin-view__value">{new Date(selectedArt.date_published).toLocaleDateString()}</span></div>
+                                <div className="admin-view__item"><span className="admin-view__label">❤️ Лайки</span><span className="admin-view__value">{selectedArt.likes || 0}</span></div>
+                                <div className="admin-view__item"><span className="admin-view__label">👁️ Просмотры</span><span className="admin-view__value">{selectedArt.views || 0}</span></div>
+                                <div className="admin-view__item"><span className="admin-view__label">💰 Цена</span><span className="admin-view__value">{selectedArt.cost ? `${selectedArt.cost} ${selectedArt.currency}` : 'Бесплатно'}</span></div>
                             </div>
                         </div>
-                        <div className="admin-view__section"><h4>📝 Описание</h4><p>{selectedArt.description}</p></div>
-                        {parseMetadata(selectedArt.metadata).length > 0 && (
+                        {selectedArt.image_path && (
                             <div className="admin-view__section">
-                                <h4>🎨 Характеристики</h4>
-                                <div className="admin-view__metadata">
-                                    {parseMetadata(selectedArt.metadata).map(([key, value]) => (
-                                        <div key={key} className="admin-view__metadata-item">
-                                            <span className="admin-view__metadata-key">{key}</span>
-                                            <span className="admin-view__metadata-value">{String(value)}</span>
-                                        </div>
-                                    ))}
-                                </div>
+                                <h4>🖼️ Изображение</h4>
+                                <img src={selectedArt.image_path} alt={selectedArt.title} className="admin-view__image" />
                             </div>
                         )}
+                        {selectedArt.specifications && (
+                            <div className="admin-view__section">
+                                <h4>📄 Спецификации</h4>
+                                <pre>{JSON.stringify(JSON.parse(selectedArt.specifications), null, 2)}</pre>
+                            </div>
+                        )}
+                        <div className="admin-view__section">
+                            <h4>⚖️ Статус модерации</h4>
+                            <div className="admin-view__status">
+                                {(() => {
+                                    const moderate = selectedArt.moderate;
+                                    let isModerated = false;
+                                    let moderatorComment = null;
+                                    let moderatedAt = null;
+
+                                    if (typeof moderate === 'string') {
+                                        try {
+                                            const parsed = JSON.parse(moderate);
+                                            isModerated = parsed.moderate;
+                                            moderatorComment = parsed.comment;
+                                            moderatedAt = parsed.moderated_at;
+                                        } catch { }
+                                    } else if (typeof moderate === 'object' && moderate) {
+                                        isModerated = moderate.moderate;
+                                        moderatorComment = moderate.comment;
+                                        moderatedAt = moderate.moderated_at;
+                                    }
+
+                                    return (
+                                        <>
+                                            <div className="admin-view__status-badge">
+                                                <span className={`admin-view__status-icon ${isModerated ? 'approved' : 'pending'}`}>{isModerated ? '✅' : '⏳'}</span>
+                                                <span className="admin-view__status-text">{isModerated ? 'Одобрен' : 'На модерации'}</span>
+                                            </div>
+                                            {moderatorComment && (<div className="admin-view__status-comment"><strong>💬 Комментарий модератора:</strong><p>{moderatorComment}</p></div>)}
+                                            {moderatedAt && (<div className="admin-view__status-date">📅 Дата модерации: {new Date(moderatedAt).toLocaleDateString('ru-RU')}</div>)}
+                                        </>
+                                    );
+                                })()}
+                            </div>
+                        </div>
                     </div>
                 )}
             </AdminModal>
@@ -232,88 +208,27 @@ export const ArtsModerate = () => {
             <AdminModal isOpen={rejectModalOpen} onClose={() => { setRejectModalOpen(false); setArtToReject(null); }} title={`Отклонить: ${artToReject?.title}`} onSave={handleRejectConfirm} saveText="Отклонить">
                 {artToReject && (
                     <div className="admin-reject">
-                        <p className="admin-reject__warning">⚠️ Укажите причины отклонения. Это поможет художнику исправить ошибки.</p>
-
+                        <p className="admin-reject__warning">⚠️ Укажите причины отклонения.</p>
+                        
                         <div className="admin-reject__fields">
-                            {/* Название */}
                             <div className="admin-reject__field">
-                                <div className="admin-reject__field-header">
-                                    <span className="admin-reject__field-label">Название</span>
-                                    <button className="admin-reject__add-error" onClick={() => addRejectError('title')}>✏️ Добавить замечание</button>
-                                </div>
-                                <div className="admin-reject__field-value admin-reject__field-value--full">
-                                    {artToReject.title}
-                                </div>
+                                <div className="admin-reject__field-header"><span className="admin-reject__field-label">Название</span><button className="admin-reject__add-error" onClick={() => addRejectError('title')}>✏️ Добавить замечание</button></div>
+                                <div className="admin-reject__field-value">{artToReject.title}</div>
                             </div>
-
-                            {/* Описание - полный текст */}
                             <div className="admin-reject__field">
-                                <div className="admin-reject__field-header">
-                                    <span className="admin-reject__field-label">Описание</span>
-                                    <button className="admin-reject__add-error" onClick={() => addRejectError('description')}>✏️ Добавить замечание</button>
-                                </div>
-                                <div className="admin-reject__field-value admin-reject__field-value--full admin-reject__field-value--scrollable">
-                                    {artToReject.description}
-                                </div>
+                                <div className="admin-reject__field-header"><span className="admin-reject__field-label">Автор</span><button className="admin-reject__add-error" onClick={() => addRejectError('author')}>✏️ Добавить замечание</button></div>
+                                <div className="admin-reject__field-value">{artToReject.artist?.user?.surname} {artToReject.artist?.user?.name}</div>
                             </div>
-
-                            {/* Изображение - с превью */}
                             <div className="admin-reject__field">
-                                <div className="admin-reject__field-header">
-                                    <span className="admin-reject__field-label">Изображение</span>
-                                    <button className="admin-reject__add-error" onClick={() => addRejectError('image')}>✏️ Добавить замечание</button>
-                                </div>
-                                <div className="admin-reject__field-value">
-                                    <img
-                                        src={artToReject.image_path}
-                                        alt={artToReject.title}
-                                        className="admin-reject__image-preview"
-                                        style={{ maxWidth: '200px', maxHeight: '150px', objectFit: 'cover', borderRadius: '8px' }}
-                                    />
-                                </div>
+                                <div className="admin-reject__field-header"><span className="admin-reject__field-label">Описание</span><button className="admin-reject__add-error" onClick={() => addRejectError('description')}>✏️ Добавить замечание</button></div>
+                                <div className="admin-reject__field-value">{artToReject.description}</div>
                             </div>
-
-                            {/* Стоимость */}
-                            {artToReject.cost && (
-                                <div className="admin-reject__field">
-                                    <div className="admin-reject__field-header">
-                                        <span className="admin-reject__field-label">Стоимость</span>
-                                        <button className="admin-reject__add-error" onClick={() => addRejectError('cost')}>✏️ Добавить замечание</button>
-                                    </div>
-                                    <div className="admin-reject__field-value">
-                                        {artToReject.cost} {artToReject.currency}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Жанр */}
-                            {artToReject.genre && (
-                                <div className="admin-reject__field">
-                                    <div className="admin-reject__field-header">
-                                        <span className="admin-reject__field-label">Жанр</span>
-                                        <button className="admin-reject__add-error" onClick={() => addRejectError('genre')}>✏️ Добавить замечание</button>
-                                    </div>
-                                    <div className="admin-reject__field-value">
-                                        {artToReject.genre.title}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Тип */}
-                            {artToReject.style && (
-                                <div className="admin-reject__field">
-                                    <div className="admin-reject__field-header">
-                                        <span className="admin-reject__field-label">Тип</span>
-                                        <button className="admin-reject__add-error" onClick={() => addRejectError('type')}>✏️ Добавить замечание</button>
-                                    </div>
-                                    <div className="admin-reject__field-value">
-                                        {artToReject.style.name}
-                                    </div>
-                                </div>
-                            )}
+                            <div className="admin-reject__field">
+                                <div className="admin-reject__field-header"><span className="admin-reject__field-label">Цена</span><button className="admin-reject__add-error" onClick={() => addRejectError('price')}>✏️ Добавить замечание</button></div>
+                                <div className="admin-reject__field-value">{artToReject.cost ? `${artToReject.cost} ${artToReject.currency}` : 'Бесплатно'}</div>
+                            </div>
                         </div>
 
-                        {/* Список добавленных замечаний */}
                         {rejectErrors.length > 0 && (
                             <div className="admin-reject__errors">
                                 <h4>📝 Замечания:</h4>
@@ -321,37 +236,19 @@ export const ArtsModerate = () => {
                                     <div key={index} className="admin-reject__error-item">
                                         <div className="admin-reject__error-header">
                                             <span className="admin-reject__error-field">
-                                                {error.field === 'title' ? 'Название' :
-                                                    error.field === 'description' ? 'Описание' :
-                                                        error.field === 'image' ? 'Изображение' :
-                                                            error.field === 'cost' ? 'Стоимость' :
-                                                                error.field === 'genre' ? 'Жанр' :
-                                                                    error.field === 'type' ? 'Тип' : error.field}
+                                                {error.field === 'title' ? 'Название' : error.field === 'author' ? 'Автор' : error.field === 'description' ? 'Описание' : error.field === 'price' ? 'Цена' : error.field}
                                             </span>
                                             <button className="admin-reject__error-remove" onClick={() => removeRejectError(index)}>🗑️</button>
                                         </div>
-                                        <textarea
-                                            className="admin-reject__error-input"
-                                            value={error.message}
-                                            onChange={(e) => updateRejectError(index, e.target.value)}
-                                            placeholder="Введите замечание..."
-                                            rows={3}
-                                        />
+                                        <textarea className="admin-reject__error-input" value={error.message} onChange={(e) => updateRejectError(index, e.target.value)} placeholder="Введите замечание..." rows={2} />
                                     </div>
                                 ))}
                             </div>
                         )}
 
-                        {/* Общий комментарий */}
                         <div className="admin-reject__global">
                             <label className="admin-reject__global-label">Общий комментарий</label>
-                            <textarea
-                                className="admin-reject__global-input"
-                                value={rejectComment}
-                                onChange={(e) => setRejectComment(e.target.value)}
-                                placeholder="Добавьте общий комментарий к отклонению..."
-                                rows={4}
-                            />
+                            <textarea className="admin-reject__global-input" value={rejectComment} onChange={(e) => setRejectComment(e.target.value)} placeholder="Добавьте общий комментарий к отклонению..." rows={3} />
                         </div>
                     </div>
                 )}

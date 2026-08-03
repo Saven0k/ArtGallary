@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom";
-import { useLanguage } from "../../../../context/LanguageContext";
+import { useLanguage } from "../../../../hooks/useLanguage";
 import { authFormTranslations } from './lang';
 import './style.css';
 import { validateEmail, validatePassword, validateAuthForm } from "../../../../validators/auth.validators";

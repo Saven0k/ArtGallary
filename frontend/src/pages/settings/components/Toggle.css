@@ -1,0 +1,82 @@
+/* src/pages/Settings/components/Toggle.css */
+
+.toggle {
+    position: relative;
+
+    width: 40px;
+    height: 22px;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 999px;
+
+    background: #d7d7d7;
+
+    cursor: pointer;
+
+    transition:
+        background .25s ease,
+        box-shadow .25s ease,
+        transform .2s ease;
+}
+
+.toggle:hover {
+    box-shadow: 0 4px 10px rgba(188, 149, 71, .25);
+}
+
+.toggle:active {
+    transform: scale(.96);
+}
+
+.toggle:focus-visible {
+    outline: 2px solid var(--brand-primary-gold);
+    outline-offset: 3px;
+}
+
+/* ==========================================
+   ACTIVE
+========================================== */
+
+.toggle--checked {
+    background: var(--brand-primary-gold);
+}
+
+.toggle__thumb {
+    position: absolute;
+
+    top: 3px;
+    left: 3px;
+
+    width: 16px;
+    height: 16px;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    transition:
+        left .25s ease,
+        transform .25s ease,
+        box-shadow .25s ease;
+
+    box-shadow:
+        0 2px 6px rgba(0,0,0,.18);
+}
+
+.toggle--checked .toggle__thumb {
+    left: 21px;
+}
+
+/* ==========================================
+   DISABLED
+========================================== */
+
+.toggle:disabled {
+    cursor: not-allowed;
+    opacity: .5;
+}
+
+.toggle:disabled:hover {
+    box-shadow: none;
+}

@@ -13,7 +13,7 @@ type NotificationContextType = {
     showNotification: (message: string, type?: NotificationType) => void;
 };
 
-const NotificationContext = createContext<NotificationContextType | null>(null);
+export const NotificationContext = createContext<NotificationContextType | null>(null);
 
 export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
     const [notification, setNotification] = useState<Notification | null>(null);
@@ -32,10 +32,4 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
             {notification && <NotificationComponent {...notification} />}
         </NotificationContext.Provider>
     );
-};
-
-export const useNotification = () => {
-    const context = useContext(NotificationContext);
-    if (!context) throw new Error("useNotification must be used within NotificationProvider");
-    return context;
 };

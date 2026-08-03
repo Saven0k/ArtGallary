@@ -3,8 +3,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 1rem 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background: var(--neutral-black-900);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -24,15 +23,6 @@
     text-decoration: none;
     color: white;
     transition: transform 0.3s ease;
-}
-
-.header__logo:hover {
-    transform: scale(1.05);
-}
-
-.header__logo-icon {
-    font-size: 2rem;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .header__logo-text {

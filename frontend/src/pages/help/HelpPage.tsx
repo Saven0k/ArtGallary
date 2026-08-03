@@ -2,8 +2,8 @@ import "./HelpPage.css";
 import HelpSidebar from "./components/HelpSidebar";
 import FAQ from "./components/FAQ";
 import Resources from "./components/Resources";
-import { useLanguage } from "../../context/LanguageContext";
 import { translations } from "./lang";
+import { useLanguage } from "../../hooks/useLanguage";
 
 const HelpPage = () => {
     const { language } = useLanguage();

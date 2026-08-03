@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useNotification } from '../../../../context/NotificationContext';
 import { useConfirm } from '../../../../hooks/useConfirm';
 import '../AdminPage.css';
 import { getAllModerators, createModerator, deleteModerator, type Moderator, type CreateModeratorData } from '../../../../api/moderators/main.api';
 import { AdminTable } from '../components/AdminTable';
 import { AdminModal } from '../components/AdminModal';
-import { useAuth } from '../../../../hooks/useAuth';
+import { useNotification } from '../../../../hooks/useNotification';
 
 export const ModeratorsAdmin = () => {
     const { showNotification } = useNotification();
     const { confirm } = useConfirm();
-    const { user } = useAuth();
+
     const [moderators, setModerators] = useState<Moderator[]>([]);
     const [loading, setLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);

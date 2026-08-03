@@ -1,0 +1,65 @@
+/* src/pages/Profile/components/ProfileContent/Notifications.css */
+
+.notifications {
+    width: 100%;
+
+    padding: 36px;
+
+    background: #ffffff;
+
+    border-radius: var(--radius-xl);
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, .08);
+}
+
+.notifications__header {
+    margin-bottom: 32px;
+}
+
+.notifications__title {
+    margin: 0 0 8px;
+
+    color: var(--neutral-grey-800);
+
+    font-size: var(--font-h5);
+    font-weight: var(--font-weight-semibold);
+}
+
+.notifications__subtitle {
+    margin: 0;
+
+    color: var(--neutral-grey-600);
+
+    font-size: 15px;
+}
+
+.notifications__list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* ============================
+   Responsive
+============================ */
+
+@media (max-width: 768px) {
+
+    .notifications {
+        padding: 24px;
+    }
+
+    .notifications__title {
+        font-size: 28px;
+    }
+
+    .notifications__header {
+        margin-bottom: 24px;
+    }
+
+    .notifications__list {
+        gap: 14px;
+    }
+
+}

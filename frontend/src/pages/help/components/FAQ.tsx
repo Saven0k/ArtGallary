@@ -1,10 +1,9 @@
-// src/pages/Help/components/FAQ.tsx
 import { useState, useMemo, useEffect } from "react";
 import FAQItem from "./FAQItem";
 import "./FAQ.css";
-import { useLanguage } from "../../../context/LanguageContext";
 import { translations } from "../lang";
 import FAQTabs from "./FAQTabs";
+import { useLanguage } from "../../../hooks/useLanguage";
 
 export interface FAQItemType {
     question: string;

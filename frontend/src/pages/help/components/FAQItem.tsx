@@ -1,4 +1,3 @@
-import { ChevronDown } from "lucide-react";
 import "./FAQItem.css";
 import ArrowIcon from "../icons/arrow.svg"
 

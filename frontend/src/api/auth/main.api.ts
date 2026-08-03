@@ -1,4 +1,5 @@
 import { BASE_URL_API, contentType } from "../main.api";
+import type { Gender } from "../users/main.api";
 const BASE_URL = `${BASE_URL_API}/auth`;
 
 export interface AuthResponse {
@@ -17,7 +18,8 @@ export interface RegisterData {
     password: string,
     name: string,
     second_name: string,
-    phone_number: string
+    phone_number: string,
+    gender: Gender;
 }
 export const login = async (userData: LoginData) => {
     try {

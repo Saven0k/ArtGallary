@@ -5,7 +5,6 @@ export const footerTranslations = {
             title: "Быстрые ссылки",
             gallery: "Галерея",
             artists: "Художники",
-            exhibitions: "Выставки",
             profile: "Профиль"
         },
         info: {
@@ -32,7 +31,6 @@ export const footerTranslations = {
             title: "Quick Links",
             gallery: "Gallery",
             artists: "Artists",
-            exhibitions: "Exhibitions",
             profile: "Profile"
         },
         info: {
@@ -52,5 +50,31 @@ export const footerTranslations = {
             button: "Subscribe"
         },
         copyright: "All rights reserved."
+    },
+    zh: {
+        description: "与我们一起探索艺术的世界。来自世界各地才华横溢的艺术家的独特作品。",
+        quickLinks: {
+            title: "快速链接",
+            gallery: "画廊",
+            artists: "艺术家",
+            profile: "个人资料"
+        },
+        info: {
+            title: "信息",
+            about: "关于我们",
+            contacts: "联系方式",
+            help: "帮助",
+            privacy: "隐私政策"
+        },
+        contact: {
+            title: "联系方式",
+            address: "莫斯科市特维尔大街10号"
+        },
+        newsletter: {
+            title: "新闻订阅",
+            placeholder: "您的邮箱",
+            button: "订阅"
+        },
+        copyright: "版权所有。"
     }
 };

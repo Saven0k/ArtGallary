@@ -1,4 +1,4 @@
-import { useLanguage } from '../../../../context/LanguageContext';
+import { useLanguage } from '../../../../hooks/useLanguage';
 import { artsEmptyTranslations } from './lang';
 import "./ArtsEmpty.css";
 

@@ -1,4 +1,4 @@
-import { useLanguage } from "../../../context/LanguageContext";
+import { useLanguage } from "../../../hooks/useLanguage";
 import { translations } from "../lang";
 import "./FAQTabs.css";
 

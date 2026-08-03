@@ -1,0 +1,169 @@
+/* src/pages/Profile/components/ProfileContent/PersonalInfo.css */
+
+.personal-info {
+    width: 100%;
+
+    padding: 36px;
+
+    background: #fff;
+
+    border-radius: var(--radius-xl);
+
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+/* ========================= */
+
+.personal-info__header {
+    margin-bottom: 36px;
+}
+
+.personal-info__title {
+    margin: 0 0 8px;
+
+    color: var(--neutral-grey-800);
+
+    font-size: var(--font-h5);
+    font-weight: var(--font-weight-semibold);
+}
+
+.personal-info__subtitle {
+    margin: 0;
+
+    color: var(--neutral-grey-600);
+
+    font-size: 15px;
+}
+
+/* ========================= */
+
+.personal-info__form {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.personal-info__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 24px;
+}
+
+.personal-info__field {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.personal-info__field label {
+    color: var(--neutral-grey-800);
+
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.personal-info__field input,
+.personal-info__field select,
+.personal-info__field textarea {
+
+    width: 100%;
+
+    padding: 14px 16px;
+
+    border: 1px solid var(--neutral-grey);
+
+    border-radius: var(--radius-m);
+
+    background: #fff;
+
+    font-size: 15px;
+
+    color: var(--neutral-grey-800);
+
+    transition:
+        border-color .25s ease,
+        box-shadow .25s ease;
+}
+
+.personal-info__field textarea {
+    resize: vertical;
+
+    min-height: 140px;
+}
+
+.personal-info__field input:focus,
+.personal-info__field select:focus,
+.personal-info__field textarea:focus {
+
+    outline: none;
+
+    border-color: var(--brand-primary-gold);
+
+    box-shadow:
+        0 0 0 3px rgba(188,149,71,.15);
+}
+
+/* ========================= */
+
+.personal-info__button {
+
+    align-self: flex-start;
+
+    padding: 14px 32px;
+
+    border: none;
+
+    border-radius: var(--radius-full);
+
+    background: var(--nav-brown);
+
+    color: #fff;
+
+    cursor: pointer;
+
+    font-size: 16px;
+    font-weight: 500;
+
+    transition:
+        background .25s,
+        transform .2s;
+}
+
+.personal-info__button:hover {
+
+    background: var(--brand-primary-gold);
+
+    transform: translateY(-2px);
+}
+
+.personal-info__button:active {
+    transform: scale(.98);
+}
+
+/* ========================= */
+
+@media (max-width:900px){
+
+    .personal-info__grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media (max-width:768px){
+
+    .personal-info{
+
+        padding:24px;
+
+    }
+
+    .personal-info__button{
+
+        width:100%;
+
+    }
+
+}

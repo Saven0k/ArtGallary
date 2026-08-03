@@ -3,7 +3,6 @@ export const artistNavTranslations = {
         back: "← Все художники",
         tabs: {
             arts: "🖼️ Работы",
-            exhibitions: "🏛️ Выставки",
             info: "📋 О художнике"
         },
         editProfile: "✏️ Редактировать профиль"
@@ -12,7 +11,6 @@ export const artistNavTranslations = {
         back: "← All Artists",
         tabs: {
             arts: "🖼️ Works",
-            exhibitions: "🏛️ Exhibitions",
             info: "📋 About Artist"
         },
         editProfile: "✏️ Edit Profile"

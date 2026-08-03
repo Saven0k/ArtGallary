@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import type { Art } from '../../../../../api/arts/main.api';
 import { useAuth } from '../../../../../hooks/useAuth';
-import { useLanguage } from '../../../../../context/LanguageContext';
+import { useLanguage } from '../../../../../hooks/useLanguage';
 import { ArtistArtCard } from '../ArtistArtCard/ArtistArtCard';
 import { artistArtsTabTranslations } from './lang';
 import './ArtistArtsTab.css';

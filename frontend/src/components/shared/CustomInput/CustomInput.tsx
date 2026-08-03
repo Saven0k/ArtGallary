@@ -1,310 +1,180 @@
+// src/components/CustomInput/index.tsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getConfig } from './inputConfig';
 import { customInputTranslations } from './lang';
-import type { Option } from './fecthFuncs';
+import { type Option, setLang } from './fecthFuncs';
 import "./index.css"
 
 export interface CustomInputInterface {
-    type: "city" | "country" | "genre" | "style",
+    type: "genre" | "style",
     value: string,
     onChange: (value: string) => void,
-    isEditing?: boolean,
-    externalOptions?: Option[] | null,
-    fetchFunction?: () => Promise<Option[]>,
-    cache?: any
+    isEditing?: boolean
 }
 
-const globalCache = new Map<string, Option[]>();
+const cache = new Map<string, Option[]>();
 
 const CustomInput = (props: CustomInputInterface) => {
-    const {
-        type,
-        value,
-        onChange,
-        isEditing = false,
-        externalOptions = null,
-        fetchFunction,
-        cache
-    } = props;
-
+    const { type, value, onChange, isEditing = false } = props;
     const { language } = useLanguage();
-    const lang = customInputTranslations[language];
-    const currentConfig = getConfig(lang)[type];
-    
-    const cacheRef = useRef(cache?.current || globalCache);
+    const lang = customInputTranslations[language] || customInputTranslations['ru'];
+    const config = getConfig(lang)[type];
+
+    if (!config) {
+        console.error(`Config not found for type: ${type}`);
+        return <div className="form-group">Ошибка: неизвестный тип {type}</div>;
+    }
+
     const [inputValue, setInputValue] = useState('');
-    const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
     const [options, setOptions] = useState<Option[]>([]);
+    const [filtered, setFiltered] = useState<Option[]>([]);
     const [showDropdown, setShowDropdown] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const [isInputFocused, setIsInputFocused] = useState(false);
-    const [isOptionsLoaded, setIsOptionsLoaded] = useState(false);
-    const [hasTriggeredLoad, setHasTriggeredLoad] = useState(false);
+    const [focused, setFocused] = useState(false);
+    const [loaded, setLoaded] = useState(false);
 
-    const hasOptions = currentConfig.fetch !== null || externalOptions !== null;
+    useEffect(() => {
+        setLang(language);
+    }, [language]);
 
-    const loadOptionsWithCache = useCallback(async () => {
-        if (hasTriggeredLoad) return;
-        setHasTriggeredLoad(true);
+    const loadOptions = useCallback(async () => {
+        const cacheKey = `${type}-${language}`;
         
-        const cacheKey = currentConfig.cacheKey;
-        setIsLoading(true);
-
-        if (cacheRef.current.has(cacheKey)) {
-            const cachedOptions = cacheRef.current.get(cacheKey);
-            if (cachedOptions && cachedOptions.length > 0) {
-                setOptions(cachedOptions);
-                setIsOptionsLoaded(true);
-                setIsLoading(false);
+        // ✅ Проверяем кэш
+        if (cache.has(cacheKey)) {
+            const cachedData = cache.get(cacheKey);
+            if (cachedData && cachedData.length > 0) {
+                setOptions(cachedData);
+                setLoaded(true);
+                setLoading(false);
                 return;
             }
         }
 
-        if (externalOptions !== null) {
-            setOptions(externalOptions);
-            setIsOptionsLoaded(true);
-            setIsLoading(false);
-            if (cacheKey && externalOptions.length > 0) {
-                cacheRef.current.set(cacheKey, externalOptions);
-            }
-            return;
+        setLoading(true);
+        try {
+            let data: Option[] = [];
+            const fn = config.fetch;
+            if (fn) data = await fn();
+            cache.set(cacheKey, data);
+            setOptions(data);
+        } catch (error) {
+            console.error('Load error:', error);
+        } finally {
+            setLoaded(true);
+            setLoading(false);
         }
-
-        if (fetchFunction) {
-            try {
-                const data = await fetchFunction();
-                setOptions(data || []);
-                setIsOptionsLoaded(true);
-                if (cacheKey && data && data.length > 0) {
-                    cacheRef.current.set(cacheKey, data);
-                }
-            } catch (error) {
-                console.error(`Failed to load ${type}:`, error);
-                setOptions([]);
-                setIsOptionsLoaded(true);
-            } finally {
-                setIsLoading(false);
-            }
-            return;
-        }
-
-        if (currentConfig.fetch) {
-            try {
-                const data = await currentConfig.fetch();
-                setOptions(data || []);
-                setIsOptionsLoaded(true);
-                if (cacheKey && data && data.length > 0) {
-                    cacheRef.current.set(cacheKey, data);
-                }
-            } catch (error) {
-                console.error(`Failed to load ${type}:`, error);
-                setOptions([]);
-                setIsOptionsLoaded(true);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-    }, [type, externalOptions, fetchFunction, currentConfig, hasTriggeredLoad]);
+    }, [type, language, config]);
 
     useEffect(() => {
-        loadOptionsWithCache();
-    }, []);
+        loadOptions();
+    }, [loadOptions]);
 
     useEffect(() => {
-        if (!isOptionsLoaded) return;
-
-        if (!value) {
-            setInputValue('');
-            return;
-        }
-
-        if (hasOptions && options.length > 0) {
-            const foundOption = options.find(opt => opt.id.toString() === value.toString());
-            if (foundOption) {
-                setInputValue(foundOption.name);
-            } else {
-                const isNumeric = /^\d+$/.test(value);
-                if (!isNumeric) {
-                    setInputValue(value);
-                } else {
-                    setInputValue('');
-                }
-            }
-        } else if (!hasOptions) {
-            setInputValue(value);
-        }
-    }, [value, options, hasOptions, isOptionsLoaded]);
+        if (!loaded) return;
+        if (!value) { setInputValue(''); return; }
+        const found = options.find(o => String(o.id) === String(value));
+        setInputValue(found ? found.name : (/^\d+$/.test(value) ? '' : value));
+    }, [value, options, loaded]);
 
     useEffect(() => {
-        if (!hasOptions || !isOptionsLoaded || isLoading) return;
-
+        if (!loaded || loading) return;
         const timer = setTimeout(() => {
-            if (inputValue && inputValue.trim() && isEditing && isInputFocused) {
-                const filtered = options.filter(option =>
-                    option.name.toLowerCase().includes(inputValue.toLowerCase())
-                );
-                setFilteredOptions(filtered);
-            } else if (!inputValue || !inputValue.trim()) {
-                const topFive = options.slice(0, 5);
-                setFilteredOptions(topFive);
+            if (focused && inputValue.trim()) {
+                setFiltered(options.filter(o => o.name.toLowerCase().includes(inputValue.toLowerCase())));
+            } else {
+                setFiltered(options.slice(0, 5));
             }
         }, 200);
-
         return () => clearTimeout(timer);
-    }, [inputValue, options, hasOptions, isEditing, isInputFocused, isOptionsLoaded, isLoading]);
+    }, [inputValue, options, focused, loaded, loading]);
 
     useEffect(() => {
-        if (!hasOptions || !isOptionsLoaded || isLoading) {
-            setShowDropdown(false);
-            return;
-        }
-
-        if (!isInputFocused) {
-            setShowDropdown(false);
-            return;
-        }
-
-        if (inputValue && inputValue.trim()) {
-            setShowDropdown(filteredOptions.length > 0);
-        } else {
-            const topFive = options.slice(0, 5);
-            if (topFive.length !== filteredOptions.length) {
-                setFilteredOptions(topFive);
-            }
-            setShowDropdown(topFive.length > 0);
-        }
-    }, [inputValue, filteredOptions, options, hasOptions, isInputFocused, isOptionsLoaded, isLoading]);
+        if (!loaded || loading || !focused) { setShowDropdown(false); return; }
+        setShowDropdown(filtered.length > 0);
+    }, [filtered, focused, loaded, loading, type]);
 
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        const handleClick = (e: MouseEvent) => {
+            if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
                 setShowDropdown(false);
-                setIsInputFocused(false);
+                setFocused(false);
             }
         };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener('mousedown', handleClick);
+        return () => document.removeEventListener('mousedown', handleClick);
     }, []);
 
-    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = e.target.value;
-        setInputValue(newValue);
-        if (!newValue) {
-            onChange('');
-        } else if (!hasOptions) {
-            onChange(newValue);
-        }
-    }, [onChange, hasOptions]);
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setInputValue(val);
+        if (!val) onChange('');
+    };
 
-    const handleSelectOption = useCallback((option: Option) => {
+    const handleSelect = (option: Option) => {
         setInputValue(option.name);
-        onChange(option.id.toString());
+        onChange(String(option.id));
         setShowDropdown(false);
-        setIsInputFocused(false);
-    }, [onChange]);
+        setFocused(false);
+    };
 
-    const handleBlur = useCallback(() => {
+    const handleBlur = () => {
         setTimeout(() => {
-            if (inputValue && hasOptions && options.length > 0 && isOptionsLoaded) {
-                const exactMatch = options.find(opt => opt.name.toLowerCase() === inputValue.toLowerCase());
-                if (exactMatch) {
-                    setInputValue(exactMatch.name);
-                    onChange(exactMatch.id.toString());
-                } else if (inputValue && !exactMatch) {
-                    onChange(inputValue);
-                }
+            if (inputValue) {
+                const exact = options.find(o => o.name.toLowerCase() === inputValue.toLowerCase());
+                if (exact) { setInputValue(exact.name); onChange(String(exact.id)); }
             }
             setShowDropdown(false);
-            setIsInputFocused(false);
-        }, 200);
-    }, [inputValue, options, hasOptions, onChange, isOptionsLoaded]);
-
-    const handleFocus = useCallback(() => {
-        setIsInputFocused(true);
-    }, []);
+            setFocused(false);
+        }, 150);
+    };
 
     if (!isEditing) {
-        if (isLoading || !isOptionsLoaded) {
-            return (
-                <div className="form-group">
-                    <label className="form-label">{currentConfig.label}</label>
-                    <div className="form-view">
-                        {lang.loading}
-                    </div>
-                </div>
-            );
+        if (loading || !loaded) return (
+            <div className="form-group">
+                <label className="form-label">{config.label}</label>
+                <div className="form-view">{lang.loading}</div>
+            </div>
+        );
+        let display = lang.notSpecified;
+        if (value) {
+            const found = options.find(o => String(o.id) === String(value));
+            display = found ? found.name : (/^\d+$/.test(value) ? lang.notSpecified : value);
         }
-        
-        let displayValue = lang.notSpecified;
-        
-        if (hasOptions && value && options.length > 0) {
-            const selected = options.find(opt => opt.id.toString() === value.toString());
-            if (selected) {
-                displayValue = selected.name;
-            } else if (!/^\d+$/.test(value)) {
-                displayValue = value;
-            }
-        } else if (!hasOptions && value) {
-            displayValue = value;
-        }
-        
         return (
             <div className="form-group">
-                <label className="form-label">{currentConfig.label}</label>
-                <div className="form-view">
-                    {displayValue}
-                </div>
+                <label className="form-label">{config.label}</label>
+                <div className="form-view">{display}</div>
             </div>
         );
     }
 
     return (
         <div className="form-group" ref={wrapperRef}>
-            <label className="form-label">
-                {currentConfig.label}
-            </label>
-
+            <label className="form-label">{config.label}</label>
             <div className="form-autocomplete">
                 <input
                     type="text"
                     className="form-input"
                     value={inputValue}
-                    onChange={handleInputChange}
+                    onChange={handleChange}
+                    onFocus={() => setFocused(true)}
                     onBlur={handleBlur}
-                    onFocus={handleFocus}
-                    placeholder={currentConfig.placeholder}
-                    disabled={isLoading}
+                    placeholder={config.placeholder}
+                    disabled={loading}
                     autoComplete="off"
                 />
-
-                {isLoading && (
-                    <div className="form-loading-spinner">
-                        {lang.loading}
-                    </div>
-                )}
-
-                {hasOptions && showDropdown && !isLoading && isOptionsLoaded && (
+                {loading && <div className="form-loading-spinner">{lang.loading}</div>}
+                {showDropdown && (
                     <div className="form-dropdown">
-                        {filteredOptions.length > 0 ? (
-                            filteredOptions.map(option => (
-                                <div
-                                    key={option.id}
-                                    className="form-dropdown-item"
-                                    onMouseDown={(e) => {
-                                        e.preventDefault();
-                                        handleSelectOption(option);
-                                    }}
-                                >
-                                    {option.name}
-                                </div>
-                            ))
-                        ) : (
-                            <div className="form-dropdown-empty">
-                                {inputValue ? currentConfig.emptyMessage : lang.startTyping}
+                        {filtered.map(o => (
+                            <div key={o.id} className="form-dropdown-item" onMouseDown={(e) => { e.preventDefault(); handleSelect(o); }}>
+                                {o.name}
                             </div>
-                        )}
+                        ))}
+                        {filtered.length === 0 && <div className="form-dropdown-empty">{inputValue ? config.emptyMessage : lang.startTyping}</div>}
                     </div>
                 )}
             </div>

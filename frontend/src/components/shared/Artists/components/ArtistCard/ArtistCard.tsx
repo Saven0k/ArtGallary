@@ -1,5 +1,5 @@
 import type { ArtistUser } from '../../../../../types/user.types';
-import { useLanguage } from '../../../../../context/LanguageContext';
+import { useLanguage } from '../../../../../hooks/useLanguage';
 import { artistCardTranslations } from './lang';
 import './ArtistCard.css';
 
@@ -19,65 +19,37 @@ export const ArtistCard = ({ artist, viewMode, onClick }: ArtistCardProps) => {
         return parts.join(' ');
     };
 
-    const getInitials = () => {
-        return `${artist.surname?.[0] || ''}${artist.name?.[0] || ''}`;
-    };
-
-    const getArtCount = () => {
-        return artist.artistProfile?.arts?.length || 0;
-    };
-
-    const formatDate = (date: string) => {
-        const locale = language === 'en' ? 'en-US' : 'ru-RU';
-        return new Date(date).toLocaleDateString(locale, {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+    const getFullImageUrl = (avatarPath?: string | null) => {
+        if (!avatarPath) return null;
+        if (avatarPath.startsWith('http')) return avatarPath;
+        const baseUrl = 'http://localhost:5000';
+        return `${baseUrl}${avatarPath.startsWith('/') ? avatarPath : `/${avatarPath}`}`;
     };
 
     return (
-        <div className={`artist-card artist-card--${viewMode}`} onClick={onClick}>
-            <div className="artist-card__image-wrapper">
+        <div className={`artist-card ${viewMode}`} onClick={onClick}>
+            <div className="artist-card__image-container">
                 {artist.avatar_path ? (
-                    <img src={String(artist.avatar_path)} alt={getFullName()} className="artist-card__image" />
+                    <img src={getFullImageUrl(String(artist.avatar_path)) || ''} alt={getFullName()} className="artist-card__image" />
                 ) : (
-                    <div className="artist-card__image-placeholder">
-                        <span className="artist-card__initials">{getInitials()}</span>
-                    </div>
+                    <div className="artist-card__avatar-placeholder">🎨</div>
                 )}
-                <div className="artist-card__overlay">
-                    <button className="artist-card__view-btn">{lang.viewProfile}</button>
-                </div>
-                <div className="artist-card__art-count">
-                    🖼️ {getArtCount()} {lang.works}
-                </div>
             </div>
-
-            <div className="artist-card__content">
+            <div className="artist-card__info">
                 <h3 className="artist-card__name">{getFullName()}</h3>
-                
-                {artist.artistProfile?.date_birthday && (
-                    <div className="artist-card__birthday">
-                        📅 {formatDate(artist.artistProfile.date_birthday)}
-                    </div>
-                )}
-
-                <div className="artist-card__location">
-                    {artist.artistProfile?.city?.id && (
-                        <span className="artist-card__city">📍 {artist.artistProfile.city.name}</span>
-                    )}
-                    {artist.artistProfile?.country?.id && (
-                        <span className="artist-card__country">, {artist.artistProfile.country.name}</span>
-                    )}
+                <p className="artist-card__profession">{artist.artistProfile?.profession?.name || 'Художник'}</p>
+                <div className="artist-card__details">
+                    <span>🖼️ {artist.artistProfile?.artsCount || 0} работ</span>
+                    <span>❤️ {artist.artistProfile?.totalLikes || 0} лайков</span>
                 </div>
-
-                {artist.artistProfile?.biography && (
-                    <p className="artist-card__bio">
-                        {artist.artistProfile.biography.length > 100 
-                            ? `${artist.artistProfile.biography.slice(0, 100)}...` 
-                            : artist.artistProfile.biography}
-                    </p>
+                <div className="artist-card__location">
+                    {artist.artistProfile?.city?.name_en && <span>🏙️ {artist.artistProfile.city.name_en}</span>}
+                    {artist.artistProfile?.country?.name_en && <span>🌍 {artist.artistProfile.country.name_en}</span>}
+                </div>
+                {artist.role === 'artist' && (
+                    <span className={`artist-card__status ${artist.artistProfile?.moderate === true ? 'approved' : 'pending'}`}>
+                        {artist.artistProfile?.moderate === true ? '✅ Одобрено' : '⏳ На модерации'}
+                    </span>
                 )}
             </div>
         </div>
