@@ -32,10 +32,4 @@ export class RegisterDto {
     @ApiProperty({ example: 'Васильев', description: 'Отчество' })
     @IsString({ message: "Должно быть строкой" })
     readonly second_name: string;
-
-    @ApiProperty({ example: '+79876543211', description: 'Номер телефона' })
-    @IsPhoneNumber()
-    readonly phone_number: string;
-
-
 }

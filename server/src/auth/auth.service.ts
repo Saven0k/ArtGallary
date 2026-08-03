@@ -59,7 +59,6 @@ export class AuthService {
             if (dto.name) newUser.name = dto.name;
             if (dto.surname) newUser.surname = dto.surname;
             if (dto.second_name) newUser.second_name = dto.second_name;
-            if (dto.phone_number) newUser.phone_number = dto.phone_number;
             newUser.role = "user";
 
             const user = await this.userRepository.create(newUser);

@@ -1,3 +1,4 @@
+// src/users/users.service.ts
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './users.model';
@@ -6,18 +7,18 @@ import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { Inject } from '@nestjs/common';
 import { FilesService } from '../files/files.service';
 import { PasswordService } from '../password/password.service';
-import { ArtistProfile } from '../artists/artist.model';
 import { LocationService } from '../location/location.service';
 import { Country } from '../location/models/country.model';
 import { City } from '../location/models/city.model';
 import { UpdateuserDto } from './dto/update-user.dto';
 import { Profession } from 'src/professions/profession.model';
+import { AuthorProfile } from 'src/authors/author.model';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectModel(User) private userRepository: typeof User,
-        @InjectModel(ArtistProfile) private artistProfileModel: typeof ArtistProfile,
+        @InjectModel(AuthorProfile) private artistProfileModel: typeof AuthorProfile,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
         private fileService: FilesService,
         private passwordService: PasswordService,
@@ -27,7 +28,6 @@ export class UsersService {
     async onModuleInit() {
         await this.createAdminIfNotExists();
     }
-
 
     async createUser(dto: CreateUserDto, image?: any) {
         if (await this.getUserByEmail(dto.email)) {
@@ -51,10 +51,10 @@ export class UsersService {
             name: dto.name,
             surname: dto.surname,
             second_name: dto.second_name || '',
-            phone_number: dto.phone_number,
             gender: dto.gender as 'M' | 'F',
             avatar_path: filename,
             role: 'user',
+            date_birthday: dto.date_birthday, // 👈 ДОБАВЛЯЕМ
             city_id: dto.city_id ?? null,
             country_id: dto.country_id ?? null,
         });
@@ -66,7 +66,6 @@ export class UsersService {
         }));
         return user;
     }
-
 
     async updateUser(id: number, dto: UpdateuserDto, image?: any) {
         const user = await this.userRepository.findByPk(id);
@@ -93,8 +92,8 @@ export class UsersService {
         if (dto.name) updateData.name = dto.name;
         if (dto.surname) updateData.surname = dto.surname;
         if (dto.second_name !== undefined) updateData.second_name = dto.second_name;
-        if (dto.phone_number) updateData.phone_number = dto.phone_number;
         if (dto.gender) updateData.gender = dto.gender;
+        if (dto.date_birthday) updateData.date_birthday = dto.date_birthday; 
         if (dto.city_id !== undefined) updateData.city_id = dto.city_id ?? null;
         if (dto.country_id !== undefined) updateData.country_id = dto.country_id ?? null;
         if (filename) updateData.avatar_path = filename;
@@ -102,7 +101,6 @@ export class UsersService {
         await this.userRepository.update(updateData, { where: { id } });
         return this.getUserById(id);
     }
-
 
     async getAllUsers() {
         return this.userRepository.findAll({
@@ -123,10 +121,10 @@ export class UsersService {
             attributes: { exclude: ['password'] },
             include: [
                 {
-                    model: ArtistProfile,
-                    as: 'artistProfile',
-                    attributes: ['user_id', 'date_birthday', 'biography', 'moderate',
-                        'plan', 'planExpiresAt', 'planStatus', 'likes', 'views', 'is_deleted', 'deleted_at'],
+                    model: AuthorProfile,
+                    as: 'authorProfile',
+                    attributes: ['user_id', 'biography', 'moderate',
+                        'profession_id', 'is_deleted', 'deleted_at'],
                     include: [{ model: Profession, attributes: ['id', 'name', 'description'], required: false }]
                 },
                 { model: Country, as: 'country', attributes: ['id', 'iso2', 'name_ru', 'name_en'], required: false },
@@ -144,7 +142,6 @@ export class UsersService {
             ],
         });
     }
-
 
     async deleteUserById(id: number): Promise<boolean> {
         const user = await this.userRepository.findByPk(id);
@@ -200,7 +197,6 @@ export class UsersService {
         }
     }
 
-
     private async createAdminIfNotExists() {
         const adminEmail = process.env.ADMIN_EMAIL || 'admin@mail.ru';
         if (!process.env.ADMIN_PASSWORD) {
@@ -217,10 +213,10 @@ export class UsersService {
                     name: process.env.ADMIN_NAME || 'Администратор',
                     surname: process.env.ADMIN_SURNAME || 'Системный',
                     second_name: process.env.ADMIN_SECOND_NAME || 'Системович',
-                    phone_number: process.env.ADMIN_PHONE || '+70000000000',
                     role: 'admin',
                     gender: 'M',
                     avatar_path: '',
+                    date_birthday: new Date('1990-01-01'), // 👈 ДОБАВЛЯЕМ
                 });
                 this.logger.log('info', `✅ Администратор создан: ${admin.email}`);
             }

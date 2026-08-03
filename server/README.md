@@ -40,25 +40,25 @@ server/
 
 ## 🔧 Основные команды
 
-| Команда | Описание |
-|---------|----------|
-| `npm run build` | Сборка проекта |
-| `npm run start:dev` | Запуск в режиме разработки |
+| Команда              | Описание                   |
+| -------------------- | -------------------------- |
+| `npm run build`      | Сборка проекта             |
+| `npm run start:dev`  | Запуск в режиме разработки |
 | `npm run start:prod` | Запуск в production режиме |
 
 ## 🔐 Переменные окружения
 
-| Переменная | По умолчанию | Описание |
-|------------|-------------|----------|
-| `PORT` | `5000` | Порт сервера |
-| `DATABASE_URL` | — | URL подключения к PostgreSQL |
-| `JWT_ACCESS_SECRET` | — | Секрет для access-токенов |
-| `JWT_REFRESH_SECRET` | — | Секрет для refresh-токенов |
-| `CORS_ORIGINS` | `http://localhost:3000` | Разрешённые CORS origins |
-| `ADMIN_PASSWORD` | — | Пароль администратора (обязателен в production) |
-| `ADMIN_EMAIL` | `admin@mail.ru` | Email администратора |
-| `BASE_URL` | `http://localhost:5000` | Базовый URL сервера |
-| `NODE_ENV` | `development` | Окружение (development/production) |
+| Переменная           | По умолчанию            | Описание                                        |
+| -------------------- | ----------------------- | ----------------------------------------------- |
+| `PORT`               | `5000`                  | Порт сервера                                    |
+| `DATABASE_URL`       | —                       | URL подключения к PostgreSQL                    |
+| `JWT_ACCESS_SECRET`  | —                       | Секрет для access-токенов                       |
+| `JWT_REFRESH_SECRET` | —                       | Секрет для refresh-токенов                      |
+| `CORS_ORIGINS`       | `http://localhost:3000` | Разрешённые CORS origins                        |
+| `ADMIN_PASSWORD`     | —                       | Пароль администратора (обязателен в production) |
+| `ADMIN_EMAIL`        | `admin@mail.ru`         | Email администратора                            |
+| `BASE_URL`           | `http://localhost:5000` | Базовый URL сервера                             |
+| `NODE_ENV`           | `development`           | Окружение (development/production)              |
 
 ## 📚 Документация
 
@@ -68,27 +68,27 @@ server/
 
 ### По модулям
 
-| Модуль | Описание | Документация |
-|--------|----------|--------------|
-| Auth | Аутентификация и авторизация | [README](src/auth/README.md) |
-| Users | Пользователи | [README](src/users/README.md) |
-| Artists | Артисты и подписки | [README](src/artists/README.md) |
-| Arts | Произведения искусства | [README](src/arts/README.md) |
-| Genres | Жанры | [README](src/genres/README.md) |
-| Styles | Стили | [README](src/styles/README.md) |
-| Art Types | Типы артов | [README](src/art-types/README.md) |
-| Tags | Теги | [README](src/tags/README.md) |
-| Location | География | [README](src/location/README.md) |
-| Moderators | Модерация | [README](src/moderators/README.md) |
-| Professions | Профессии | [README](src/professions/README.md) |
-| Files | Файлы | [README](src/files/README.md) |
-| Password | Пароли | [README](src/password/README.md) |
-| Shared | Общие хелперы | [README](src/shared/README.md) |
+| Модуль      | Описание                     | Документация                        |
+| ----------- | ---------------------------- | ----------------------------------- |
+| Auth        | Аутентификация и авторизация | [README](src/auth/README.md)        |
+| Users       | Пользователи                 | [README](src/users/README.md)       |
+| Artists     | Артисты и подписки           | [README](src/artists/README.md)     |
+| Arts        | Произведения искусства       | [README](src/arts/README.md)        |
+| Genres      | Жанры                        | [README](src/genres/README.md)      |
+| Styles      | Стили                        | [README](src/styles/README.md)      |
+| Art Types   | Типы артов                   | [README](src/art-types/README.md)   |
+| Tags        | Теги                         | [README](src/tags/README.md)        |
+| Location    | География                    | [README](src/location/README.md)    |
+| Moderators  | Модерация                    | [README](src/moderators/README.md)  |
+| Professions | Профессии                    | [README](src/professions/README.md) |
+| Files       | Файлы                        | [README](src/files/README.md)       |
+| Password    | Пароли                       | [README](src/password/README.md)    |
+| Shared      | Общие хелперы                | [README](src/shared/README.md)      |
 
 ### Микросервисы
 
-| Сервис | Описание | Документация |
-|--------|----------|--------------|
+| Сервис        | Описание                      | Документация                               |
+| ------------- | ----------------------------- | ------------------------------------------ |
 | Files Service | Выделенный микросервис файлов | [README](services/files-service/README.md) |
 
 ## 🏗 Архитектура
@@ -119,132 +119,36 @@ MIT
 
 
 
-## 1. Country 🌍
+    private buildPagination(total: number, page: number, limit: number) {
+        const totalPages = Math.ceil(total / limit);
+        return {
+            total,
+            page,
+            limit,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1,
+        };
+    }
 
-Таблица: `countries`
+    private pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+        return keys.reduce((acc, key) => {
+            if (obj[key] !== undefined && obj[key] !== null) {
+                acc[key] = obj[key];
+            }
+            return acc;
+        }, {} as Pick<T, K>);
+    }
 
-| Поле | Тип данных | Описание |
-|------|-----------|----------|
-| `id` | INTEGER | Первичный ключ |
-| `iso2` | STRING(2) | Код ISO 3166-1 alpha-2 |
-| `iso3` | STRING(3) | Код ISO 3166-1 alpha-3 |
-| `name_en` | STRING | Название на английском |
-| `name_ru` | STRING | Название на русском |
-| `geonames_id` | INTEGER | ID из GeoNames |
-| `phone_code` | STRING | Телефонный код |
-| `currency` | STRING | Валюта |
-| `continent` | STRING | Континент |
-| `is_deleted` | BOOLEAN | Флаг удаления |
-| `deleted_at` | TIMESTAMP | Дата удаления |
+        private log(method: string, data: any): void {
+        this.logger.log('info', JSON.stringify({
+            message: `📋 ${method}`,
+            context: 'ArtistsService',
+            ...data,
+        }));
+    }
 
-### Атрибуты создания
 
-```ts
-{
-  iso2?: string;
-  iso3?: string;
-  name_en?: string;
-  name_ru?: string;
-  geonames_id?: number;
-  phone_code?: string;
-  currency?: string;
-  continent?: string;
-}
-```
-
----
-
-## 2. City 🏙️
-
-Таблица: `cities`
-
-| Поле | Тип данных | Описание |
-|------|-----------|----------|
-| `id` | INTEGER | Первичный ключ |
-| `geonames_id` | INTEGER | ID из GeoNames |
-| `name_en` | STRING | Название на английском |
-| `name_ru` | STRING | Название на русском |
-| `country_id` | INTEGER | Страна (FK → `countries.id`) |
-| `country_code` | STRING(2) | ISO 3166-1 alpha-2 код страны |
-| `region` | STRING | Регион |
-| `latitude` | DECIMAL | Широта |
-| `longitude` | DECIMAL | Долгота |
-| `population` | INTEGER | Население |
-| `timezone` | STRING | Часовой пояс |
-| `is_deleted` | BOOLEAN | Флаг удаления |
-| `deleted_at` | TIMESTAMP | Дата удаления |
-
-### Атрибуты создания
-
-```ts
-{
-  geonames_id: number;
-  name_en?: string;
-  name_ru?: string;
-  country_id: number;
-  country_code: string;
-  region?: string;
-  latitude?: number;
-  longitude?: number;
-  population?: number;
-  timezone?: string;
-}
-```
-
-## 4. Genre 🖌️
-
-Таблица: `genres`
-
-| Поле | Тип данных | Описание |
-|------|-----------|----------|
-| `id` | INTEGER | Первичный ключ |
-| `name_en` | STRING | Название на английском |
-| `name_ru` | STRING | Название на русском |
-| `is_deleted` | BOOLEAN | Флаг удаления |
-| `deleted_at` | TIMESTAMP | Дата удаления |
-
-## . Style 🎨
-
-Таблица: `styles`
-
-| Поле | Тип данных | Описание |
-|------|-----------|----------|
-| `id` | INTEGER | Первичный ключ |
-| `name_en` | STRING | Название на английском |
-| `name_ru` | STRING | Название на русском |
-| `is_deleted` | BOOLEAN | Флаг удаления |
-| `deleted_at` | TIMESTAMP | Дата удаления |
-
-### Атрибуты создания
-
-```ts
-{
-  name_en?: string;
-  name_ru?: string;
-}
-```
-
----
-
-## 6. Profession 💼
-
-Таблица: `professions`
-
-| Поле | Тип данных | Описание |
-|------|-----------|----------|
-| `id` | INTEGER | Первичный ключ |
-| `name_en` | STRING | Название на английском |
-| `name_ru` | STRING | Название на русском |
-| `is_deleted` | BOOLEAN | Флаг удаления |
-| `deleted_at` | TIMESTAMP | Дата удаления |
-
-### Атрибуты создания
-
-```ts
-{
-  name_en?: string;
-  name_ru?: string;
-}
-```
-
----
+<!-- TODO -->
+<!-- <Больше года на удаление 5> -->
+<!-- Изменение сущности на автор author -->

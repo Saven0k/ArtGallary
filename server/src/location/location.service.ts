@@ -52,11 +52,6 @@ export class LocationService implements OnModuleInit {
     }
   }
 
-
-  /**
-   * Поиск стран по названию (autocomplete).
-   * Ищет по ru и en, сортирует по релевантности (starts-with приоритетнее).
-   */
   async searchCountries(query: string, lang: Lang = 'ru'): Promise<CountryDto[]> {
     if (!query || query.length < 2) return [];
 
@@ -86,7 +81,6 @@ export class LocationService implements OnModuleInit {
       }),
     ]);
 
-    // Дедупликация: startsWith первыми, потом остальные из contains
     const seen = new Set<number>();
     const merged: Country[] = [];
 
@@ -100,9 +94,7 @@ export class LocationService implements OnModuleInit {
     return merged.slice(0, 10).map(c => this.toCountryDto(c, lang));
   }
 
-  /**
-   * Получить страну по ISO2 коду (RU, US, DE...).
-   */
+
   async getCountryByCode(iso2: string, lang: Lang = 'ru'): Promise<CountryDto | null> {
     if (!iso2 || iso2.length !== 2) return null;
 
@@ -112,22 +104,17 @@ export class LocationService implements OnModuleInit {
 
     if (country) return this.toCountryDto(country, lang);
 
-    // Fallback — пытаемся найти через Nominatim и сохранить
     this.logger.warn(`Страна ${iso2} не найдена в БД, запрашиваю Nominatim...`);
     return this.fetchCountryFromNominatim(iso2, lang);
   }
 
-  /**
-   * Получить страну по внутреннему ID.
-   */
+
   async getCountryById(id: number, lang: Lang = 'ru'): Promise<CountryDto | null> {
     const country = await this.countryModel.findByPk(id);
     return country ? this.toCountryDto(country, lang) : null;
   }
 
-  /**
-   * Получить все страны (для выпадающего списка, если нужно).
-   */
+
   async getAllCountries(lang: Lang = 'ru'): Promise<CountryDto[]> {
     const countries = await this.countryModel.findAll({
       order: lang === 'ru'
@@ -137,15 +124,6 @@ export class LocationService implements OnModuleInit {
     return countries.map(c => this.toCountryDto(c, lang));
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // ГОРОДА
-  // ──────────────────────────────────────────────────────────────────────────
-
-  /**
-   * Поиск городов (autocomplete).
-   * Если передан countryCode — ищет только в этой стране.
-   * Результаты сортируются по населению (крупные первыми).
-   */
   async searchCities(
     query: string,
     countryCode?: string,
@@ -174,9 +152,7 @@ export class LocationService implements OnModuleInit {
     return cities.map(c => this.toCityDto(c, lang));
   }
 
-  /**
-   * Получить список городов страны (топ по населению).
-   */
+
   async getCitiesByCountryCode(
     iso2: string,
     lang: Lang = 'ru',
@@ -193,9 +169,6 @@ export class LocationService implements OnModuleInit {
     return cities.map(c => this.toCityDto(c, lang));
   }
 
-  /**
-   * Получить город по внутреннему ID.
-   */
   async getCityById(id: number, lang: Lang = 'ru'): Promise<CityDto | null> {
     const city = await this.cityModel.findByPk(id, {
       include: [{ model: Country, attributes: ['iso2', 'name_en', 'name_ru'] }],
@@ -203,26 +176,11 @@ export class LocationService implements OnModuleInit {
     return city ? this.toCityDto(city, lang) : null;
   }
 
-  /**
-   * Получить город по GeoNames ID (если храните его в профиле пользователя).
-   */
   async getCityByGeonamesId(geonamesId: number, lang: Lang = 'ru'): Promise<CityDto | null> {
     const city = await this.cityModel.findOne({ where: { geonames_id: geonamesId } });
     return city ? this.toCityDto(city, lang) : null;
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // ФИЛЬТРАЦИЯ (для будущего использования)
-  // ──────────────────────────────────────────────────────────────────────────
-
-  /**
-   * Универсальный метод для фильтрации записей по стране/городу.
-   * Возвращает { country_id?, city_id? } для использования в WHERE других сущностей.
-   *
-   * Пример использования:
-   *   const { country_id, city_id } = await locationService.resolveFilter('RU', 'Москва');
-   *   await ArtistModel.findAll({ where: { country_id, city_id } });
-   */
   async resolveFilter(
     countryCode?: string,
     cityQuery?: string,
@@ -245,10 +203,6 @@ export class LocationService implements OnModuleInit {
 
     return result;
   }
-
-  // ──────────────────────────────────────────────────────────────────────────
-  // ПРИВАТНЫЕ МЕТОДЫ
-  // ──────────────────────────────────────────────────────────────────────────
 
   private toCountryDto(country: Country, lang: Lang): CountryDto {
     return {
@@ -273,10 +227,6 @@ export class LocationService implements OnModuleInit {
     };
   }
 
-  /**
-   * Fallback — запросить страну из Nominatim и сохранить в БД.
-   * Вызывается редко (только если в БД нет страны по коду).
-   */
   private async fetchCountryFromNominatim(
     iso2: string,
     lang: Lang,

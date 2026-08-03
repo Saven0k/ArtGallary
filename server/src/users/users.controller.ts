@@ -1,88 +1,101 @@
-// src/users/users.controller.ts
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UploadedFile, UseInterceptors, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UploadedFile, UseInterceptors, UsePipes, UseGuards, ForbiddenException, Query } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ValidationPipe } from '../pipes/validation.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Role } from '../auth/enums/role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UpdateuserDto } from './dto/update-user.dto';
+import { JwtAccessGuard } from '../auth/guards/jwt.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { AuthorFollowService } from 'src/authors/author-follow.service';
 
 @ApiTags("Пользователи")
+@ApiBearerAuth()
 @Controller('users')
+@UseGuards(JwtAccessGuard, RolesGuard)
 export class UsersController {
+    constructor(private userService: UsersService,  private followService: AuthorFollowService) { }
 
-    constructor(private userService: UsersService) { }
-
-    // ============ СТАТИЧЕСКИЕ РОУТЫ (без параметров) ============
-    // ✅ Должны быть ПЕРВЫМИ
-
-    @ApiOperation({ summary: 'Получение списка пользователей' })
     @Get()
+    @Roles(Role.Admin, Role.Moderator, Role.User, Role.Author, Role.Visitor)
+    @ApiOperation({ summary: 'Получение списка пользователей' })
     getAll() {
         return this.userService.getAllUsers();
     }
 
-    @ApiOperation({ summary: 'Получение удаленных пользователей' })
-    @Roles(Role.Admin, Role.Moderator)
     @Get('deleted')
+    @Roles(Role.Admin, Role.Moderator)
+    @ApiOperation({ summary: 'Получение удаленных пользователей' })
     async getDeletedUsers() {
         return this.userService.getDeletedUsers();
     }
 
-    // ============ РОУТЫ С ПАРАМЕТРАМИ ============
-    // ✅ Должны быть ПОСЛЕ статических роутов
-
-    @ApiOperation({ summary: 'Получение пользователя по ID' })
     @Get(':id')
-    getUser(
-        @Param('id') id: number
-    ) {
+    @Roles(Role.Admin, Role.Moderator, Role.User, Role.Author, Role.Visitor)
+    @ApiOperation({ summary: 'Получение пользователя по ID' })
+    getUser(@Param('id') id: number) {
         return this.userService.getUserById(id);
     }
 
-    @ApiOperation({ summary: 'Получение данных профиля пользователя по ID' })
-    @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
     @Get(':id/profile')
-    getUserData(
-        @Param('id') id: number
+    @Roles(Role.Admin, Role.Moderator, Role.User, Role.Author, Role.Visitor)
+    @ApiOperation({ summary: 'Получение данных профиля пользователя по ID' })
+    async getUserData(
+        @Param('id') id: number,
+        @CurrentUser() user: any
     ) {
+        if (user.role !== Role.Admin && user.role !== Role.Moderator && user.id !== id) {
+            throw new ForbiddenException('Вы можете просматривать только свой профиль');
+        }
         return this.userService.getProfileData(id);
     }
 
-    // ============ МУТАЦИИ ============
-
+    @Post()
+    @Roles(Role.Admin, Role.Moderator)
     @ApiOperation({ summary: 'Создание пользователя' })
     @UsePipes(ValidationPipe)
     @UseInterceptors(FileInterceptor('avatar_path'))
-    @Post()
     create(@Body() userDto: CreateUserDto, @UploadedFile() image?: any) {
         return this.userService.createUser(userDto, image);
     }
 
-    @ApiOperation({ summary: 'Восстановление пользователя' })
-    @Roles(Role.Admin, Role.Moderator)
     @Post(':id/restore')
+    @Roles(Role.Admin, Role.Moderator)
+    @ApiOperation({ summary: 'Восстановление пользователя' })
     async restoreUser(@Param('id') id: number) {
         return this.userService.restoreUser(id);
     }
 
-    @ApiOperation({ summary: 'Обновление данных пользователя' })
-    @Roles(Role.Admin, Role.Moderator, Role.User)
     @Patch(':id')
+    @Roles(Role.Admin, Role.Moderator, Role.User)
+    @ApiOperation({ summary: 'Обновление данных пользователя' })
     @UseInterceptors(FileInterceptor('avatar_path'))
     async updateUser(
         @Param('id') id: number,
         @Body() dto: UpdateuserDto,
-        @UploadedFile() image?: any
+        @UploadedFile() image?: any,
+        @CurrentUser() user?: any
     ) {
+        if (user.role !== Role.Admin && user.role !== Role.Moderator && user.id !== id) {
+            throw new ForbiddenException('Вы можете редактировать только свой профиль');
+        }
         return this.userService.updateUser(id, dto, image);
     }
 
-    @ApiOperation({ summary: 'Удаление пользователя по ID' })
     @Delete(':id')
-    async deleteUser(@Param('id') id: number) {
+    @Roles(Role.Admin, Role.Moderator, Role.User)
+    @ApiOperation({ summary: 'Удаление пользователя по ID' })
+    async deleteUser(
+        @Param('id') id: number,
+        @CurrentUser() user: any
+    ) {
+        if (user.role !== Role.Admin && user.role !== Role.Moderator && user.id !== id) {
+            throw new ForbiddenException('Вы можете удалить только свой профиль');
+        }
+
         const result = await this.userService.deleteUserById(id);
 
         if (!result) {
@@ -93,5 +106,36 @@ export class UsersController {
             message: 'Пользователь успешно удален',
             userId: id
         };
+    }
+
+    @Get(':id/follow/check')
+    @Roles(Role.User, Role.Author, Role.Admin)
+    @ApiOperation({ summary: 'Проверить подписку' })
+    async checkFollow(
+        @Param('id') authorId: number,
+        @CurrentUser() user: any,
+    ) {
+        return this.followService.checkFollow(user.id, authorId);
+    }
+
+    @Get('following')
+    @Roles(Role.User, Role.Author, Role.Admin)
+    @ApiOperation({ summary: 'Получить подписки пользователя' })
+    async getUserFollowing(
+        @CurrentUser() user: any,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 20,
+    ) {
+        return this.followService.getUserFollowing(user.id, page, limit);
+    }
+
+    @Post(':id/follow')
+    @Roles(Role.User, Role.Author, Role.Admin)
+    @ApiOperation({ summary: 'Подписаться/отписаться от автора' })
+    async toggleFollow(
+        @Param('id') authorId: number,
+        @CurrentUser() user: any,
+    ) {
+        return this.followService.toggleFollow(user.id, authorId);
     }
 }

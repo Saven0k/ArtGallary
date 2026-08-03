@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNumber, IsOptional, IsString, IsObject } from 'class-validator';
 
-export class ModerateArtistDto {
+export class ModerateAuthorDto {
     @ApiProperty({ example: 1, description: 'ID модератора' })
     @IsNumber()
     moderator_id: number;

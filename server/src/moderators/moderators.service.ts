@@ -69,8 +69,7 @@ export class ModeratorsService {
                 name:         dto.name,
                 surname:      dto.surname,
                 second_name:  dto.second_name || '',
-                phone_number: dto.phone_number,
-                gender:       dto.gender,          // ✅ было потеряно через pick()
+                gender:       dto.gender,  
                 role:         'moderator',
                 avatar_path:  avatarPath,
             }, { transaction });

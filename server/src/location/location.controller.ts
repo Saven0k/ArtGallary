@@ -19,7 +19,7 @@ import { Role } from '../auth/enums/role.enum';
 
 @ApiTags('location')
 @Controller('location')
-@Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
+@Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
 export class LocationController {
   constructor(private readonly locationService: LocationService) {}
 

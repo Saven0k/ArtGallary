@@ -1,12 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, DataType, Model, Table, ForeignKey, BelongsTo, BelongsToMany } from "sequelize-typescript";
-import { ArtistProfile } from "../artists/artist.model";
 import { Genre } from "../genres/genre.model";
 import { Style } from "../styles/styles.model";
 import { Tag } from "src/tags/tag.model";
 import { ArtTag } from "src/tags/art-tag.model";
 import { Country } from "src/location/models/country.model";
 import { City } from "src/location/models/city.model";
+import { AuthorProfile } from "src/authors/author.model";
 
 export type CurrencyType = "USD" | "EUR" | "RUB" | "UAH" | null;
 export interface ArtCreationAttrs {
@@ -75,12 +75,12 @@ export class Art extends Model<Art, ArtCreationAttrs> {
     moderate: string;
 
     @ApiProperty({ example: '2', description: 'ID автора' })
-    @ForeignKey(() => ArtistProfile)
+    @ForeignKey(() => AuthorProfile)
     @Column({ type: DataType.INTEGER, allowNull: true })
-    artist_id: number;
+    author_id: number;
 
-    @BelongsTo(() => ArtistProfile)
-    artist: ArtistProfile;
+    @BelongsTo(() => AuthorProfile)
+    artist: AuthorProfile;
 
     @ApiProperty({ example: false, description: 'Контент 18+' })
     @Column({ type: DataType.BOOLEAN, defaultValue: false })
@@ -102,15 +102,15 @@ export class Art extends Model<Art, ArtCreationAttrs> {
     @ForeignKey(() => Country)
     @Column({ type: DataType.INTEGER, allowNull: true })
     country_id: number | null;
- 
+
     @BelongsTo(() => Country)
     country: Country;
- 
+
     @ApiProperty({ example: 42, description: 'ID города из таблицы cities' })
     @ForeignKey(() => City)
     @Column({ type: DataType.INTEGER, allowNull: true })
     city_id: number | null;
- 
+
     @BelongsTo(() => City)
     city: City;
     @ApiProperty({ example: '1', description: 'ID жанра' })
@@ -131,4 +131,8 @@ export class Art extends Model<Art, ArtCreationAttrs> {
 
     @BelongsToMany(() => Tag, () => ArtTag)
     tags: Tag[];
+
+    @ApiProperty({ example: 0, description: 'Количество поделившихся' })
+    @Column({ type: DataType.INTEGER, defaultValue: 0 })
+    shares: number;
 }

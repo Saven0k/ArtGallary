@@ -6,7 +6,6 @@ import { InjectConnection, InjectModel } from '@nestjs/sequelize';
 import { FilesService } from '../files/files.service';
 import { UpdateArtDTO } from './dto/update-art.dto';
 import { User } from '../users/users.model';
-import { ArtistProfile } from '../artists/artist.model';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { Inject } from '@nestjs/common';
 import { Genre } from '../genres/genre.model';
@@ -19,19 +18,29 @@ import { TagsService } from 'src/tags/tags.service';
 import { Tag } from 'src/tags/tag.model';
 import { Country } from '../location/models/country.model';
 import { City } from '../location/models/city.model';
+import { Subscription } from 'src/subscriptions/subscription.model';
+import { AuthorProfile } from 'src/authors/author.model';
+import { NotificationType } from 'src/notifications/notification.model';
+import { AuthorFollow } from 'src/authors/author-follow.model';
+import { NotificationService } from 'src/notifications/notification.service';
+import { ArtLike } from './art-like.model';
 type Lang = 'ru' | 'en';
 
 @Injectable()
 export class ArtsService {
     constructor(
         @InjectModel(Art) private artRepository: typeof Art,
-        @InjectModel(ArtView) private artViewRepository: typeof ArtView,
-        @InjectModel(ArtistProfile) private artistProfileModel: typeof ArtistProfile,
+        @InjectModel(AuthorFollow) private followModel: typeof AuthorFollow,
+        @InjectModel(ArtLike) private artLikeModel: typeof ArtLike,
+        @InjectModel(ArtView) private artViewModel: typeof ArtView,
+        @InjectModel(AuthorProfile) private artistProfileModel: typeof AuthorProfile,
+        @InjectModel(User) private userRepository: typeof User,
         private fileService: FilesService,
         @InjectConnection() private sequelize: Sequelize,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
         private locationService: LocationService,
         private tagsService: TagsService,
+        private notificationService: NotificationService,
     ) { }
     private readonly PLAN_WEIGHT = { free: 0, pro: 50, vip: 100 };
     private readonly FRESHNESS_DAYS = 30;
@@ -77,6 +86,26 @@ export class ArtsService {
 
             await this.updateScore(art.id);
             await transaction.commit();
+
+            const followers = await this.followModel.findAll({
+                where: { author_id: artistId },
+                include: [{ model: User, attributes: ['id'] }]
+            });
+
+            const author = await this.artistProfileModel.findByPk(artistId, {
+                include: [{ model: User, attributes: ['name', 'surname'] }]
+            });
+
+            for (const follow of followers) {
+                await this.notificationService.createNotification(
+                    follow.user_id,
+                    NotificationType.NEW_ART,
+                    `${author.user.name} ${author.user.surname} опубликовал новую работу "${dto.title}"`,
+                    `/arts/${art.id}`,
+                    art.id,
+                    { author_id: artistId, art_id: art.id }
+                );
+            }
 
             return this.findArtWithLocation(art.id);
         } catch (e: any) {
@@ -332,7 +361,7 @@ export class ArtsService {
     private getDefaultIncludes() {
         return [
             {
-                model: ArtistProfile,
+                model: AuthorProfile,
                 required: false,
                 attributes: ['user_id'],
                 include: [{ model: User, attributes: ['id', 'name', 'surname', 'avatar_path'] }],
@@ -378,13 +407,156 @@ export class ArtsService {
         return art;
     }
 
+    async likeArt(userId: number, artId: number, req: any) {
+        const art = await this.artRepository.findByPk(artId, {
+            include: [{ model: AuthorProfile, attributes: ['user_id'] }]
+        });
+        if (!art) {
+            throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
+        }
+
+        const user = await this.userRepository.findByPk(userId);
+        if (!user) {
+            throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
+        }
+
+        const existing = await this.artLikeModel.findOne({
+            where: { art_id: artId, user_id: userId }
+        });
+
+        if (existing) {
+            await existing.destroy();
+            await art.decrement('likes', { by: 1 });
+            return { success: true, message: 'Лайк удален' };
+        }
+
+        const ip = req.ip || req.connection?.remoteAddress || req.headers['x-forwarded-for'];
+        const userAgent = req.headers['user-agent'] || '';
+
+        await this.artLikeModel.create({
+            art_id: artId,
+            user_id: userId,
+            user_gender: user.gender,
+            user_birthday: user.date_birthday,
+            city_id: user.city_id,
+            country_id: user.country_id,
+            ip_address: ip,
+            user_agent: userAgent,
+        });
+
+        await art.increment('likes', { by: 1 });
+
+        const author = await this.artistProfileModel.findByPk(art.author_id);
+        if (author) {
+            await this.notificationService.createNotification(
+                author.user_id,
+                NotificationType.ART_LIKE,
+                `${user.name} ${user.surname} оценил вашу картину "${art.title}"`,
+                `/arts/${artId}`,
+                artId,
+                { user_id: userId, art_id: artId, author_id: art.author_id }
+            );
+        }
+
+        return { success: true, message: 'Лайк добавлен' };
+    }
+
+    async getArtLikes(artId: number, page: number = 1, limit: number = 20) {
+        const art = await this.artRepository.findByPk(artId);
+        if (!art) {
+            throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
+        }
+
+        const offset = (page - 1) * limit;
+        const { count, rows } = await this.artLikeModel.findAndCountAll({
+            where: { art_id: artId },
+            include: [
+                { model: User, attributes: ['id', 'name', 'surname', 'avatar_path', 'gender', 'date_birthday'] },
+                { model: City, attributes: ['id', 'name_ru', 'name_en'] },
+                { model: Country, attributes: ['id', 'name_ru', 'name_en'] }
+            ],
+            order: [['created_at', 'DESC']],
+            limit,
+            offset,
+        });
+
+        return {
+            data: rows.map(row => row.toJSON()),
+            total: count,
+            pagination: this.buildPagination(count, page, limit)
+        };
+    }
+
+    async getArtLikesCount(artId: number) {
+        const count = await this.artLikeModel.count({
+            where: { art_id: artId }
+        });
+        return { count };
+    }
+
+    async viewArt(userId: number | null, artId: number, req: any) {
+        const art = await this.artRepository.findByPk(artId);
+        if (!art) {
+            throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
+        }
+
+        let user = null;
+        if (userId) {
+            user = await this.userRepository.findByPk(userId);
+        }
+
+        const ip = req.ip || req.connection?.remoteAddress || req.headers['x-forwarded-for'];
+        const userAgent = req.headers['user-agent'] || '';
+
+        if (userId) {
+            const existing = await this.artViewModel.findOne({
+                where: {
+                    art_id: artId,
+                    user_id: userId,
+                    created_at: { [Op.gte]: new Date(Date.now() - 30 * 60 * 1000) }
+                }
+            });
+            if (existing) return;
+        }
+
+        await this.artViewModel.create({
+            art_id: artId,
+            user_id: userId || undefined,
+            user_gender: user?.gender || null,
+            user_age: user?.date_birthday ? this.calculateAge(user.date_birthday) : null,
+            city_id: user?.city_id || null,
+            country_id: user?.country_id || null,
+            ip_address: ip,
+            user_agent: userAgent,
+        });
+
+        await art.increment('views', { by: 1 });
+    }
+
+    private calculateAge(birthday: Date): number {
+        const today = new Date();
+        let age = today.getFullYear() - birthday.getFullYear();
+        const m = today.getMonth() - birthday.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthday.getDate())) {
+            age--;
+        }
+        return age;
+    }
+
+    async getArtViewsCount(artId: number) {
+        const count = await this.artViewModel.count({
+            where: { art_id: artId }
+        });
+        return { count };
+    }
+
     private buildArtData(dto: CreateArtDto, artistId: number) {
         return {
             title: dto.title,
             description: dto.description,
             cost: dto.cost || null,
             currency: dto.currency || null,
-            likes: dto.likes || 0,
+            likes: 0,
             date_published: dto.date_published,
             artist_id: artistId,
             city_id: dto.city_id || null,
@@ -404,26 +576,75 @@ export class ArtsService {
     }
 
     private async hasUserViewedToday(artId: number, userId: number): Promise<boolean> {
-        const view = await this.artViewRepository.findOne({
+        const view = await this.artViewModel.findOne({
             where: {
                 art_id: artId,
                 user_id: userId,
-                viewed_at: { [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)) },
+                created_at: {
+                    [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0))
+                },
             },
         });
         return !!view;
     }
 
     private async recordView(artId: number, userId: number): Promise<void> {
-        await this.artViewRepository.create({ art_id: artId, user_id: userId, viewed_at: new Date() });
+        await this.artViewModel.create({
+            art_id: artId,
+            user_id: userId,
+        });
+    }
+
+    async incrementArtShares(artId: number): Promise<{ success: boolean; shares: number }> {
+        const art = await this.artRepository.findByPk(artId);
+        if (!art) {
+            throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
+        }
+        await art.increment('shares', { by: 1 });
+        await art.reload();
+        this.logger.log('info', JSON.stringify({
+            message: '🔄 Увеличено количество поделившихся',
+            context: 'ArtsService.incrementArtShares',
+            artId,
+            shares: art.shares
+        }));
+        return { success: true, shares: art.shares };
+    }
+
+    async getArtShares(artId: number): Promise<{ shares: number }> {
+        const art = await this.artRepository.findByPk(artId, {
+            attributes: ['shares']
+        });
+        if (!art) {
+            throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
+        }
+        return { shares: art.shares };
     }
 
     private async calculateScore(art: Art): Promise<number> {
-        const artist = await this.artistProfileModel.findOne({ where: { user_id: art.artist_id } });
-        const planWeight = artist?.plan ? this.PLAN_WEIGHT[artist.plan as keyof typeof this.PLAN_WEIGHT] || 0 : 0;
+        const artist = await this.artistProfileModel.findOne({
+            where: { user_id: art.author_id },
+            include: [{
+                model: Subscription,
+                limit: 1,
+                order: [['expires_at', 'DESC']]
+            }]
+        });
+        const subscription = artist?.subscription;
+        let planWeight = 0;
+        if (subscription) {
+            const weights = {
+                'free': 0,
+                'pro': 50,
+                'vip': 100,
+            };
+            planWeight = weights[subscription.plan as keyof typeof weights] || 0;
+        }
+
         const ageInDays = this.getAgeInDays(art.date_published);
         const freshnessWeight = Math.max(this.FRESHNESS_DAYS - ageInDays, 0);
         const featuredBonus = art.is_featured ? this.FEATURED_BONUS : 0;
+
         return Math.round(((art.likes || 0) * 5 + (art.views || 0) * 0.1 + planWeight + freshnessWeight + featuredBonus) * 100) / 100;
     }
 

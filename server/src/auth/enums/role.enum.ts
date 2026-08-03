@@ -1,7 +1,7 @@
 export enum Role {
     Admin = 'admin',
     Moderator = 'moderator',
-    Artist = 'artist',
+    Author = 'author',
     Visitor = 'visitor',
     User = 'user',
 }

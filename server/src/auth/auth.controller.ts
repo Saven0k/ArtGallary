@@ -55,9 +55,4 @@ export class AuthController {
     getMe(@CurrentUser() user: { id: number; email: string, role: Role }) {
         return user;
     }
-
-    @Get('debug')
-    debug(@Req() req: any) {
-        return req.cookies;
-    }
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsPhoneNumber, IsString, Length } from "class-validator";
+import { IsDateString, IsEmail, IsPhoneNumber, IsString, Length } from "class-validator";
 import { Gender } from "../users.model";
 import { Type } from "class-transformer";
 
@@ -26,8 +26,10 @@ export class CreateUserDto {
     @IsString({ message: "Должно быть строкой" })
     readonly second_name: string;
 
-    @ApiProperty({ example: '+79876543211', description: 'Номер телефона' })
-    readonly phone_number: string;
+    @ApiProperty({ example: '1990-01-01', description: 'Дата рождения' })
+    @IsDateString()
+    readonly date_birthday: Date;
+
 
     @ApiProperty({ example: 'F', description: 'Женский пол' })
     readonly gender: Gender;

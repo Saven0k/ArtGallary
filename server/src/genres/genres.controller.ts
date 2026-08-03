@@ -1,12 +1,17 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { GenresService } from './genres.service';
 import { Role } from '../auth/enums/role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateGenreDto } from './dto/create-genre.dto';
 import { UpdateGenreDto } from './dto/update-genre.dto';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { JwtAccessGuard } from '../auth/guards/jwt.guard';
 
+@ApiTags('Жанры')
+@ApiBearerAuth()
 @Controller('genres')
+@UseGuards(JwtAccessGuard, RolesGuard)
 export class GenresController {
     constructor(private genresService: GenresService) { }
 
@@ -47,26 +52,22 @@ export class GenresController {
 
     @ApiOperation({ summary: 'Получение жанров по виду искусства' })
     @Get('by-art-type/:artTypeId')
-    @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
-    getGenresByArtType(
-        @Param('artTypeId') artTypeId: number
-    ) {
+    @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
+    getGenresByArtType(@Param('artTypeId') artTypeId: number) {
         return this.genresService.getGenresByArtType(artTypeId);
     }
     
     @ApiOperation({ summary: 'Получение списка жанров' })
     @Get()
-    @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
+    @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
     getAll() {
         return this.genresService.getAll();
     }
 
     @ApiOperation({ summary: 'Получение жанра по id' })
     @Get("/:id")
-    @Roles(Role.Admin, Role.Moderator, Role.Artist, Role.Visitor, Role.User)
-    get(
-        @Param('id') id: number
-    ) {
-        return this.genresService.getById(id );
+    @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
+    get(@Param('id') id: number) {
+        return this.genresService.getById(id);
     }
 }

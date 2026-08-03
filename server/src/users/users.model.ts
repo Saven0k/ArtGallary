@@ -1,8 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from "sequelize-typescript";
-import { ArtistProfile } from "../artists/artist.model";
 import { Country } from "src/location/models/country.model";
 import { City } from "src/location/models/city.model";
+import { AuthorProfile } from "src/authors/author.model";
 
 export type Gender = "M" | "F";
 
@@ -12,9 +12,9 @@ export interface UserCreationAttrs {
     surname: string,
     name: string,
     second_name: string,
-    phone_number: string,
-    avatar_path: string;
-    role: "user" | "artist" | "moderator" | "admin",
+    avatar_path?: string;
+    date_birthday: Date;
+    role: "user" | "author" | "moderator" | "admin",
     gender: Gender,
     is_deleted?: boolean;
     deleted_at?: Date | null;
@@ -44,13 +44,13 @@ export class User extends Model<User, UserCreationAttrs> {
     @Column({ type: DataType.STRING, allowNull: false })
     second_name: string;
 
-    @ApiProperty({ example: '+79999999999', description: 'Номер телефона пользователя' })
-    @Column({ type: DataType.STRING, allowNull: false })
-    phone_number: string;
+    @ApiProperty({ example: '1990-01-01', description: 'Дата рождения' })
+    @Column({ type: DataType.DATE, allowNull: false })
+    date_birthday: Date;
 
     @ApiProperty({ example: 'server/images/1.jpg', description: 'Путь к аватарке на сервере' })
-    @Column({ type: DataType.STRING, allowNull: false })
-    avatar_path: string;
+    @Column({ type: DataType.STRING, allowNull: true })
+    avatar_path?: string;
 
     @ApiProperty({ example: 'Админ', description: 'Роль пользователя' })
     @Column({ type: DataType.ENUM('admin', 'visitor', 'moderator', 'artist', 'user'), allowNull: false })
@@ -84,6 +84,6 @@ export class User extends Model<User, UserCreationAttrs> {
     @BelongsTo(() => City)
     city: City;
 
-    @HasOne(() => ArtistProfile, { foreignKey: 'user_id', as: 'artistProfile' })
-    artistProfile: ArtistProfile;
+    @HasOne(() => AuthorProfile, { foreignKey: 'user_id', as: 'artistProfile' })
+    authorProfile: AuthorProfile;
 }

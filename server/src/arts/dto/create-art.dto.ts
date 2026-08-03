@@ -17,12 +17,10 @@ export class CreateArtDto {
     readonly currency?: CurrencyType;
     @ApiProperty({ example: 'Путь до файла', description: 'Путь до файла на сервере' })
     readonly image_path: string;
-    @ApiProperty({ example: '10', description: 'Колличество лайков на картинке' })
-    readonly likes?: number;
     @ApiProperty({ example: '12.10.1911', description: 'Дата создания' })
     readonly date_published: Date;
     @ApiProperty({ example: '5', description: 'ID художника' })
-    readonly artist_id: number;
+    readonly author_id: number;
     @ApiProperty({ example: '2', description: 'ID города' })
     readonly city_id: number;
     @ApiProperty({ example: '3', description: 'ID страны' })
