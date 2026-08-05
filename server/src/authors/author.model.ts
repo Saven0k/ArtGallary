@@ -6,6 +6,7 @@ import { Profession } from "src/professions/profession.model";
 import { Subscription } from "src/subscriptions/subscription.model";
 import { AuthorLike } from "./author-like.model";
 import { AuthorView } from "./author-view.model";
+import { AuthorFollow } from "./author-follow.model";
 
 export interface AuthorCreationAttrs {
     user_id: number,
@@ -71,4 +72,7 @@ export class AuthorProfile extends Model<AuthorProfile, AuthorCreationAttrs> {
     @ApiProperty({ example: 0, description: 'Количество поделившихся' })
     @Column({ type: DataType.INTEGER, defaultValue: 0 })
     shares: number;
+
+    @HasMany(() => AuthorFollow, { foreignKey: 'author_id' })
+    followers: AuthorFollow[];
 }

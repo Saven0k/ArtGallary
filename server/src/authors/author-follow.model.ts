@@ -31,6 +31,7 @@ export class AuthorFollow extends Model<AuthorFollow> {
 
     @BelongsTo(() => AuthorProfile)
     author: AuthorProfile;
+    
 
     @ApiProperty({ example: '2024-01-01T00:00:00.000Z', description: 'Дата подписки' })
     @Column({ type: DataType.DATE, defaultValue: DataType.NOW })

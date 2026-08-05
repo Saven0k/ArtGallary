@@ -22,6 +22,7 @@ import { AuthorLike } from './author-like.model';
 import { AuthorView } from './author-view.model';
 import { NotificationService } from 'src/notifications/notification.service';
 import { NotificationType } from 'src/notifications/notification.model';
+import { AuthorFollow } from './author-follow.model';
 
 export type Gender = "M" | "F";
 export interface AuthorUserResponse {
@@ -111,6 +112,7 @@ export class AuthorsService {
         @InjectModel(AuthorProfile) private authorProfileModel: typeof AuthorProfile,
         @InjectModel(AuthorLike) private authorLikeModel: typeof AuthorLike,
         @InjectModel(AuthorView) private authorViewModel: typeof AuthorView,
+        @InjectModel(AuthorFollow) private authorFollowModel: typeof AuthorFollow,
         @InjectModel(Art) private artRepository: typeof Art,
         @InjectModel(Profession) private professionModel: typeof Profession,
         @InjectConnection() private sequelize: Sequelize,
@@ -289,18 +291,23 @@ export class AuthorsService {
         const planWeight = subscription?.getWeight ? subscription.getWeight() : 0;
         const isSubscriptionActive = subscription?.isActive ? subscription.isActive() : false;
 
+        // Получаем количество подписчиков
+        const followersCount = await this.authorFollowModel.count({
+            where: { author_id: id }
+        });
+
         return {
             ...this.toPlainUser(user),
             authorProfile: author ? {
                 ...this.toPlainProfile(author),
                 ...stats,
                 moderate,
-
                 plan: plan,
                 planExpiresAt: planExpiresAt,
                 planStatus: planStatus,
                 planWeight: planWeight,
                 isSubscriptionActive: isSubscriptionActive,
+                followers_count: followersCount, // 👈 ДОБАВЛЯЕМ
             } : null,
         };
     }
@@ -315,12 +322,18 @@ export class AuthorsService {
         const stats = await this.getAuthorStats(id);
         const moderate = this.parseModerate(author?.moderate);
 
+        // Получаем количество подписчиков
+        const followersCount = await this.authorFollowModel.count({
+            where: { author_id: id }
+        });
+
         return {
             ...this.toPlainUser(user),
             authorProfile: author ? {
                 ...this.toPlainProfile(author),
                 ...stats,
                 moderate,
+                followers_count: followersCount, // 👈 ДОБАВЛЯЕМ
             } : null,
         };
     }
@@ -336,8 +349,10 @@ export class AuthorsService {
             offset,
             order: [['createdAt', 'DESC']],
             distinct: true,
-            include: [{ model: City, required: true, attributes: ['id', 'name_en', 'name_ru', 'country_id', 'country_code'] },
-            { model: Country, required: true, attributes: ['id', 'name_en', 'name_ru', 'iso2', 'iso3'] }]
+            include: [
+                { model: City, required: true, attributes: ['id', 'name_en', 'name_ru', 'country_id', 'country_code'] },
+                { model: Country, required: true, attributes: ['id', 'name_en', 'name_ru', 'iso2', 'iso3'] }
+            ]
         });
 
         if (!rows.length) {
@@ -350,23 +365,30 @@ export class AuthorsService {
         const authors = await this.getAuthorProfiles(rows.map(u => u.id));
         const artsMap = await this.getArtsMap(rows.map(u => u.id));
 
-        const data: AuthorListItemResponse[] = rows.map(user => {
-            const author = authors.get(user.id);
+        const data: AuthorListItemResponse[] = await Promise.all(
+            rows.map(async (user) => {
+                const author = authors.get(user.id);
+                const followersCount = await this.authorFollowModel.count({
+                    where: { author_id: user.id }
+                });
 
-            return {
-                ...this.toPlainUser(user),
-                authorProfile: author ? {
-                    ...this.toPlainProfile(author),
-                    arts: artsMap.get(user.id) || [],
-                } : null,
-            };
-        });
+                return {
+                    ...this.toPlainUser(user),
+                    authorProfile: author ? {
+                        ...this.toPlainProfile(author),
+                        arts: artsMap.get(user.id) || [],
+                        followers_count: followersCount, // 👈 ДОБАВЛЯЕМ
+                    } : null,
+                };
+            })
+        );
 
         return {
             data,
             pagination: this.buildPagination(count, page, limit)
         };
     }
+
 
     async getUnmoderatedAuthors(page: number = 1, limit: number = 12, lang: string = 'ru'): Promise<AuthorListResponse> {
         return this.getAuthorsByModerationStatus(false, page, limit, lang);
@@ -719,6 +741,19 @@ export class AuthorsService {
         return map;
     }
 
+
+    async getAuthorFollowersCount(authorId: number): Promise<{ count: number }> {
+        const author = await this.authorProfileModel.findByPk(authorId);
+        if (!author) {
+            throw new HttpException('Автор не найден', HttpStatus.NOT_FOUND);
+        }
+
+        const count = await this.authorFollowModel.count({
+            where: { author_id: authorId }
+        });
+
+        return { count };
+    }
     async likeAuthor(userId: number, authorId: number) {
         const author = await this.authorProfileModel.findByPk(authorId);
         if (!author) {

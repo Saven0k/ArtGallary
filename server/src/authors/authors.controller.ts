@@ -269,4 +269,11 @@ export class AuthorsController {
     async getAuthorViewsCount(@Param('id') authorId: number) {
         return this.authorService.getAuthorViewsCount(authorId);
     }
+
+    @ApiOperation({ summary: 'Получить количество подписчиков автора' })
+    @ApiResponse({ status: 200, description: 'Количество подписчиков' })
+    @Get(':id/followers/count')
+    async getAuthorFollowersCount(@Param('id') authorId: number) {
+        return this.authorService.getAuthorFollowersCount(authorId);
+    }
 }
