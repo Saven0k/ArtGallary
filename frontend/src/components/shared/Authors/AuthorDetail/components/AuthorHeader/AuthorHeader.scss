@@ -1,0 +1,181 @@
+.author-header {
+    max-width: 1400px;
+    margin-bottom: 34px;
+    display: flex;
+    flex-direction: column;
+    gap: 29px;
+    padding: 46px 70px 36px 40px;
+    background: #fff;
+    border-radius: var(--radius-xl);
+    box-shadow: 2px 2px 10px var(--neutral-black-900);
+
+    &__top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    &__info {
+        display: flex;
+        gap: 16px;
+    }
+
+    &__avatar {
+        width: 136px;
+        height: 136px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    &__text {
+        display: flex;
+        flex-direction: column;
+        max-width: 780px;
+    }
+
+    &__name {
+        font-size: var(--font-body-large);
+        font-weight: var(--font-weight-medium);
+        color: var(--neutral-black-900);
+        letter-spacing: 0.03em;
+        margin: 0 0 4px 0;
+    }
+
+    &__location {
+        font-size: var(--font-label);
+        color: var(--neutral-grey-800);
+        margin-bottom: 28px;
+        letter-spacing: 0.03em;
+    }
+
+    &__bio {
+        font-size: var(--font-label);
+        font-weight: var(--font-weight-medium);
+        color: var(--neutral-black-900);
+        max-height: 27px;
+        overflow: hidden;
+        transition: max-height 0.4s ease;
+
+        &--expanded {
+            max-height: 1000px;
+        }
+    }
+
+    &__read-more {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: none;
+        border: none;
+        font-size: var(--font-caption-light);
+        font-weight: var(--font-weight-medium);
+        color: var(--neutral-black-900);
+        cursor: pointer;
+        padding: 0;
+        align-self: flex-start;
+    }
+
+    &__read-more-icon {
+        transition: transform 0.3s ease;
+
+        &--rotated {
+            transform: rotate(180deg);
+        }
+    }
+
+    &__subscribe-btn {
+        padding: 10px 28px;
+        border-radius: var(--radius-xl);
+        background: var(--brand-primary-gold);
+        font-size: var(--font-body-largel);
+        font-weight: var(--font-weight-medium);
+        letter-spacing: 0.03em;
+        color: #fff;
+        cursor: pointer;
+        border: 1px solid var(--brand-primary-gold);
+    }
+
+    &__actions {
+        display: flex;
+        gap: 24px;
+    }
+
+    &__action-btn {
+        width: 236px;
+        text-align: center;
+        padding: 10px 0px; 
+        border: 1px solid var(--neutral-grey);
+        border-radius: var(--radius-full);
+        background: transparent;
+        font-size: var(--font-body-large);
+        font-weight: var(--font-weight-medium);
+        color: var(--brand-primary-gold);
+        cursor: pointer;
+        border-color: var(--brand-primary-gold);
+        color: var(--brand-primary-gold);
+
+    }
+
+    @media (max-width: 1100px) {
+        padding: 24px 28px;
+
+        &__top {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        &__subscribe-btn {
+            align-self: flex-start;
+        }
+    }
+
+    @media (max-width: 768px) {
+        padding: 16px 20px;
+        border-radius: var(--radius-l);
+
+        &__info {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        &__avatar {
+            width: 80px;
+            height: 80px;
+        }
+
+        &__name {
+            font-size: var(--font-h5);
+        }
+
+        &__bio {
+            max-height: 54px;
+            text-align: left;
+        }
+
+        &__read-more {
+            align-self: center;
+        }
+
+        &__subscribe-btn {
+            align-self: center;
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        &__actions {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        &__action-btn {
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
+    }
+}
