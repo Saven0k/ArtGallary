@@ -1,167 +1,75 @@
-import { useState } from 'react';
-import { useAuth } from '../../../../hooks/useAuth';
-import { useLanguage } from '../../../../hooks/useLanguage';
-import type { Art } from '../../../../api/arts/main.api';
-import { artCardTranslations } from './lang';
-import './index.css';
-import { AgeVerificationModal } from '../../../ui/AgeVerificationModal/AgeVerificationModal';
+// ArtCard.tsx
+import type { Art } from "../../../../api/arts/main.api";
+import "./ArtCard.scss";
+import LikeIcon from "./icons/like.svg";
+import CartIcon from "./icons/cart.svg";
+import { useState } from "react";
+import { useLanguage } from "../../../../hooks/useLanguage";
+import { artCardTranslations } from "./lang";
 
-interface ArtCardProps {
+export interface ArtCardProps {
+    art_id: number;
     art: Art;
-    viewMode: 'grid' | 'list';
-    onClick: () => void;
 }
 
-export const ArtCard = ({ art, viewMode, onClick }: ArtCardProps) => {
-    const { isAuthenticated } = useAuth();
+const ArtCard = ({ art_id, art }: ArtCardProps) => {
     const { language } = useLanguage();
-    const lang = artCardTranslations[language];
-    
-    const [isAdultVerified, setIsAdultVerified] = useState(false);
-    const [showAgeModal, setShowAgeModal] = useState(false);
-    const [isAgeCheckFailed, setIsAgeCheckFailed] = useState(false);
+    const t = artCardTranslations[language];
+    const [isLiked, setIsLiked] = useState<boolean>(false);
 
-    const isAdultContent = art.is_adult === true;
-
-    const saveVerification = () => {
-        localStorage.setItem('adult_verified', 'true');
-        localStorage.setItem('adult_verified_date', new Date().toISOString());
+    const handleLike = () => {
+        // TODO: логика лайка
+        setIsLiked(!isLiked);
+        console.log("Like toggled for art:", art_id);
     };
 
-    const checkStoredVerification = (): boolean => {
-        const verified = localStorage.getItem('adult_verified');
-        const verifiedDate = localStorage.getItem('adult_verified_date');
-        if (verified === 'true' && verifiedDate) {
-            const daysSince = (Date.now() - new Date(verifiedDate).getTime()) / (1000 * 60 * 60 * 24);
-            if (daysSince < 30) {
-                return true;
-            }
-        }
-        return false;
+    const handleAddToCart = () => {
+        // TODO: логика добавления в корзину
+        console.log("Added to cart:", art_id);
     };
-
-    const handleAgeSuccess = () => {
-        setIsAdultVerified(true);
-        saveVerification();
-        setShowAgeModal(false);
-    };
-
-    const handleAgeFail = () => {
-        setIsAgeCheckFailed(true);
-        setIsAdultVerified(false);
-        setShowAgeModal(false);
-    };
-
-    const handleCardClick = () => {
-        if (!isAdultContent) {
-            onClick();
-            return;
-        }
-
-        if (!isAuthenticated) {
-            // TODO: Показать модалку с предложением войти
-            return;
-        }
-
-        if (checkStoredVerification() || isAdultVerified) {
-            onClick();
-            return;
-        }
-
-        if (isAgeCheckFailed) {
-            return;
-        }
-
-        setShowAgeModal(true);
-    };
-
-    const handleVerifyClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setShowAgeModal(true);
-    };
-
-    const getArtistName = () => {
-        return `${art.artist?.user?.surname || ''} ${art.artist?.user?.name || ''}`.trim() || lang.unknownArtist;
-    };
-
-    const getArtistInitials = () => {
-        const surname = art.artist?.user?.surname?.[0] || '';
-        const name = art.artist?.user?.name?.[0] || '';
-        return `${surname}${name}`;
-    };
-
-    const isBlocked = isAdultContent && !isAdultVerified && !checkStoredVerification() && !isAgeCheckFailed;
 
     return (
-        <>
-            <div 
-                className={`art-card art-card--${viewMode} ${isBlocked ? 'art-card--blocked' : ''}`} 
-                onClick={handleCardClick}
-            >
-                <div className="art-card__image-wrapper">
-                    <img 
-                        src={art.image_path} 
-                        alt={art.title} 
-                        className="art-card__image" 
-                    />
-                    <div className="art-card__overlay">
-                        <button className="art-card__view-btn">{lang.quickView}</button>
-                    </div>
-                    <div className="art-card__likes">
-                        ❤️ {art.likes || 0}
-                    </div>
-                    {isAdultContent && (
-                        <div className="art-card__adult-badge">🔞 {lang.adultWarning}</div>
-                    )}
-                    {isBlocked && (
-                        <div className="art-card__adult-overlay" onClick={(e) => e.stopPropagation()}>
-                            <div className="art-card__adult-icon">🔞</div>
-                            <div className="art-card__adult-text">{lang.adultWarning}</div>
-                            <button 
-                                className="art-card__adult-btn"
-                                onClick={handleVerifyClick}
-                            >
-                                {lang.confirmAge}
-                            </button>
-                        </div>
-                    )}
-                </div>
-
-                <div className="art-card__content">
-                    <h3 className="art-card__title">{art.title}</h3>
-
-                    <div className="art-card__artist">
-                        {art.artist?.user?.avatar_path ? (
-                            <img
-                                src={art.artist.user.avatar_path}
-                                alt={getArtistName()}
-                                className="art-card__artist-avatar"
-                            />
-                        ) : (
-                            <div className="art-card__artist-avatar-placeholder">
-                                {getArtistInitials()}
-                            </div>
-                        )}
-                        <span className="art-card__artist-name">{getArtistName()}</span>
-                    </div>
-
-                    <div className="art-card__tags">
-                        {art.genre && (
-                            <span className="art-card__tag">{art.genre.title}</span>
-                        )}
-                        {art.style && (
-                            <span className="art-card__tag">{art.style.name}</span>
-                        )}
-                    </div>
-                </div>
+        <article className="art-card">
+            <div className="art-card__image-wrapper">
+                <img
+                    src={art.image_path}
+                    alt={art.title}
+                    className="art-card__image"
+                />
             </div>
 
-            <AgeVerificationModal
-                isOpen={showAgeModal}
-                onClose={() => setShowAgeModal(false)}
-                onSuccess={handleAgeSuccess}
-                onFail={handleAgeFail}
-            />
-        </>
+            <div className="art-card__content">
+                <div className="art-card__top">
+                    <span className="art-card__price">
+                        {art.cost ? `${art.cost} ${art.currency || ''}` : t.priceOnRequest}
+                    </span>
+                    <span className="art-card__title">{art.title}</span>
+                    <span className="art-card__author">
+                        {art.artist?.user?.surname} {art.artist?.user?.name}
+                    </span>
+                    <span className="art-card__materials">{art.specifications || t.noSpecs}</span>
+                </div>
+
+                <div className="art-card__actions">
+                    <button
+                        className={`art-card__like-btn ${isLiked ? 'art-card__like-btn--active' : ''}`}
+                        onClick={handleLike}
+                        aria-label={t.like}
+                    >
+                        <img src={LikeIcon} alt={t.like} className="art-card__icon" />
+                    </button>
+
+                    <button
+                        className="art-card__cart-btn"
+                        onClick={handleAddToCart}
+                        aria-label={t.addToCart}
+                    >
+                        <img src={CartIcon} alt={t.addToCart} className="art-card__icon" />
+                    </button>
+                </div>
+            </div>
+        </article>
     );
 };
+
+export default ArtCard;

@@ -21,7 +21,7 @@ import {SettingsProvider} from './context/SettingsContext';
 
 const LazyForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const LazyLoginPage = lazy(() => import('./pages/auth/LoginPage'))
-const LazyRegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
+// const LazyRegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 
 const LazyHomePage = lazy(() => import('./pages/home/HomePage'))
 const LazyProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
@@ -33,8 +33,8 @@ const LazyArtCreatePage = lazy(() => import('./pages/arts/ArtCreatePage/ArtCreat
 const LazyArtEditPage = lazy(() => import('./pages/arts/ArtEditPage'));
 
 
-const LazyArtistPage = lazy(() => import("./pages/artists/ArtistPage"));
-const LazyArtistsPage = lazy(() => import('./pages/artists/ArtistsPage'));
+const LazyAuthorPage = lazy(() => import("./pages/author/AuthorPage/AuthorPage"));
+const LazyAuthorsPage = lazy(() => import('./pages/author/AuthorsPage/AuthorsPage'));
 
 function App() {
   return (
@@ -49,29 +49,29 @@ function App() {
                     <Header />
                     <Routes>
                       <Route path="login" element={<LazyLoginPage />} />
-                      <Route path="register" element={<LazyRegisterPage />} />
+                      {/* <Route path="register" element={<LazyRegisterPage />} /> */}
                       <Route path="forgot-password" element={<LazyForgotPasswordPage />} />
 
                       <Route path="arts" element={<LazyArtsPage />} />
                       <Route path="arts/:id" element={<LazyArtPage />} />
 
-                      <Route path='artists' element={<LazyArtistsPage />} />
-                      <Route path='artists/:id' element={<LazyArtistPage />} />
+                      <Route path='artists' element={<LazyAuthorsPage />} />
+                      <Route path='artists/:id' element={<LazyAuthorPage />} />
 
                       <Route path="/settings" element={<SettingsPage />} />
                       <Route path="/help" element={<HelpPage />} />
 
-                      <Route element={<ProtectedRoute allowedRoles={['admin', 'artist']} />}>
+                      <Route element={<ProtectedRoute allowedRoles={['admin', 'author']} />}>
                         <Route path="/arts/my" element={<LazyMyArtsPage />} />
                         <Route path="/arts/my/new" element={<LazyArtCreatePage />} />
                         <Route path="/arts/my/edit/:id" element={<LazyArtEditPage />} />
                       </Route>
 
-                      <Route element={<ProtectedRoute allowedRoles={['admin', 'moderator', 'artist', 'user']} />}>
+                      <Route element={<ProtectedRoute allowedRoles={['admin', 'moderator', 'author', 'user']} />}>
                         <Route path="profile" element={<LazyProfilePage />} />
 
-                        <Route path="arts/liked" element={<LazyArtsPage />} />
-                        <Route path='artists/liked' element={<LazyArtistsPage />} />
+                        {/* <Route path="arts/liked" element={<LazyArtsPage />} /> */}
+                        {/* <Route path='authors/liked' element={<LazyAuthorsPage />} /> */}
                       </Route>
 
 

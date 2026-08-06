@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useConfirm } from '../../../../hooks/useConfirm';
 import "../AdminPage.css"
 import type { ArtistUser } from '../../../../types/user.types';
-import { getModeratedArtists, moderateArtist } from '../../../../api/artists/main.api';
+import { getModeratedArtists, moderateArtist } from '../../../../api/authors/main.api';
 import { AdminTable } from '../components/AdminTable';
 import { AdminModal } from '../components/AdminModal';
 import { useAuth } from '../../../../hooks/useAuth';

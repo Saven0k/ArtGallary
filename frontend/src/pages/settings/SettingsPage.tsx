@@ -1,4 +1,3 @@
-// src/pages/Settings/SettingsPage.tsx
 import {
     Globe,
     Bell,

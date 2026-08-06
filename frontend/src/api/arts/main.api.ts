@@ -1,3 +1,4 @@
+// src/api/arts/main.api.ts
 import { BASE_URL_API } from "../main.api";
 import type { Genre } from "../genres/main.api";
 import type { Style } from "../styles/main.api";
@@ -5,13 +6,6 @@ import type { Style } from "../styles/main.api";
 const BASE_URL = `${BASE_URL_API}/arts`;
 
 export type CurrencyType = "USD" | "EUR" | "RUB" | "UAH";
-
-// === SERVER: Arts model fields ===
-// title, description, image_path, cost (float|null), currency (string|null)
-// specifications (string JSON), date_published (Date), moderate (string JSON)
-// artist_id (int|null), genre_id (int), style_id (int), city_id/country_id (int|null)
-// is_adult, likes, views, score, is_featured, featured_until
-
 export interface Art {
     id: number;
     title: string;
@@ -28,11 +22,12 @@ export interface Art {
     score?: number;
     is_featured?: boolean;
     featured_until?: string;
-    artist_id?: number;
+    author_id?: number;
     city_id?: number | null;
     country_id?: number | null;
     genre_id?: number;
     style_id?: number;
+    shares?: number;
     artist?: {
         id: number;
         user_id: number;
@@ -47,9 +42,10 @@ export interface Art {
     country?: { id: number; name_en: string; name_ru?: string; iso2: string } | null;
     genre?: Genre;
     style?: Style;
+    tags?: { id: number; name: string }[];
 }
 
-export interface CreateArtDto {
+export interface CreateArtData {
     title: string;
     description: string;
     cost?: number | null;
@@ -57,7 +53,7 @@ export interface CreateArtDto {
     image_path?: File | null;
     specifications?: string;
     date_published: string;
-    artist_id?: number;
+    author_id?: number;
     city_id?: number | null;
     country_id?: number | null;
     genre_id?: number;
@@ -66,7 +62,6 @@ export interface CreateArtDto {
     tags?: string[];
 }
 
-// Server Art.moderate is a JSON string. Controller may accept DTO or raw.
 export interface ModerateArtData {
     moderate: boolean;
     moderator_id: number;
@@ -74,19 +69,20 @@ export interface ModerateArtData {
     comment?: string | null;
 }
 
-export type UpdateArtDto = Partial<{
+export type UpdateArtData = Partial<{
     title: string;
     description: string;
     cost: number | null;
     currency: string | null;
     specifications: string;
     date_published: string;
-    artist_id: number;
+    author_id: number;
     city_id: number | null;
     country_id: number | null;
     genre_id: number;
     style_id: number;
     is_adult: boolean;
+    tags: string[];
 }>;
 
 export interface ArtsResponse {
@@ -106,7 +102,7 @@ export const getAllArts = async (page = 1, limit = 10, lang = 'ru'): Promise<Art
         const res = await fetch(`${BASE_URL}?page=${page}&limit=${limit}&lang=${lang}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
-    } catch (e) { return null; }
+    } catch (e) { console.error("getAllArts error:", e); return null; }
 };
 
 export const getModeratedArts = async (page = 1, limit = 10, lang = 'ru'): Promise<ArtsResponse | null> => {
@@ -114,7 +110,7 @@ export const getModeratedArts = async (page = 1, limit = 10, lang = 'ru'): Promi
         const res = await fetch(`${BASE_URL}/moderated?page=${page}&limit=${limit}&lang=${lang}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
-    } catch (e) { return null; }
+    } catch (e) { console.error("getModeratedArts error:", e); return null; }
 };
 
 export const getUnmoderatedArts = async (page = 1, limit = 10, lang = 'ru'): Promise<ArtsResponse | null> => {
@@ -122,7 +118,7 @@ export const getUnmoderatedArts = async (page = 1, limit = 10, lang = 'ru'): Pro
         const res = await fetch(`${BASE_URL}/unmoderated?page=${page}&limit=${limit}&lang=${lang}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
-    } catch (e) { return null; }
+    } catch (e) { console.error("getUnmoderatedArts error:", e); return null; }
 };
 
 export const getArtById = async (id: number, lang = 'ru'): Promise<Art | null> => {
@@ -130,18 +126,18 @@ export const getArtById = async (id: number, lang = 'ru'): Promise<Art | null> =
         const res = await fetch(`${BASE_URL}/${id}?lang=${lang}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
-    } catch (e) { return null; }
+    } catch (e) { console.error("getArtById error:", e); return null; }
 };
 
-export const getArtsByArtist = async (artistId: number, page = 1, limit = 10, lang = 'ru'): Promise<ArtsResponse | null> => {
+export const getArtsByAuthor = async (authorId: number, page = 1, limit = 10, lang = 'ru'): Promise<ArtsResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/artist/${artistId}?page=${page}&limit=${limit}&lang=${lang}`, { credentials: "include" });
+        const res = await fetch(`${BASE_URL}/author/${authorId}?page=${page}&limit=${limit}&lang=${lang}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
-    } catch (e) { return null; }
+    } catch (e) { console.error("getArtsByAuthor error:", e); return null; }
 };
 
-export const createArt = async (data: CreateArtDto): Promise<Art | null> => {
+export const createArt = async (data: CreateArtData): Promise<Art | null> => {
     try {
         const formData = new FormData();
         formData.append("title", data.title);
@@ -151,35 +147,31 @@ export const createArt = async (data: CreateArtDto): Promise<Art | null> => {
         if (data.cost != null) formData.append("cost", String(data.cost));
         if (data.currency) formData.append("currency", data.currency);
         if (data.specifications) formData.append("specifications", data.specifications);
-        if (data.artist_id) formData.append("artist_id", String(data.artist_id));
+        if (data.author_id) formData.append("author_id", String(data.author_id));
         if (data.city_id != null) formData.append("city_id", String(data.city_id));
         if (data.country_id != null) formData.append("country_id", String(data.country_id));
         if (data.genre_id) formData.append("genre_id", String(data.genre_id));
         if (data.style_id) formData.append("style_id", String(data.style_id));
         if (data.is_adult != null) formData.append("is_adult", String(data.is_adult));
-        if (data.tags) formData.append("tags", String(data.tags));
+        if (data.tags) formData.append("tags", JSON.stringify(data.tags));
 
         const res = await fetch(BASE_URL, { method: "POST", credentials: "include", body: formData });
         if (!res.ok) throw new Error();
         return await res.json();
-    } catch (e) { return null; }
+    } catch (e) { console.error("createArt error:", e); return null; }
 };
 
-export const updateArt = async (id: number, data: UpdateArtDto): Promise<Art | null> => {
+export const updateArt = async (id: number, data: UpdateArtData): Promise<Art | null> => {
     try {
         const res = await fetch(`${BASE_URL}/${id}`, {
-            method: "PATCH", credentials: "include",
+            method: "PATCH",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
         });
         if (!res.ok) throw new Error();
         return await res.json();
-    } catch (e) { return null; }
-};
-
-export const likeArt = async (id: number, currentLikes: number, action: 'increment' | 'decrement'): Promise<Art | null> => {
-    const newLikes = action === 'increment' ? currentLikes + 1 : Math.max(0, currentLikes - 1);
-    return updateArt(id, { likes: newLikes } as any);
+    } catch (e) { console.error("updateArt error:", e); return null; }
 };
 
 export const deleteArt = async (id: number): Promise<boolean> => {
@@ -187,19 +179,20 @@ export const deleteArt = async (id: number): Promise<boolean> => {
         const res = await fetch(`${BASE_URL}/${id}`, { method: "DELETE", credentials: "include" });
         if (!res.ok) throw new Error();
         return true;
-    } catch (e) { return false; }
+    } catch (e) { console.error("deleteArt error:", e); return false; }
 };
 
 export const moderateArt = async (id: number, data: ModerateArtData): Promise<Art | null> => {
     try {
         const res = await fetch(`${BASE_URL}/${id}/moderate`, {
-            method: "POST", credentials: "include",
+            method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
         });
         if (!res.ok) throw new Error();
         return await res.json();
-    } catch (e) { return null; }
+    } catch (e) { console.error("moderateArt error:", e); return null; }
 };
 
 export const getTopArts = async (limit = 10, lang = 'ru'): Promise<Art[] | null> => {
@@ -207,7 +200,7 @@ export const getTopArts = async (limit = 10, lang = 'ru'): Promise<Art[] | null>
         const res = await fetch(`${BASE_URL}/top?limit=${limit}&lang=${lang}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
-    } catch (e) { return null; }
+    } catch (e) { console.error("getTopArts error:", e); return null; }
 };
 
 export const addArtToFeatured = async (id: number, days = 7): Promise<Art | null> => {
@@ -215,7 +208,7 @@ export const addArtToFeatured = async (id: number, days = 7): Promise<Art | null
         const res = await fetch(`${BASE_URL}/${id}/featured?days=${days}`, { method: "POST", credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
-    } catch (e) { return null; }
+    } catch (e) { console.error("addArtToFeatured error:", e); return null; }
 };
 
 export const removeArtFromFeatured = async (id: number): Promise<boolean> => {
@@ -223,7 +216,7 @@ export const removeArtFromFeatured = async (id: number): Promise<boolean> => {
         const res = await fetch(`${BASE_URL}/${id}/featured`, { method: "DELETE", credentials: "include" });
         if (!res.ok) throw new Error();
         return true;
-    } catch (e) { return false; }
+    } catch (e) { console.error("removeArtFromFeatured error:", e); return false; }
 };
 
 export const updateAllScores = async (): Promise<boolean> => {
@@ -231,7 +224,7 @@ export const updateAllScores = async (): Promise<boolean> => {
         const res = await fetch(`${BASE_URL}/update-scores`, { method: "POST", credentials: "include" });
         if (!res.ok) throw new Error();
         return true;
-    } catch (e) { return false; }
+    } catch (e) { console.error("updateAllScores error:", e); return false; }
 };
 
 export const refreshFeatured = async (): Promise<boolean> => {
@@ -239,16 +232,83 @@ export const refreshFeatured = async (): Promise<boolean> => {
         const res = await fetch(`${BASE_URL}/refresh-featured`, { method: "POST", credentials: "include" });
         if (!res.ok) throw new Error();
         return true;
-    } catch (e) { return false; }
+    } catch (e) { console.error("refreshFeatured error:", e); return false; }
 };
 
 export const incrementView = async (id: number): Promise<Art | null> => {
     try {
         const res = await fetch(`${BASE_URL}/${id}/view`, {
-            method: "POST", credentials: "include",
+            method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
         });
         if (!res.ok) throw new Error();
         return await res.json();
-    } catch (e) { console.error('Error incrementing view:', e); return null; }
+    } catch (e) { console.error("incrementView error:", e); return null; }
+};
+
+export const incrementArtShares = async (id: number): Promise<{ success: boolean; shares: number } | null> => {
+    try {
+        const res = await fetch(`${BASE_URL}/${id}/share`, {
+            method: "POST",
+            credentials: "include",
+        });
+        if (!res.ok) throw new Error();
+        return await res.json();
+    } catch (e) { console.error("incrementArtShares error:", e); return null; }
+};
+
+export const getArtShares = async (id: number): Promise<{ shares: number } | null> => {
+    try {
+        const res = await fetch(`${BASE_URL}/${id}/share/count`, {
+            method: "GET",
+            credentials: "include",
+        });
+        if (!res.ok) throw new Error();
+        return await res.json();
+    } catch (e) { console.error("getArtShares error:", e); return null; }
+};
+
+export const likeArt = async (id: number): Promise<{ success: boolean; message: string } | null> => {
+    try {
+        const res = await fetch(`${BASE_URL}/${id}/like`, {
+            method: "POST",
+            credentials: "include",
+        });
+        if (!res.ok) throw new Error();
+        return await res.json();
+    } catch (e) { console.error("likeArt error:", e); return null; }
+};
+
+export const getArtLikes = async (id: number, page = 1, limit = 20): Promise<any | null> => {
+    try {
+        const res = await fetch(`${BASE_URL}/${id}/likes?page=${page}&limit=${limit}`, {
+            method: "GET",
+            credentials: "include",
+        });
+        if (!res.ok) throw new Error();
+        return await res.json();
+    } catch (e) { console.error("getArtLikes error:", e); return null; }
+};
+
+export const getArtLikesCount = async (id: number): Promise<{ count: number } | null> => {
+    try {
+        const res = await fetch(`${BASE_URL}/${id}/likes/count`, {
+            method: "GET",
+            credentials: "include",
+        });
+        if (!res.ok) throw new Error();
+        return await res.json();
+    } catch (e) { console.error("getArtLikesCount error:", e); return null; }
+};
+
+export const getArtViewsCount = async (id: number): Promise<{ count: number } | null> => {
+    try {
+        const res = await fetch(`${BASE_URL}/${id}/views/count`, {
+            method: "GET",
+            credentials: "include",
+        });
+        if (!res.ok) throw new Error();
+        return await res.json();
+    } catch (e) { console.error("getArtViewsCount error:", e); return null; }
 };

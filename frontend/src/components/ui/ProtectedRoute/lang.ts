@@ -6,5 +6,9 @@ export const protectedRouteTranslations = {
     en: {
         loading: "Loading...",
         checkingAuth: "Checking authorization..."
+    },
+    zh: {
+        loading: "加载中...",
+        checkingAuth: "检查授权中..."
     }
 };

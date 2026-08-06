@@ -137,7 +137,7 @@ html, body {
     left: 0;
     width: 40px;
     height: 3px;
-    background: var(--bg-default);
+    background: var(--brand-primary-gold);
     border-radius: 2px;
 }
 

@@ -24,5 +24,18 @@ export const ageVerificationModalTranslations = {
             emptyBirthDate: "Please enter your date of birth",
             underAge: "Access denied. Content is for persons over 18 years of age only."
         }
+    },
+    zh: {
+        title: "年龄验证",
+        description: "此内容仅适用于18岁以上人士。请确认您的出生日期。",
+        label: "出生日期",
+        buttons: {
+            cancel: "取消",
+            confirm: "确认"
+        },
+        errors: {
+            emptyBirthDate: "请输入您的出生日期",
+            underAge: "访问被拒绝。内容仅适用于18岁以上人士。"
+        }
     }
 };

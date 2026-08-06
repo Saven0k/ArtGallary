@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getUserProfile, type User } from '../../../../api/users/main.api';
-import { getArtistById } from '../../../../api/artists/main.api';
+import { getAuthorById } from '../../../../api/authors/main.api';
 
 interface UserData {
     name: string;
@@ -17,25 +17,25 @@ export const useUserData = (user: User | null) => {
     const [isModerated, setIsModerated] = useState<boolean | null>(null);
 
     useEffect(() => {
-        const fetchData = async () => {
-            if (!user) return;
+        // const fetchData = async () => {
+        //     if (!user) return;
 
-            try {
-                const data = await getUserProfile(user.id);
-                setUserData(data);
+        //     try {
+        //         const data = await getUserProfile(user.id);
+        //         setUserData(data);
 
-                if (user.role === 'artist') {
-                    const artistData = await getArtistById(user.id);
-                    const moderate = artistData?.artistProfile?.moderate as any;
-                    setIsModerated(moderate?.moderate === true);
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-                setIsModerated(false);
-            }
-        };
+        //         if (user.role === 'artist') {
+        //             const artistData = await getAuthorById(user.id);
+        //             const moderate = artistData?.artistProfile?.moderate as any;
+        //             setIsModerated(moderate?.moderate === true);
+        //         }
+        //     } catch (error) {
+        //         console.error('Error fetching user data:', error);
+        //         setIsModerated(false);
+        //     }
+        // };
 
-        fetchData();
+        // fetchData();
     }, [user]);
 
     return { userData, isModerated };

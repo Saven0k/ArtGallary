@@ -3,7 +3,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import { useLanguage } from "../../../context/LanguageContext";
 import { artCreatePageTranslations } from "./lang";
 import { useState, useEffect } from "react";
-import { getArtistById } from "../../../api/artists/main.api";
+import { getArtistById } from "../../../api/authors/main.api";
 import "./index.css"
 
 const ArtCreatePage = () => {

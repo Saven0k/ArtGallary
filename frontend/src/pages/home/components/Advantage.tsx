@@ -1,6 +1,6 @@
 import { useLanguage } from '../../../hooks/useLanguage';
 import { translations } from '../lang';
-import './Advantage.css';
+import './Advantage.scss';
 
 
 const Advantages = () => {

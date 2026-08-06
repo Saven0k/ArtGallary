@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useLanguage } from "../../../context/LanguageContext";
 import { dynamicMetadataTranslations } from "./lang";
-import "./index.css";
+import "./index.scss";
+import { useLanguage } from "../../../hooks/useLanguage";
 
 interface MetadataField {
     id: string;

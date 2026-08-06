@@ -1,89 +1,110 @@
+// src/api/auth/main.api.ts
 import { BASE_URL_API, contentType } from "../main.api";
-import type { Gender } from "../users/main.api";
+
 const BASE_URL = `${BASE_URL_API}/auth`;
+
+export type Gender = 'M' | 'F';
 
 export interface AuthResponse {
     user: {
-        id: number,
-        email: string,
-        role: string
-    }
+        id: number;
+        email: string;
+        role: string;
+    };
 }
+
 export interface LoginData {
-    email: string,
-    password: string
+    email: string;
+    password: string;
 }
+
 export interface RegisterData {
-    email: string,
-    password: string,
-    name: string,
-    second_name: string,
-    phone_number: string,
+    email: string;
+    password: string;
+    name: string;
+    surname: string;
+    second_name?: string;
+    date_birthday: string;
     gender: Gender;
+    phone_number?: string;
 }
-export const login = async (userData: LoginData) => {
+
+export interface MeResponse {
+    id: number;
+    email: string;
+    name: string;
+    surname: string;
+    second_name?: string;
+    phone_number?: string;
+    avatar_path?: string;
+    role: string;
+    gender: Gender;
+    date_birthday: string;
+}
+
+export const login = async (userData: LoginData): Promise<AuthResponse | null> => {
     try {
         const res = await fetch(`${BASE_URL}/login`, {
             method: "POST",
             headers: contentType,
             body: JSON.stringify(userData),
             credentials: 'include'
-        })
+        });
+
         if (!res.ok) {
             const errorData = await res.json().catch(() => ({}));
             throw new Error(errorData.message || res.statusText);
         }
 
-        const data = await res.json();
-        return data;
+        return await res.json();
     } catch (e) {
-        console.log(e)
-        return {
-            success: false,
-            message: e
-        }
+        console.error("login error:", e);
+        return null;
     }
-}
+};
+
 export const register = async (userData: RegisterData): Promise<AuthResponse | null> => {
     try {
         const res = await fetch(`${BASE_URL}/register`, {
             method: "POST",
             headers: contentType,
-            body: JSON.stringify(userData)
-        })
+            body: JSON.stringify(userData),
+            credentials: 'include'
+        });
+
         if (!res.ok) {
             const errorData = await res.json().catch(() => ({}));
             throw new Error(errorData.message || res.statusText);
         }
 
-        const data = await res.json();
-        return data;
+        return await res.json();
     } catch (e) {
-        console.log(e);
+        console.error("register error:", e);
         return null;
     }
-}
-export const logout = async (): Promise<string | null> => {
+};
+
+export const logout = async (): Promise<{ message: string } | null> => {
     try {
         const res = await fetch(`${BASE_URL}/logout`, {
             method: "POST",
             credentials: "include",
             headers: contentType
-        })
+        });
 
         if (!res.ok) {
             const errorData = await res.json().catch(() => ({}));
             throw new Error(errorData.message || res.statusText);
         }
 
-        const data = await res.json();
-        return data;
+        return await res.json();
     } catch (e) {
-        console.log(e);
-        return null
+        console.error("logout error:", e);
+        return null;
     }
-}
-export const me = async (): Promise<{ data?: any, status: number, success: boolean }> => {
+};
+
+export const me = async (): Promise<{ data?: MeResponse; status: number; success: boolean }> => {
     try {
         const res = await fetch(`${BASE_URL}/me`, {
             credentials: "include"
@@ -96,20 +117,22 @@ export const me = async (): Promise<{ data?: any, status: number, success: boole
         }
 
         return { status: res.status, data, success: true };
-
     } catch (e) {
+        console.error("me error:", e);
         return { status: 0, success: false };
     }
 };
-export const refresh = async () => {
+
+export const refresh = async (): Promise<Response | null> => {
     try {
         const res = await fetch(`${BASE_URL}/refresh`, {
             method: "POST",
             credentials: "include",
             headers: contentType
-        })
+        });
         return res;
     } catch (e) {
-        throw new Error("Ошибка");
+        console.error("refresh error:", e);
+        return null;
     }
-}
+};

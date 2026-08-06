@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { translations } from '../lang';
-import './Hero.css';
+import './Hero.scss';
 import { useLanguage } from '../../../hooks/useLanguage';
 
 const Hero = () => {

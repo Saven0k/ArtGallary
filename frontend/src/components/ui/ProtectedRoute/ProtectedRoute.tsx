@@ -1,12 +1,12 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../hooks/useAuth";
-import { protectedRouteTranslations } from "./lang";
 import { useLanguage } from "../../../hooks/useLanguage";
+import { protectedRouteTranslations } from "./lang";
 
 interface ProtectedRouteProps {
     children?: React.ReactNode;
-    allowedRoles?: Array<'admin' | 'moderator' | 'artist' | 'visitor' | 'user'>;
+    allowedRoles?: Array<'admin' | 'moderator' | 'author' | 'visitor' | 'user'>;
     redirectTo?: string;
 }
 

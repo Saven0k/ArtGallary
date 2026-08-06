@@ -1,4 +1,4 @@
-import "./index.css";
+import "./index.scss";
 
 type ConfirmComponentProps = {
     title: string;

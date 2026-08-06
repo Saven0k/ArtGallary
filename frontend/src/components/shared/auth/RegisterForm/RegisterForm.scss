@@ -1,0 +1,30 @@
+.registration-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    min-height: 100vh;
+
+    padding: 60px 20px;
+
+    background: var(--bg-default);
+}
+
+.registration-page__container {
+    width: 100%;
+    max-width: 520px;
+}
+
+/* ============================= */
+
+@media (max-width: 768px) {
+
+    .registration-page {
+        padding: 32px 16px;
+    }
+
+    .registration-page__container {
+        max-width: 100%;
+    }
+
+}

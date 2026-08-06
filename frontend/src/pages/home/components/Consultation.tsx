@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { translations } from '../lang';
-import './Consultation.css';
+import './Consultation.scss';
 import { useLanguage } from '../../../hooks/useLanguage';
 import ArrowIcon from "../icons/arrowCirclce.svg"
 

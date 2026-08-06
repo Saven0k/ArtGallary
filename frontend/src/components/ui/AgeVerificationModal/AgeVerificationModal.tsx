@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useLanguage } from '../../../context/LanguageContext';
 import { ageVerificationModalTranslations } from './lang';
-import './AgeVerificationModal.css';
+import './AgeVerificationModal.scss';
+import { useLanguage } from '../../../hooks/useLanguage';
 
 interface AgeVerificationModalProps {
     isOpen: boolean;

@@ -1,6 +1,6 @@
 import { useLanguage } from '../../../hooks/useLanguage';
 import { translations } from '../lang';
-import './Events.css';
+import './Events.scss';
 import {Link} from 'react-router-dom';
 import EventImage from "../images/events.png"
 

@@ -1,9 +1,9 @@
-import { ArtsList } from "../../components/shared/Arts/ArtsList/ArtsList";
+// import ArtsList from "../../components/shared/Arts/ArtsList/ArtsList";
 
-const MyArtsPage = () => {
-    return (<div className="">
-        <ArtsList type="my"/>
-    </div>);
-}
+// const MyArtsPage = () => {
+//     return (<div className="">
+//         <ArtsList type="my"/>
+//     </div>);
+// }
 
-export default MyArtsPage;
+// export default MyArtsPage;

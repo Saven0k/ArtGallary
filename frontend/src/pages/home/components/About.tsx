@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { translations } from '../lang';
-import './About.css';
+import './About.scss';
 import { useLanguage } from '../../../hooks/useLanguage';
 import AboutImage from "../images/about.png"
 const About = () => {

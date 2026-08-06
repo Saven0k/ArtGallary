@@ -1,4 +1,4 @@
-import "./NotlificationComponent.css";
+import "./NotlificationComponent.scss";
 export const NotificationComponent = ({ message, type }: { message: string; type: "success" | "error" }) => {
     return (
         <div className={`notification notification--${type}`}>

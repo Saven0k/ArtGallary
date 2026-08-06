@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import './TagInput.css';
+import './TagInput.scss';
 
 interface TagInputProps {
     value: string[];

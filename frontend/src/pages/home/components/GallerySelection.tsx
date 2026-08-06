@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { translations } from '../lang';
-import './GallerySelection.css';
+import './GallerySelection.scss';
 import { useLanguage } from '../../../hooks/useLanguage';
 
 import Photo1 from "../images/photo1.png"

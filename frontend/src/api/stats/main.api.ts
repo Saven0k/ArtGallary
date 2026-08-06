@@ -64,153 +64,8 @@ export interface ArtistStatsResponse extends StatsResponse {
     }[];
 }
 
-export interface LikeResponse {
-    success: boolean;
-    message: string;
-}
-
-export interface CountResponse {
-    count: number;
-}
-
-export const getArtistLikesCount = async (artistId: number): Promise<CountResponse | null> => {
-    try {
-        const res = await fetch(`${BASE_URL}/artist/${artistId}/likes/count`, {
-            credentials: "include",
-        });
-        if (!res.ok) throw new Error();
-        return await res.json();
-    } catch (e) {
-        console.error("getArtistLikesCount error:", e);
-        return null;
-    }
-};
-
-export const getArtistViewsCount = async (artistId: number): Promise<CountResponse | null> => {
-    try {
-        const res = await fetch(`${BASE_URL}/artist/${artistId}/views/count`, {
-            credentials: "include",
-        });
-        if (!res.ok) throw new Error();
-        return await res.json();
-    } catch (e) {
-        console.error("getArtistViewsCount error:", e);
-        return null;
-    }
-};
-
-export const getArtLikesCount = async (artId: number): Promise<CountResponse | null> => {
-    try {
-        const res = await fetch(`${BASE_URL}/art/${artId}/likes/count`, {
-            credentials: "include",
-        });
-        if (!res.ok) throw new Error();
-        return await res.json();
-    } catch (e) {
-        console.error("getArtLikesCount error:", e);
-        return null;
-    }
-};
-
-export const getArtViewsCount = async (artId: number): Promise<CountResponse | null> => {
-    try {
-        const res = await fetch(`${BASE_URL}/art/${artId}/views/count`, {
-            credentials: "include",
-        });
-        if (!res.ok) throw new Error();
-        return await res.json();
-    } catch (e) {
-        console.error("getArtViewsCount error:", e);
-        return null;
-    }
-};
-
-export const likeArtist = async (artistId: number): Promise<LikeResponse | null> => {
-    try {
-        const res = await fetch(`${BASE_URL}/artist/${artistId}/like`, {
-            method: "POST",
-            credentials: "include",
-        });
-        if (!res.ok) throw new Error();
-        return await res.json();
-    } catch (e) {
-        console.error("likeArtist error:", e);
-        return null;
-    }
-};
-
-export const getArtistLikes = async (
-    artistId: number,
-    page: number = 1,
-    limit: number = 20
-): Promise<{ data: any[]; total: number; pagination: any } | null> => {
-    try {
-        const res = await fetch(`${BASE_URL}/artist/${artistId}/likes?page=${page}&limit=${limit}`, {
-            credentials: "include",
-        });
-        if (!res.ok) throw new Error();
-        return await res.json();
-    } catch (e) {
-        console.error("getArtistLikes error:", e);
-        return null;
-    }
-};
-
-export const viewArtist = async (artistId: number): Promise<void> => {
-    try {
-        await fetch(`${BASE_URL}/artist/${artistId}/view`, {
-            method: "POST",
-            credentials: "include",
-        });
-    } catch (e) {
-        console.error("viewArtist error:", e);
-    }
-};
-
-export const likeArt = async (artId: number): Promise<LikeResponse | null> => {
-    try {
-        const res = await fetch(`${BASE_URL}/art/${artId}/like`, {
-            method: "POST",
-            credentials: "include",
-        });
-        if (!res.ok) throw new Error();
-        return await res.json();
-    } catch (e) {
-        console.error("likeArt error:", e);
-        return null;
-    }
-};
-
-export const getArtLikes = async (
-    artId: number,
-    page: number = 1,
-    limit: number = 20
-): Promise<{ data: any[]; total: number; pagination: any } | null> => {
-    try {
-        const res = await fetch(`${BASE_URL}/art/${artId}/likes?page=${page}&limit=${limit}`, {
-            credentials: "include",
-        });
-        if (!res.ok) throw new Error();
-        return await res.json();
-    } catch (e) {
-        console.error("getArtLikes error:", e);
-        return null;
-    }
-};
-
-export const viewArt = async (artId: number): Promise<void> => {
-    try {
-        await fetch(`${BASE_URL}/art/${artId}/view`, {
-            method: "POST",
-            credentials: "include",
-        });
-    } catch (e) {
-        console.error("viewArt error:", e);
-    }
-};
-
-export const getArtistStats = async (
-    artistId: number,
+export const getAuthorDetailedStats = async (
+    authorId: number,
     filter?: StatsFilter
 ): Promise<ArtistStatsResponse | null> => {
     try {
@@ -224,18 +79,18 @@ export const getArtistStats = async (
         if (filter?.countryId) params.append("countryId", String(filter.countryId));
 
         const query = params.toString();
-        const res = await fetch(`${BASE_URL}/artist/${artistId}?${query}`, {
+        const res = await fetch(`${BASE_URL}/author/${authorId}?${query}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) {
-        console.error("getArtistStats error:", e);
+        console.error("getAuthorDetailedStats error:", e);
         return null;
     }
 };
 
-export const getArtStats = async (
+export const getArtDetailedStats = async (
     artId: number,
     filter?: StatsFilter
 ): Promise<StatsResponse | null> => {
@@ -256,7 +111,7 @@ export const getArtStats = async (
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) {
-        console.error("getArtStats error:", e);
+        console.error("getArtDetailedStats error:", e);
         return null;
     }
 };
