@@ -2,7 +2,7 @@
 import { BarChart3, Palette, Lightbulb } from "lucide-react";
 import { useLanguage } from "../../../../hooks/useLanguage";
 import { profileTranslations } from "../lang";
-import "./AnalyticsCard.css";
+import "./AnalyticsCard.scss";
 
 interface AnalyticsCardProps {
     exhibitions: number;
@@ -27,7 +27,7 @@ const AnalyticsCard = ({
                 className="analytics-card__edit"
                 onClick={onEdit}
             >
-                {t.edit}
+                {t.edit}""
             </button>
 
             <div className="analytics-card__panel">

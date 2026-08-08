@@ -1,4 +1,4 @@
-import "./ProfileInput.css";
+import "./ProfileInput.scss";
 
 interface ProfileInputProps {
     label: string;

@@ -1,22 +1,20 @@
-import "./StatCard.css";
+import "./StatCard.scss";
 
 interface StatCardProps {
-    icon: string;
+    key: number;
+    icon: any;
     value: string | number;
     label: string;
-    trend?: string;
-    positive?: boolean;
 }
 
 const StatCard = ({
+    key,
     icon,
     value,
-    label,
-    trend,
-    positive = true,
+    label
 }: StatCardProps) => {
     return (
-        <article className="stat-card">
+        <article className="stat-card" key={key}>
 
             <div className="stat-card__icon">
                 {icon}
@@ -31,18 +29,6 @@ const StatCard = ({
                 <p className="stat-card__label">
                     {label}
                 </p>
-
-                {trend && (
-                    <span
-                        className={`stat-card__trend ${
-                            positive
-                                ? "stat-card__trend--positive"
-                                : "stat-card__trend--negative"
-                        }`}
-                    >
-                        {trend}
-                    </span>
-                )}
 
             </div>
 

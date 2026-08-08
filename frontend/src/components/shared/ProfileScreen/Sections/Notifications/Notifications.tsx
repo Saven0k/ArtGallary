@@ -1,12 +1,21 @@
+// Notifications.tsx
 import { Heart, UserPlus, BadgeCheck } from "lucide-react";
 import { profileTranslations } from "../../lang";
 import NotificationCard from "../../NotificationCard/NotificationCard";
-import "./Notifications.css";
+import "./Notifications.scss";
 import { useLanguage } from "../../../../../hooks/useLanguage";
 
-const Notifications = () => {
+interface NotificationsProps {
+    id: number;
+    role: string;
+}
+
+const Notifications = ({ id, role }: NotificationsProps) => {
     const { language } = useLanguage();
     const t = profileTranslations[language].notifications;
+
+    // Используем id и role для получения данных
+    console.log("Notifications for user:", id, role);
 
     const notifications = t.items.map((item, index) => {
         const icons = [

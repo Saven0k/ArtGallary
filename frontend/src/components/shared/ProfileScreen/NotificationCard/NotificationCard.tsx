@@ -1,7 +1,7 @@
-import "./NotificationCard.css";
+import "./NotificationCard.scss";
 
 interface NotificationCardProps {
-    icon: string;
+    icon: any;
     title: string;
     description: string;
     time: string;

@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import "./ProfileSelect.css";
+import "./ProfileSelect.scss";
 
 interface ProfileSelectProps {
     label: string;

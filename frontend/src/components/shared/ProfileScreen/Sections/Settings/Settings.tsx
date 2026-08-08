@@ -1,11 +1,20 @@
+// Settings.tsx
 import { KeyRound, Mail, Trash2 } from "lucide-react";
 import { profileTranslations } from "../../lang";
-import "./Settings.css";
+import "./Settings.scss";
 import { useLanguage } from "../../../../../hooks/useLanguage";
 
-const Settings = () => {
+interface SettingsProps {
+    id: number;
+    role: string;
+}
+
+const Settings = ({ id, role }: SettingsProps) => {
     const { language } = useLanguage();
     const t = profileTranslations[language].settings;
+
+    // Используем id и role для получения данных
+    console.log("Settings for user:", id, role);
 
     const items = [
         { icon: <KeyRound size={22} />, title: t.items[0].title, description: t.items[0].description },

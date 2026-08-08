@@ -1,8 +1,14 @@
+// PersonalInfo.tsx
 import { useLanguage } from "../../../../../hooks/useLanguage";
 import { profileTranslations } from "../../lang";
-import "./PersonalInfo.css";
+import "./PersonalInfo.scss";
 
-const PersonalInfo = () => {
+interface PersonalInfoProps {
+    id: number;
+    role: string;
+}
+
+const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
     const { language } = useLanguage();
     const t = profileTranslations[language].personalInfo;
     const f = t.fields;

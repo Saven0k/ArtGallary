@@ -1,7 +1,7 @@
 import { Crown } from "lucide-react";
 import { useLanguage } from "../../../../hooks/useLanguage";
 import { profileTranslations } from "../lang";
-import "./ProfileHeader.css";
+import "./ProfileHeader.scss";
 
 interface ProfileHeaderProps {
     avatar: string;

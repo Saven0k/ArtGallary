@@ -1,13 +1,22 @@
+// Statistics.tsx
 import { Eye, Heart, Palette, Users } from "lucide-react";
 import { profileTranslations } from "../../lang";
 import StatCard from "../../StatCard/StatCard";
-import "./Statistics.css";
+import "./Statistics.scss";
 import { useLanguage } from "../../../../../hooks/useLanguage";
 
-const Statistics = () => {
+interface StatisticsProps {
+    id: number;
+    role: string;
+}
+
+const Statistics = ({ id, role }: StatisticsProps) => {
     const { language } = useLanguage();
     const t = profileTranslations[language].statistics;
     const c = t.cards;
+
+    // Используем id и role для получения данных
+    console.log("Statistics for user:", id, role);
 
     const stats = [
         { icon: <Eye size={22} />, value: "2 845", label: c.views },

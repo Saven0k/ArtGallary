@@ -1,4 +1,4 @@
-import "./ProfileStats.css";
+import "./ProfileStats.scss";
 
 interface ProfileStatsProps {
     icon: string;
