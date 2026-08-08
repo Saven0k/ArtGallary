@@ -13,7 +13,7 @@ import { useLanguage } from "../../hooks/useLanguage";
 import { useSettings } from "../../context/SettingsContext";
 import { settingsTranslations } from "./lang";
 
-import "./SettingsPage.css";
+import "./SettingsPage.scss";
 
 const SettingsPage = () => {
     const { language } = useLanguage();

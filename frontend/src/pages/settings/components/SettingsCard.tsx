@@ -1,4 +1,4 @@
-import "./SettingsCard.css";
+import "./SettingsCard.scss";
 
 interface SettingsCardProps {
     title: string;

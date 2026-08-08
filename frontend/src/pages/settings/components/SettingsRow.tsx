@@ -1,5 +1,5 @@
 // src/pages/Settings/components/SettingsRow.tsx
-import "./SettingsRow.css";
+import "./SettingsRow.scss";
 
 interface SettingsRowProps {
     title: string;

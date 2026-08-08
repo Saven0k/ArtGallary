@@ -7,7 +7,7 @@ import {
     type Language,
 } from "../lang";
 
-import "./LanguageSwitcher.css";
+import "./LanguageSwitcher.scss";
 
 const LanguageSwitcher = () => {
     const { language, setLanguage } = useLanguage();

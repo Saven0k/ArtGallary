@@ -1,6 +1,6 @@
 // src/pages/Settings/components/Toggle.tsx
 
-import "./Toggle.css";
+import "./Toggle.scss";
 
 interface ToggleProps {
     checked: boolean;
