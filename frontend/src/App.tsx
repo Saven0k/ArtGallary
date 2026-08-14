@@ -7,11 +7,11 @@ import { ProtectedRoute } from './components/ui/ProtectedRoute/ProtectedRoute';
 import { ConfirmProvider } from './context/ConfirmContext';
 import { AdminLayout } from './components/shared/Admin/AdminLayout';
 import { ModeratorLayout } from './components/shared/Admin/ModeratorLayout';
-import { ArtsModerate } from './components/shared/Admin/arts/ArtsModerate';
-import { ArtistsModerate } from './components/shared/Admin/artists/ArtistsModerate';
-import { ModeratorsAdmin } from './components/shared/Admin/moderators/ModeratorsAdmin';
-import { UsersAdmin } from './components/shared/Admin/users/UsersAdmin';
-import { ArtistsAdmin } from './components/shared/Admin/artists/ArtistsAdmin';
+// import { ArtsModerate } from './components/shared/Admin/arts/ArtsModerate';
+// import { ArtistsModerate } from './components/shared/Admin/artists/ArtistsModerate';
+// import { ModeratorsAdmin } from './components/shared/Admin/moderators/ModeratorsAdmin';
+// import { UsersAdmin } from './components/shared/Admin/users/UsersAdmin';
+// import { ArtistsAdmin } from './components/shared/Admin/artists/ArtistsAdmin';
 import { ArtsAdmin } from './components/shared/Admin/arts/ArtsAdmin';
 import { LanguageProvider } from './context/LanguageContext';
 import Footer from './components/layout/Footer/Footer';
@@ -28,8 +28,8 @@ const LazyProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
 
 const LazyArtPage = lazy(() => import("./pages/arts/ArtPage"));
 const LazyArtsPage = lazy(() => import('./pages/arts/ArtsPage'));
-const LazyMyArtsPage = lazy(() => import('./pages/arts/MyArtsPage'));
-const LazyArtCreatePage = lazy(() => import('./pages/arts/ArtCreatePage/ArtCreatePage'));
+// const LazyMyArtsPage = lazy(() => import('./pages/arts/MyArtsPage'));
+// const LazyArtCreatePage = lazy(() => import('./pages/arts/ArtCreatePage/ArtCreatePage'));
 const LazyArtEditPage = lazy(() => import('./pages/arts/ArtEditPage'));
 
 
@@ -62,8 +62,8 @@ function App() {
                       <Route path="/help" element={<HelpPage />} />
 
                       <Route element={<ProtectedRoute allowedRoles={['admin', 'author']} />}>
-                        <Route path="/arts/my" element={<LazyMyArtsPage />} />
-                        <Route path="/arts/my/new" element={<LazyArtCreatePage />} />
+                        {/* <Route path="/arts/my" element={<LazyMyArtsPage />} /> */}
+                        {/* <Route path="/arts/my/new" element={<LazyArtCreatePage />} /> */}
                         <Route path="/arts/my/edit/:id" element={<LazyArtEditPage />} />
                       </Route>
 
@@ -77,19 +77,19 @@ function App() {
 
                       <Route element={<ProtectedRoute allowedRoles={['admin', 'moderator']} redirectTo="/" />}>
                         <Route path="moderation" element={<ModeratorLayout />}>
-                          <Route path="arts" element={<ArtsModerate />} />
-                          <Route path="artists" element={<ArtistsModerate />} />
+                          {/* <Route path="arts" element={<ArtsModerate />} />
+                          <Route path="artists" element={<ArtistsModerate />} /> */}
                         </Route>
                       </Route>
 
                       <Route element={<ProtectedRoute allowedRoles={['admin']} redirectTo="/" />}>
                         <Route path="admin" element={<AdminLayout />}>
-                          <Route path="moderation/arts" element={<ArtsModerate />} />
-                          <Route path="moderation/artists" element={<ArtistsModerate />} />
-                          <Route path="arts" element={<ArtsAdmin />} />
-                          <Route path="artists" element={<ArtistsAdmin />} />
-                          <Route path="users" element={<UsersAdmin />} />
-                          <Route path="moderators" element={<ModeratorsAdmin />} />
+                          {/* <Route path="moderation/arts" element={<ArtsModerate />} />
+                          <Route path="moderation/artists" element={<ArtistsModerate />} /> */}
+                          {/* <Route path="arts" element={<ArtsAdmin />} /> */}
+                          {/* <Route path="artists" element={<ArtistsAdmin />} /> */}
+                          {/* <Route path="users" element={<UsersAdmin />} /> */}
+                          {/* <Route path="moderators" element={<ModeratorsAdmin />} /> */}
                           {/* <Route path="styles" element={<StylesModerate />} />
                         <Route path="art-types" element={<ArtTypesModerate />} /> */}
                         </Route>

@@ -1,7 +1,10 @@
 // src/api/auth/main.api.ts
 import { BASE_URL_API, contentType } from "../main.api";
+import type { UserRole } from "../users/main.api";
 
 const BASE_URL = `${BASE_URL_API}/auth`;
+
+
 
 export type Gender = 'M' | 'F';
 
@@ -25,21 +28,13 @@ export interface RegisterData {
     surname: string;
     second_name?: string;
     date_birthday: string;
-    gender: Gender;
-    phone_number?: string;
+    gender: Gender; 
 }
 
 export interface MeResponse {
     id: number;
     email: string;
-    name: string;
-    surname: string;
-    second_name?: string;
-    phone_number?: string;
-    avatar_path?: string;
-    role: string;
-    gender: Gender;
-    date_birthday: string;
+    role: UserRole;
 }
 
 export const login = async (userData: LoginData): Promise<AuthResponse | null> => {

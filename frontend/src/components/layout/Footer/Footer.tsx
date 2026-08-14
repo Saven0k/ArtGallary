@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
 import { footerTranslations } from "./lang";
-import "./index.css";
+import "./index.scss";
 import { useLanguage } from "../../../hooks/useLanguage";
 import Logo from "./images/Logo.svg"
 

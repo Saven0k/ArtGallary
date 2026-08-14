@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import './AdminModal.css';
+import './AdminModal.scss';
 
 interface AdminModalProps {
     isOpen: boolean;

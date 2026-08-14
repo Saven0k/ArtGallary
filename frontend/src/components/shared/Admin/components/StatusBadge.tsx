@@ -1,4 +1,4 @@
-import './StatusBadge.css';
+import './StatusBadge.scss';
 
 interface StatusBadgeProps {
     status: 'pending' | 'approved' | 'rejected' | 'active' | 'inactive';

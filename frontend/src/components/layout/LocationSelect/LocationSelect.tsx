@@ -10,7 +10,7 @@ import {
   type CountrySuggestion,
   type CitySuggestion,
 } from '../../../api/location/main.api';
-import './LocationSelect.css';
+import './LocationSelect.scss';
 
 interface LocationSelectProps {
   countryValue?: string | number;

@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect } from "react";
-import FAQItem from "./FAQItem";
-import "./FAQ.css";
-import { translations } from "../lang";
-import FAQTabs from "./FAQTabs";
-import { useLanguage } from "../../../hooks/useLanguage";
+// src/pages/Help/components/FAQ.tsx
+import { useState, useMemo } from "react";
+import FAQItem from "../FAQItem/FAQItem";
+import "./FAQ.scss";
+import { translations } from "../../lang";
+import FAQTabs from "../FAQTabs/FAQTabs";
+import { useLanguage } from "../../../../hooks/useLanguage";
 
 export interface FAQItemType {
     question: string;
@@ -19,7 +20,7 @@ const FAQ = ({ items }: FAQProps) => {
     const [activeTab, setActiveTab] = useState("general");
     const { language } = useLanguage();
     const t = translations[language].help.faq;
-    const [activeIndex, setActiveIndex] = useState<number | null>(0);
+    const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
     const handleToggle = (index: number) => {
         setActiveIndex((prev) => (prev === index ? null : index));

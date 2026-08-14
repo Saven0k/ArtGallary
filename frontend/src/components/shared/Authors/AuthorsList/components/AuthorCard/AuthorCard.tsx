@@ -20,7 +20,7 @@ const AuthorCard = (data: AuthorCardProps) => {
         <article className="author-card">
             <div className="author-card__body">
                 <img
-                    src={data.author.avatar_path || "/default-avatar.png"}
+                    src={data.author.authorProfile.avatar_path || "/default-avatar.png"}
                     alt={data.author.name}
                     className="author-card__avatar"
                 />

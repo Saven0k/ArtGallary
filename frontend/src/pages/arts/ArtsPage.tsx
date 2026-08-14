@@ -1,7 +1,7 @@
-import { ArtsList } from "../../components/shared/Arts/ArtsList/ArtsList";
+// import { ArtsList } from "../../components/shared/Arts/ArtsList/ArtsList";
 
-const ArtsPage = () => {
-    return ( <><ArtsList/></> );
-}
+// const ArtsPage = () => {
+//     return ( <><ArtsList/></> );
+// }
  
-export default ArtsPage;
+// export default ArtsPage;

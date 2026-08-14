@@ -1,0 +1,29 @@
+.promo {
+    display: flex;
+    gap: 23px;
+    justify-content: start;
+    width: 100%;
+
+
+    &__input {
+        border-radius: 8px;
+        padding: 14px 16px;
+        border-radius: 2px solid #727272;
+        color: #727272;
+        max-width: 340px;
+        width: 100%;
+    }
+
+    &__button {
+        color: var(--bg-default);
+        background: var(--brand-primary-gold);
+        font-size: var(--font-body-medium);
+        max-width: 191px;
+        text-align: center;
+        padding: 12px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: var(--font-weight-bold);    
+    }
+}

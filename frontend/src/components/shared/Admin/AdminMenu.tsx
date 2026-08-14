@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import './AdminMenu.css';
+import './AdminMenu.scss';
 
 const menuItems = [
     {

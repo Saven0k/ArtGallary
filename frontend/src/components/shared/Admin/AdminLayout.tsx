@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { AdminMenu } from './AdminMenu';
-import './AdminLayout.css';
+import './AdminLayout.scss';
 
 export const AdminLayout = () => {
     return (

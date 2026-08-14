@@ -1,11 +1,11 @@
+// src/components/ProfileSideBar/components/UserHeader.tsx
 import React from 'react';
 
-
-type UserProfile = {
+interface UserProfile {
     name: string;
     surname: string;
-    avatar_path: string;
-};
+    avatar_path?: string | null;
+}
 
 interface UserHeaderProps {
     userData: UserProfile;
@@ -21,6 +21,8 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ userData, onEdit, onClos
         onClose();
     };
 
+    const initials = name && surname ? `${name[0]}${surname[0]}` : '👤';
+
     return (
         <div className="sidebarProfile__user-info">
             {avatar_path ? (
@@ -33,13 +35,18 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ userData, onEdit, onClos
                     loading="lazy"
                 />
             ) : (
-                <button onClick={handleEdit} className="sidebarProfile__avatar">
-                    +
-                </button>
+                <div className="sidebarProfile__avatar sidebarProfile__avatar--placeholder">
+                    {initials}
+                </div>
             )}
             <div className="sidebarProfile__user-details">
-                <h2 className="sidebarProfile__user-name">{name}</h2>
-                <p className="sidebarProfile__user-email">{surname}</p>
+                <h2 className="sidebarProfile__user-name">{name} {surname}</h2>
+                <button
+                    className="sidebarProfile__user-edit"
+                    onClick={handleEdit}
+                >
+                    ✏️ Редактировать
+                </button>
             </div>
         </div>
     );

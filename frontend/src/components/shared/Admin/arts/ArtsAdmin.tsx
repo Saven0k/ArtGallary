@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useConfirm } from '../../../../hooks/useConfirm';
-import "../AdminPage.css"
+import "../AdminPage.scss"
 import { deleteArt, getAllArts, moderateArt, type Art } from '../../../../api/arts/main.api';
 import { AdminTable } from '../components/AdminTable';
 import { AdminModal } from '../components/AdminModal';

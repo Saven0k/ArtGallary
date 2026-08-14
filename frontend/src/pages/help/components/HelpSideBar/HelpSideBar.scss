@@ -10,17 +10,22 @@
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 32px 44px;
+    padding: 37px 44px;
     background: #fff;
+    border: 1px solid #E5E5E5;
     border-radius: var(--radius-m);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 4px 4px 6px rgb(0, 0, 0, 25%);
     cursor: default;
+    
 }
 
-.help-sidebar__card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+.help-sidebar__card--active {
+    background: var(--brand-gold-light);
+    border: none;
+
+    .help-sidebar__svg {
+        color: #000000;
+    }
 }
 
 .help-sidebar__icon {
@@ -33,17 +38,20 @@
 .help-sidebar__svg {
     width: 52px;
     height: 52px;
+    color: var(--brand-gold-light);
 }
 
 .help-sidebar__title {
     font-weight: var(--font-weight-medium);
     color: var(--neutral-black-900);
+    text-align: start;
 }
 
 .help-sidebar__description {
     font-size: var(--font-label);
     color: var(--neutral-grey-600);
     margin: 0;
+    text-align: start;
 }
 
 @media (max-width: 1100px) {

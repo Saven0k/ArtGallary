@@ -1,7 +1,7 @@
 // src/api/users/main.api.ts
 import { BASE_URL_API } from "../main.api";
 
-export type UserRole = 'admin' | 'moderator' | 'author' | 'user' | 'visitor';
+export type UserRole = 'admin' | 'moderator' | 'author' | 'user' ;
 export type Gender = "M" | "F";
 
 export interface User {

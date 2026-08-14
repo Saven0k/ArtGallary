@@ -1,6 +1,6 @@
-import { useLanguage } from "../../../hooks/useLanguage";
-import { translations } from "../lang";
-import "./FAQTabs.css";
+import { useLanguage } from "../../../../hooks/useLanguage";
+import { translations } from "../../lang";
+import "./FAQTabs.scss";
 
 interface FAQTabsProps {
     active: string;

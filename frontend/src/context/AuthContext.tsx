@@ -1,10 +1,12 @@
 import { createContext, useEffect, useState, useRef, useCallback, type FC } from "react";
-import type { User } from "../api/users/main.api";
-import { logout, me, refresh } from "../api/auth/main.api";
+import { logout, me, refresh, type MeResponse } from "../api/auth/main.api";
 import { useNavigate } from "react-router-dom";
 
+export type UserRole = 'admin' | 'moderator' | 'author' | 'user' ;
+
+
 export const AuthContext = createContext<{
-    user: User | null,
+    user: MeResponse | null,
     isLoading: boolean,
     isAuthenticated: boolean,
     logout: () => Promise<void>;
@@ -13,7 +15,7 @@ export const AuthContext = createContext<{
 } | null>(null);
 
 export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<MeResponse | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
@@ -32,17 +34,17 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
         try {
             const res = await me();
             if (res?.success) {
-                setUser(res.data);
+                setUser(res.data ? res.data : null);
                 setIsAuthenticated(true);
                 return;
             }
             if (res?.status === 401) {
                 const refreshRes = await refresh();
 
-                if (refreshRes.ok) {
+                if (refreshRes?.ok) {
                     const retryRes = await me();
                     if (retryRes?.success) {
-                        setUser(retryRes.data);
+                        setUser(retryRes.data ? retryRes.data : null);
                         setIsAuthenticated(true);
                         return;
                     }

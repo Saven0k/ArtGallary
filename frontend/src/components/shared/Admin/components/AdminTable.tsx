@@ -1,5 +1,5 @@
 // AdminTable.tsx
-import './AdminTable.css';
+import './AdminTable.scss';
 
 interface Column<T> {
     key: string;

@@ -3,115 +3,78 @@ import { BASE_URL_API } from "../main.api";
 
 const BASE_URL = `${BASE_URL_API}/stats`;
 
-export interface StatsFilter {
-    startDate?: string;
-    endDate?: string;
-    gender?: 'M' | 'F';
-    ageFrom?: number;
-    ageTo?: number;
-    cityId?: number;
-    countryId?: number;
+export interface ViewsTimelineData {
+    date: string;
+    views: number;
 }
 
-export interface GenderStats {
+export interface GenderStatsData {
     male: number;
     female: number;
     unknown: number;
 }
 
-export interface AgeStats {
-    '18-25': number;
-    '26-35': number;
-    '36-50': number;
-    '50+': number;
+export interface CountryStatsData {
+    country: string;
+    percentage: number;
 }
 
-export interface CountryStats {
-    countryId: number;
-    countryName: string;
-    count: number;
+export interface AgeStatsData {
+    range: string;
+    percentage: number;
 }
 
-export interface TimelineData {
-    date: string;
-    count: number;
-}
-
-export interface StatsResponse {
-    totalLikes: number;
-    totalViews: number;
-    uniqueUsers: number;
-    likesByGender: GenderStats;
-    viewsByGender: GenderStats;
-    likesByAge: AgeStats;
-    viewsByAge: AgeStats;
-    likesByCountry: CountryStats[];
-    viewsByCountry: CountryStats[];
-    likesTimeline: TimelineData[];
-    viewsTimeline: TimelineData[];
-}
-
-export interface ArtistStatsResponse extends StatsResponse {
-    recentLikes: {
-        id: number;
-        user: {
-            id: number;
-            name: string;
-            surname: string;
-            avatar_path?: string;
-        };
-        createdAt: string;
-    }[];
-}
-
-export const getAuthorDetailedStats = async (
+export const getViewsTimeline = async (
     authorId: number,
-    filter?: StatsFilter
-): Promise<ArtistStatsResponse | null> => {
+    period: 'week' | 'month' | 'year' = 'month'
+): Promise<ViewsTimelineData[] | null> => {
     try {
-        const params = new URLSearchParams();
-        if (filter?.startDate) params.append("startDate", filter.startDate);
-        if (filter?.endDate) params.append("endDate", filter.endDate);
-        if (filter?.gender) params.append("gender", filter.gender);
-        if (filter?.ageFrom !== undefined) params.append("ageFrom", String(filter.ageFrom));
-        if (filter?.ageTo !== undefined) params.append("ageTo", String(filter.ageTo));
-        if (filter?.cityId) params.append("cityId", String(filter.cityId));
-        if (filter?.countryId) params.append("countryId", String(filter.countryId));
-
-        const query = params.toString();
-        const res = await fetch(`${BASE_URL}/author/${authorId}?${query}`, {
+        const res = await fetch(`${BASE_URL}/author/${authorId}/views/timeline?period=${period}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) {
-        console.error("getAuthorDetailedStats error:", e);
+        console.error("getViewsTimeline error:", e);
         return null;
     }
 };
 
-export const getArtDetailedStats = async (
-    artId: number,
-    filter?: StatsFilter
-): Promise<StatsResponse | null> => {
+export const getViewersGenderStats = async (authorId: number): Promise<GenderStatsData | null> => {
     try {
-        const params = new URLSearchParams();
-        if (filter?.startDate) params.append("startDate", filter.startDate);
-        if (filter?.endDate) params.append("endDate", filter.endDate);
-        if (filter?.gender) params.append("gender", filter.gender);
-        if (filter?.ageFrom !== undefined) params.append("ageFrom", String(filter.ageFrom));
-        if (filter?.ageTo !== undefined) params.append("ageTo", String(filter.ageTo));
-        if (filter?.cityId) params.append("cityId", String(filter.cityId));
-        if (filter?.countryId) params.append("countryId", String(filter.countryId));
-
-        const query = params.toString();
-        const res = await fetch(`${BASE_URL}/art/${artId}?${query}`, {
+        const res = await fetch(`${BASE_URL}/author/${authorId}/viewers/gender`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) {
-        console.error("getArtDetailedStats error:", e);
+        console.error("getViewersGenderStats error:", e);
+        return null;
+    }
+};
+
+export const getViewersTopCountries = async (authorId: number): Promise<CountryStatsData[] | null> => {
+    try {
+        const res = await fetch(`${BASE_URL}/author/${authorId}/viewers/countries`, {
+            credentials: "include",
+        });
+        if (!res.ok) throw new Error();
+        return await res.json();
+    } catch (e) {
+        console.error("getViewersTopCountries error:", e);
+        return null;
+    }
+};
+
+export const getViewersAgeStats = async (authorId: number): Promise<AgeStatsData[] | null> => {
+    try {
+        const res = await fetch(`${BASE_URL}/author/${authorId}/viewers/age`, {
+            credentials: "include",
+        });
+        if (!res.ok) throw new Error();
+        return await res.json();
+    } catch (e) {
+        console.error("getViewersAgeStats error:", e);
         return null;
     }
 };

@@ -1,13 +1,33 @@
-import "./HelpPage.css";
-import HelpSidebar from "./components/HelpSidebar";
-import FAQ from "./components/FAQ";
-import Resources from "./components/Resources";
+// src/pages/Help/HelpPage.tsx
+import { useState } from "react";
+import "./HelpPage.scss";
+import HelpSidebar from "./components/HelpSideBar/HelpSidebar";
+import FAQ from "./components/FAQ/FAQ";
+import KnowledgeBase from "./components/KnowledgeBase/KnowledgeBase";
+import Support from "./components/Support/Support";
+import Resources from "./components/Resources/Resources";
 import { translations } from "./lang";
 import { useLanguage } from "../../hooks/useLanguage";
+
+export type HelpSection = 'questions' | 'knowledge' | 'support';
 
 const HelpPage = () => {
     const { language } = useLanguage();
     const t = translations[language].help;
+    const [activeSection, setActiveSection] = useState<HelpSection>('questions');
+
+    const renderContent = () => {
+        switch (activeSection) {
+            case 'questions':
+                return <FAQ items={t.faq.items} />;
+            case 'knowledge':
+                return <KnowledgeBase items={t.knowledge.items} />;
+            case 'support':
+                return <Support />;
+            default:
+                return <FAQ items={t.faq.items} />;
+        }
+    };
 
     return (
         <main className="help-page">
@@ -17,9 +37,11 @@ const HelpPage = () => {
             </header>
 
             <section className="help-page__content">
-                <HelpSidebar />
-
-                <FAQ items={t.faq.items} />
+                <HelpSidebar 
+                    activeSection={activeSection} 
+                    onSectionChange={setActiveSection} 
+                />
+                {renderContent()}
             </section>
             <Resources items={t.resources.items} />
         </main>

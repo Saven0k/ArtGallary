@@ -1,9 +1,11 @@
 // src/pages/Help/lang.ts
 export type Language = 'ru' | 'en' | 'zh';
+import PaintImage from  "./icons/PaintImage.svg";
+import ScalesImage from "./icons/SclesImage.svg";
+import HumanImage from "./icons/humanImage.svg";
+import SettingsImage from "./icons/SettingsImage.svg";
 
-import ArtIcon from "./icons/art.svg"
-import BalanceIcon from "./icons/balance.svg"
-import PaintingIcon from "./icons/painting.svg"
+import { BrushIcon, NotificationIcon, PictureIcon, ScalesIcon } from "./icons/Icons";
 
 export const translations = {
   ru: {
@@ -61,32 +63,164 @@ export const translations = {
           }
         ]
       },
+      knowledge: {
+        title: 'База знаний',
+        subtitle: 'Инструкции и руководства',
+        items: [
+          {
+            title: 'Как начать работать с платформой?',
+            description: 'Пошаговая инструкция для новых пользователей',
+            link: '/help/getting-started'
+          },
+          {
+            title: 'Как добавить первую картину?',
+            description: 'Подробное руководство по загрузке работ',
+            link: '/help/add-art'
+          },
+          {
+            title: 'Как проходит модерация?',
+            description: 'Все этапы проверки контента на платформе',
+            link: '/help/moderation'
+          },
+          {
+            title: 'Как управлять профилем?',
+            description: 'Настройки и редактирование личного кабинета',
+            link: '/help/profile'
+          }
+        ]
+      },
+      support: {
+        title: 'Чат с поддержкой',
+        subtitle: 'Мы здесь, чтобы помочь вам',
+        email: 'Email:',
+        phone: 'Телефон:',
+        hours: 'Часы работы:',
+        hoursValue: 'Пн-Пт: 9:00 - 21:00 (МСК)',
+        button: 'Написать в чат'
+      },
       resources: {
         title: 'Полезные ресурсы',
         items: [
           {
             title: 'Руководство для художников',
             description: 'Как начать продавать свои работы?',
-            icon: PaintingIcon
+            content: "",
+            icon: BrushIcon,
+            img: "",
+            list: [
+              {
+                icon: "1",
+                title: "Создай профиль художника",
+                description: "Заполните информацию о себе: добавьте фотографию, краткую биографию, расскажите о своем творческом пути, образовании, технике и вдохновении. Чем подробнее оформлен профиль, тем больше доверия он вызывает у покупателей."
+              },
+              {
+                icon: "2",
+                title: "Загрузи свои работы",
+                description: "Используйте качественные фотографии при хорошем освещении. Изображение должно быть четким, без посторонних предметов и цветовых искажений."
+              },
+              {
+                icon: "3",
+                title: "Дождитесь модерации",
+                description: "Каждая работа проходит проверку перед публикацией. Обычно модерация занимает до 24 часов. Если работа будет отклонена, вы получите уведомление с причиной и сможете внести изменения."
+              },
+              {
+                icon: "4",
+                title: "Продвигайте свои работы",
+                description: "Регулярно публикуйте новые произведения, участвуйте в выставках платформы, делитесь ссылками на свои работы в социальных сетях и рассказывайте о своем творчестве."
+              },
+            ]
           },
           {
-            title: 'Правовая информация',
+            title: 'Правовая информация для авторов',
             description: 'Оферта и политика конфиденциальности',
-            icon: BalanceIcon
+            icon: ScalesIcon,
+            img: "",
+            list: [
+              {
+                icon: HumanImage,
+                title: "Пользовательское соглашение",
+                description: "Используя платфому, вы соглашаетесь соблюдать правила сообщества и условия использования сервиса."
+              },
+              {
+                icon: ScalesImage,
+                title: "Политика конфиденциальности",
+                description: "Мы собираем данные, которые необходимы для работы платформы: имя пользователя; адрес электронной почты; информацию профиля. Персональные данные не передаются третьим лицам без законных оснований."
+              },
+              {
+                icon: PaintImage,
+                title: "Авторские права",
+                description: "Все авторские права на произведения принадлежат их создателям. Размещая работу на платформе, вы подтверждаете, что являетесь ее автором или обладаете необходимыми правами на публикацию."
+              },
+              {
+                icon: SettingsImage,
+                title: "Безопасность",
+                description: "Мы используем современные методы защиты данных, однако рекомендуем использовать надежный пароль и не передавать данные своего аккаунта другим лицам."
+              },
+            ]
           },
           {
-            title: 'Арт-консультация',
-            description: 'Помощь при подборе картин',
-            icon: ArtIcon
+            title: 'Арт-консультация и помощь',
+            description: 'Помощь при подборе картин для вас',
+            icon: PictureIcon,
+            img: "",
+            list: [
+              {
+                icon: "1",
+                title: "Создай профиль художника",
+                description: "Заполните информацию о себе: добавьте фотографию, краткую биографию, расскажите о своем творческом пути, образовании, технике и вдохновении. Чем подробнее оформлен профиль, тем больше доверия он вызывает у покупателей."
+              },
+              {
+                icon: "2",
+                title: "Загрузи свои работы",
+                description: "Используйте качественные фотографии при хорошем освещении. Изображение должно быть четким, без посторонних предметов и цветовых искажений."
+              },
+              {
+                icon: "3",
+                title: "Дождитесь модерации",
+                description: "Каждая работа проходит проверку перед публикацией. Обычно модерация занимает до 24 часов. Если работа будет отклонена, вы получите уведомление с причиной и сможете внести изменения."
+              },
+              {
+                icon: "4",
+                title: "Продвигайте свои работы",
+                description: "Регулярно публикуйте новые произведения, участвуйте в выставках платформы, делитесь ссылками на свои работы в социальных сетях и рассказывайте о своем творчестве."
+              },
+            ]
           },
           {
-            title: 'Новости арт-рынка',
-            description: 'Обзоры выставок и картин',
-            icon: BalanceIcon
+            title: 'Новости арт-рынка и полезные статьи',
+            description: 'Обзоры картин и события в мире искусства',
+            icon: NotificationIcon,
+            img: "",
+            list: [
+              {
+                icon: "1",
+                title: "Создай профиль художника",
+                description: "Заполните информацию о себе: добавьте фотографию, краткую биографию, расскажите о своем творческом пути, образовании, технике и вдохновении. Чем подробнее оформлен профиль, тем больше доверия он вызывает у покупателей."
+              },
+              {
+                icon: "2",
+                title: "Загрузи свои работы",
+                description: "Используйте качественные фотографии при хорошем освещении. Изображение должно быть четким, без посторонних предметов и цветовых искажений."
+              },
+              {
+                icon: "3",
+                title: "Дождитесь модерации",
+                description: "Каждая работа проходит проверку перед публикацией. Обычно модерация занимает до 24 часов. Если работа будет отклонена, вы получите уведомление с причиной и сможете внести изменения."
+              },
+              {
+                icon: "4",
+                title: "Продвигайте свои работы",
+                description: "Регулярно публикуйте новые произведения, участвуйте в выставках платформы, делитесь ссылками на свои работы в социальных сетях и рассказывайте о своем творчестве."
+              },
+            ]
           }
         ]
       },
       sidebar: {
+        questions: {
+          title: 'Вопросы?',
+          description: 'Быстрые ответы на частые вопросы'
+        },
         knowledge: {
           title: 'База знаний',
           description: 'Инструкции и руководства'
@@ -154,32 +288,164 @@ export const translations = {
           }
         ]
       },
+      knowledge: {
+        title: 'Knowledge Base',
+        subtitle: 'Instructions and guides',
+        items: [
+          {
+            title: 'How to start working with the platform?',
+            description: 'Step-by-step guide for new users',
+            link: '/help/getting-started'
+          },
+          {
+            title: 'How to add your first painting?',
+            description: 'Detailed guide for uploading artworks',
+            link: '/help/add-art'
+          },
+          {
+            title: 'How does moderation work?',
+            description: 'All stages of content moderation',
+            link: '/help/moderation'
+          },
+          {
+            title: 'How to manage your profile?',
+            description: 'Settings and editing your account',
+            link: '/help/profile'
+          }
+        ]
+      },
+      support: {
+        title: 'Support Chat',
+        subtitle: "We're here to help you",
+        email: 'Email:',
+        phone: 'Phone:',
+        hours: 'Working hours:',
+        hoursValue: 'Mon-Fri: 9:00 - 21:00 (MSK)',
+        button: 'Write to chat'
+      },
       resources: {
         title: 'Useful Resources',
         items: [
           {
             title: 'Artist Guide',
             description: 'How to start selling your work?',
-            icon: PaintingIcon
+            content: "",
+            icon: BrushIcon,
+            img: "",
+            list: [
+              {
+                icon: "1",
+                title: "Create an artist profile",
+                description: "Fill in your information: add a photo, a short biography, tell about your creative journey, education, technique and inspiration. The more detailed your profile is, the more trust it inspires in buyers."
+              },
+              {
+                icon: "2",
+                title: "Upload your works",
+                description: "Use high-quality photos with good lighting. The image should be clear, without foreign objects and color distortions."
+              },
+              {
+                icon: "3",
+                title: "Wait for moderation",
+                description: "Each work is reviewed before publication. Moderation usually takes up to 24 hours. If your work is rejected, you will receive a notification with the reason and will be able to make changes."
+              },
+              {
+                icon: "4",
+                title: "Promote your works",
+                description: "Regularly publish new works, participate in platform exhibitions, share links to your works on social networks and talk about your creativity."
+              },
+            ]
           },
           {
-            title: 'Legal Information',
+            title: 'Legal Information for Authors',
             description: 'Terms and Privacy Policy',
-            icon: BalanceIcon
+            icon: ScalesIcon,
+            img: "",
+            list: [
+              {
+                icon: HumanImage,
+                title: "Terms of Service",
+                description: "By using the platform, you agree to comply with the community rules and terms of service."
+              },
+              {
+                icon: ScalesImage,
+                title: "Privacy Policy",
+                description: "We collect data necessary for the platform's operation: username; email address; profile information. Personal data is not transferred to third parties without legal grounds."
+              },
+              {
+                icon: PaintImage,
+                title: "Copyright",
+                description: "All copyrights to works belong to their creators. By posting a work on the platform, you confirm that you are its author or have the necessary rights to publish it."
+              },
+              {
+                icon: SettingsImage,
+                title: "Security",
+                description: "We use modern data protection methods, however we recommend using a strong password and not sharing your account data with other persons."
+              },
+            ]
           },
           {
-            title: 'Art Consultation',
-            description: 'Help with selecting paintings',
-            icon: ArtIcon
+            title: 'Art Consultation & Help',
+            description: 'Help with selecting paintings for you',
+            icon: PictureIcon,
+            img: "",
+            list: [
+              {
+                icon: "1",
+                title: "Create an artist profile",
+                description: "Fill in your information: add a photo, a short biography, tell about your creative journey, education, technique and inspiration. The more detailed your profile is, the more trust it inspires in buyers."
+              },
+              {
+                icon: "2",
+                title: "Upload your works",
+                description: "Use high-quality photos with good lighting. The image should be clear, without foreign objects and color distortions."
+              },
+              {
+                icon: "3",
+                title: "Wait for moderation",
+                description: "Each work is reviewed before publication. Moderation usually takes up to 24 hours. If your work is rejected, you will receive a notification with the reason and will be able to make changes."
+              },
+              {
+                icon: "4",
+                title: "Promote your works",
+                description: "Regularly publish new works, participate in platform exhibitions, share links to your works on social networks and talk about your creativity."
+              },
+            ]
           },
           {
-            title: 'Art Market News',
-            description: 'Exhibition and art reviews',
-            icon: BalanceIcon
+            title: 'Art Market News & Articles',
+            description: 'Art reviews and events in the art world',
+            icon: NotificationIcon,
+            img: "",
+            list: [
+              {
+                icon: "1",
+                title: "Create an artist profile",
+                description: "Fill in your information: add a photo, a short biography, tell about your creative journey, education, technique and inspiration. The more detailed your profile is, the more trust it inspires in buyers."
+              },
+              {
+                icon: "2",
+                title: "Upload your works",
+                description: "Use high-quality photos with good lighting. The image should be clear, without foreign objects and color distortions."
+              },
+              {
+                icon: "3",
+                title: "Wait for moderation",
+                description: "Each work is reviewed before publication. Moderation usually takes up to 24 hours. If your work is rejected, you will receive a notification with the reason and will be able to make changes."
+              },
+              {
+                icon: "4",
+                title: "Promote your works",
+                description: "Regularly publish new works, participate in platform exhibitions, share links to your works on social networks and talk about your creativity."
+              },
+            ]
           }
         ]
       },
       sidebar: {
+        questions: {
+          title: 'Questions?',
+          description: 'Quick answers to frequently asked questions'
+        },
         knowledge: {
           title: 'Knowledge Base',
           description: 'Instructions and guides'
@@ -247,32 +513,164 @@ export const translations = {
           }
         ]
       },
+      knowledge: {
+        title: '知识库',
+        subtitle: '说明和指南',
+        items: [
+          {
+            title: '如何开始使用平台？',
+            description: '新用户分步指南',
+            link: '/help/getting-started'
+          },
+          {
+            title: '如何添加第一幅画作？',
+            description: '上传作品的详细指南',
+            link: '/help/add-art'
+          },
+          {
+            title: '审核如何进行？',
+            description: '内容审核的所有阶段',
+            link: '/help/moderation'
+          },
+          {
+            title: '如何管理个人资料？',
+            description: '账户设置和编辑',
+            link: '/help/profile'
+          }
+        ]
+      },
+      support: {
+        title: '客服聊天',
+        subtitle: '我们在这里帮助您',
+        email: '邮箱：',
+        phone: '电话：',
+        hours: '工作时间：',
+        hoursValue: '周一至周五：9:00 - 21:00（莫斯科时间）',
+        button: '发送消息'
+      },
       resources: {
         title: '实用资源',
         items: [
           {
             title: '艺术家指南',
             description: '如何开始销售您的作品？',
-            icon: PaintingIcon
+            content: "",
+            icon: BrushIcon,
+            img: "",
+            list: [
+              {
+                icon: "1",
+                title: "创建艺术家简介",
+                description: "填写您的信息：添加照片、简短传记，讲述您的创作历程、教育背景、技法和灵感。简介越详细，越能赢得买家的信任。"
+              },
+              {
+                icon: "2",
+                title: "上传您的作品",
+                description: "使用光线良好的高质量照片。图像应清晰，无杂物和色彩失真。"
+              },
+              {
+                icon: "3",
+                title: "等待审核",
+                description: "每件作品在发布前都会经过审核。审核通常需要24小时。如果作品被拒绝，您将收到通知并可以修改。"
+              },
+              {
+                icon: "4",
+                title: "推广您的作品",
+                description: "定期发布新作品，参与平台展览，在社交网络上分享作品链接，并分享您的创作故事。"
+              },
+            ]
           },
           {
-            title: '法律信息',
+            title: '作者法律信息',
             description: '条款和隐私政策',
-            icon: BalanceIcon
+            icon: ScalesIcon,
+            img: "a",
+            list: [
+              {
+                icon: HumanImage,
+                title: "服务条款",
+                description: "使用平台即表示您同意遵守社区规则和服务条款。"
+              },
+              {
+                icon: ScalesImage,
+                title: "隐私政策",
+                description: "我们收集平台运行所需的数据：用户名；电子邮件地址；个人资料信息。未经法律依据，个人数据不会传递给第三方。"
+              },
+              {
+                icon: PaintImage,
+                title: "版权",
+                description: "作品的所有版权归其创作者所有。在平台上发布作品即表示您确认您是作者或拥有必要的发布权利。"
+              },
+              {
+                icon: SettingsImage,
+                title: "安全",
+                description: "我们使用现代数据保护方法，但建议您使用强密码，不要将账户信息透露给他人。"
+              },
+            ]
           },
           {
-            title: '艺术咨询',
-            description: '帮助挑选画作',
-            icon: ArtIcon
+            title: '艺术咨询与帮助',
+            description: '帮助为您挑选画作',
+            icon: PictureIcon,
+            img: "",
+            list: [
+              {
+                icon: "1",
+                title: "创建艺术家简介",
+                description: "填写您的信息：添加照片、简短传记，讲述您的创作历程、教育背景、技法和灵感。简介越详细，越能赢得买家的信任。"
+              },
+              {
+                icon: "2",
+                title: "上传您的作品",
+                description: "使用光线良好的高质量照片。图像应清晰，无杂物和色彩失真。"
+              },
+              {
+                icon: "3",
+                title: "等待审核",
+                description: "每件作品在发布前都会经过审核。审核通常需要24小时。如果作品被拒绝，您将收到通知并可以修改。"
+              },
+              {
+                icon: "4",
+                title: "推广您的作品",
+                description: "定期发布新作品，参与平台展览，在社交网络上分享作品链接，并分享您的创作故事。"
+              },
+            ]
           },
           {
-            title: '艺术市场新闻',
-            description: '展览和艺术评论',
-            icon: BalanceIcon
+            title: '艺术市场新闻与文章',
+            description: '艺术评论和艺术界事件',
+            icon: NotificationIcon,
+            img: "",
+            list: [
+              {
+                icon: "1",
+                title: "创建艺术家简介",
+                description: "填写您的信息：添加照片、简短传记，讲述您的创作历程、教育背景、技法和灵感。简介越详细，越能赢得买家的信任。"
+              },
+              {
+                icon: "2",
+                title: "上传您的作品",
+                description: "使用光线良好的高质量照片。图像应清晰，无杂物和色彩失真。"
+              },
+              {
+                icon: "3",
+                title: "等待审核",
+                description: "每件作品在发布前都会经过审核。审核通常需要24小时。如果作品被拒绝，您将收到通知并可以修改。"
+              },
+              {
+                icon: "4",
+                title: "推广您的作品",
+                description: "定期发布新作品，参与平台展览，在社交网络上分享作品链接，并分享您的创作故事。"
+              },
+            ]
           }
         ]
       },
       sidebar: {
+        questions: {
+          title: '有问题？',
+          description: '快速回答常见问题'
+        },
         knowledge: {
           title: '知识库',
           description: '说明和指南'
@@ -289,7 +687,7 @@ export const translations = {
 export const getTranslation = (lang: Language, path: string): string => {
   const keys = path.split('.');
   let result: any = translations[lang];
-  
+
   for (const key of keys) {
     if (result && result[key] !== undefined) {
       result = result[key];
@@ -297,7 +695,7 @@ export const getTranslation = (lang: Language, path: string): string => {
       return path;
     }
   }
-  
+
   return typeof result === 'string' ? result : path;
 };
 

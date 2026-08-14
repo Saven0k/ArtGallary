@@ -5,14 +5,14 @@ import { AuthContext } from "../context/AuthContext";
 export const useAuth = () => {
     const ctx = useContext(AuthContext);
     if (!ctx) throw new Error("AuthContext not available");
-    const hasRole = (roles: Array<UserRole | 'visitor'>) => {
+    const hasRole = (roles: Array<UserRole>) => {
         if (!ctx.user) return false;
         return roles.includes(ctx.user.role);
     };
     
     const isAdmin = () => ctx.user?.role === 'admin';
     const isModerator = () => ctx.user?.role === 'moderator';
-    const isArtist = () => ctx.user?.role === 'artist';
+    const isAuthor = () => ctx.user?.role === 'author';
     const isVisitor = () => false;
     const isUser = () => ctx.user?.role === 'user';
     
@@ -21,7 +21,7 @@ export const useAuth = () => {
         hasRole,
         isAdmin,
         isModerator,
-        isArtist,
+        isAuthor,
         isVisitor,
         isUser,
     };

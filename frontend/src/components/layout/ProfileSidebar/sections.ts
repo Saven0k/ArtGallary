@@ -11,7 +11,7 @@ export interface MenuSection {
     items: MenuItem[];
 }
 
-export const menuSectionsArtist: MenuSection[] = [
+export const menuSectionsAuthor: MenuSection[] = [
     {
         titleKey: "profile",
         items: [
@@ -19,10 +19,13 @@ export const menuSectionsArtist: MenuSection[] = [
         ]
     },
     {
-        titleKey: "paintings",
+        titleKey: "arts",
         items: [
             { icon: "🖼️", labelKey: "artist.myPaintings", path: "/arts/my" },
-            { icon: "🎨", labelKey: "artist.addPainting", path: "/arts/my/new" }
+            { icon: "🎨", labelKey: "artist.addPainting", path: "/arts/my/new" },
+            { icon: "🎨", labelKey: "Лайки по работам", path: "/arts/my/likes" },
+            { icon: "🎨", labelKey: "Подписки на авторов", path: "/authors/my/subs" },
+            { icon: "🎨", labelKey: "Лайка по авторам", path: "/authors/my/likes" },
         ]
     },
     {
@@ -43,9 +46,10 @@ export const menuSectionsUser: MenuSection[] = [
     {
         titleKey: "paintings",
         items: [
-            { icon: "🖼️", labelKey: "user.likedPaintings", path: "/profile/liked-arts" }
-            // { icon: "🖼️", labelKey: "user.likedPaintings", path: "/profile/liked-arts" } Сделай лайки артистов
-        ]
+            { icon: "🖼️", labelKey: "Лайки по работам", path: "/arts/my/likes" },
+            { icon: "🖼️", labelKey: "Лайки по авторам", path: "/authors/my/likes" },
+            { icon: "🖼️", labelKey: "Подписки на авторов", path: "/authors/my/subs" },
+        ],
     },
     {
         titleKey: "support",
@@ -65,15 +69,14 @@ export const menuSectionsModerator: MenuSection[] = [
     {
         titleKey: "moderation",
         items: [
-            { icon: "🖼️", labelKey: "moderator.moderationPaintings", path: "/moderation/arts" },
-            { icon: "👨‍🎨", labelKey: "moderator.moderationArtists", path: "/moderation/artists" }
+            { icon: "🖼️", labelKey: "Модерация работ", path: "/moderation/arts" },
+            { icon: "👨‍🎨", labelKey: "Модерация авторов", path: "/moderation/authors" }
         ]
     },
     {
         titleKey: "support",
         items: [
             { icon: "❓", labelKey: "moderator.help", path: "/help" },
-            { icon: "📧", labelKey: "moderator.feedback", path: "/contacts" }
         ]
     }
 ];
@@ -82,21 +85,50 @@ export const menuSectionsAdmin: MenuSection[] = [
     {
         titleKey: "paintings",
         items: [
-            { icon: "⭐", labelKey: "admin.moderation", path: "/admin/moderation/arts" },
-            { icon: "📋", labelKey: "admin.allPaintings", path: "/admin/arts" }
-        ]
+            { icon: "⭐", labelKey: "Модерация артов", path: "/admin/moderation/arts" },
+            { icon: "📋", labelKey: "Управление артами", path: "/admin/arts" },
+            { icon: "🖼️", labelKey: "Лайки по работам", path: "/arts/my/likes" },
+        ],
     },
     {
-        titleKey: "artists",
+        titleKey: "authors",
         items: [
-            { icon: "⭐", labelKey: "admin.moderation", path: "/admin/moderation/artists" },
-            { icon: "📋", labelKey: "admin.allArtists", path: "/admin/artists" }
+            { icon: "🖼️", labelKey: "Лайки по авторам", path: "/authors/my/likes" },
+            { icon: "🖼️", labelKey: "Подписки на авторов", path: "/authors/my/subs" },
+
+            { icon: "⭐", labelKey: "Модерация авторов", path: "/admin/moderation/authors" },
+            { icon: "📋", labelKey: "Управление авторами", path: "/admin/authors" }
         ]
     },
     {
         titleKey: "users",
         items: [
-            { icon: "👥", labelKey: "admin.allUsers", path: "/admin/users" }
+            { icon: "👥", labelKey: "Управление пользователями", path: "/admin/users" },
+            { icon: "👥", labelKey: "Управление модераторами", path: "/admin/moderatiors" },
+        ]
+    },
+    {
+        titleKey: "artTypes",
+        items: [
+            { icon: "👥", labelKey: "Работа с типами работ", path: "/admin/art-types" }
+        ]
+    },
+    {
+        titleKey: "Professions",
+        items: [
+            { icon: "👥", labelKey: "Управление профессиями", path: "/admin/professions" }
+        ]
+    },
+    {
+        titleKey: "Events",
+        items: [
+            { icon: "👥", labelKey: "Управление событиями", path: "/admin/events" }
+        ]
+    }  ,
+    {
+        titleKey: "Styles",
+        items: [
+            { icon: "👥", labelKey: "Управление стилями", path: "/admin/styles" }
         ]
     },
     {

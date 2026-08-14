@@ -1,7 +1,7 @@
+// src/components/ProfileSideBar/components/GuestHeader.tsx
 import React from 'react';
 import { useLanguage } from '../../../../hooks/useLanguage';
-import { profileSidebarTranslations } from '../lang';
-import { Benefits } from './Benefits';
+import { sidebarTranslations } from '../lang';
 
 interface GuestHeaderProps {
     onNavigate: (path: string) => void;
@@ -10,42 +10,36 @@ interface GuestHeaderProps {
 
 export const GuestHeader: React.FC<GuestHeaderProps> = ({ onNavigate, onClose }) => {
     const { language } = useLanguage();
-    const lang = profileSidebarTranslations[language];
+    const t = sidebarTranslations[language].guest;
 
-    const handleNavigation = (path: string) => {
-        onNavigate(path);
+    const handleLogin = () => {
+        onNavigate('/login');
+        onClose();
+    };
+
+    const handleRegister = () => {
+        onNavigate('/register');
         onClose();
     };
 
     return (
-        <div className="sidebarProfile__guest-content">
-            <div className="sidebarProfile__guest-header">
-                <div className="sidebarProfile__guest-icon">🎨</div>
-                <h2 className="sidebarProfile__guest-title">{lang.sidebar.guest.title}</h2>
-            </div>
-            <div className="sidebarProfile__guest-message">
-                <p className="sidebarProfile__guest-subtitle">
-                    {lang.sidebar.guest.subtitle || 'Войдите в аккаунт'}
-                </p>
-                <p className="sidebarProfile__guest-text">
-                    {lang.sidebar.guest.description || 'Чтобы получить доступ ко всем функциям галереи'}
-                </p>
-            </div>
+        <div className="sidebarProfile__guest">
+            <h3 className="sidebarProfile__guest-title">{t.title}</h3>
+            <p className="sidebarProfile__guest-subtitle">{t.subtitle}</p>
             <div className="sidebarProfile__guest-actions">
-                <button 
-                    onClick={() => handleNavigation('/login')} 
-                    className="sidebarProfile__login-btn"
+                <button
+                    className="sidebarProfile__guest-btn sidebarProfile__guest-btn--primary"
+                    onClick={handleLogin}
                 >
-                    {lang.sidebar.guest.login || 'Войти / Зарегистрироваться'}
+                    {t.login}
                 </button>
-                <button 
-                    onClick={() => handleNavigation('/register')} 
-                    className="sidebarProfile__guest-btn"
+                <button
+                    className="sidebarProfile__guest-btn sidebarProfile__guest-btn--secondary"
+                    onClick={handleRegister}
                 >
-                    {lang.sidebar.guest.becomeArtist || 'Стать художником'}
+                    {t.register}
                 </button>
             </div>
-            <Benefits />
         </div>
     );
 };

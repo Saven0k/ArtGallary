@@ -1,15 +1,15 @@
+// src/components/ProfileSideBar/ProfileSideBar.tsx
 import { memo, useState, useEffect } from "react";
 import { useAuth } from "../../../hooks/useAuth";
-import { profileSidebarTranslations } from "./lang";
-import { UserHeader } from "./components/UserHeader";
+import { useLanguage } from "../../../hooks/useLanguage";
 import { MenuSection } from "./components/MenuSection";
 import { Meta } from "./components/Meta";
-import { ModerationBanner } from "./components/ModerationBanner";
-import { useUserData } from "./hooks/useUserData";
-import { menuSectionsAdmin, menuSectionsArtist, menuSectionsModerator, menuSectionsUser } from "./sections";
-import "./ProfileSideBar.css";
 import { GuestHeader } from "./components/GuestHeader";
-import { useLanguage } from "../../../hooks/useLanguage";
+import { UserHeader } from "./components/UserHeader";
+import { ModerationBanner } from "./components/ModerationBanner";
+import { menuSectionsAdmin, menuSectionsAuthor, menuSectionsModerator, menuSectionsUser } from "./sections";
+import { sidebarTranslations } from "./lang";
+import "./ProfileSideBar.scss";
 
 export interface ProfileSideBarProps {
     onClose: () => void;
@@ -18,6 +18,12 @@ export interface ProfileSideBarProps {
     isClosing?: boolean;
     onTransitionEnd?: () => void;
     userRole?: string;
+    userData?: {
+        name: string;
+        surname: string;
+        email?: string;
+        avatar_path?: string | null;
+    };
 }
 
 const ProfileSideBar = memo(({
@@ -25,13 +31,14 @@ const ProfileSideBar = memo(({
     onNavigate,
     isClosing = false,
     onTransitionEnd,
-    userRole
+    userRole = 'user',
+    userData,
+    isAuthenticated = false
 }: ProfileSideBarProps) => {
     const [isEntered, setIsEntered] = useState(false);
-    const { user, isAuthenticated, logout } = useAuth();
+    const { logout } = useAuth();
     const { language } = useLanguage();
-    const lang = profileSidebarTranslations[language];
-    const { userData, isModerated } = useUserData(user);
+    const t = sidebarTranslations[language];
 
     useEffect(() => {
         const id = requestAnimationFrame(() => setIsEntered(true));
@@ -55,8 +62,8 @@ const ProfileSideBar = memo(({
 
     const getMenuSections = () => {
         switch (userRole) {
-            case 'artist':
-                return isModerated === false ? getArtistLimitedSections() : menuSectionsArtist;
+            case 'author':
+                return menuSectionsAuthor;
             case 'moderator':
                 return menuSectionsModerator;
             case 'admin':
@@ -66,22 +73,25 @@ const ProfileSideBar = memo(({
         }
     };
 
-    const getArtistLimitedSections = () => {
-        return [
-            {
-                titleKey: "profile",
-                items: [
-                    { icon: "👤", labelKey: "artist.myProfile", path: "/profile" }
-                ]
+    const getMenuItemLabel = (labelKey: string): string => {
+        const parts = labelKey.split('.');
+        if (parts.length === 2) {
+            const [category, key] = parts;
+            if (category === 'common') {
+                return t.common[key as keyof typeof t.common] || labelKey;
             }
-        ];
+            const categoryObj = t[category as keyof typeof t];
+            if (categoryObj && typeof categoryObj === 'object') {
+                return (categoryObj as any)[key] || labelKey;
+            }
+        }
+        return labelKey;
     };
 
     const renderMenu = () => {
         const sections = getMenuSections();
         return (
-            <nav className="sidebarProfile__nav" role="navigation" aria-label={lang.sidebar.close}>
-                {userRole === 'artist' && isModerated === false && <ModerationBanner />}
+            <nav className="sidebarProfile__nav" role="navigation">
                 {sections.map((section, index) => (
                     <MenuSection
                         key={index}
@@ -93,18 +103,6 @@ const ProfileSideBar = memo(({
                 ))}
             </nav>
         );
-    };
-
-    const getMenuItemLabel = (labelKey: string): string => {
-        const parts = labelKey.split('.');
-        if (parts.length === 2) {
-            const category = parts[0] as keyof typeof lang;
-            const key = parts[1] as string;
-            if (lang[category] && (lang[category] as any)[key]) {
-                return (lang[category] as any)[key];
-            }
-        }
-        return labelKey;
     };
 
     return (
@@ -122,17 +120,16 @@ const ProfileSideBar = memo(({
                     isEntered ? "sidebarProfile--open" : ""
                 } ${isClosing ? "sidebarProfile--closing" : ""}`}
                 role="dialog"
-                aria-label={lang.sidebar.close}
                 aria-modal="true"
                 onTransitionEnd={(e) =>
                     e.propertyName === "transform" && isClosing && onTransitionEnd?.()
                 }
             >
                 <div className="sidebarProfile__header">
-                    {isAuthenticated ? (
+                    {isAuthenticated && userData ? (
                         <UserHeader 
                             userData={userData} 
-                            onEdit={() => onNavigate("profile/edit")}
+                            onEdit={() => onNavigate("/profile/edit")}
                             onClose={onClose}
                         />
                     ) : (
@@ -143,29 +140,38 @@ const ProfileSideBar = memo(({
                     )}
                     <button
                         className="sidebarProfile__close"
-                        aria-label={lang.sidebar.close}
                         onClick={onClose}
+                        aria-label="Закрыть меню"
                     >
                         ✕
                     </button>
                 </div>
 
-                {isAuthenticated && renderMenu()}
+                {isAuthenticated && (
+                    <>
+                        {userRole === 'author' && (
+                            <ModerationBanner />
+                        )}
+                        {renderMenu()}
+                    </>
+                )}
 
                 <div className="sidebarProfile__footer">
                     <div className="sidebarProfile__actions">
                         <button
                             className="sidebarProfile__action-btn sidebarProfile__action-btn--secondary"
                             onClick={handleSettings}
+                            aria-label="Настройки"
                         >
-                            ⚙️ {lang.sidebar.actions.settings}
+                            ⚙️
                         </button>
                         {isAuthenticated && (
                             <button
                                 className="sidebarProfile__action-btn sidebarProfile__action-btn--danger"
                                 onClick={handleLogout}
+                                aria-label="Выйти"
                             >
-                                🚪 {lang.sidebar.actions.logout}
+                                🚪
                             </button>
                         )}
                     </div>

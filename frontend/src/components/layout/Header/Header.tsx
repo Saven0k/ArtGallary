@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import ProfileSidebar from "../ProfileSidebar/ProfileSidebar";
 import { useAuth } from "../../../hooks/useAuth";
 import { headerTranslations } from "./lang";
-import "./Header.css";
+import "./Header.scss";
 import { useLanguage } from "../../../hooks/useLanguage";
 
 const Header = memo(() => {
@@ -27,7 +27,7 @@ const Header = memo(() => {
         setIsSidebarClosing(false);
         setIsSidebarOpen(true);
     }, []);
-
+``
     const handleSidebarTransitionEnd = useCallback(() => {
         if (isSidebarClosing) {
             setIsSidebarOpen(false);
@@ -93,7 +93,7 @@ const Header = memo(() => {
                             </Link>
                         </li>
                         <li className="header__nav-item">
-                            <Link to="/artists" className="header__nav-link">
+                            <Link to="/authors" className="header__nav-link">
                                 {lang.nav.authors}
                             </Link>
                         </li>
@@ -115,7 +115,7 @@ const Header = memo(() => {
                     onClose={handleCloseSidebar}
                     onNavigate={handleSidebarNavigate}
                     isClosing={isSidebarClosing}
-                    userRole={user?.role}
+                    userRole={'admin'}
                     onTransitionEnd={handleSidebarTransitionEnd}
                 />
             )}

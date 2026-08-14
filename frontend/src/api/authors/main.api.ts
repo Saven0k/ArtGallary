@@ -1,5 +1,6 @@
 // src/api/authors/main.api.ts
 import { BASE_URL_API } from "../main.api";
+import type { UserRole } from "../users/main.api";
 
 const BASE_URL = `${BASE_URL_API}/authors`;
 
@@ -33,7 +34,7 @@ export interface AuthorProfileResponse {
     name: string;
     surname: string;
     second_name?: string;
-    role: string;
+    role: UserRole;
     gender: Gender;
     date_birthday: string;
     city: CityResponse | null;

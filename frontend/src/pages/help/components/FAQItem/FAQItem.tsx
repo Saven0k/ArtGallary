@@ -1,5 +1,5 @@
-import "./FAQItem.css";
-import ArrowIcon from "../icons/arrow.svg"
+import "./FAQItem.scss";
+import ArrowIcon from "../../icons/arrow.svg"
 
 interface FAQItemProps {
     question: string;

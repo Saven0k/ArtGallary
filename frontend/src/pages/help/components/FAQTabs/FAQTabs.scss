@@ -13,10 +13,10 @@
 
     background: #ffffff;
 
-    border: 2px solid #7b7b7b;
+    border: 2px solid var(--neutral-grey-800);
     border-radius: 16px;
 
-    color: #757575;
+    color:  var(--neutral-grey-600);
 
     font-size: var(----font-label);
 
@@ -31,18 +31,14 @@
 }
 
 .faq-tab:hover {
-    border-color: var(--brand-primary-gold);
-    color: var(--brand-primary-gold);
+    background: var(--neutral-grey);
+    color: #fff;;
 }
 
 .faq-tab.active {
-    background: #585247;
-    color: #ffffff;
-    border-color: #2f2a24;
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.12),
-        0 3px 8px rgba(0,0,0,.12);
+    color: var(--neutral-black-800);
+    border: 1px solid var(--neutral-black-900);
+    background: var(--profile-icon-default);
 }
 
 .faq-tab:active {

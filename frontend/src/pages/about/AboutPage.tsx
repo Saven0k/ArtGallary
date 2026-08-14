@@ -1,8 +1,8 @@
-import './AboutPage.css';
+import './AboutPage.scss';
 import Header from '../../components/layout/Header/Header';
 import Footer from '../../components/layout/Footer/Footer';
-import { useLanguage } from '../../context/LanguageContext';
 import { translations } from './lang';
+import { useLanguage } from '../../hooks/useLanguage';
 
 const AboutPage = () => {
     const { language } = useLanguage();

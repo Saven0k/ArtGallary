@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import './ModeratorLayout.css';
+import './ModeratorLayout.scss';
 
 const moderatorMenuItems = [
     { path: '/moderation/arts', icon: '🖼️', label: 'Модерация картин' },
