@@ -1,7 +1,6 @@
 // ProfilePage.tsx
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import "./ProfilePage.css";
 import type { ProfileSection } from "../../components/shared/ProfileScreen/ProfileSidebar/ProfileSidebar";
 import Notifications from "../../components/shared/ProfileScreen/Sections/Notifications/Notifications";
 import Statistics from "../../components/shared/ProfileScreen/Sections/Statistics/Statistics";
@@ -9,10 +8,13 @@ import Settings from "../../components/shared/ProfileScreen/Sections/Settings/Se
 import PersonalInfo from "../../components/shared/ProfileScreen/Sections/PersonalInfo/PersonalInfo";
 import ProfileHeader from "../../components/shared/ProfileScreen/ProfileHeader/ProfileHeader";
 import ProfileSidebar from "../../components/shared/ProfileScreen/ProfileSidebar/ProfileSidebar";
-import AnalyticsCard from "../../components/shared/ProfileScreen/AnalyticsCard/AnalyticsCard";
 import { useAuth } from "../../hooks/useAuth";
 import { getMyAuthorProfile, type AuthorProfileResponse } from "../../api/authors/main.api";
 import { getUserById, type User } from "../../api/users/main.api";
+
+import "./ProfilePage.scss";
+import Likes from "../../components/shared/ProfileScreen/Sections/Likes/Likes";
+import Follows from "../../components/shared/ProfileScreen/Sections/Follows/Follows";
 
 const sectionIds: Record<ProfileSection, string> = {
     personal: "personal",
@@ -82,14 +84,14 @@ const ProfilePage = () => {
         switch (activeSection) {
             case "notifications":
                 return <Notifications id={userId} role={userRole} />;
-            case "statistics":
-                return <Statistics id={userId} role={userRole} />;
+            // case "statistics":
+            //     return <Statistics id={userId} role={userRole} />;
             case "settings":
                 return <Settings id={userId} role={userRole} />;
             case "likes":
-                return <div>Мои лайки</div>;
+                return <Likes />;
             case "subscriptions":
-                return <div>Мои подписки</div>;
+                return <Follows />;
             default:
                 return <PersonalInfo id={userId} role={userRole} />;
         }
@@ -129,11 +131,6 @@ const ProfilePage = () => {
                     <section className="profile-page__content">
                         {renderContent()}
                     </section>
-
-                    <AnalyticsCard
-                        exhibitions={4}
-                        artworks={27}
-                    />
                 </div>
             </div>
         </main>

@@ -32,7 +32,7 @@ const AuthorHeader = ({ author }: AuthorHeaderProps) => {
             <div className="author-header__top">
                 <div className="author-header__info">
                     <img
-                        src={author.avatar_path || "/default-avatar.png"}
+                        src={author.authorProfile.avatar_path || "/default-avatar.png"}
                         alt={author.name}
                         className="author-header__avatar"
                     />

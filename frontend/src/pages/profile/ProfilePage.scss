@@ -1,0 +1,19 @@
+.profile-page {
+    padding: 0px 80px;
+    min-height: 100vh;
+
+    &__container {
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+    }
+
+    &__layout {
+        display: flex;
+        gap: 24px;
+    }
+
+    &__content {
+        width: 100%;
+    }
+}

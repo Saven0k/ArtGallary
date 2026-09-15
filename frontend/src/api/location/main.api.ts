@@ -1,26 +1,28 @@
-import { BASE_URL_API } from '../main.api';
+// src/api/location/main.api.ts
+import { BASE_URL_API } from "../main.api";
+
 const BASE_URL = `${BASE_URL_API}/location`;
+
 export interface CountrySuggestion {
     id: number;
     iso2: string;
     iso3?: string;
-    name_en: string;
-    name_ru?: string;
+    name: string;        // ← бэк возвращает name (уже локализованное)
+    name_en?: string;    // ← оставляем для обратной совместимости
+    name_ru?: string;    // ← оставляем для обратной совместимости
     geonames_id?: number;
     phone_code?: string;
     currency?: string;
     continent?: string;
 }
+
 export interface CitySuggestion {
     id: number;
-    geonames_id: number;
-    name_en: string;
-    name_ru?: string;
-    country_id: number;
+    name: string;        // ← бэк возвращает name (уже локализованное)
+    name_en?: string;    // ← оставляем для обратной совместимости
+    name_ru?: string;    
     country_code: string;
     region?: string;
-    latitude?: number;
-    longitude?: number;
     population?: number;
     timezone?: string;
 }

@@ -1,0 +1,218 @@
+/* src/components/TariffPlan/TariffPlan.css */
+
+.tariff-plan {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+    background: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.tariff-plan__title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 28px;
+    letter-spacing: -0.02em;
+}
+
+/* ==== Сетка ==== */
+.tariff-plan__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    align-items: stretch;
+}
+
+/* ==== Карточка ==== */
+.tariff-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 18px;
+    padding: 28px 24px 24px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tariff-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.tariff-card--premium,
+.tariff-card--vip {
+    background: #f5efe0;
+    border-color: #ece3cc;
+}
+
+/* ==== Бейдж «Выгодно» ==== */
+.tariff-card__badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: #e6d9b3;
+    color: #6b5a2b;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+}
+
+/* ==== Шапка ==== */
+.tariff-card__header {
+    margin-bottom: 18px;
+}
+
+.tariff-card__name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 6px;
+    line-height: 1.2;
+}
+
+.tariff-card__subtitle {
+    font-size: 13px;
+    color: #666;
+    margin: 0 0 18px;
+    line-height: 1.4;
+}
+
+/* ==== Цена ==== */
+.tariff-card__price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.tariff-card__price-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a1a1a;
+    letter-spacing: -0.02em;
+}
+
+.tariff-card__price-unit {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.tariff-card__price-period {
+    font-size: 14px;
+    color: #888;
+    margin-left: 2px;
+}
+
+/* ==== Список возможностей ==== */
+.tariff-card__features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+.tariff-card__feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #1a1a1a;
+}
+
+.tariff-card__feature--excluded {
+    color: #a0a0a0;
+    text-decoration: line-through;
+    text-decoration-color: #c8c8c8;
+}
+
+.tariff-card__feature-icon {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+}
+
+.tariff-card__feature-text {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ==== Кнопка ==== */
+.tariff-card__btn {
+    width: 100%;
+    background: #1a1a1a;
+    color: #ffffff;
+    border: none;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.tariff-card__btn:hover {
+    background: #333;
+}
+
+.tariff-card__btn:active {
+    transform: scale(0.98);
+}
+
+.tariff-card__btn--outline {
+    background: #ffffff;
+    color: #1a1a1a;
+    border: 1.5px solid #1a1a1a;
+}
+
+.tariff-card__btn--outline:hover {
+    background: #f0f0f0;
+}
+
+/* ==== Адаптив ==== */
+@media (max-width: 1024px) {
+    .tariff-plan__grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .tariff-plan {
+        padding: 20px 16px 48px;
+    }
+
+    .tariff-plan__title {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .tariff-plan__grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .tariff-card {
+        padding: 22px 18px 18px;
+    }
+
+    .tariff-card__name {
+        font-size: 19px;
+    }
+
+    .tariff-card__price-value {
+        font-size: 24px;
+    }
+}

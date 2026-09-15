@@ -12,8 +12,8 @@ const HomePage = () => {
             <About />
             <Advantages />
             <GallerySelection />
-            <Events />
             <Consultation />
+            <Events />
         </main>
     );
 };

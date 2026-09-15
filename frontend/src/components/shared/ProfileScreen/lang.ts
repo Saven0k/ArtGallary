@@ -50,7 +50,9 @@ export const profileTranslations = {
                 city: 'Город',
                 phone: 'Телефон',
                 email: 'Email',
-                about: 'О себе'
+                about: 'О себе',
+                profession: 'Профессия',
+                gender: 'Пол',
             },
             placeholders: {
                 name: 'Введите имя',
@@ -145,7 +147,9 @@ export const profileTranslations = {
                 city: 'City',
                 phone: 'Phone',
                 email: 'Email',
-                about: 'About'
+                about: 'About',
+                profession: 'Profession',
+                gender: 'Gender',
             },
             placeholders: {
                 name: 'Enter first name',
@@ -240,7 +244,9 @@ export const profileTranslations = {
                 city: '城市',
                 phone: '电话',
                 email: '邮箱',
-                about: '关于'
+                about: '关于',
+                profession: 'Профессия',
+                gender: 'Пол'
             },
             placeholders: {
                 name: '输入名字',

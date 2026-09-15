@@ -1,10 +1,12 @@
-html, body {
+html,
+body {
     height: 100%;
     margin: 0;
     padding: 0;
 }
 
-#root, .app {
+#root,
+.app {
     min-height: 100%;
     display: flex;
     flex-direction: column;
@@ -47,6 +49,7 @@ html, body {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -67,9 +70,12 @@ html, body {
 }
 
 @keyframes pulse {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(1.05);
     }
@@ -104,7 +110,7 @@ html, body {
     justify-content: center;
     width: 40px;
     height: 40px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--brand-gold-light);
     border-radius: 50%;
     transition: all 0.3s ease;
     color: white;
@@ -119,6 +125,8 @@ html, body {
 .footer__social-icon {
     width: 20px;
     height: 20px;
+    color: var(--brand-primary-gold);
+
 }
 
 /* Заголовки колонок */
@@ -264,7 +272,7 @@ html, body {
 }
 
 .footer__copyright {
-    color: rgba(255, 255, 255, 0.6);
+    color: #fff;
     font-size: 14px;
 }
 
@@ -280,7 +288,7 @@ html, body {
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    color: white;
+    background: var(--brand-primary-gold);
 }
 
 .footer__scroll-top:hover {
@@ -292,6 +300,7 @@ html, body {
 .footer__scroll-icon {
     width: 24px;
     height: 24px;
+    color: #fff;
 }
 
 /* ============================================
@@ -302,30 +311,30 @@ html, body {
     .footer__content {
         padding: 40px 0 20px;
     }
-    
+
     .footer__grid {
         gap: 30px;
         margin-bottom: 30px;
     }
-    
+
     .footer__title {
         margin-bottom: 16px;
     }
-    
+
     .footer__newsletter-form {
         flex-direction: column;
     }
-    
+
     .footer__newsletter-input,
     .footer__newsletter-btn {
         width: 100%;
     }
-    
+
     .footer__bottom {
         flex-direction: column-reverse;
         text-align: center;
     }
-    
+
     .footer__scroll-top {
         position: fixed;
         bottom: 20px;
@@ -339,15 +348,15 @@ html, body {
     .footer__container {
         padding: 0 16px;
     }
-    
+
     .footer__logo-text {
         font-size: 20px;
     }
-    
+
     .footer__description {
         font-size: 13px;
     }
-    
+
     .footer__link {
         font-size: 13px;
     }

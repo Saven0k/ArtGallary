@@ -44,7 +44,7 @@ const AuthorFilter = ({ activeProfession, onChange }: AuthorFilterProps) => {
                 {professions.map((profession) => (
                     <li key={profession.id} className="filter__item">
                         <input
-                            type="radio"
+                            type="checkbox"
                             checked={activeProfession?.id === profession.id}
                             onChange={() => onChange(profession)}
                             name="profession"

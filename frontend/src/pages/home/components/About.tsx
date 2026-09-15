@@ -16,6 +16,11 @@ const About = () => {
                     <span className="about__text--highlight">{t.highlight}</span>
                     {t.text}
                 </p>
+                <ul className="about__pros">
+                    <li className="about__plus">Все представленные авторские работы на нашем сайте-оригинльная ручная работа</li>
+                    <li className="about__plus">Работаем только с настоящими авторами</li>
+                    <li className="about__plus">Все представленные авторские работы на нашем сайте-ручная работа</li>
+                </ul>
                 <ul className="about__stats">
                     <li className="about__stat">
                         <h2 className="about__stat-number">70+</h2>

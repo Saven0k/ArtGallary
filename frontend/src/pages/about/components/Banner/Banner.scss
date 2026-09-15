@@ -1,0 +1,185 @@
+.about-banner {
+    height: 200px;
+    background-color: rgb(206, 166, 86, 0.16);
+
+    &__container {
+        padding: 44px 228px 32px;
+        margin: 0 auto;
+    }
+
+    &__content {
+        display: flex;
+        align-items: start;
+        gap: 104px;
+    }
+
+    &__text {
+        font-size: var(--font-body-medium, 20px);
+        font-weight: var(--font-weight-medium);
+        color: #000;
+        margin: 0 0 28px 0;
+        letter-spacing: 0.03em;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: start;
+        max-width: 788px;
+        width: 100%;
+
+        position: relative;
+
+        &::before {
+            content: '';
+            position: absolute;
+            right: -52px;
+            top: -8px;
+            width: 2px;
+            height: 80px;
+            background: var(--brand-primary-gold, #BC9547);
+            border-radius: 2px;
+        }
+    }
+
+    &__subtitle {
+        font-size: var(--font-body-medium, 20px);
+        font-weight: var(--font-weight-medium);
+        color: #000;
+        margin: 0 0 32px 0;
+        letter-spacing: 0.03em;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: start;
+        max-width: 788px;
+        width: 100%;
+    }
+
+    &__button {
+        display: inline-block;
+        padding: 10px;
+        color: #000000;
+        font-size: var(--font-body-large);
+        font-weight: var(--font-weight-medium, 500);
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        cursor: pointer;
+        position: relative;
+    }
+
+    &__quote {
+        font-size: var(--font-body-medium, 20px);
+        font-weight: var(--font-weight-medium);
+        color: #000;
+        margin: 0 0 32px 0;
+        letter-spacing: 0.03em;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: start;
+        width: 570px;
+    }
+
+    // Адаптив для планшетов
+    @media (max-width: 1024px) {
+        padding: 60px 0;
+
+        &__text {
+            font-size: var(--font-body-medium, 20px);
+        }
+
+        &__button {
+            padding: 12px 40px;
+            font-size: var(--font-label, 16px);
+        }
+
+        &__quote {
+            font-size: var(--font-label, 16px);
+
+            &::before {
+                font-size: 48px;
+                top: -24px;
+                left: -12px;
+            }
+
+            &::after {
+                font-size: 48px;
+                bottom: -32px;
+                right: -12px;
+            }
+        }
+    }
+
+    // Адаптив для мобильных
+    @media (max-width: 768px) {
+        padding: 48px 0;
+
+        &__container {
+            padding: 0 16px;
+        }
+
+        &__text {
+            font-size: var(--font-label, 16px);
+            line-height: 1.7;
+            padding-top: 24px;
+
+            &::before {
+                width: 40px;
+            }
+        }
+
+        &__button {
+            padding: 12px 32px;
+            font-size: 14px;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        &__quote {
+            font-size: 15px;
+            line-height: 1.7;
+
+            &::before {
+                font-size: 36px;
+                top: -18px;
+                left: -8px;
+            }
+
+            &::after {
+                font-size: 36px;
+                bottom: -24px;
+                right: -8px;
+            }
+        }
+    }
+
+    @media (max-width: 480px) {
+        padding: 32px 0;
+
+        &__text {
+            font-size: 15px;
+            padding-top: 20px;
+        }
+
+        &__button {
+            padding: 10px 24px;
+            font-size: 13px;
+            max-width: 240px;
+        }
+
+        &__quote {
+            font-size: 14px;
+
+            &::before {
+                font-size: 28px;
+                top: -14px;
+                left: -4px;
+            }
+
+            &::after {
+                font-size: 28px;
+                bottom: -18px;
+                right: -4px;
+            }
+        }
+    }
+}

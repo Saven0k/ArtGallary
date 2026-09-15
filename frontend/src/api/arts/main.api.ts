@@ -45,6 +45,18 @@ export interface Art {
     tags?: { id: number; name: string }[];
 }
 
+export interface LikedArtsResponse {
+    arts: Art[];
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+    };
+}
+
 export interface CreateArtData {
     title: string;
     description: string;
@@ -290,6 +302,26 @@ export const getArtLikes = async (id: number, page = 1, limit = 20): Promise<any
         return await res.json();
     } catch (e) { console.error("getArtLikes error:", e); return null; }
 };
+
+export const getLikedArts = async (
+    page = 1,
+    limit = 12,
+    lang = 'ru',
+): Promise<LikedArtsResponse | null> => {
+    try {
+        const res = await fetch(
+            `${BASE_URL}/liked?page=${page}&limit=${limit}&lang=${lang}`,
+            { credentials: 'include' },
+        );
+        if (!res.ok) throw new Error();
+        return await res.json();
+    } catch (e) {
+        console.error('getLikedArts error:', e);
+        return null;
+    }
+};
+
+export const unlikeArt = likeArt;
 
 export const getArtLikesCount = async (id: number): Promise<{ count: number } | null> => {
     try {

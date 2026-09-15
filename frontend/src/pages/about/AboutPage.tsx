@@ -1,34 +1,18 @@
+import Navigation from '../../components/layout/Navigation/Navigation';
 import './AboutPage.scss';
-import Header from '../../components/layout/Header/Header';
-import Footer from '../../components/layout/Footer/Footer';
-import { translations } from './lang';
-import { useLanguage } from '../../hooks/useLanguage';
+import AboutUs from './components/AboutUs/AboutUs';
+import Banner from './components/Banner/Banner';
+import Team from './components/Team/Team';
 
 const AboutPage = () => {
-    const { language } = useLanguage();
-    const t = translations[language].about;
-
     return (
-        <>
-            <Header />
-            <main className="about-page">
-                <section className="about">
-                    <img src="#" alt="TILININ'S GALLERY" className="about__image" />
-                    <div className="about__content">
-                        <h2 className="about__title">{t.title}</h2>
-                        {t.paragraphs.map((paragraph, index) => (
-                            <p key={index} className="about__text">
-                                {paragraph.highlight && (
-                                    <span className="about__text--highlight">{paragraph.highlight}</span>
-                                )}
-                                {paragraph.text}
-                            </p>
-                        ))}
-                    </div>
-                </section>
-            </main>
-            <Footer />
-        </>
+        <main className="about-page">
+            <Navigation />
+            <AboutUs />
+            <Banner />
+            <Team />
+        </main>
+
     );
 };
 

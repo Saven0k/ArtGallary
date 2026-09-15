@@ -1,20 +1,14 @@
-// src/components/ProfileSideBar/components/UserHeader.tsx
 import React from 'react';
-
-interface UserProfile {
-    name: string;
-    surname: string;
-    avatar_path?: string | null;
-}
+import type { UserDataForSidebar } from '../ProfileSidebar';    
 
 interface UserHeaderProps {
-    userData: UserProfile;
+    userData: UserDataForSidebar;
     onEdit: () => void;
     onClose: () => void;
 }
 
 export const UserHeader: React.FC<UserHeaderProps> = ({ userData, onEdit, onClose }) => {
-    const { name, surname, avatar_path } = userData;
+    const { name, surname, avatar_path, email } = userData;
 
     const handleEdit = () => {
         onEdit();
@@ -41,12 +35,6 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ userData, onEdit, onClos
             )}
             <div className="sidebarProfile__user-details">
                 <h2 className="sidebarProfile__user-name">{name} {surname}</h2>
-                <button
-                    className="sidebarProfile__user-edit"
-                    onClick={handleEdit}
-                >
-                    ✏️ Редактировать
-                </button>
             </div>
         </div>
     );

@@ -1,0 +1,252 @@
+// src/pages/Services/ServicesPage.scss
+
+.services-page {
+    width: 100%;
+    min-height: 100vh;
+    padding: 60px 0 100px;
+    background: #fdf5f3;
+    position: relative;
+    overflow: hidden;
+
+    // Декоративные вертикальные полосы (как на фото)
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+            to right,
+            transparent 0,
+            transparent 100px,
+            rgba(255, 255, 255, 0.5) 100px,
+            rgba(255, 255, 255, 0.5) 140px
+        );
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
+    &__container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+        position: relative;
+        z-index: 1;
+    }
+
+    // ===== HEADER =====
+    &__header {
+        margin-bottom: 48px;
+    }
+
+    &__title {
+        font-size: var(--font-h2, 64px);
+        font-weight: var(--font-weight-regular, 400);
+        color: var(--neutral-black-900, #000);
+        margin: 0 0 20px 0;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+    }
+
+    &__subtitle {
+        font-size: var(--font-body-medium, 20px);
+        font-weight: var(--font-weight-regular, 400);
+        color: var(--neutral-grey-800, #222);
+        margin: 0;
+        max-width: 720px;
+        line-height: 1.5;
+    }
+
+    // ===== GRID =====
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+}
+
+// ===== CARD =====
+.service-card {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-xl, 20px);
+    overflow: hidden;
+    padding-bottom: 24px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    // Иконка на "плашке"
+    &__icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 180px;
+        background: linear-gradient(
+            135deg,
+            rgba(214, 172, 152, 0.35) 0%,
+            rgba(214, 172, 152, 0.15) 100%
+        );
+        position: relative;
+        margin-bottom: 24px;
+
+        // Декоративный круг под иконкой
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -28px;
+            left: 24px;
+            width: 56px;
+            height: 56px;
+            background: #f5d9c9;
+            border-radius: 50%;
+            z-index: 2;
+        }
+    }
+
+    &__icon {
+        width: 40px;
+        height: 40px;
+        position: relative;
+        z-index: 3;
+        object-fit: contain;
+        margin-bottom: -36px;
+        margin-left: -60px;
+    }
+
+    &__title {
+        font-size: var(--font-body-large, 24px);
+        font-weight: var(--font-weight-medium, 500);
+        color: var(--neutral-black-900, #000);
+        margin: 16px 24px 12px;
+        line-height: 1.3;
+    }
+
+    &__description {
+        font-size: 15px;
+        font-weight: var(--font-weight-regular, 400);
+        color: var(--neutral-grey-800, #222);
+        margin: 0 24px 20px;
+        line-height: 1.5;
+        flex-grow: 1;
+    }
+
+    &__divider {
+        height: 1px;
+        background: rgba(188, 149, 71, 0.4);
+        margin: 0 24px 20px;
+    }
+
+    // ===== FEATURES =====
+    &__features {
+        list-style: none;
+        padding: 0;
+        margin: 0 24px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    &__feature {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 15px;
+        color: var(--neutral-grey-800, #222);
+        line-height: 1.4;
+    }
+
+    &__feature-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        margin-top: 1px;
+        opacity: 0.8;
+    }
+
+    &__price-label {
+        font-size: 13px;
+        color: var(--neutral-grey-600, #727272);
+        margin: 0 24px 20px;
+        line-height: 1.4;
+    }
+
+    // ===== MORE LINK =====
+    &__more {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 24px;
+        padding: 8px 0;
+        color: var(--neutral-black-900, #000);
+        font-size: var(--font-body-medium, 20px);
+        font-weight: var(--font-weight-medium, 500);
+        text-decoration: none;
+        transition: color 0.2s ease;
+        align-self: flex-start;
+
+        &:hover {
+            color: var(--brand-primary-gold, #BC9547);
+
+            .service-card__more-icon {
+                transform: translateX(4px);
+            }
+        }
+    }
+
+    &__more-icon {
+        width: 24px;
+        height: 24px;
+        transition: transform 0.25s ease;
+        flex-shrink: 0;
+    }
+}
+
+// ===== ADAPTIVE =====
+@media (max-width: 1100px) {
+    .services-page {
+        &__grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        &__title {
+            font-size: var(--font-h3, 52px);
+        }
+    }
+}
+
+@media (max-width: 640px) {
+    .services-page {
+        padding: 40px 0 60px;
+
+        &__container {
+            padding: 0 16px;
+        }
+
+        &__title {
+            font-size: var(--font-h5, 32px);
+        }
+
+        &__subtitle {
+            font-size: var(--font-label, 16px);
+        }
+
+        &__grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .service-card {
+        &__title {
+            font-size: var(--font-body-medium, 20px);
+        }
+
+        &__more {
+            font-size: var(--font-label, 16px);
+        }
+    }
+}

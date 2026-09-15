@@ -11,12 +11,24 @@ export const translations = {
             hero: {
                 title: 'TILININ\'S GALLERY',
                 subtitle: 'Открой для себя уникальные произведения талантливых художников',
-                button: 'Стать участником галереи'
+                button: 'Стать участником галереи',
+                nav: {
+                    paintings: 'Картины',
+                    guohua: 'Guó Huà (国画)',
+                    engravings: 'Гравюры',
+                    painting: 'Живопись',
+                    sculptures: 'Скульптуры',
+                    decorative: 'Декоративно-прикладное искусство',
+                    gameArt: 'Game Art',
+                    posters: 'Постеры',
+                    kintsugi: 'Кинцуги',
+                    cinema: 'Кино'
+                }
             },
             about: {
                 title: 'Работаем с 2026 года',
-                text: ' - это современная площадка для знакомства с произведениями искусства и творческими проектами. Наша цель заключается в популяризации художественной культуры и предоставлении удобного доступа к работам талантливых авторов.',
-                highlight: 'TILININ\'S GALLERY',
+                text: 'это современная площадка для знакомства с произведениями искусства и творческими проектами. Наша цель заключается в популяризации художественной культуры и предоставлении удобного доступа к работам талантливых авторов.',
+                highlight: 'TILININ\'S GALLERY - ',
                 stats: {
                     works: 'Работ в каталоге',
                     artists: 'Художников',
@@ -33,9 +45,9 @@ export const translations = {
                         icon: CanvasIcon
                     },
                     {
-                        title: 'Надёжная доставка',
-                        description: 'Бережная упаковка и доставка произведения искусства',
-                        icon: CarIcon
+                        title: 'Детальный просмотр работ',
+                        description: 'Возможность рассмотреть картины в высоком разрешении',
+                        icon: SearchIcon
                     },
                     {
                         title: 'Развивай своё имя в искусстве',
@@ -43,14 +55,14 @@ export const translations = {
                         icon: PaintingIcon
                     },
                     {
+                        title: 'Надёжная доставка',
+                        description: 'Бережная упаковка и доставка произведения искусства',
+                        icon: CarIcon
+                    },
+                    {
                         title: 'Защита авторских прав',
                         description: 'Ваше авторство всегда указано рядом с работами',
                         icon: LockIcon
-                    },
-                    {
-                        title: 'Детальный просмотр работ',
-                        description: 'Возможность рассмотреть картины в высоком разрешении',
-                        icon: SearchIcon
                     }
                 ]
             },
@@ -76,11 +88,23 @@ export const translations = {
             hero: {
                 title: 'TILININ\'S GALLERY',
                 subtitle: 'Discover unique works of talented artists',
-                button: 'Become a gallery member'
+                button: 'Become a gallery member',
+                nav: {
+                    paintings: 'Paintings',
+                    guohua: 'Guó Huà (国画)',
+                    engravings: 'Engravings',
+                    painting: 'Painting',
+                    sculptures: 'Sculptures',
+                    decorative: 'Decorative Arts',
+                    gameArt: 'Game Art',
+                    posters: 'Posters',
+                    kintsugi: 'Kintsugi',
+                    cinema: 'Cinema'
+                }
             },
             about: {
                 title: 'Working since 2026',
-                text: ' is a modern platform for getting acquainted with works of art and creative projects. Our goal is to popularize artistic culture and provide convenient access to the works of talented authors.',
+                text: 'is a modern platform for getting acquainted with works of art and creative projects. Our goal is to popularize artistic culture and provide convenient access to the works of talented authors.',
                 highlight: 'TILININ\'S GALLERY',
                 stats: {
                     works: 'Works in catalog',
@@ -98,9 +122,9 @@ export const translations = {
                         icon: CanvasIcon
                     },
                     {
-                        title: 'Reliable delivery',
-                        description: 'Careful packaging and delivery of artwork',
-                        icon: CarIcon
+                        title: 'Detailed viewing of works',
+                        description: 'Ability to view paintings in high resolution',
+                        icon: SearchIcon
                     },
                     {
                         title: 'Develop your name in art',
@@ -108,14 +132,14 @@ export const translations = {
                         icon: PaintingIcon
                     },
                     {
+                        title: 'Reliable delivery',
+                        description: 'Careful packaging and delivery of artwork',
+                        icon: CarIcon
+                    },
+                    {
                         title: 'Copyright protection',
                         description: 'Your authorship is always indicated next to the works',
                         icon: LockIcon
-                    },
-                    {
-                        title: 'Detailed viewing of works',
-                        description: 'Ability to view paintings in high resolution',
-                        icon: SearchIcon
                     }
                 ]
             },
@@ -141,11 +165,23 @@ export const translations = {
             hero: {
                 title: 'TILININ\'S GALLERY',
                 subtitle: '发现才华横溢艺术家的独特作品',
-                button: '成为画廊会员'
+                button: '成为画廊会员',
+                nav: {
+                    paintings: '绘画作品',
+                    guohua: '国画',
+                    engravings: '版画',
+                    painting: '油画',
+                    sculptures: '雕塑',
+                    decorative: '装饰艺术',
+                    gameArt: '游戏艺术',
+                    posters: '海报',
+                    kintsugi: '金继',
+                    cinema: '电影'
+                }
             },
             about: {
                 title: '自2026年开始运营',
-                text: ' 是一个现代化的平台，用于欣赏艺术作品和创意项目。我们的目标是推广艺术文化，并为才华横溢的作者作品提供便捷的访问渠道。',
+                text: '是一个现代化的平台，用于欣赏艺术作品和创意项目。我们的目标是推广艺术文化，并为才华横溢的作者作品提供便捷的访问渠道。',
                 highlight: 'TILININ\'S GALLERY',
                 stats: {
                     works: '目录中的作品',
@@ -163,9 +199,9 @@ export const translations = {
                         icon: CanvasIcon
                     },
                     {
-                        title: '可靠的配送',
-                        description: '小心包装和配送艺术品',
-                        icon: CarIcon
+                        title: '详细查看作品',
+                        description: '能够以高分辨率查看画作',
+                        icon: SearchIcon
                     },
                     {
                         title: '发展您在艺术界的名声',
@@ -173,14 +209,14 @@ export const translations = {
                         icon: PaintingIcon
                     },
                     {
+                        title: '可靠的配送',
+                        description: '小心包装和配送艺术品',
+                        icon: CarIcon
+                    },
+                    {
                         title: '版权保护',
                         description: '您的署名始终标注在作品旁边',
                         icon: LockIcon
-                    },
-                    {
-                        title: '详细查看作品',
-                        description: '能够以高分辨率查看画作',
-                        icon: SearchIcon
                     }
                 ]
             },

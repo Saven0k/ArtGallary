@@ -1,0 +1,285 @@
+// src/pages/Register/components/RegisterUser/RegisterUser.scss
+.register-user {
+    max-width: 520px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 32px 40px;
+    background: #fff;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    &__title {
+        font-size: var(--font-h5);
+        font-weight: var(--font-weight-semibold);
+        color: var(--neutral-black-900);
+        margin: 0;
+    }
+
+    &__close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: var(--neutral-grey-600);
+        cursor: pointer;
+        padding: 4px;
+        line-height: 1;
+
+        &:hover {
+            color: var(--neutral-black-900);
+        }
+    }
+
+    &__progress {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+    }
+
+    &__step-indicators {
+        display: flex;
+        gap: 8px;
+        flex: 1;
+    }
+
+    &__step-dot {
+        flex: 1;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--neutral-grey);
+        transition: background 0.3s ease;
+
+        &--active {
+            background: var(--brand-primary-gold);
+        }
+    }
+
+    &__step-counter {
+        font-size: var(--font-label);
+        color: var(--neutral-grey-600);
+        margin-left: 16px;
+        white-space: nowrap;
+    }
+
+    &__step-title {
+        font-size: var(--font-body-medium);
+        font-weight: var(--font-weight-medium);
+        color: var(--neutral-black-900);
+        margin: 0 0 24px 0;
+    }
+
+    // Группа кнопок для выбора пола
+    &__gender-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 4px;
+    }
+
+    &__gender-btn {
+        flex: 1;
+        padding: 10px 16px;
+        border: 2px solid var(--neutral-grey);
+        border-radius: var(--radius-s);
+        background: transparent;
+        color: var(--neutral-grey-700);
+        font-size: var(--font-label);
+        font-weight: var(--font-weight-medium);
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+            border-color: var(--brand-primary-gold);
+            color: var(--brand-primary-gold);
+        }
+
+        &--active {
+            border-color: var(--brand-primary-gold);
+            background: var(--brand-primary-gold);
+            color: #fff;
+
+            &:hover {
+                background: #a87d3a;
+                border-color: #a87d3a;
+                color: #fff;
+            }
+        }
+    }
+
+    &__form-group {
+        margin-bottom: 16px;
+    }
+
+    &__label {
+        display: block;
+        font-size: var(--font-label);
+        font-weight: var(--font-weight-medium);
+        color: var(--neutral-grey-800);
+        margin-bottom: 6px;
+    }
+
+    // Стили для инпутов
+    &__input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--neutral-grey);
+        border-radius: var(--radius-s);
+        font-size: var(--font-label);
+        color: var(--neutral-black-900);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+        &:focus {
+            outline: none;
+            border-color: var(--brand-primary-gold);
+            box-shadow: 0 0 0 3px rgba(188, 149, 71, 0.15);
+        }
+
+        // ❌ Ошибка - красная рамка
+        &--error {
+            border-color: #dc2626;
+
+            &:focus {
+                border-color: #dc2626;
+                box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+            }
+        }
+
+        &::placeholder {
+            color: var(--neutral-grey-400);
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    }
+
+    &__select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23727272' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 40px;
+        cursor: pointer;
+
+        &--error {
+            border-color: #dc2626;
+
+            &:focus {
+                border-color: #dc2626;
+                box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+            }
+        }
+    }
+
+    // ❌ Текст ошибки
+    &__error-text {
+        display: block;
+        font-size: 13px;
+        color: #dc2626;
+        margin-top: 4px;
+        animation: errorShake 0.4s ease;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 32px;
+    }
+
+    &__btn {
+        padding: 12px 32px;
+        border: none;
+        border-radius: var(--radius-full);
+        font-size: var(--font-label);
+        font-weight: var(--font-weight-medium);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex: 1;
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        &--primary {
+            background: var(--brand-primary-gold);
+            color: #fff;
+
+            &:hover:not(:disabled) {
+                background: #a87d3a;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(188, 149, 71, 0.3);
+            }
+
+            &:active:not(:disabled) {
+                transform: translateY(0);
+            }
+        }
+
+        &--secondary {
+            background: var(--neutral-grey);
+            color: var(--neutral-black-900);
+
+            &:hover:not(:disabled) {
+                background: #d0d0d0;
+            }
+        }
+    }
+
+    &__footer {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid var(--neutral-grey);
+    }
+
+    &__footer-text {
+        font-size: var(--font-label);
+        color: var(--neutral-grey-600);
+    }
+
+    &__footer-link {
+        background: none;
+        border: none;
+        font-size: var(--font-label);
+        font-weight: var(--font-weight-medium);
+        color: var(--brand-primary-gold);
+        cursor: pointer;
+        text-decoration: none;
+        transition: color 0.2s ease;
+
+        &:hover {
+            text-decoration: underline;
+            color: #a87d3a;
+        }
+    }
+}
+
+// Анимация встряски при ошибке
+@keyframes errorShake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-6px);
+    }
+    40% {
+        transform: translateX(6px);
+    }
+    60% {
+        transform: translateX(-4px);
+    }
+    80% {
+        transform: translateX(4px);
+    }
+}

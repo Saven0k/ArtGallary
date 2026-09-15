@@ -1,0 +1,157 @@
+// src/pages/About/components/AboutUs/AboutUs.scss
+.about-us {
+    background: var(--bg-default, #F8F8F8);
+
+    &__container {
+        margin: 0 auto;
+        padding: 41px 229px;
+        display: flex;
+        gap: 54px;
+        align-items: start;
+        width: 100%;
+    }
+
+    &__image-wrapper {
+        width: 689px;
+        height: 858px;
+        padding: 55px 95px;
+        background-color: rgb(206,166,86, 0.16)
+    }
+
+    &__image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    &__content {
+        max-width:720px;
+        width:100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__title {
+        font-size: var(--font-h3, 52px);
+        font-weight: var(--font-weight-semibold, 600);
+        color: var(--neutral-black-900, #000000);
+        margin: 0 0 8px 0;
+        letter-spacing: -0.02em;
+    }
+
+    &__text {
+        font-size: var(--font-body-large);
+        line-height: 29px;
+        font-weight: 500;
+        color: #000000;
+        letter-spacing: 0.03em;
+        margin-bottom: 24px;
+        margin-top: 24px;
+
+        &:last-of-type {
+            margin-bottom: 0;
+        }
+
+        &--highlight {
+            font-weight: var(--font-weight-semibold, 600);
+            letter-spacing: 0.03em;
+        }
+    }
+
+    // Разделители между параграфами (декоративные линии)
+    &__text:not(:last-of-type) {
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -24px;
+            left: 0;
+            width: 120px;
+            height: 4px;
+            background: var(--brand-primary-gold);
+            border-radius: 2px;
+        }
+    }
+
+    // Адаптив для планшетов
+    @media (max-width: 1024px) {
+        padding: 48px 0 64px;
+
+        &__container {
+            gap: 40px;
+        }
+
+        &__title {
+            font-size: var(--font-h4, 36px);
+        }
+
+        &__subtitle {
+            font-size: var(--font-h5, 28px);
+        }
+
+        &__text {
+            font-size: var(--font-label, 16px);
+            line-height: 1.6;
+        }
+    }
+
+    // Адаптив для мобильных
+    @media (max-width: 768px) {
+        padding: 32px 0 48px;
+
+        &__container {
+            grid-template-columns: 1fr;
+            gap: 32px;
+        }
+
+        &__image-wrapper {
+            aspect-ratio: 16 / 10;
+            max-width: 100%;
+        }
+
+        &__title {
+            font-size: var(--font-h5, 28px);
+            text-align: center;
+        }
+
+        &__subtitle {
+            font-size: 24px;
+            text-align: center;
+        }
+
+        &__text {
+            font-size: var(--font-label, 16px);
+            text-align: center;
+
+            &::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+    }
+
+    @media (max-width: 480px) {
+        padding: 24px 0 32px;
+
+        &__container {
+            padding: 0 16px;
+            gap: 24px;
+        }
+
+        &__title {
+            font-size: 24px;
+        }
+
+        &__subtitle {
+            font-size: 20px;
+        }
+
+        &__text {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+    }
+}

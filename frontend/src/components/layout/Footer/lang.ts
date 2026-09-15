@@ -4,13 +4,11 @@ export const footerTranslations = {
         quickLinks: {
             title: "Быстрые ссылки",
             gallery: "Галерея",
-            artists: "Художники",
-            profile: "Профиль"
+            artists: "Авторы",
         },
         info: {
             title: "Информация",
             about: "О проекте",
-            contacts: "Контакты",
             help: "Помощь",
             privacy: "Конфиденциальность"
         },
@@ -30,20 +28,18 @@ export const footerTranslations = {
         quickLinks: {
             title: "Quick Links",
             gallery: "Gallery",
-            artists: "Artists",
-            profile: "Profile"
+            artists: "Authors"
         },
         info: {
             title: "Information",
             about: "About",
-            contacts: "Contacts",
             help: "Help",
             privacy: "Privacy Policy"
         },
         contact: {
             title: "Contacts",
             address: "Moscow, Tverskaya St., 10"
-        },
+        }, 
         newsletter: {
             title: "Newsletter",
             placeholder: "Your Email",
@@ -56,13 +52,11 @@ export const footerTranslations = {
         quickLinks: {
             title: "快速链接",
             gallery: "画廊",
-            artists: "艺术家",
-            profile: "个人资料"
+            artists: "作者",
         },
         info: {
             title: "信息",
             about: "关于我们",
-            contacts: "联系方式",
             help: "帮助",
             privacy: "隐私政策"
         },

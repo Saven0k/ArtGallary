@@ -236,7 +236,7 @@ https://www.figma.com/design/eCdWxp4FNr9xLkZFT8Cwo8/Gallary?node-id=325-1446&t=I
 :root {
   /* ===== RADIUS ===== */
   --radius-s: 8px;
-  --radius-m: 12px;
+  --radius-m: 12px; 
   --radius-l: 16px;
   --radius-xl: 20px;
   --radius-full: 100px;

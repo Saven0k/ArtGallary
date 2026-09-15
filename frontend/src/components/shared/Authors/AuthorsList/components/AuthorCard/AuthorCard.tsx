@@ -1,6 +1,6 @@
 // src/pages/Authors/components/AuthorCard/AuthorCard.tsx
 import "./AuthorCard.scss";
-import ArrowIcon from "./icons/arrowIcon.svg";
+import ArrowIcon from "../../icons/arrow.svg";
 import { Link } from "react-router-dom";
 import { authorsTranslations } from "../../lang";
 import { useLanguage } from "../../../../../../hooks/useLanguage";

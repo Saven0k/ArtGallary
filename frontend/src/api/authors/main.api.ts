@@ -70,8 +70,7 @@ export interface CreateAuthorData {
     name: string;
     surname: string;
     second_name?: string;
-    phone_number: string;
-    avatar_path: File;
+    avatar_path: File | null;
     date_birthday: string;
     biography?: string | null;
     gender: Gender;
@@ -84,7 +83,6 @@ export interface UpdateAuthorData {
     name?: string;
     surname?: string;
     second_name?: string;
-    phone_number?: string;
     date_birthday?: string;
     biography?: string;
     avatar_path?: File | string | null;
@@ -133,18 +131,18 @@ export interface Following {
     author_id: number;
     author_name: string;
     author_surname: string;
-    author_avatar?: string;
+    avatar_path?: string | null;
+    description?: string | null;
     followers_count: number;
     followed_at: string;
 }
 
-
 export interface PaginatedResponse<T> {
     data: T[];
     pagination: {
-        total: number;
         page: number;
         limit: number;
+        total: number;
         totalPages: number;
         hasNextPage: boolean;
         hasPreviousPage: boolean;
@@ -201,7 +199,6 @@ export const createAuthor = async (data: CreateAuthorData): Promise<AuthorProfil
         formData.append("date_birthday", data.date_birthday);
 
         if (data.second_name) formData.append("second_name", data.second_name);
-        if (data.phone_number) formData.append("phone_number", data.phone_number);
         if (data.biography) formData.append("biography", data.biography);
         if (data.profession_id) formData.append("profession_id", String(data.profession_id));
         if (data.country_id != null) formData.append("country_id", String(data.country_id));
@@ -230,7 +227,6 @@ export const updateAuthor = async (id: number, data: UpdateAuthorData): Promise<
         if (data.name) formData.append("name", data.name);
         if (data.surname) formData.append("surname", data.surname);
         if (data.second_name) formData.append("second_name", data.second_name);
-        if (data.phone_number) formData.append("phone_number", data.phone_number);
         if (data.date_birthday) formData.append("date_birthday", data.date_birthday);
         if (data.biography) formData.append("biography", data.biography);
         if (data.gender) formData.append("gender", data.gender);
@@ -431,51 +427,6 @@ export const getFollowersCount = async (authorId: number): Promise<{ count: numb
 };
 
 // ==================== ЛАЙКИ И ПРОСМОТРЫ ====================
-
-export const likeAuthor = async (authorId: number): Promise<{ success: boolean; message: string } | null> => {
-    try {
-        const res = await fetch(`${BASE_URL}/${authorId}/like`, {
-            method: "POST",
-            credentials: "include",
-        });
-        if (!res.ok) throw new Error();
-        return await res.json();
-    } catch (e) {
-        console.error("likeAuthor error:", e);
-        return null;
-    }
-};
-
-export const getAuthorLikes = async (
-    authorId: number,
-    page: number = 1,
-    limit: number = 20
-): Promise<any | null> => {
-    try {
-        const res = await fetch(`${BASE_URL}/${authorId}/likes?page=${page}&limit=${limit}`, {
-            credentials: "include",
-        });
-        if (!res.ok) throw new Error();
-        return await res.json();
-    } catch (e) {
-        console.error("getAuthorLikes error:", e);
-        return null;
-    }
-};
-
-export const getAuthorLikesCount = async (authorId: number): Promise<{ count: number } | null> => {
-    try {
-        const res = await fetch(`${BASE_URL}/${authorId}/likes/count`, {
-            credentials: "include",
-        });
-        if (!res.ok) throw new Error();
-        return await res.json();
-    } catch (e) {
-        console.error("getAuthorLikesCount error:", e);
-        return null;
-    }
-};
-
 export const viewAuthor = async (authorId: number): Promise<void> => {
     try {
         await fetch(`${BASE_URL}/${authorId}/view`, {

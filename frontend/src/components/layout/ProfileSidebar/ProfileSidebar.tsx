@@ -11,6 +11,14 @@ import { menuSectionsAdmin, menuSectionsAuthor, menuSectionsModerator, menuSecti
 import { sidebarTranslations } from "./lang";
 import "./ProfileSideBar.scss";
 
+// Тип для данных пользователя, которые принимает ProfileSidebar
+export interface UserDataForSidebar {
+    name: string;
+    surname: string;
+    email?: string;
+    avatar_path?: string | null;
+}
+
 export interface ProfileSideBarProps {
     onClose: () => void;
     onNavigate: (path: string) => void;
@@ -18,12 +26,7 @@ export interface ProfileSideBarProps {
     isClosing?: boolean;
     onTransitionEnd?: () => void;
     userRole?: string;
-    userData?: {
-        name: string;
-        surname: string;
-        email?: string;
-        avatar_path?: string | null;
-    };
+    userData?: UserDataForSidebar | null;
 }
 
 const ProfileSideBar = memo(({

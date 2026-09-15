@@ -1,6 +1,6 @@
 // src/pages/Authors/components/AuthorList/AuthorList.tsx
 import { useEffect, useState } from "react";
-import "./AuthorList.scss";
+import "./AuthorsList.scss";
 import { useLanguage } from "../../../../hooks/useLanguage";
 import { authorsTranslations } from "./lang";
 import { getAuthors, type AuthorProfileResponse } from "../../../../api/authors/main.api";

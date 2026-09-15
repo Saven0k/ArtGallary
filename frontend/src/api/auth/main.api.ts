@@ -4,8 +4,6 @@ import type { UserRole } from "../users/main.api";
 
 const BASE_URL = `${BASE_URL_API}/auth`;
 
-
-
 export type Gender = 'M' | 'F';
 
 export interface AuthResponse {
@@ -27,8 +25,10 @@ export interface RegisterData {
     name: string;
     surname: string;
     second_name?: string;
-    date_birthday: string;
-    gender: Gender; 
+    date_birthday: string; // формат YYYY-MM-DD
+    gender: Gender;
+    country_id?: number;
+    city_id?: number;
 }
 
 export interface MeResponse {
