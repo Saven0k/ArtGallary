@@ -1,6 +1,6 @@
 import { BASE_URL_API } from "../main.api";
 
-const BASE_URL = `${BASE_URL_API}/artists/subscription`;
+const BASE_URL = `${BASE_URL_API}/authors/subscription`;
 
 export interface SubscriptionPlan {
     name: string;

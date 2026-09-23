@@ -22,20 +22,6 @@
         margin: 0;
     }
 
-    &__close {
-        background: none;
-        border: none;
-        font-size: 24px;
-        color: var(--neutral-grey-600);
-        cursor: pointer;
-        padding: 4px;
-        line-height: 1;
-
-        &:hover {
-            color: var(--neutral-black-900);
-        }
-    }
-
     &__progress {
         display: flex;
         justify-content: space-between;
@@ -75,7 +61,6 @@
         margin: 0 0 24px 0;
     }
 
-    // Группа кнопок для выбора пола
     &__gender-group {
         display: flex;
         gap: 12px;
@@ -114,6 +99,10 @@
 
     &__form-group {
         margin-bottom: 16px;
+
+        &--checkbox {
+            margin-top: 8px;
+        }
     }
 
     &__label {
@@ -124,7 +113,6 @@
         margin-bottom: 6px;
     }
 
-    // Стили для инпутов
     &__input {
         width: 100%;
         padding: 10px 14px;
@@ -140,7 +128,6 @@
             box-shadow: 0 0 0 3px rgba(188, 149, 71, 0.15);
         }
 
-        // ❌ Ошибка - красная рамка
         &--error {
             border-color: #dc2626;
 
@@ -178,13 +165,49 @@
         }
     }
 
-    // ❌ Текст ошибки
     &__error-text {
         display: block;
         font-size: 13px;
         color: #dc2626;
         margin-top: 4px;
         animation: errorShake 0.4s ease;
+    }
+
+    // ---------- agreement checkbox ----------
+    &__checkbox-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--neutral-black-900);
+        line-height: 1.5;
+        user-select: none;
+    }
+
+    &__checkbox {
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        cursor: pointer;
+        accent-color: var(--brand-primary-gold);
+    }
+
+    &__checkbox-text {
+        flex: 1;
+    }
+
+    &__checkbox-link {
+        color: var(--brand-primary-gold);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        font-weight: var(--font-weight-medium);
+        transition: color 0.15s ease;
+
+        &:hover {
+            color: #a87d3a;
+        }
     }
 
     &__actions {
@@ -264,7 +287,6 @@
     }
 }
 
-// Анимация встряски при ошибке
 @keyframes errorShake {
     0%,
     100% {

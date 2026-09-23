@@ -1,12 +1,29 @@
-// PersonalInfo.tsx
-import { useState, useEffect } from "react";
+// src/pages/Profile/components/ProfileContent/PersonalInfo/PersonalInfo.tsx
+import { useState, useEffect, useRef } from "react";
 import { useLanguage } from "../../../../../hooks/useLanguage";
 import { profileTranslations } from "../../lang";
 import { useAuth } from "../../../../../hooks/useAuth";
-import { getUserById, updateUser, type UpdateUserData } from "../../../../../api/users/main.api";
-import { getAuthorById, updateAuthor, type UpdateAuthorData } from "../../../../../api/authors/main.api";
-import { getAllCountries, getCitiesByCountryCode, type CountrySuggestion, type CitySuggestion } from "../../../../../api/location/main.api";
-import { getAllProfessions, type Profession } from "../../../../../api/professions/main.api";
+import {
+    getUserById,
+    updateUser,
+    type UpdateUserData,
+} from "../../../../../api/users/main.api";
+import {
+    getAuthorById,
+    updateAuthor,
+    type UpdateAuthorData,
+} from "../../../../../api/authors/main.api";
+import {
+    getAllCountries,
+    getCitiesByCountryCode,
+    type CountrySuggestion,
+    type CitySuggestion,
+} from "../../../../../api/location/main.api";
+import {
+    getAllProfessions,
+    type Profession,
+} from "../../../../../api/professions/main.api";
+import AvatarCropModal from "../../../../layout/AvatarCropModal/AvatarCropModal";
 import "./PersonalInfo.scss";
 
 interface PersonalInfoProps {
@@ -19,33 +36,37 @@ interface FormData {
     surname: string;
     secondName: string;
     birthday: string;
-    gender: 'M' | 'F' | '';
-    countryId: number | '';
-    cityId: number | '';
-    professionId: number | '';
+    gender: "M" | "F" | "";
+    countryId: number | "";
+    cityId: number | "";
+    professionId: number | "";
     email: string;
     about: string;
 }
+
+const MAX_AVATAR_SIZE_MB = 5;
+const MAX_AVATAR_BYTES = MAX_AVATAR_SIZE_MB * 1024 * 1024;
 
 const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
     const { language } = useLanguage();
     const t = profileTranslations[language].personalInfo;
     const f = t.fields;
     const p = t.placeholders;
+    const av = t.avatar;
     const { refetch } = useAuth();
-    const isAuthor = role === 'author';
+    const isAuthor = role === "author";
 
     const [formData, setFormData] = useState<FormData>({
-        name: '',
-        surname: '',
-        secondName: '',
-        birthday: '',
-        gender: '',
-        countryId: '',
-        cityId: '',
-        professionId: '',
-        email: '',
-        about: '',
+        name: "",
+        surname: "",
+        secondName: "",
+        birthday: "",
+        gender: "",
+        countryId: "",
+        cityId: "",
+        professionId: "",
+        email: "",
+        about: "",
     });
 
     const [loading, setLoading] = useState(true);
@@ -53,7 +74,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    // Данные для селектов
+    // Селекты
     const [countries, setCountries] = useState<CountrySuggestion[]>([]);
     const [cities, setCities] = useState<CitySuggestion[]>([]);
     const [professions, setProfessions] = useState<Profession[]>([]);
@@ -61,7 +82,14 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
     const [loadingCities, setLoadingCities] = useState(false);
     const [loadingProfessions, setLoadingProfessions] = useState(false);
 
-    // Загрузка данных профиля
+    // Аватар
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const [cropSrc, setCropSrc] = useState<string | null>(null);
+    const [avatarError, setAvatarError] = useState<string | null>(null);
+
+    // ============================ ЗАГРУЗКА ПРОФИЛЯ ============================
     useEffect(() => {
         const fetchProfile = async () => {
             if (!id) return;
@@ -70,47 +98,49 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
 
             try {
                 if (isAuthor) {
-                    // Загружаем данные автора
                     const author = await getAuthorById(id, language);
-                    console.log('Author data:', author);
-
                     if (author) {
                         setFormData({
-                            name: author.name || '',
-                            surname: author.surname || '',
-                            secondName: author.second_name || '',
-                            birthday: author.date_birthday ? author.date_birthday.split('T')[0] : '',
-                            gender: author.gender || '',
-                            countryId: author.country?.id || '',
-                            cityId: author.city?.id || '',
-                            professionId: author.authorProfile?.profession_id || '',
-                            email: author.email || '',
-                            about: author.authorProfile?.biography || '',
+                            name: author.name || "",
+                            surname: author.surname || "",
+                            secondName: author.second_name || "",
+                            birthday: author.date_birthday
+                                ? author.date_birthday.split("T")[0]
+                                : "",
+                            gender: author.gender || "",
+                            countryId: author.country?.id || "",
+                            cityId: author.city?.id || "",
+                            professionId:
+                                author.authorProfile?.profession_id || "",
+                            email: author.email || "",
+                            about: author.authorProfile?.biography || "",
                         });
+                        setAvatarPreview(
+                            author.authorProfile?.avatar_path || null,
+                        );
                     }
                 } else {
-                    // Загружаем данные обычного пользователя
                     const user = await getUserById(id);
-                    console.log('User data:', user);
-
                     if (user) {
                         setFormData({
-                            name: user.name || '',
-                            surname: user.surname || '',
-                            secondName: user.second_name || '',
-                            birthday: user.date_birthday ? user.date_birthday.split('T')[0] : '',
-                            gender: user.gender || '',
-                            countryId: user.country_id || '',
-                            cityId: user.city_id || '',
-                            professionId: '',
-                            email: user.email || '',
-                            about: '', // у обычного пользователя нет биографии
+                            name: user.name || "",
+                            surname: user.surname || "",
+                            secondName: user.second_name || "",
+                            birthday: user.date_birthday
+                                ? user.date_birthday.split("T")[0]
+                                : "",
+                            gender: user.gender || "",
+                            countryId: user.country_id || "",
+                            cityId: user.city_id || "",
+                            professionId: "",
+                            email: user.email || "",
+                            about: "",
                         });
                     }
                 }
             } catch (e) {
-                console.error('Error loading profile:', e);
-                setError('Ошибка при загрузке профиля');
+                console.error("Error loading profile:", e);
+                setError("Ошибка при загрузке профиля");
             } finally {
                 setLoading(false);
             }
@@ -119,15 +149,17 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         fetchProfile();
     }, [id, role, language, isAuthor]);
 
-    // Загрузка стран
+    // ============================ СТРАНЫ ============================
     useEffect(() => {
         const fetchCountries = async () => {
             setLoadingCountries(true);
             try {
-                const data = await getAllCountries(language === 'ru' ? 'ru' : 'en');
+                const data = await getAllCountries(
+                    language === "ru" ? "ru" : "en",
+                );
                 setCountries(data || []);
             } catch (e) {
-                console.error('Error loading countries:', e);
+                console.error("Error loading countries:", e);
             } finally {
                 setLoadingCountries(false);
             }
@@ -136,7 +168,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         fetchCountries();
     }, [language]);
 
-    // Загрузка профессий (только для авторов)
+    // ============================ ПРОФЕССИИ ============================
     useEffect(() => {
         if (!isAuthor) return;
 
@@ -146,7 +178,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                 const data = await getAllProfessions();
                 setProfessions(data || []);
             } catch (e) {
-                console.error('Error loading professions:', e);
+                console.error("Error loading professions:", e);
             } finally {
                 setLoadingProfessions(false);
             }
@@ -155,7 +187,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         fetchProfessions();
     }, [isAuthor]);
 
-    // Загрузка городов при выборе страны
+    // ============================ ГОРОДА ============================
     useEffect(() => {
         const fetchCities = async () => {
             if (!formData.countryId) {
@@ -165,16 +197,18 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
 
             setLoadingCities(true);
             try {
-                const country = countries.find(c => c.id === formData.countryId);
+                const country = countries.find(
+                    (c) => c.id === formData.countryId,
+                );
                 if (country) {
                     const data = await getCitiesByCountryCode(
                         country.iso2,
-                        language === 'ru' ? 'ru' : 'en'
+                        language === "ru" ? "ru" : "en",
                     );
                     setCities(data || []);
                 }
             } catch (e) {
-                console.error('Error loading cities:', e);
+                console.error("Error loading cities:", e);
                 setCities([]);
             } finally {
                 setLoadingCities(false);
@@ -184,20 +218,23 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         fetchCities();
     }, [formData.countryId, countries, language]);
 
+    // ============================ ОБРАБОТЧИКИ ФОРМЫ ============================
     const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+        e: React.ChangeEvent<
+            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >,
     ) => {
         const { name, value } = e.target;
 
-        if (name === 'countryId') {
-            const newValue = value === '' ? '' : Number(value);
+        if (name === "countryId") {
+            const newValue = value === "" ? "" : Number(value);
             setFormData((prev) => ({
                 ...prev,
                 countryId: newValue,
-                cityId: ''
+                cityId: "",
             }));
-        } else if (name === 'cityId' || name === 'professionId') {
-            const newValue = value === '' ? '' : Number(value);
+        } else if (name === "cityId" || name === "professionId") {
+            const newValue = value === "" ? "" : Number(value);
             setFormData((prev) => ({ ...prev, [name]: newValue }));
         } else {
             setFormData((prev) => ({ ...prev, [name]: value }));
@@ -207,10 +244,64 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         setSuccess(null);
     };
 
-    const handleGenderChange = (value: 'M' | 'F') => {
+    const handleGenderChange = (value: "M" | "F") => {
         setFormData((prev) => ({ ...prev, gender: value }));
     };
 
+    // ============================ АВАТАР ============================
+    const handleAvatarPick = () => fileInputRef.current?.click();
+
+    const handleAvatarInputChange = (
+        e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setAvatarError(null);
+
+        if (!/^image\/(png|jpe?g)$/.test(file.type)) {
+            setAvatarError(av.errors?.format ?? "Только PNG или JPG");
+            e.target.value = "";
+            return;
+        }
+        if (file.size > MAX_AVATAR_BYTES) {
+            setAvatarError(
+                av.errors?.size?.replace("{max}", String(MAX_AVATAR_SIZE_MB)) ??
+                    `Файл больше ${MAX_AVATAR_SIZE_MB} МБ`,
+            );
+            e.target.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => setCropSrc(reader.result as string);
+        reader.onerror = () => setAvatarError(av.errors?.read ?? "Ошибка чтения файла");
+        reader.readAsDataURL(file);
+
+        e.target.value = "";
+    };
+
+    const handleCropConfirm = (file: File) => {
+        if (avatarPreview && avatarPreview.startsWith("blob:")) {
+            URL.revokeObjectURL(avatarPreview);
+        }
+        setAvatarFile(file);
+        setAvatarPreview(URL.createObjectURL(file));
+        setCropSrc(null);
+    };
+
+    const handleCropCancel = () => setCropSrc(null);
+
+    const handleAvatarRemove = () => {
+        if (avatarPreview && avatarPreview.startsWith("blob:")) {
+            URL.revokeObjectURL(avatarPreview);
+        }
+        setAvatarFile(null);
+        setAvatarPreview(null);
+        setAvatarError(null);
+    };
+
+    // ============================ SUBMIT ============================
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
@@ -224,19 +315,30 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                     surname: formData.surname,
                     second_name: formData.secondName || undefined,
                     date_birthday: formData.birthday,
-                    gender: formData.gender as 'M' | 'F',
-                    biography: formData.about || undefined, // только для авторов
-                    profession_id: formData.professionId ? Number(formData.professionId) : undefined,
-                    country_id: formData.countryId ? Number(formData.countryId) : null,
-                    city_id: formData.cityId ? Number(formData.cityId) : null,
+                    gender: formData.gender as "M" | "F",
+                    biography: formData.about || undefined,
+                    profession_id: formData.professionId
+                        ? Number(formData.professionId)
+                        : undefined,
+                    country_id: formData.countryId
+                        ? Number(formData.countryId)
+                        : null,
+                    city_id: formData.cityId
+                        ? Number(formData.cityId)
+                        : null,
+                    avatar_path: avatarFile ?? undefined,
                 };
 
                 const result = await updateAuthor(id, data);
                 if (result) {
-                    setSuccess('Данные успешно сохранены');
+                    setSuccess(av.saved ?? "Данные успешно сохранены");
+                    setAvatarFile(null);
+                    if (result.authorProfile?.avatar_path) {
+                        setAvatarPreview(result.authorProfile.avatar_path);
+                    }
                     await refetch();
                 } else {
-                    setError('Ошибка при сохранении');
+                    setError(av.saveError ?? "Ошибка при сохранении");
                 }
             } else {
                 const data: UpdateUserData = {
@@ -244,22 +346,26 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                     surname: formData.surname,
                     second_name: formData.secondName || undefined,
                     date_birthday: formData.birthday,
-                    gender: formData.gender as 'M' | 'F',
-                    country_id: formData.countryId ? Number(formData.countryId) : null,
-                    city_id: formData.cityId ? Number(formData.cityId) : null,
+                    gender: formData.gender as "M" | "F",
+                    country_id: formData.countryId
+                        ? Number(formData.countryId)
+                        : null,
+                    city_id: formData.cityId
+                        ? Number(formData.cityId)
+                        : null,
                 };
 
                 const result = await updateUser(id, data);
                 if (result) {
-                    setSuccess('Данные успешно сохранены');
+                    setSuccess(av.saved ?? "Данные успешно сохранены");
                     await refetch();
                 } else {
-                    setError('Ошибка при сохранении');
+                    setError(av.saveError ?? "Ошибка при сохранении");
                 }
             }
         } catch (e) {
-            console.error('Error saving profile:', e);
-            setError('Произошла ошибка при сохранении');
+            console.error("Error saving profile:", e);
+            setError("Произошла ошибка при сохранении");
         } finally {
             setSaving(false);
         }
@@ -282,7 +388,9 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
 
             <form className="personal-info__form" onSubmit={handleSubmit}>
                 {error && <div className="personal-info__error">{error}</div>}
-                {success && <div className="personal-info__success">{success}</div>}
+                {success && (
+                    <div className="personal-info__success">{success}</div>
+                )}
 
                 <div className="personal-info__grid">
                     <div className="personal-info__field">
@@ -328,23 +436,30 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                         />
                     </div>
 
-                    {/* Пол */}
                     <div className="personal-info__field">
-                        <label>{f.gender || 'Пол'}</label>
+                        <label>{f.gender || "Пол"}</label>
                         <div className="personal-info__gender-group">
                             <button
                                 type="button"
-                                className={`personal-info__gender-btn ${formData.gender === 'M' ? 'personal-info__gender-btn--active' : ''}`}
-                                onClick={() => handleGenderChange('M')}
+                                className={`personal-info__gender-btn ${
+                                    formData.gender === "M"
+                                        ? "personal-info__gender-btn--active"
+                                        : ""
+                                }`}
+                                onClick={() => handleGenderChange("M")}
                             >
-                                Мужской
+                                {t.gender?.male ?? "Мужской"}
                             </button>
                             <button
                                 type="button"
-                                className={`personal-info__gender-btn ${formData.gender === 'F' ? 'personal-info__gender-btn--active' : ''}`}
-                                onClick={() => handleGenderChange('F')}
+                                className={`personal-info__gender-btn ${
+                                    formData.gender === "F"
+                                        ? "personal-info__gender-btn--active"
+                                        : ""
+                                }`}
+                                onClick={() => handleGenderChange("F")}
                             >
-                                Женский
+                                {t.gender?.female ?? "Женский"}
                             </button>
                         </div>
                     </div>
@@ -358,7 +473,9 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                             disabled={loadingCountries}
                         >
                             <option value="">
-                                {loadingCountries ? 'Загрузка...' : f.country}
+                                {loadingCountries
+                                    ? t.common?.loading ?? "Загрузка..."
+                                    : f.country}
                             </option>
                             {countries.map((country) => (
                                 <option key={country.id} value={country.id}>
@@ -378,10 +495,11 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                         >
                             <option value="">
                                 {!formData.countryId
-                                    ? 'Сначала выберите страну'
+                                    ? t.common?.selectCountryFirst ??
+                                      "Сначала выберите страну"
                                     : loadingCities
-                                        ? 'Загрузка...'
-                                        : f.city}
+                                      ? t.common?.loading ?? "Загрузка..."
+                                      : f.city}
                             </option>
                             {cities.map((city) => (
                                 <option key={city.id} value={city.id}>
@@ -402,10 +520,9 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                         />
                     </div>
 
-                    {/* Профессия — только для авторов */}
                     {isAuthor && (
                         <div className="personal-info__field">
-                            <label>{f.profession || 'Профессия'}</label>
+                            <label>{f.profession || "Профессия"}</label>
                             <select
                                 name="professionId"
                                 value={formData.professionId}
@@ -413,10 +530,15 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                                 disabled={loadingProfessions}
                             >
                                 <option value="">
-                                    {loadingProfessions ? 'Загрузка...' : (f.profession || 'Профессия')}
+                                    {loadingProfessions
+                                        ? t.common?.loading ?? "Загрузка..."
+                                        : f.profession || "Профессия"}
                                 </option>
                                 {professions.map((profession) => (
-                                    <option key={profession.id} value={profession.id}>
+                                    <option
+                                        key={profession.id}
+                                        value={profession.id}
+                                    >
                                         {profession.name}
                                     </option>
                                 ))}
@@ -425,7 +547,6 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                     )}
                 </div>
 
-                {/* Биография — только для авторов */}
                 {isAuthor && (
                     <div className="personal-info__field">
                         <label>{f.about}</label>
@@ -439,12 +560,89 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                     </div>
                 )}
 
+                {/* ===================== AVATAR ===================== */}
+                {isAuthor && (
+                    <div className="personal-info__avatar-block">
+                        <label className="personal-info__avatar-label">
+                            {av.label ?? "Фото профиля"}
+                        </label>
+
+                        <div className="personal-info__avatar-row">
+                            <div className="personal-info__avatar-preview">
+                                {avatarPreview ? (
+                                    <img src={avatarPreview} alt="avatar" />
+                                ) : (
+                                    <div className="personal-info__avatar-placeholder">
+                                        {(formData.name?.[0] ||
+                                            formData.surname?.[0] ||
+                                            "?")?.toUpperCase()}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="personal-info__avatar-actions">
+                                <button
+                                    type="button"
+                                    className="personal-info__avatar-btn"
+                                    onClick={handleAvatarPick}
+                                >
+                                    {avatarPreview
+                                        ? av.change ?? "Изменить фото"
+                                        : av.upload ?? "Загрузить фото"}
+                                </button>
+
+                                {avatarPreview && (
+                                    <button
+                                        type="button"
+                                        className="personal-info__avatar-btn personal-info__avatar-btn--danger"
+                                        onClick={handleAvatarRemove}
+                                    >
+                                        {av.remove ?? "Удалить"}
+                                    </button>
+                                )}
+
+                                <span className="personal-info__avatar-hint">
+                                    {av.hint ??
+                                        "JPG, PNG, до 5 МБ. Можно обрезать перед загрузкой."}
+                                </span>
+                            </div>
+                        </div>
+
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/png,image/jpeg"
+                            hidden
+                            onChange={handleAvatarInputChange}
+                        />
+
+                        {avatarError && (
+                            <div className="personal-info__avatar-error">
+                                {avatarError}
+                            </div>
+                        )}
+
+                        {cropSrc && (
+                            <AvatarCropModal
+                                src={cropSrc}
+                                title={av.cropTitle ?? "Обрезать фото"}
+                                confirmLabel={av.cropConfirm ?? "Сохранить"}
+                                cancelLabel={av.cropCancel ?? "Отмена"}
+                                onCancel={handleCropCancel}
+                                onConfirm={handleCropConfirm}
+                            />
+                        )}
+                    </div>
+                )}
+
                 <button
                     className="personal-info__button"
                     type="submit"
                     disabled={saving}
                 >
-                    {saving ? 'Сохранение...' : t.button}
+                    {saving
+                        ? t.common?.saving ?? "Сохранение..."
+                        : t.button}
                 </button>
             </form>
         </section>

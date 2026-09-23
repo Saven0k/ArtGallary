@@ -8,6 +8,7 @@ export type ProfileSection =
     | "statistics"
     | "likes"
     | "subscriptions"
+    | "cart"
     | "settings";
 
 interface ProfileSidebarProps {
@@ -55,6 +56,11 @@ const ProfileSidebar = ({
         {
             id: "settings",
             title: "Настройки",
+            icon: SettingsIcon
+        },
+        {
+            id: "cart",
+            title: "Корзина",
             icon: SettingsIcon
         },
     ];

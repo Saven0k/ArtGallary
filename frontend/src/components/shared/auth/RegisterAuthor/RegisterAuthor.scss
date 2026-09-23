@@ -22,20 +22,6 @@
         margin: 0;
     }
 
-    &__close {
-        background: none;
-        border: none;
-        font-size: 24px;
-        color: var(--neutral-grey-600);
-        cursor: pointer;
-        padding: 4px;
-        line-height: 1;
-
-        &:hover {
-            color: var(--neutral-black-900);
-        }
-    }
-
     &__progress {
         display: flex;
         justify-content: space-between;
@@ -77,6 +63,10 @@
 
     &__form-group {
         margin-bottom: 16px;
+
+        &--checkbox {
+            margin-top: 8px;
+        }
     }
 
     &__label {
@@ -87,7 +77,6 @@
         margin-bottom: 6px;
     }
 
-    // Стили для инпутов
     &__input {
         width: 100%;
         padding: 10px 14px;
@@ -103,7 +92,6 @@
             box-shadow: 0 0 0 3px rgba(188, 149, 71, 0.15);
         }
 
-        // ❌ Ошибка - красная рамка
         &--error {
             border-color: #dc2626;
 
@@ -141,10 +129,6 @@
         }
     }
 
-    &__option {
-        color: #000;
-    }
-
     &__textarea {
         width: 100%;
         padding: 10px 14px;
@@ -176,7 +160,6 @@
         }
     }
 
-    // Группа кнопок для выбора пола
     &__gender-group {
         display: flex;
         gap: 12px;
@@ -211,19 +194,8 @@
                 color: #fff;
             }
         }
-
-        // Ошибка для кнопок пола
-        &--error {
-            border-color: #dc2626;
-
-            &:hover {
-                border-color: #dc2626;
-                color: #dc2626;
-            }
-        }
     }
 
-    // ❌ Текст ошибки
     &__error-text {
         display: block;
         font-size: 13px;
@@ -232,7 +204,6 @@
         animation: errorShake 0.4s ease;
     }
 
-    // ❌ Общая ошибка (глобальная)
     &__error {
         padding: 12px 16px;
         background: #fee2e2;
@@ -246,12 +217,49 @@
         gap: 8px;
 
         &::before {
-            content: '⚠️';
+            content: "⚠️";
             font-size: 18px;
         }
     }
 
-    // Стили для загрузки файла
+    // ---------- agreement checkbox ----------
+    &__checkbox-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--neutral-black-900);
+        line-height: 1.5;
+        user-select: none;
+    }
+
+    &__checkbox {
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        cursor: pointer;
+        accent-color: var(--brand-primary-gold);
+    }
+
+    &__checkbox-text {
+        flex: 1;
+    }
+
+    &__checkbox-link {
+        color: var(--brand-primary-gold);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        font-weight: var(--font-weight-medium);
+        transition: color 0.15s ease;
+
+        &:hover {
+            color: #a87d3a;
+        }
+    }
+
+    // ---------- upload ----------
     &__upload {
         margin: 8px 0;
     }
@@ -266,15 +274,6 @@
         &:hover {
             border-color: var(--brand-primary-gold);
             background: rgba(188, 149, 71, 0.05);
-        }
-
-        &--error {
-            border-color: #dc2626;
-
-            &:hover {
-                border-color: #dc2626;
-                background: rgba(220, 38, 38, 0.05);
-            }
         }
     }
 
@@ -471,7 +470,6 @@
     }
 }
 
-// Анимация встряски при ошибке
 @keyframes errorShake {
     0%,
     100% {

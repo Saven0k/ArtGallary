@@ -53,7 +53,7 @@ const GallerySelection = () => {
                         </div>
                         <div className="gallery-selection__item-info">
                             <div className="gallery-selection__item-details">
-                                <span className="gallery-selection__item-artist">{item.artistName}</span>
+                                <span className="gallery-selection__item-author">{item.artistName}</span>
                                 <span className="gallery-selection__item-title">{item.title}</span>
                                 <span className="gallery-selection__item-materials">{item.materials}</span>
                             </div>

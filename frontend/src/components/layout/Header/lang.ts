@@ -23,7 +23,7 @@ export const headerTranslations = {
     },
     en: {
         logoTitle: "Tilinin`s Gallary",
-        logoSubtitle: "artists gallery",
+        logoSubtitle: "authors gallery",
         search: "Search",
         likes: "Likes",
         cart: "Cart",

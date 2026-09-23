@@ -1,0 +1,106 @@
+.avatar-crop-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.15s ease;
+}
+
+.avatar-crop {
+    width: 100%;
+    max-width: 480px;
+    background: #fff;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    &__title {
+        margin: 0;
+        font-size: var(--font-h5);
+        font-weight: var(--font-weight-semibold);
+        color: var(--neutral-grey-800);
+    }
+
+    &__stage {
+        position: relative;
+        width: 100%;
+        height: 320px;
+        background: #1a1a1a;
+        border-radius: var(--radius-m);
+        overflow: hidden;
+    }
+
+    &__zoom {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--neutral-grey-600);
+        font-size: 14px;
+
+        input[type='range'] {
+            flex: 1;
+            accent-color: var(--brand-primary-gold);
+        }
+    }
+
+    &__error {
+        padding: 10px 14px;
+        background: #fee2e2;
+        border: 1px solid #dc2626;
+        border-radius: var(--radius-s);
+        color: #dc2626;
+        font-size: 13px;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 4px;
+    }
+
+    &__btn {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        border-radius: var(--radius-full);
+        font-size: var(--font-label);
+        font-weight: var(--font-weight-medium);
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        &--primary {
+            background: var(--brand-primary-gold);
+            color: #fff;
+
+            &:hover:not(:disabled) {
+                background: #a87d3a;
+            }
+        }
+
+        &--secondary {
+            background: var(--neutral-grey);
+            color: var(--neutral-black-900);
+
+            &:hover:not(:disabled) {
+                background: #d0d0d0;
+            }
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}

@@ -1,8 +1,8 @@
 // AuthorInfo.scss
 .author-profile {
-    padding: 32px 0 24px;
-    border-bottom: 1px solid var(--neutral-grey);
-
+    padding: 44px;
+    width: 100%;
+    background: var(--brand-gold-light);
     &__container {
         display: flex;
         gap: 40px;
@@ -11,19 +11,17 @@
     }
 
     &__avatar {
-        width: 160px;
-        height: 160px;
-        border-radius: 50%;
+        max-width: 400px;
+        height: auto;
         object-fit: cover;
         flex-shrink: 0;
-        background: var(--bg-default);
     }
 
     &__body {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 24px;
+        gap: 28px;
         min-width: 0;
     }
 
@@ -43,29 +41,25 @@
 
     &__name {
         font-size: var(--font-h4);
-        font-weight: var(--font-weight-semibold);
         color: var(--neutral-black-900);
         margin: 0;
     }
 
     &__location {
         font-size: var(--font-label);
-        color: var(--neutral-grey-600);
     }
 
     &__followers {
         display: flex;
         align-items: center;
-        gap: 8px;
         font-size: var(--font-label);
-        color: var(--neutral-grey-800);
         margin: 0;
         white-space: nowrap;
     }
 
     &__followers-icon {
-        width: 20px;
-        height: 20px;
+        width: 44px;
+        height: 52px;
     }
 
     &__bottom {
@@ -111,15 +105,9 @@
         font-size: var(--font-label);
         line-height: 1.7;
         color: var(--neutral-grey-800);
-        max-height: 54px;
         overflow: hidden;
         transition: max-height 0.4s ease;
-        margin: 0;
-
-        &--expanded {
-            max-height: 2000px;
-        }
-    }
+        margin: 0;    }
 
     &__read-more {
         background: none;

@@ -36,7 +36,7 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
             if (res?.success) {
                 setUser(res.data ? res.data : null);
                 setIsAuthenticated(true);
-                return;
+                return; 
             }
             if (res?.status === 401) {
                 const refreshRes = await refresh();

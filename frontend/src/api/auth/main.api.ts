@@ -14,6 +14,15 @@ export interface AuthResponse {
     };
 }
 
+export interface ChangePasswordPayload {
+    currentPassword: string;
+    newPassword: string;
+}
+
+export interface ChangePasswordResponse {
+    message: string;
+}
+
 export interface LoginData {
     email: string;
     password: string;
@@ -36,6 +45,36 @@ export interface MeResponse {
     email: string;
     role: UserRole;
 }
+
+export const changePassword = async (
+    payload: ChangePasswordPayload,
+): Promise<ChangePasswordResponse | null> => {
+    try {
+        const res = await fetch(`${BASE_URL_API}/auth/change-password`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => null);
+            const message =
+                data?.message ||
+                (res.status === 401
+                    ? 'Неверный текущий пароль'
+                    : res.status === 409
+                        ? 'Новый пароль совпадает с текущим'
+                        : 'Не удалось изменить пароль');
+            throw new Error(message);
+        }
+
+        return (await res.json()) as ChangePasswordResponse;
+    } catch (e) {
+        console.error('changePassword error:', e);
+        throw e;
+    }
+};
 
 export const login = async (userData: LoginData): Promise<AuthResponse | null> => {
     try {
@@ -130,4 +169,30 @@ export const refresh = async (): Promise<Response | null> => {
         console.error("refresh error:", e);
         return null;
     }
+};
+
+export interface RequestCodePayload { email: string; }
+export interface VerifyCodePayload { email: string; code: string; }
+
+export const requestResetCode = async (payload: RequestCodePayload) => {
+    const res = await fetch(`${BASE_URL}/password-reset/request-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error('Не удалось отправить код');
+    return await res.json();
+};
+
+export const verifyResetCode = async (payload: VerifyCodePayload) => {
+    const res = await fetch(`${BASE_URL}/password-reset/verify-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || 'Неверный код');
+    }
+    return await res.json();
 };

@@ -31,7 +31,7 @@ export const translations = {
                 highlight: 'TILININ\'S GALLERY - ',
                 stats: {
                     works: 'Работ в каталоге',
-                    artists: 'Художников',
+                    authors: 'Художников',
                     clients: 'Довольных клиентов'
                 },
                 link: 'Узнать больше'
@@ -87,7 +87,7 @@ export const translations = {
         home: {
             hero: {
                 title: 'TILININ\'S GALLERY',
-                subtitle: 'Discover unique works of talented artists',
+                subtitle: 'Discover unique works of talented authors',
                 button: 'Become a gallery member',
                 nav: {
                     paintings: 'Paintings',
@@ -108,7 +108,7 @@ export const translations = {
                 highlight: 'TILININ\'S GALLERY',
                 stats: {
                     works: 'Works in catalog',
-                    artists: 'Artists',
+                    authors: 'Artists',
                     clients: 'Happy clients'
                 },
                 link: 'Learn more'
@@ -118,7 +118,7 @@ export const translations = {
                 items: [
                     {
                         title: 'Unique collection of artworks',
-                        description: 'Carefully selected works by contemporary and classical artists',
+                        description: 'Carefully selected works by contemporary and classical authors',
                         icon: CanvasIcon
                     },
                     {
@@ -185,7 +185,7 @@ export const translations = {
                 highlight: 'TILININ\'S GALLERY',
                 stats: {
                     works: '目录中的作品',
-                    artists: '艺术家',
+                    authors: '艺术家',
                     clients: '满意的客户'
                 },
                 link: '了解更多'

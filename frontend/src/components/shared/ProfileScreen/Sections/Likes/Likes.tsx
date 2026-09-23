@@ -9,7 +9,7 @@ import {
 import LikeCard from './LikeCard';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { likesTranslations } from './lang';
-import './Likes.css';
+import './Likes.scss';
 
 const PAGE_LIMIT = 12;
 

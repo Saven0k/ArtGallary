@@ -28,7 +28,7 @@ export interface Art {
     genre_id?: number;
     style_id?: number;
     shares?: number;
-    artist?: {
+    author?: {
         id: number;
         user_id: number;
         user?: {

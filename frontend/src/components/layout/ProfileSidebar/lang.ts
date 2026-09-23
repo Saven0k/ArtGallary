@@ -27,7 +27,7 @@ export const sidebarTranslations = {
             myProfile: 'Мой профиль',
             help: 'Помощь'
         },
-        artist: {
+        author: {
             myProfile: 'Мой профиль',
             myPaintings: 'Мои работы',
             addPainting: 'Добавить работу',
@@ -82,7 +82,7 @@ export const sidebarTranslations = {
             myProfile: 'My Profile',
             help: 'Help'
         },
-        artist: {
+        author: {
             myProfile: 'My Profile',
             myPaintings: 'My Paintings',
             addPainting: 'Add Painting',
@@ -137,7 +137,7 @@ export const sidebarTranslations = {
             myProfile: '我的个人资料',
             help: '帮助'
         },
-        artist: {
+        author: {
             myProfile: '我的个人资料',
             myPaintings: '我的作品',
             addPainting: '添加作品',

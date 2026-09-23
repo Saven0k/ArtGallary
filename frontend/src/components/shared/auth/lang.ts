@@ -66,7 +66,12 @@ export const registerAuthorTranslations = {
                 minLength: "Минимальная длина {min} символа",
                 emailExists: "Пользователь с таким email уже существует",
                 registerFailed: "Ошибка при регистрации. Попробуйте позже"
-            }
+            },
+            agreement: {
+                text: "Я согласен с",
+                rulesLink: "правилами магазина и оферты",
+                error: "Необходимо принять условия",
+            },
         }
     },
     en: {
@@ -134,7 +139,12 @@ export const registerAuthorTranslations = {
                 minLength: "Minimum length {min} characters",
                 emailExists: "User with this email already exists",
                 registerFailed: "Registration failed. Please try again later"
-            }
+            },
+            agreement: {
+                text: "I agree to the",
+                rulesLink: "store rules and terms of service",
+                error: "You must accept the terms",
+            },
         }
     },
     zh: {
@@ -202,7 +212,12 @@ export const registerAuthorTranslations = {
                 minLength: "最小长度 {min} 个字符",
                 emailExists: "该邮箱已被注册",
                 registerFailed: "注册失败，请稍后重试"
-            }
+            },
+            agreement: {
+                text: "我同意",
+                rulesLink: "商店规则和服务条款",
+                error: "请先同意条款",
+            },
         }
     }
 };
@@ -260,7 +275,12 @@ export const registerUserTranslations = {
                 minLength: "Минимальная длина {min} символа",
                 emailExists: "Пользователь с таким email уже существует",
                 registerFailed: "Ошибка при регистрации. Попробуйте позже"
-            }
+            },
+            agreement: {
+                text: "Я согласен с",
+                rulesLink: "правилами магазина и оферты",
+                error: "Необходимо принять условия",
+            },
         }
     },
     en: {
@@ -314,7 +334,12 @@ export const registerUserTranslations = {
                 minLength: "Minimum length {min} characters",
                 emailExists: "User with this email already exists",
                 registerFailed: "Registration failed. Please try again later"
-            }
+            },
+            agreement: {
+                text: "I agree to the",
+                rulesLink: "store rules and terms of service",
+                error: "You must accept the terms",
+            },
         }
     },
     zh: {
@@ -368,7 +393,12 @@ export const registerUserTranslations = {
                 minLength: "最小长度 {min} 个字符",
                 emailExists: "该邮箱已被注册",
                 registerFailed: "注册失败，请稍后重试"
-            }
+            },
+            agreement: {
+                text: "我同意",
+                rulesLink: "商店规则和服务条款",
+                error: "请先同意条款",
+            },
         }
     }
 };

@@ -49,8 +49,8 @@ function App() {
                       {/* <Route path="arts" element={<LazyArtsPage />} /> */}
                       <Route path="arts/:id" element={<LazyArtPage />} />
 
-                      <Route path='artists' element={<LazyAuthorsPage />} />
-                      <Route path='artists/:id' element={<LazyAuthorPage />} />
+                      <Route path='authors' element={<LazyAuthorsPage />} />
+                      <Route path='authors/:id' element={<LazyAuthorPage />} />
 
                       <Route path="/settings" element={<SettingsPage />} />
                       <Route path="/help" element={<HelpPage />} />

@@ -1,7 +1,7 @@
 import type { AuthorProfileResponse } from "../../../../../api/authors/main.api";
 import { useLanguage } from "../../../../../hooks/useLanguage";
 import { authorTranslations } from "../lang";
-import "./AuthorInfo.scss";
+import "./AuthorProfile.scss";
 import Human from "./icons/human.svg";
 import { useState } from "react";
 
@@ -34,7 +34,7 @@ const AuthorProfile = ({ author }: AuthorProfileProps) => {
         <div className="author-profile">
             <div className="author-profile__container">
                 <img
-                    src={author.avatar_path || "/default-avatar.png"}
+                    src={author.authorProfile.avatar_path || "/default-avatar.png"}
                     alt={author.name}
                     className="author-profile__avatar"
                 />
@@ -50,8 +50,7 @@ const AuthorProfile = ({ author }: AuthorProfileProps) => {
                         </div>
                         <p className="author-profile__followers">
                             <img src={Human} alt="Human" className="author-profile__followers-icon" />
-                            {author.authorProfile?.followers_count || 0}
-                            {t.followers}
+                            {author.authorProfile?.followers_count || 0}  {t.followers}
                         </p>
                     </div>
 
@@ -77,18 +76,9 @@ const AuthorProfile = ({ author }: AuthorProfileProps) => {
 
                         {activeTab === 'about' ? (
                             <div className="author-profile__bio">
-                                <p className={`author-profile__bio-text ${isExpanded ? "author-profile__bio-text--expanded" : ""}`}>
+                                <p className={`author-profile__bio-text`}>
                                     {author.authorProfile?.biography || t.noBio}
                                 </p>
-                                {author.authorProfile?.biography && (
-                                    <button
-                                        className="author-profile__read-more"
-                                        onClick={toggleReadMore}
-                                        aria-expanded={isExpanded}
-                                    >
-                                        {isExpanded ? t.collapse : t.readMore}
-                                    </button>
-                                )}
                             </div>
                         ) : (
                             <div className="author-profile__system-info">

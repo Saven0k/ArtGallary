@@ -67,7 +67,7 @@ export const tariffPlanTranslations = {
                     features: [
                         { text: "Upload up to 7 artworks", included: true },
                         { text: "Basic statistics: views and likes", included: true },
-                        { text: "Personal artist page", included: true },
+                        { text: "Personal author page", included: true },
                         { text: "Advanced statistics", included: false },
                         { text: "Priority in the catalog", included: false },
                         { text: "Participation in themed collections", included: false },

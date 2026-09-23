@@ -15,14 +15,14 @@ export const menuSectionsAuthor: MenuSection[] = [
     {
         titleKey: "profile",
         items: [
-            { icon: "👤", labelKey: "artist.myProfile", path: "/profile" }
+            { icon: "👤", labelKey: "author.myProfile", path: "/profile" }
         ]
     },
     {
         titleKey: "arts",
         items: [
-            { icon: "🖼️", labelKey: "artist.myPaintings", path: "/arts/my" },
-            { icon: "🎨", labelKey: "artist.addPainting", path: "/arts/my/new" },
+            { icon: "🖼️", labelKey: "author.myPaintings", path: "/arts/my" },
+            { icon: "🎨", labelKey: "author.addPainting", path: "/arts/my/new" },
             { icon: "🎨", labelKey: "Лайки по работам", path: "/arts/my/likes" },
             { icon: "🎨", labelKey: "Подписки на авторов", path: "/authors/my/subs" },
             { icon: "🎨", labelKey: "Лайка по авторам", path: "/authors/my/likes" },
@@ -31,7 +31,7 @@ export const menuSectionsAuthor: MenuSection[] = [
     {
         titleKey: "support",
         items: [
-            { icon: "❓", labelKey: "artist.help", path: "/help" }
+            { icon: "❓", labelKey: "author.help", path: "/help" }
         ]
     }
 ];

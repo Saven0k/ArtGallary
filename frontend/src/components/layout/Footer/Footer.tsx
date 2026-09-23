@@ -31,7 +31,7 @@ const Footer = memo(() => {
                             <h3 className="footer__title">{lang.quickLinks.title}</h3>
                             <ul className="footer__links">
                                 <li><Link to="/arts" className="footer__link">{lang.quickLinks.gallery}</Link></li>
-                                <li><Link to="/artists" className="footer__link">{lang.quickLinks.artists}</Link></li>
+                                <li><Link to="/authors" className="footer__link">{lang.quickLinks.authors}</Link></li>
                             </ul>
                         </div>
                         <div className="footer__column">

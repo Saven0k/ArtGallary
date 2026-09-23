@@ -8,7 +8,7 @@ import {
 } from '../../../../../api/authors/main.api';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { followsTranslations } from './lang';
-import './Follows.css';
+import './Follows.scss';
 
 const PAGE_LIMIT = 20;
 

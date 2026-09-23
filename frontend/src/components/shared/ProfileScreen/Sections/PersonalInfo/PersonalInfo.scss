@@ -1,11 +1,11 @@
-/* src/pages/Profile/components/ProfileContent/PersonalInfo.scss */
+/* src/pages/Profile/components/ProfileContent/PersonalInfo/PersonalInfo.scss */
 
 .personal-info {
     width: 100%;
     padding: 36px;
     background: #fff;
     border-radius: var(--radius-xl);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 
     // ===== HEADER =====
     &__header {
@@ -61,13 +61,13 @@
             color: var(--neutral-grey-800);
             font-family: inherit;
             transition:
-                border-color .25s ease,
-                box-shadow .25s ease;
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
 
             &:focus {
                 outline: none;
                 border-color: var(--brand-primary-gold);
-                box-shadow: 0 0 0 3px rgba(188, 149, 71, .15);
+                box-shadow: 0 0 0 3px rgba(188, 149, 71, 0.15);
             }
 
             &::placeholder {
@@ -161,7 +161,7 @@
         gap: 8px;
 
         &::before {
-            content: '⚠️';
+            content: "⚠️";
             font-size: 18px;
         }
     }
@@ -178,9 +178,118 @@
         gap: 8px;
 
         &::before {
-            content: '✅';
+            content: "✅";
             font-size: 18px;
         }
+    }
+
+    // ===== AVATAR =====
+    &__avatar-block {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding-top: 4px;
+    }
+
+    &__avatar-label {
+        color: var(--neutral-grey-800);
+        font-size: 15px;
+        font-weight: 500;
+    }
+
+    &__avatar-row {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+    }
+
+    &__avatar-preview {
+        width: 104px;
+        height: 104px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: var(--bg-default);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--brand-gold-light, #f6eedd);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+    }
+
+    &__avatar-placeholder {
+        font-size: 38px;
+        font-weight: 600;
+        color: var(--brand-primary-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        user-select: none;
+    }
+
+    &__avatar-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    &__avatar-btn {
+        align-self: flex-start;
+        padding: 8px 20px;
+        border: 1px solid var(--brand-primary-gold);
+        border-radius: var(--radius-full);
+        background: transparent;
+        color: var(--brand-primary-gold);
+        font-size: 14px;
+        font-weight: var(--font-weight-medium);
+        cursor: pointer;
+        transition:
+            background-color 0.2s ease,
+            color 0.2s ease,
+            transform 0.15s ease;
+
+        &:hover {
+            background: var(--brand-primary-gold);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+
+        &--danger {
+            border-color: #dc2626;
+            color: #dc2626;
+
+            &:hover {
+                background: #dc2626;
+                color: #fff;
+            }
+        }
+    }
+
+    &__avatar-hint {
+        font-size: 12px;
+        color: var(--neutral-grey-600);
+        line-height: 1.4;
+        max-width: 340px;
+    }
+
+    &__avatar-error {
+        padding: 10px 14px;
+        background: #fee2e2;
+        border: 1px solid #dc2626;
+        border-radius: var(--radius-s);
+        color: #dc2626;
+        font-size: 13px;
+        align-self: flex-start;
     }
 
     // ===== BUTTON =====
@@ -195,8 +304,8 @@
         font-size: 16px;
         font-weight: 500;
         transition:
-            background .25s,
-            transform .2s;
+            background 0.25s,
+            transform 0.2s;
 
         &:hover:not(:disabled) {
             background: var(--brand-primary-gold);
@@ -204,7 +313,7 @@
         }
 
         &:active:not(:disabled) {
-            transform: scale(.98);
+            transform: scale(0.98);
         }
 
         &:disabled {
@@ -222,6 +331,16 @@
 
     @media (max-width: 768px) {
         padding: 24px;
+
+        &__avatar-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        &__avatar-hint {
+            max-width: 100%;
+        }
 
         &__button {
             width: 100%;

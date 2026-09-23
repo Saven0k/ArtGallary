@@ -28,14 +28,14 @@ const About = () => {
                     </li>
                     <li className="about__stat">
                         <h2 className="about__stat-number">10+</h2>
-                        <h5 className="about__stat-label">{t.stats.artists}</h5>
+                        <h5 className="about__stat-label">{t.stats.authors}</h5>
                     </li>
                     <li className="about__stat">
                         <h2 className="about__stat-number">20+</h2>
                         <h5 className="about__stat-label">{t.stats.clients}</h5>
                     </li>
                 </ul>
-                <Link to="/artists" className="about__link">{t.link}</Link>
+                <Link to="/authors" className="about__link">{t.link}</Link>
             </div>
         </section>
     );

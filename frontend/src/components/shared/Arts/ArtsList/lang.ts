@@ -38,11 +38,11 @@ export const artsListTranslations = {
         loading: "Loading masterpieces...",
         hero: {
             myWorks: "My Works",
-            worksOfArtist: "Works by Artist",
+            worksOfArtist: "Works by Author",
             mySubtitle: "Manage your artworks",
             artistSubtitle: "All artworks in the collection",
             defaultTitle: "Art Gallery",
-            defaultSubtitle: "Discover unique works of talented artists"
+            defaultSubtitle: "Discover unique works of talented authors"
         },
         results: {
             noWorks: "No artworks",

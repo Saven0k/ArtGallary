@@ -1,26 +1,110 @@
 // src/components/shared/ProfileScreen/Charts/Charts.scss
+
+.profile-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* верхние карточки */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+
+    @media (max-width: 900px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.stats-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px 20px;
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 12px;
+
+    &__label {
+        font-size: 13px;
+        color: #727272;
+    }
+
+    &__value {
+        font-size: 22px;
+        font-weight: 600;
+        color: #222222;
+    }
+}
+
+/* сетка чартов */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+
+    @media (max-width: 1100px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 720px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.stats-grid__wide {
+    grid-column: span 3;
+
+    @media (max-width: 1100px) {
+        grid-column: span 2;
+    }
+
+    @media (max-width: 720px) {
+        grid-column: span 1;
+    }
+}
+
+.stats-grid__narrow {
+    grid-column: span 1;
+}
+
+/* общий контейнер графика */
 .chart-container {
     background: #fff;
-    border-radius: var(--radius-l);
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border: 1px solid #ececec;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
 }
 
 .chart-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
 .chart-title {
-    font-size: var(--font-body-medium);
-    font-weight: var(--font-weight-semibold);
-    color: var(--neutral-black-900);
+    font-size: 16px;
+    font-weight: 600;
+    color: #222222;
     margin: 0;
+}
+
+.chart-wrapper {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    min-height: 220px;
+
+    &--line { min-height: 260px; }
+    &--donut { min-height: 240px; }
+    &--bar { min-height: 240px; }
 }
 
 .chart-period-buttons {
@@ -29,62 +113,36 @@
 }
 
 .chart-period-btn {
-    padding: 4px 14px;
-    border: 1px solid var(--neutral-grey);
-    border-radius: var(--radius-full);
-    background: transparent;
+    border: 1px solid #e5e5e5;
+    background: #fff;
+    color: #727272;
+    padding: 4px 10px;
+    border-radius: 8px;
     font-size: 12px;
-    color: var(--neutral-grey-600);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 
-    &:hover {
-        background: var(--brand-gold-light);
-        border-color: var(--brand-primary-gold);
-    }
+    &:hover { border-color: #BC9547; color: #BC9547; }
 
     &.active {
-        background: var(--brand-primary-gold);
-        border-color: var(--brand-primary-gold);
+        background: #BC9547;
+        border-color: #BC9547;
         color: #fff;
     }
 }
 
-.chart-wrapper {
-    width: 100%;
-    height: 280px;
-}
-
+/* состояния */
 .chart-loading,
-.chart-empty {
+.chart-empty,
+.stats-loading,
+.stats-empty,
+.stats-error {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 200px;
-    color: var(--neutral-grey-600);
-    font-size: var(--font-label);
+    min-height: 180px;
+    color: #727272;
+    font-size: 14px;
 }
 
-@media (max-width: 768px) {
-    .chart-container {
-        padding: 16px;
-    }
-
-    .chart-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .chart-title {
-        font-size: var(--font-label);
-    }
-
-    .chart-period-btn {
-        font-size: 11px;
-        padding: 3px 10px;
-    }
-
-    .chart-wrapper {
-        height: 220px;
-    }
-}
+.stats-error { color: #C0392B; }

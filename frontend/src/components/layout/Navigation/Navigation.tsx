@@ -19,7 +19,6 @@ const Navigation = () => {
     const routeMap: Record<string, string> = {
         '/': t.home,
         '/arts': t.arts,
-        '/artists': t.artists,
         '/authors': t.authors,
         '/services': t.services,
         '/contacts': t.contacts,

@@ -100,7 +100,7 @@ frontend/
 
 **useAuth()** — хук для доступа к контексту. Используется в `AuthForm`, `ProtectedRoutes`.
 
-**Связь с бэкендом:** Методы `login` и `register` должны вызывать API (`/api/auth/login`, `/api/auth/register/artist`, `/api/auth/register/guest`), сохранять токен и обновлять `user`. Сейчас логика не реализована.
+**Связь с бэкендом:** Методы `login` и `register` должны вызывать API (`/api/auth/login`, `/api/auth/register/author`, `/api/auth/register/guest`), сохранять токен и обновлять `user`. Сейчас логика не реализована.
 
 ### 4. Форма входа (AuthForm)
 
@@ -118,13 +118,13 @@ frontend/
 **`Header.tsx`** — фиксированная шапка:
 
 - **Логотип** — ссылка на `/`
-- **Навигация:** Галерея (`/gallery`), Художники (`/artists`), Выставки (`/exhibitions`)
+- **Навигация:** Галерея (`/gallery`), Художники (`/authors`), Выставки (`/exhibitions`)
 - **Кнопки:** поиск (без логики), профиль (открывает ProfileSidebar)
 - **ProfileSidebar** — lazy-компонент, открывается при клике на иконку профиля
 
 **Состояние:** `isMenuOpen`, `isSidebarOpen`. При `Escape` — закрытие sidebar/menu; при открытии sidebar — `overflow: hidden` для body.
 
-**Примечание:** Маршруты `/artists` и `/exhibitions` не объявлены — переход ведёт на HomePage (`*`).
+**Примечание:** Маршруты `/authors` и `/exhibitions` не объявлены — переход ведёт на HomePage (`*`).
 
 ### 6. Боковая панель профиля (ProfileSidebar)
 
@@ -185,13 +185,13 @@ frontend/
 | Фронтенд | Бэкенд | Статус |
 |----------|--------|--------|
 | AuthForm → login | POST /api/auth/login | Не подключено |
-| AuthContext → register | POST /api/auth/register/artist, /guest | Не подключено |
-| Художники, картины, выставки | GET /backend/artists, /paintings и т.д. | Прокси не настроен для /backend |
+| AuthContext → register | POST /api/auth/register/author, /guest | Не подключено |
+| Художники, картины, выставки | GET /backend/authors, /paintings и т.д. | Прокси не настроен для /backend |
 
 **Ожидаемые форматы:**
 
-- **Login:** `{ email, password, userType: 'artist' | 'guest' }`
-- **Register artist:** см. `RegisterArtistData` в бэкенде
+- **Login:** `{ email, password, userType: 'author' | 'guest' }`
+- **Register author:** см. `RegisterArtistData` в бэкенде
 - **Register guest:** см. `RegisterGuestData` в бэкенде
 - **Ответ:** `{ success, message, user?, token? }`
 

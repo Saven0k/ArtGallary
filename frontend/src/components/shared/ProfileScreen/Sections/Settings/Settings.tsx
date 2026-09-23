@@ -1,8 +1,10 @@
-// Settings.tsx
-import { KeyRound, Mail, Trash2 } from "lucide-react";
-import { profileTranslations } from "../../lang";
-import "./Settings.scss";
-import { useLanguage } from "../../../../../hooks/useLanguage";
+// src/pages/Profile/components/ProfileContent/Settings.tsx
+import { useState } from 'react';
+import { KeyRound, Mail, Trash2 } from 'lucide-react';
+import { profileTranslations } from '../../lang';
+import { useLanguage } from '../../../../../hooks/useLanguage';
+import ChangePasswordModal from '../../ChangePasswordModal/ChangePasswordModal';
+import './Settings.scss';
 
 interface SettingsProps {
     id: number;
@@ -13,13 +15,32 @@ const Settings = ({ id, role }: SettingsProps) => {
     const { language } = useLanguage();
     const t = profileTranslations[language].settings;
 
-    // Используем id и role для получения данных
-    console.log("Settings for user:", id, role);
+    const [openChangePassword, setOpenChangePassword] = useState(false);
 
     const items = [
-        { icon: <KeyRound size={22} />, title: t.items[0].title, description: t.items[0].description },
-        { icon: <Mail size={22} />, title: t.items[1].title, description: t.items[1].description },
-        { icon: <Trash2 size={22} />, title: t.items[2].title, description: t.items[2].description, danger: true },
+        {
+            icon: <KeyRound size={22} />,
+            title: t.items[0].title,
+            description: t.items[0].description,
+            onClick: () => setOpenChangePassword(true),
+        },
+        {
+            icon: <Mail size={22} />,
+            title: t.items[1].title,
+            description: t.items[1].description,
+            onClick: () => {
+                // TODO: change email
+            },
+        },
+        {
+            icon: <Trash2 size={22} />,
+            title: t.items[2].title,
+            description: t.items[2].description,
+            danger: true,
+            onClick: () => {
+                // TODO: delete account
+            },
+        },
     ];
 
     return (
@@ -34,9 +55,16 @@ const Settings = ({ id, role }: SettingsProps) => {
                     <button
                         key={index}
                         type="button"
-                        className={`profile-settings__item ${item.danger ? "profile-settings__item--danger" : ""}`}
+                        className={`profile-settings__item ${
+                            item.danger ? 'profile-settings__item--danger' : ''
+                        }`}
+                        onClick={item.onClick}
                     >
-                        <div className={`profile-settings__icon ${item.danger ? "profile-settings__icon--danger" : ""}`}>
+                        <div
+                            className={`profile-settings__icon ${
+                                item.danger ? 'profile-settings__icon--danger' : ''
+                            }`}
+                        >
                             {item.icon}
                         </div>
                         <div className="profile-settings__content">
@@ -46,6 +74,15 @@ const Settings = ({ id, role }: SettingsProps) => {
                     </button>
                 ))}
             </div>
+
+            {openChangePassword && (
+                <ChangePasswordModal
+                    onClose={() => setOpenChangePassword(false)}
+                    onSuccess={() => {
+                        // опционально: показать тост «Пароль изменён»
+                    }}
+                />
+            )}
         </section>
     );
 };

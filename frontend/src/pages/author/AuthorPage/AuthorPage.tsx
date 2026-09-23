@@ -2,11 +2,12 @@
 import { useParams } from "react-router-dom";
 import ArtsList from "../../../components/shared/Arts/ArtsList/ArtsList";
 import AuthorHeader from "../../../components/shared/Authors/AuthorDetail/AuthorHeader/AuthorHeader";
-import AuthorProfile from "../../../components/shared/Authors/AuthorDetail/AuthorProfile/AuthorProfile";
 import { useEffect, useState } from "react";
 import { getAuthorById, type AuthorProfileResponse } from "../../../api/authors/main.api";
 import { getArtsByAuthor, type ArtsResponse } from "../../../api/arts/main.api";
 import "./AuthorPage.scss";
+import Navigation from "../../../components/layout/Navigation/Navigation";
+import AuthorProfile from "../../../components/shared/Authors/AuthorDetail/AuthorProfile/AuthorProfile";
 
 const AuthorPage = () => {
     const { id } = useParams<{ id: string }>();
@@ -71,6 +72,7 @@ const AuthorPage = () => {
 
     return (
         <main className="author-page">
+            <Navigation />
             <AuthorHeader author={author} />
             <ArtsList data={arts || { arts: [] }} />
             <AuthorProfile author={author} />

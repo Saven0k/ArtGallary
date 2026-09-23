@@ -69,7 +69,7 @@ export const translations = {
                     highlight: 'TILININ\'S GALLERY'
                 },
                 {
-                    text: 'The project was created by Artem Tilinin in 2026 as a space that unites artists and art connoisseurs.'
+                    text: 'The project was created by Artem Tilinin in 2026 as a space that unites authors and art connoisseurs.'
                 },
                 {
                     text: 'The gallery provides an opportunity to present original works to a wide audience and contributes to the development of the creative community.'
@@ -81,7 +81,7 @@ export const translations = {
             banner: {
                 text: "We don't limit ourselves to one art form. You can find both classical painting and modern photography or posters here.",
                 button: 'GO TO GALLERY',
-                quote: 'We give artists the opportunity to show themselves. And you — to choose a work that will delight you every day.'
+                quote: 'We give authors the opportunity to show themselves. And you — to choose a work that will delight you every day.'
             },
             team: {
                 title: 'Our Team',
@@ -103,7 +103,7 @@ export const translations = {
                     },
                     {
                         name: 'Anna Oleynik',
-                        role: 'Site Artist',
+                        role: 'Site Author',
                         image: any
                     }
                 ]

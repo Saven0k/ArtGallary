@@ -7,9 +7,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { createAuthor, type CreateAuthorData } from "../../../../api/authors/main.api";
 import { useAuth } from "../../../../hooks/useAuth";
 import { getAllProfessions, type Profession } from "../../../../api/professions/main.api";
-import { getAllCountries, getCitiesByCountryCode, type CountrySuggestion, type CitySuggestion } from "../../../../api/location/main.api";
+import {
+    getAllCountries,
+    getCitiesByCountryCode,
+    type CountrySuggestion,
+    type CitySuggestion,
+} from "../../../../api/location/main.api";
 
 type Step = 1 | 2 | 3 | 4 | 5;
+
+/** TODO: подставьте сюда URL файла с правилами магазина и офертой на сервере */
+const TERMS_URL = "/files/terms-and-offer.pdf";
 
 interface RegisterAuthorProps {
     onClose?: () => void;
@@ -20,14 +28,15 @@ interface FormData {
     name: string;
     secondName: string;
     birthday: string;
-    gender: 'M' | 'F' | '';
+    gender: "M" | "F" | "";
     email: string;
     password: string;
     confirmPassword: string;
-    countryId: number | '';
-    cityId: number | '';
-    professionId: number | '';
+    countryId: number | "";
+    cityId: number | "";
+    professionId: number | "";
     biography: string;
+    agreement: boolean;
 }
 
 interface ValidationErrors {
@@ -39,19 +48,20 @@ interface ValidationErrors {
     password?: string;
     confirmPassword?: string;
     professionId?: string;
+    agreement?: string;
 }
 
-const RegisterAuthor = () => {
+const RegisterAuthor = (_props: RegisterAuthorProps) => {
     const { language } = useLanguage();
     const t = registerAuthorTranslations[language].registerAuthor;
     const navigate = useNavigate();
     const { refetch } = useAuth();
+
     const [currentStep, setCurrentStep] = useState<Step>(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
-    // Данные для селектов
     const [countries, setCountries] = useState<CountrySuggestion[]>([]);
     const [cities, setCities] = useState<CitySuggestion[]>([]);
     const [professions, setProfessions] = useState<Profession[]>([]);
@@ -60,44 +70,45 @@ const RegisterAuthor = () => {
     const [loadingProfessions, setLoadingProfessions] = useState(false);
 
     const [formData, setFormData] = useState<FormData>({
-        surname: '',
-        name: '',
-        secondName: '',
-        birthday: '',
-        gender: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        countryId: '',
-        cityId: '',
-        professionId: '',
-        biography: '',
+        surname: "",
+        name: "",
+        secondName: "",
+        birthday: "",
+        gender: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        countryId: "",
+        cityId: "",
+        professionId: "",
+        biography: "",
+        agreement: false,
     });
 
     const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
     const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
 
-    // Загрузка стран и профессий при монтировании
+    // ---------- первичная загрузка ----------
     useEffect(() => {
         const fetchInitialData = async () => {
-            // Загружаем страны
             setLoadingCountries(true);
             try {
-                const countriesData = await getAllCountries(language === 'ru' ? 'ru' : 'en');
+                const countriesData = await getAllCountries(
+                    language === "ru" ? "ru" : "en",
+                );
                 setCountries(countriesData || []);
             } catch (e) {
-                console.error('Error loading countries:', e);
+                console.error("Error loading countries:", e);
             } finally {
                 setLoadingCountries(false);
             }
 
-            // Загружаем профессии
             setLoadingProfessions(true);
             try {
                 const professionsData = await getAllProfessions();
                 setProfessions(professionsData || []);
             } catch (e) {
-                console.error('Error loading professions:', e);
+                console.error("Error loading professions:", e);
             } finally {
                 setLoadingProfessions(false);
             }
@@ -106,28 +117,25 @@ const RegisterAuthor = () => {
         fetchInitialData();
     }, [language]);
 
-    // Загрузка городов при выборе страны
+    // ---------- города ----------
     useEffect(() => {
         const fetchCities = async () => {
             if (!formData.countryId) {
                 setCities([]);
                 return;
             }
-
             setLoadingCities(true);
             try {
-                // Ищем страну по ID чтобы получить код
-                const country = countries.find(c => c.id === formData.countryId);
+                const country = countries.find((c) => c.id === formData.countryId);
                 if (country) {
                     const citiesData = await getCitiesByCountryCode(
                         country.iso2,
-                        language === 'ru' ? 'ru' : 'en'
+                        language === "ru" ? "ru" : "en",
                     );
-                    console.log(citiesData);
                     setCities(citiesData || []);
                 }
             } catch (e) {
-                console.error('Error loading cities:', e);
+                console.error("Error loading cities:", e);
                 setCities([]);
             } finally {
                 setLoadingCities(false);
@@ -137,37 +145,46 @@ const RegisterAuthor = () => {
         fetchCities();
     }, [formData.countryId, countries, language]);
 
-    // Кастомная валидация для каждого поля
-    const validateField = (name: string, value: string | number): string | undefined => {
+    // ---------- валидация ----------
+    const validateField = (
+        name: string,
+        value: string | number | boolean,
+    ): string | undefined => {
         switch (name) {
-            case 'surname':
+            case "surname":
                 if (!value || !String(value).trim()) return t.errors.required;
-                if (String(value).trim().length < 2) return t.errors.minLength?.replace('{min}', '2') || 'Минимум 2 символа';
+                if (String(value).trim().length < 2)
+                    return t.errors.minLength?.replace("{min}", "2") || "Минимум 2 символа";
                 return undefined;
-            case 'name':
+            case "name":
                 if (!value || !String(value).trim()) return t.errors.required;
-                if (String(value).trim().length < 2) return t.errors.minLength?.replace('{min}', '2') || 'Минимум 2 символа';
+                if (String(value).trim().length < 2)
+                    return t.errors.minLength?.replace("{min}", "2") || "Минимум 2 символа";
                 return undefined;
-            case 'birthday':
+            case "birthday":
                 if (!value) return t.errors.required;
                 return undefined;
-            case 'gender':
+            case "gender":
                 if (!value) return t.errors.required;
                 return undefined;
-            case 'email':
+            case "email":
                 if (!value || !String(value).trim()) return t.errors.required;
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value))) return t.errors.email;
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value)))
+                    return t.errors.email;
                 return undefined;
-            case 'password':
+            case "password":
                 if (!value) return t.errors.required;
                 if (String(value).length < 6) return t.errors.passwordMin;
                 return undefined;
-            case 'confirmPassword':
+            case "confirmPassword":
                 if (!value) return t.errors.required;
                 if (value !== formData.password) return t.errors.passwordMismatch;
                 return undefined;
-            case 'professionId':
-                if (!value || value === '') return t.errors.required;
+            case "professionId":
+                if (!value || value === "") return t.errors.required;
+                return undefined;
+            case "agreement":
+                if (!value) return t.agreement.error;
                 return undefined;
             default:
                 return undefined;
@@ -177,19 +194,20 @@ const RegisterAuthor = () => {
     const validateStep = (step: Step): boolean => {
         const errors: ValidationErrors = {};
         const fieldsToValidate: Record<Step, string[]> = {
-            1: ['surname', 'name', 'birthday', 'gender'],
-            2: ['email', 'password', 'confirmPassword'],
+            1: ["surname", "name", "birthday", "gender"],
+            2: ["email", "password", "confirmPassword"],
             3: [],
-            4: ['professionId'],
+            4: ["professionId", "agreement"],
             5: [],
         };
 
         fieldsToValidate[step].forEach((field) => {
-            const value = formData[field as keyof FormData] as string | number;
+            const value = formData[field as keyof FormData] as
+                | string
+                | number
+                | boolean;
             const error = validateField(field, value);
-            if (error) {
-                errors[field as keyof ValidationErrors] = error;
-            }
+            if (error) errors[field as keyof ValidationErrors] = error;
         });
 
         setValidationErrors(errors);
@@ -203,68 +221,62 @@ const RegisterAuthor = () => {
         return Object.keys(errors).length === 0;
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
+    // ---------- обработчики ----------
+    const handleChange = (
+        e: React.ChangeEvent<
+            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >,
+    ) => {
+        const target = e.target as HTMLInputElement;
+        const { name } = target;
+        const value = target.type === "checkbox" ? target.checked : target.value;
 
-        console.log(`🔄 Изменение поля ${name}:`, value, 'тип:', typeof value);
-
-        // Если это countryId - преобразуем в число
-        if (name === 'countryId') {
-            const newValue = value === '' ? '' : Number(value);
-            console.log(`🔄 countryId преобразован:`, newValue, 'тип:', typeof newValue);
-            setFormData((prev) => ({
-                ...prev,
-                countryId: newValue,
-                cityId: '' // сбрасываем город
-            }));
+        if (name === "countryId") {
+            const newValue = value === "" ? "" : Number(value);
+            setFormData((prev) => ({ ...prev, countryId: newValue, cityId: "" }));
+        } else if (name === "agreement") {
+            setFormData((prev) => ({ ...prev, agreement: Boolean(value) }));
         } else {
             setFormData((prev) => ({ ...prev, [name]: value }));
         }
 
         if (touchedFields[name]) {
             const error = validateField(name, value);
-            setValidationErrors((prev) => ({
-                ...prev,
-                [name]: error,
-            }));
+            setValidationErrors((prev) => ({ ...prev, [name]: error }));
         }
     };
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setTouchedFields((prev) => ({ ...prev, [name]: true }));
 
+    const handleBlur = (
+        e: React.FocusEvent<
+            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >,
+    ) => {
+        const target = e.target as HTMLInputElement;
+        const { name } = target;
+        const value = target.type === "checkbox" ? target.checked : target.value;
+
+        setTouchedFields((prev) => ({ ...prev, [name]: true }));
         const error = validateField(name, value);
-        setValidationErrors((prev) => ({
-            ...prev,
-            [name]: error,
-        }));
+        setValidationErrors((prev) => ({ ...prev, [name]: error }));
     };
 
-    const handleGenderChange = (value: 'M' | 'F') => {
+    const handleGenderChange = (value: "M" | "F") => {
         setFormData((prev) => ({ ...prev, gender: value }));
         setTouchedFields((prev) => ({ ...prev, gender: true }));
-
-        const error = validateField('gender', value);
-        setValidationErrors((prev) => ({
-            ...prev,
-            gender: error,
-        }));
+        const error = validateField("gender", value);
+        setValidationErrors((prev) => ({ ...prev, gender: error }));
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setAvatarFile(file);
-        }
+        if (file) setAvatarFile(file);
     };
 
     const handleNext = () => {
-        if (validateStep(currentStep)) {
-            if (currentStep < 5) {
-                setCurrentStep((prev) => (prev + 1) as Step);
-                setValidationErrors({});
-                setTouchedFields({});
-            }
+        if (validateStep(currentStep) && currentStep < 5) {
+            setCurrentStep((prev) => (prev + 1) as Step);
+            setValidationErrors({});
+            setTouchedFields({});
         }
     };
 
@@ -288,7 +300,7 @@ const RegisterAuthor = () => {
                 password: formData.password,
                 name: formData.name,
                 surname: formData.surname,
-                gender: formData.gender as 'M' | 'F',
+                gender: formData.gender as "M" | "F",
                 date_birthday: formData.birthday,
                 second_name: formData.secondName || undefined,
                 biography: formData.biography || undefined,
@@ -301,55 +313,77 @@ const RegisterAuthor = () => {
             const result = await createAuthor(data);
             if (result) {
                 await refetch();
-                navigate('/profile');
+                navigate("/profile");
             } else {
-                setError('Ошибка при регистрации');
+                setError("Ошибка при регистрации");
             }
         } catch (err) {
-            setError('Произошла ошибка');
+            setError("Произошла ошибка");
         } finally {
             setLoading(false);
         }
     };
 
+    // ---------- шаги ----------
     const renderStep = () => {
         switch (currentStep) {
             case 1:
                 return (
                     <div className="register-author__step">
                         <h3 className="register-author__step-title">{t.step1.title}</h3>
+
                         <div className="register-author__form-group">
-                            <label className="register-author__label">{t.step1.fields.surname}</label>
+                            <label className="register-author__label">
+                                {t.step1.fields.surname}
+                            </label>
                             <input
                                 type="text"
                                 name="surname"
-                                className={`register-author__input ${validationErrors.surname && touchedFields.surname ? 'register-author__input--error' : ''}`}
+                                className={`register-author__input ${
+                                    validationErrors.surname && touchedFields.surname
+                                        ? "register-author__input--error"
+                                        : ""
+                                }`}
                                 placeholder={t.step1.fields.surname}
                                 value={formData.surname}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                             />
                             {validationErrors.surname && touchedFields.surname && (
-                                <span className="register-author__error-text">{validationErrors.surname}</span>
+                                <span className="register-author__error-text">
+                                    {validationErrors.surname}
+                                </span>
                             )}
                         </div>
+
                         <div className="register-author__form-group">
-                            <label className="register-author__label">{t.step1.fields.name}</label>
+                            <label className="register-author__label">
+                                {t.step1.fields.name}
+                            </label>
                             <input
                                 type="text"
                                 name="name"
-                                className={`register-author__input ${validationErrors.name && touchedFields.name ? 'register-author__input--error' : ''}`}
+                                className={`register-author__input ${
+                                    validationErrors.name && touchedFields.name
+                                        ? "register-author__input--error"
+                                        : ""
+                                }`}
                                 placeholder={t.step1.fields.name}
                                 value={formData.name}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                             />
                             {validationErrors.name && touchedFields.name && (
-                                <span className="register-author__error-text">{validationErrors.name}</span>
+                                <span className="register-author__error-text">
+                                    {validationErrors.name}
+                                </span>
                             )}
                         </div>
+
                         <div className="register-author__form-group">
-                            <label className="register-author__label">{t.step1.fields.secondName}</label>
+                            <label className="register-author__label">
+                                {t.step1.fields.secondName}
+                            </label>
                             <input
                                 type="text"
                                 name="secondName"
@@ -359,95 +393,148 @@ const RegisterAuthor = () => {
                                 onChange={handleChange}
                             />
                         </div>
+
                         <div className="register-author__form-group">
-                            <label className="register-author__label">{t.step1.fields.birthday}</label>
+                            <label className="register-author__label">
+                                {t.step1.fields.birthday}
+                            </label>
                             <input
                                 type="date"
                                 name="birthday"
-                                className={`register-author__input ${validationErrors.birthday && touchedFields.birthday ? 'register-author__input--error' : ''}`}
+                                className={`register-author__input ${
+                                    validationErrors.birthday && touchedFields.birthday
+                                        ? "register-author__input--error"
+                                        : ""
+                                }`}
                                 value={formData.birthday}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                             />
                             {validationErrors.birthday && touchedFields.birthday && (
-                                <span className="register-author__error-text">{validationErrors.birthday}</span>
+                                <span className="register-author__error-text">
+                                    {validationErrors.birthday}
+                                </span>
                             )}
                         </div>
+
                         <div className="register-author__form-group">
-                            <label className="register-author__label">{t.step2.fields.gender}</label>
+                            <label className="register-author__label">
+                                {t.step2.fields.gender}
+                            </label>
                             <div className="register-author__gender-group">
                                 <button
                                     type="button"
-                                    className={`register-author__gender-btn ${formData.gender === 'M' ? 'register-author__gender-btn--active' : ''}`}
-                                    onClick={() => handleGenderChange('M')}
+                                    className={`register-author__gender-btn ${
+                                        formData.gender === "M"
+                                            ? "register-author__gender-btn--active"
+                                            : ""
+                                    }`}
+                                    onClick={() => handleGenderChange("M")}
                                 >
                                     {t.step2.options.male}
                                 </button>
                                 <button
                                     type="button"
-                                    className={`register-author__gender-btn ${formData.gender === 'F' ? 'register-author__gender-btn--active' : ''}`}
-                                    onClick={() => handleGenderChange('F')}
+                                    className={`register-author__gender-btn ${
+                                        formData.gender === "F"
+                                            ? "register-author__gender-btn--active"
+                                            : ""
+                                    }`}
+                                    onClick={() => handleGenderChange("F")}
                                 >
                                     {t.step2.options.female}
                                 </button>
                             </div>
                             {validationErrors.gender && touchedFields.gender && (
-                                <span className="register-author__error-text">{validationErrors.gender}</span>
+                                <span className="register-author__error-text">
+                                    {validationErrors.gender}
+                                </span>
                             )}
                         </div>
                     </div>
                 );
+
             case 2:
                 return (
                     <div className="register-author__step">
                         <h3 className="register-author__step-title">{t.step2.title}</h3>
+
                         <div className="register-author__form-group">
-                            <label className="register-author__label">{t.step2.fields.email}</label>
+                            <label className="register-author__label">
+                                {t.step2.fields.email}
+                            </label>
                             <input
                                 type="email"
                                 name="email"
-                                className={`register-author__input ${validationErrors.email && touchedFields.email ? 'register-author__input--error' : ''}`}
+                                className={`register-author__input ${
+                                    validationErrors.email && touchedFields.email
+                                        ? "register-author__input--error"
+                                        : ""
+                                }`}
                                 placeholder={t.step2.fields.email}
                                 value={formData.email}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                             />
                             {validationErrors.email && touchedFields.email && (
-                                <span className="register-author__error-text">{validationErrors.email}</span>
+                                <span className="register-author__error-text">
+                                    {validationErrors.email}
+                                </span>
                             )}
                         </div>
+
                         <div className="register-author__form-group">
-                            <label className="register-author__label">{t.step2.fields.password}</label>
+                            <label className="register-author__label">
+                                {t.step2.fields.password}
+                            </label>
                             <input
                                 type="password"
                                 name="password"
-                                className={`register-author__input ${validationErrors.password && touchedFields.password ? 'register-author__input--error' : ''}`}
+                                className={`register-author__input ${
+                                    validationErrors.password && touchedFields.password
+                                        ? "register-author__input--error"
+                                        : ""
+                                }`}
                                 placeholder={t.step2.fields.password}
                                 value={formData.password}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                             />
                             {validationErrors.password && touchedFields.password && (
-                                <span className="register-author__error-text">{validationErrors.password}</span>
+                                <span className="register-author__error-text">
+                                    {validationErrors.password}
+                                </span>
                             )}
                         </div>
+
                         <div className="register-author__form-group">
-                            <label className="register-author__label">{t.step2.fields.confirmPassword}</label>
+                            <label className="register-author__label">
+                                {t.step2.fields.confirmPassword}
+                            </label>
                             <input
                                 type="password"
                                 name="confirmPassword"
-                                className={`register-author__input ${validationErrors.confirmPassword && touchedFields.confirmPassword ? 'register-author__input--error' : ''}`}
+                                className={`register-author__input ${
+                                    validationErrors.confirmPassword &&
+                                    touchedFields.confirmPassword
+                                        ? "register-author__input--error"
+                                        : ""
+                                }`}
                                 placeholder={t.step2.fields.confirmPassword}
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                             />
-                            {validationErrors.confirmPassword && touchedFields.confirmPassword && (
-                                <span className="register-author__error-text">{validationErrors.confirmPassword}</span>
-                            )}
+                            {validationErrors.confirmPassword &&
+                                touchedFields.confirmPassword && (
+                                    <span className="register-author__error-text">
+                                        {validationErrors.confirmPassword}
+                                    </span>
+                                )}
                         </div>
                     </div>
                 );
+
             case 3:
                 return (
                     <div className="register-author__step">
@@ -455,8 +542,12 @@ const RegisterAuthor = () => {
                         <div className="register-author__upload">
                             <div className="register-author__upload-area">
                                 <div className="register-author__upload-icon">📷</div>
-                                <p className="register-author__upload-text">{t.step3.uploadText}</p>
-                                <p className="register-author__upload-hint">{t.step3.uploadHint}</p>
+                                <p className="register-author__upload-text">
+                                    {t.step3.uploadText}
+                                </p>
+                                <p className="register-author__upload-hint">
+                                    {t.step3.uploadHint}
+                                </p>
 
                                 {avatarFile ? (
                                     <div className="register-author__upload-preview">
@@ -465,7 +556,9 @@ const RegisterAuthor = () => {
                                             alt="Preview"
                                             className="register-author__upload-preview-img"
                                         />
-                                        <span className="register-author__upload-filename">{avatarFile.name}</span>
+                                        <span className="register-author__upload-filename">
+                                            {avatarFile.name}
+                                        </span>
                                         <button
                                             className="register-author__upload-remove"
                                             onClick={() => setAvatarFile(null)}
@@ -476,8 +569,12 @@ const RegisterAuthor = () => {
                                     </div>
                                 ) : (
                                     <div className="register-author__upload-placeholder">
-                                        <span className="register-author__upload-placeholder-icon">🖼️</span>
-                                        <span className="register-author__upload-placeholder-text">Файл не выбран</span>
+                                        <span className="register-author__upload-placeholder-icon">
+                                            🖼️
+                                        </span>
+                                        <span className="register-author__upload-placeholder-text">
+                                            Файл не выбран
+                                        </span>
                                     </div>
                                 )}
 
@@ -489,7 +586,10 @@ const RegisterAuthor = () => {
                                         className="register-author__file-input"
                                         onChange={handleFileChange}
                                     />
-                                    <label htmlFor="avatar" className="register-author__upload-btn">
+                                    <label
+                                        htmlFor="avatar"
+                                        className="register-author__upload-btn"
+                                    >
                                         {avatarFile ? t.step3.changeBtn : t.step3.uploadBtn}
                                     </label>
                                 </div>
@@ -497,12 +597,16 @@ const RegisterAuthor = () => {
                         </div>
                     </div>
                 );
+
             case 4:
                 return (
                     <div className="register-author__step">
                         <h3 className="register-author__step-title">{t.step4.title}</h3>
+
                         <div className="register-author__form-group">
-                            <label className="register-author__label">{t.step4.fields.country}</label>
+                            <label className="register-author__label">
+                                {t.step4.fields.country}
+                            </label>
                             <select
                                 name="countryId"
                                 className="register-author__input register-author__select"
@@ -511,17 +615,22 @@ const RegisterAuthor = () => {
                                 disabled={loadingCountries}
                             >
                                 <option value="">
-                                    {loadingCountries ? 'Загрузка...' : t.step4.fields.country}
+                                    {loadingCountries
+                                        ? "Загрузка..."
+                                        : t.step4.fields.country}
                                 </option>
                                 {countries.map((country) => (
                                     <option key={country.id} value={country.id}>
-                                        {country.name}  {/* ← теперь просто name */}
+                                        {country.name}
                                     </option>
                                 ))}
                             </select>
                         </div>
+
                         <div className="register-author__form-group">
-                            <label className="register-author__label">{t.step4.fields.city}</label>
+                            <label className="register-author__label">
+                                {t.step4.fields.city}
+                            </label>
                             <select
                                 name="cityId"
                                 className="register-author__input register-author__select"
@@ -531,58 +640,102 @@ const RegisterAuthor = () => {
                             >
                                 <option value="">
                                     {!formData.countryId
-                                        ? 'Сначала выберите страну'
+                                        ? "Сначала выберите страну"
                                         : loadingCities
-                                            ? 'Загрузка...'
-                                            : t.step4.fields.city}
+                                          ? "Загрузка..."
+                                          : t.step4.fields.city}
                                 </option>
                                 {cities.map((city) => (
                                     <option key={city.id} value={city.id}>
-                                        {city.name}  {/* ← теперь просто name */}
+                                        {city.name}
                                     </option>
                                 ))}
                             </select>
                         </div>
-                        <div style={{ padding: '8px', background: '#f0f0f0', marginBottom: '8px', fontSize: '12px' }}>
-                            Страны: {countries.length} | Города: {cities.length} | Выбрана страна: {formData.countryId || 'нет'}
-                        </div>
+
                         <div className="register-author__form-group">
-                            <label className="register-author__label">{t.step4.fields.profession}</label>
+                            <label className="register-author__label">
+                                {t.step4.fields.profession}
+                            </label>
                             <select
                                 name="professionId"
-                                className={`register-author__input register-author__select ${validationErrors.professionId && touchedFields.professionId ? 'register-author__input--error' : ''}`}
+                                className={`register-author__input register-author__select ${
+                                    validationErrors.professionId &&
+                                    touchedFields.professionId
+                                        ? "register-author__input--error"
+                                        : ""
+                                }`}
                                 value={formData.professionId}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                                 disabled={loadingProfessions}
                             >
-                                <option value="">{loadingProfessions ? 'Загрузка...' : t.step4.fields.profession}</option>
+                                <option value="">
+                                    {loadingProfessions
+                                        ? "Загрузка..."
+                                        : t.step4.fields.profession}
+                                </option>
                                 {professions.map((profession) => (
                                     <option key={profession.id} value={profession.id}>
                                         {profession.name}
                                     </option>
                                 ))}
                             </select>
-                            {validationErrors.professionId && touchedFields.professionId && (
-                                <span className="register-author__error-text">{validationErrors.professionId}</span>
-                            )}
+                            {validationErrors.professionId &&
+                                touchedFields.professionId && (
+                                    <span className="register-author__error-text">
+                                        {validationErrors.professionId}
+                                    </span>
+                                )}
                         </div>
-                        <div className="register-author__step">
-                            <h3 className="register-author__step-title">{t.step5.title}</h3>
-                            <div className="register-author__form-group">
-                                <label className="register-author__label">{t.step5.fields.biography}</label>
-                                <textarea
-                                    name="biography"
-                                    className="register-author__textarea"
-                                    placeholder={t.step5.fields.biography}
-                                    rows={6}
-                                    value={formData.biography}
+
+                        <div className="register-author__form-group">
+                            <label className="register-author__label">
+                                {t.step5.fields.biography}
+                            </label>
+                            <textarea
+                                name="biography"
+                                className="register-author__textarea"
+                                placeholder={t.step5.fields.biography}
+                                rows={6}
+                                value={formData.biography}
+                                onChange={handleChange}
+                            />
+                        </div>
+
+                        {/* --- Согласие с правилами и офертой --- */}
+                        <div className="register-author__form-group register-author__form-group--checkbox">
+                            <label className="register-author__checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    name="agreement"
+                                    className="register-author__checkbox"
+                                    checked={formData.agreement}
                                     onChange={handleChange}
+                                    onBlur={handleBlur}
                                 />
-                            </div>
+                                <span className="register-author__checkbox-text">
+                                    {t.agreement.text}{" "}
+                                    <a
+                                        href={TERMS_URL}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="register-author__checkbox-link"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        {t.agreement.rulesLink}
+                                    </a>
+                                </span>
+                            </label>
+                            {validationErrors.agreement && touchedFields.agreement && (
+                                <span className="register-author__error-text">
+                                    {validationErrors.agreement}
+                                </span>
+                            )}
                         </div>
                     </div>
                 );
+
             default:
                 return null;
         }
@@ -599,7 +752,11 @@ const RegisterAuthor = () => {
                     {[1, 2, 3, 4].map((step) => (
                         <div
                             key={step}
-                            className={`register-author__step-dot ${step <= currentStep ? "register-author__step-dot--active" : ""}`}
+                            className={`register-author__step-dot ${
+                                step <= currentStep
+                                    ? "register-author__step-dot--active"
+                                    : ""
+                            }`}
                         />
                     ))}
                 </div>
@@ -619,6 +776,7 @@ const RegisterAuthor = () => {
                         className="register-author__btn register-author__btn--secondary"
                         onClick={handleBack}
                         disabled={loading}
+                        type="button"
                     >
                         {t.buttons.back}
                     </button>
@@ -627,7 +785,8 @@ const RegisterAuthor = () => {
                     <button
                         className="register-author__btn register-author__btn--primary"
                         onClick={handleSubmit}
-                        disabled={loading}
+                        disabled={loading || !formData.agreement}
+                        type="button"
                     >
                         {loading ? "..." : t.buttons.submit}
                     </button>
@@ -636,6 +795,7 @@ const RegisterAuthor = () => {
                         className="register-author__btn register-author__btn--primary"
                         onClick={handleNext}
                         disabled={loading}
+                        type="button"
                     >
                         {t.buttons.next}
                     </button>
@@ -643,9 +803,7 @@ const RegisterAuthor = () => {
             </div>
 
             <div className="register-author__footer">
-                <span className="register-author__footer-text">
-                    {t.footer.text}
-                </span>
+                <span className="register-author__footer-text">{t.footer.text}</span>
                 <Link to="/login" className="register-author__footer-link">
                     {t.footer.link}
                 </Link>

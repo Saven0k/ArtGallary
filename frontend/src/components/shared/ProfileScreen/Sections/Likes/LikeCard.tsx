@@ -26,8 +26,8 @@ const LikeCard = ({ art, onUnlike, t }: LikeCardProps) => {
             ? t.priceNotSpecified
             : `${new Intl.NumberFormat(t.locale).format(art.cost)} ${art.currency ?? t.currencySymbol}`;
 
-    const authorName = art.artist?.user
-        ? `${art.artist.user.name ?? ''} ${art.artist.user.surname ?? ''}`.trim() || t.unknownAuthor
+    const authorName = art.author?.user
+        ? `${art.author.user.name ?? ''} ${art.author.user.surname ?? ''}`.trim() || t.unknownAuthor
         : t.unknownAuthor;
 
     return (

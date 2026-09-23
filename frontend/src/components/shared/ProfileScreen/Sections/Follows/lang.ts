@@ -21,7 +21,7 @@ export const followsTranslations = {
             title: "Following",
             empty: "You are not following anyone yet",
             error: "Failed to load subscriptions",
-            defaultSubtitle: "Young artist",
+            defaultSubtitle: "Young author",
             defaultAvatar: "/default-avatar.png",
             goToProfile: "Go to profile",
             pagination: {

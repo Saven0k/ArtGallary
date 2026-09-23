@@ -4,7 +4,7 @@ export const footerTranslations = {
         quickLinks: {
             title: "Быстрые ссылки",
             gallery: "Галерея",
-            artists: "Авторы",
+            authors: "Авторы",
         },
         info: {
             title: "Информация",
@@ -24,11 +24,11 @@ export const footerTranslations = {
         copyright: "Все права защищены."
     },
     en: {
-        description: "Discover the world of art with us. Unique works of talented artists from around the world.",
+        description: "Discover the world of art with us. Unique works of talented authors from around the world.",
         quickLinks: {
             title: "Quick Links",
             gallery: "Gallery",
-            artists: "Authors"
+            authors: "Authors"
         },
         info: {
             title: "Information",
@@ -52,7 +52,7 @@ export const footerTranslations = {
         quickLinks: {
             title: "快速链接",
             gallery: "画廊",
-            artists: "作者",
+            authors: "作者",
         },
         info: {
             title: "信息",

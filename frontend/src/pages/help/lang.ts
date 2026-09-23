@@ -247,8 +247,8 @@ export const translations = {
         },
         items: [
           {
-            question: 'How to create an artist account?',
-            answer: 'To register as an artist, go to your profile, select the appropriate account type and fill in your information.',
+            question: 'How to create an author account?',
+            answer: 'To register as an author, go to your profile, select the appropriate account type and fill in your information.',
             tag: 'account'
           },
           {
@@ -327,7 +327,7 @@ export const translations = {
         title: 'Useful Resources',
         items: [
           {
-            title: 'Artist Guide',
+            title: 'Author Guide',
             description: 'How to start selling your work?',
             content: "",
             icon: BrushIcon,
@@ -335,7 +335,7 @@ export const translations = {
             list: [
               {
                 icon: "1",
-                title: "Create an artist profile",
+                title: "Create an author profile",
                 description: "Fill in your information: add a photo, a short biography, tell about your creative journey, education, technique and inspiration. The more detailed your profile is, the more trust it inspires in buyers."
               },
               {
@@ -391,7 +391,7 @@ export const translations = {
             list: [
               {
                 icon: "1",
-                title: "Create an artist profile",
+                title: "Create an author profile",
                 description: "Fill in your information: add a photo, a short biography, tell about your creative journey, education, technique and inspiration. The more detailed your profile is, the more trust it inspires in buyers."
               },
               {
@@ -419,7 +419,7 @@ export const translations = {
             list: [
               {
                 icon: "1",
-                title: "Create an artist profile",
+                title: "Create an author profile",
                 description: "Fill in your information: add a photo, a short biography, tell about your creative journey, education, technique and inspiration. The more detailed your profile is, the more trust it inspires in buyers."
               },
               {

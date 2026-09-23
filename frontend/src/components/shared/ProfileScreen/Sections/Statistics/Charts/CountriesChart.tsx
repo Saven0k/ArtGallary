@@ -1,115 +1,100 @@
 // src/components/shared/ProfileScreen/Charts/CountriesChart.tsx
-import { useEffect, useState } from "react";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import { useMemo } from "react";
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+} from "chart.js";
 import { Bar } from "react-chartjs-2";
-import { getViewersTopCountries } from "../../../../../../api/stats/main.api";
+import type { CountryStatsItem } from "../../../../../../api/stats/main.api";
+import { CHART_COLORS, tooltipStyle } from "./utils";
 import "./Charts.scss";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface CountriesChartProps {
-    authorId: number;
+    data: CountryStatsItem[];
 }
 
-const COLORS = ["#BC9547", "#ECDCBD", "#E5E5E5", "#C99F9F", "#DEEFD1"];
+const CountriesChart = ({ data }: CountriesChartProps) => {
+    /** Топ-5 и перевод в проценты от общего числа просмотров */
+    const items = useMemo(() => {
+        const total = data.reduce((sum, item) => sum + item.count, 0);
+        return data
+            .slice(0, 5)
+            .map((item) => ({
+                country: item.countryName || `Страна ${item.countryId}`,
+                percentage:
+                    total > 0 ? Math.round((item.count / total) * 100) : 0,
+            }));
+    }, [data]);
 
-const CountriesChart = ({ authorId }: CountriesChartProps) => {
-    const [data, setData] = useState<{ country: string; percentage: number }[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+    const chartData = useMemo(
+        () => ({
+            labels: items.map((i) => i.country),
+            datasets: [
+                {
+                    label: "Зрители",
+                    data: items.map((i) => i.percentage),
+                    backgroundColor: items.map(
+                        (_, i) => CHART_COLORS[i % CHART_COLORS.length],
+                    ),
+                    borderColor: "#fff",
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barThickness: 20,
+                },
+            ],
+        }),
+        [items],
+    );
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            const result = await getViewersTopCountries(authorId);
-            if (result) {
-                setData(result);
-            }
-            setLoading(false);
-        };
-        fetchData();
-    }, [authorId]);
-
-    if (loading) {
-        return <div className="chart-loading">Загрузка...</div>;
-    }
-
-    if (data.length === 0) {
-        return <div className="chart-empty">Нет данных</div>;
-    }
-
-    const chartData = {
-        labels: data.map((item) => item.country),
-        datasets: [
-            {
-                label: "Зрители",
-                data: data.map((item) => item.percentage),
-                backgroundColor: data.map((_, index) => COLORS[index % COLORS.length]),
-                borderColor: "#fff",
-                borderWidth: 1,
-                borderRadius: 4,
-                barThickness: 20,
-            },
-        ],
-    };
-
-    const options = {
-        indexAxis: "y" as const,
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false,
-            },
-            tooltip: {
-                backgroundColor: "#fff",
-                titleColor: "#222222",
-                bodyColor: "#727272",
-                borderColor: "#E5E5E5",
-                borderWidth: 1,
-                cornerRadius: 8,
-                padding: 12,
-                callbacks: {
-                    label: function(context: any) {
-                        return `${context.parsed.x}%`;
+    const options = useMemo(
+        () => ({
+            indexAxis: "y" as const,
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    ...tooltipStyle,
+                    callbacks: {
+                        label: (ctx: any) => `${ctx.parsed.x}%`,
                     },
                 },
             },
-        },
-        scales: {
-            x: {
-                grid: {
-                    display: false,
-                },
-                ticks: {
-                    color: "#727272",
-                    font: {
-                        size: 12,
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        color: "#727272",
+                        font: { size: 12 },
+                        callback: (v: any) => `${v}%`,
                     },
-                    callback: function(value: any) {
-                        return `${value}%`;
-                    },
+                    max: 100,
                 },
-                max: 100,
-            },
-            y: {
-                grid: {
-                    display: false,
-                },
-                ticks: {
-                    color: "#222222",
-                    font: {
-                        size: 12,
-                    },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: "#222222", font: { size: 12 } },
                 },
             },
-        },
-    };
+        }),
+        [],
+    );
 
     return (
         <div className="chart-container">
             <h3 className="chart-title">Топ стран</h3>
-            <div className="chart-wrapper">
-                <Bar data={chartData} options={options} />
+            <div className="chart-wrapper chart-wrapper--bar">
+                {items.length === 0 ? (
+                    <div className="chart-empty">Нет данных</div>
+                ) : (
+                    <Bar data={chartData} options={options} />
+                )}
             </div>
         </div>
     );

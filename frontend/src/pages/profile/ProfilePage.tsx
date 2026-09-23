@@ -15,12 +15,14 @@ import { getUserById, type User } from "../../api/users/main.api";
 import "./ProfilePage.scss";
 import Likes from "../../components/shared/ProfileScreen/Sections/Likes/Likes";
 import Follows from "../../components/shared/ProfileScreen/Sections/Follows/Follows";
+import Cart from "../../components/shared/ProfileScreen/Sections/Cart/Cart";
 
 const sectionIds: Record<ProfileSection, string> = {
     personal: "personal",
     notifications: "notifications",
     statistics: "statistics",
     likes: "likes",
+    cart: "cart",
     subscriptions: "subscriptions",
     settings: "settings",
 };
@@ -84,14 +86,16 @@ const ProfilePage = () => {
         switch (activeSection) {
             case "notifications":
                 return <Notifications id={userId} role={userRole} />;
-            // case "statistics":
-            //     return <Statistics id={userId} role={userRole} />;
+            case "statistics":
+                return <Statistics authorId={userId} />;
             case "settings":
                 return <Settings id={userId} role={userRole} />;
             case "likes":
                 return <Likes />;
             case "subscriptions":
                 return <Follows />;
+            case "cart":
+                return <Cart />;
             default:
                 return <PersonalInfo id={userId} role={userRole} />;
         }

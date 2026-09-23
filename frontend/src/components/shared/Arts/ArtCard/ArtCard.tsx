@@ -70,7 +70,7 @@ const ArtCard = ({ art_id, art }: ArtCardProps) => {
                     </span>
                     <span className="art-card__title">{art.title}</span>
                     <span className="art-card__author">
-                        {art.artist?.user?.surname} {art.artist?.user?.name}
+                        {art.author?.user?.surname} {art.author?.user?.name}
                     </span>
                     <span className="art-card__materials">{art.specifications || t.noSpecs}</span>
                 </div>

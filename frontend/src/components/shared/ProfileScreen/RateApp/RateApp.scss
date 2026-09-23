@@ -1,0 +1,77 @@
+// src/pages/Profile/components/ProfileContent/RateApp/RateApp.scss
+.rate-app {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+
+    padding: 20px 24px;
+
+    background: #fff;
+
+    border: 1px solid rgba(188, 149, 71, 0.15);
+    border-radius: var(--radius-l);
+
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        border-color: var(--brand-primary-gold);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: var(--font-weight-semibold);
+        color: var(--neutral-grey-800);
+    }
+
+    &__subtitle {
+        margin: 0;
+        font-size: 14px;
+        color: var(--neutral-grey-600);
+    }
+
+    &__stars {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    &__star {
+        background: none;
+        border: none;
+        padding: 2px;
+        cursor: pointer;
+        color: var(--neutral-grey-400);
+        transition: color 0.15s ease, transform 0.1s ease;
+        line-height: 0;
+
+        &:hover {
+            transform: translateY(-1px);
+        }
+
+        &.is-filled {
+            color: #f5b301;
+        }
+
+        &.is-disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    }
+}
+
+@media (max-width: 600px) {
+    .rate-app {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

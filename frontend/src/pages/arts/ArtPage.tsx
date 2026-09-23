@@ -1,9 +1,9 @@
-import { ArtDetail } from "../../components/shared/ArtDetail/ArtDetail";
+// import { ArtDetail } from "../../components/shared/ArtDetail/ArtDetail";
 
 const ArtPage = () => {
     return ( 
         <>
-        <ArtDetail />
+        {/* <ArtDetail /> */}
         </>
      );
 }

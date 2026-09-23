@@ -70,7 +70,7 @@ export const servicesTranslations = {
                     id: 1,
                     icon: artConsulationPhoto,
                     title: 'Art Consultation',
-                    description: 'Professional consultation with an artist on the selection and placement of artworks in your interior',
+                    description: 'Professional consultation with an author on the selection and placement of artworks in your interior',
                     features: [
                         'Selection of works',
                         'Recommendations on size and placement',
