@@ -14,16 +14,11 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { LocationService } from './location.service';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../auth/enums/role.enum';
 
 @ApiTags('location')
 @Controller('location')
-@Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
 export class LocationController {
   constructor(private readonly locationService: LocationService) {}
-
-
   @ApiOperation({ summary: 'Поиск стран (autocomplete, из БД, быстро)' })
   @ApiQuery({ name: 'q', description: 'Запрос (минимум 2 символа)' })
   @ApiQuery({ name: 'lang', required: false, enum: ['ru', 'en'], example: 'ru' })

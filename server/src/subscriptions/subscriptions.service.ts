@@ -33,7 +33,7 @@ export class SubscriptionService {
     constructor(
         @InjectModel(Subscription) private subscriptionModel: typeof Subscription,
         @InjectModel(SubscriptionHistory) private historyModel: typeof SubscriptionHistory,
-        @InjectModel(AuthorProfile) private artistProfileModel: typeof AuthorProfile,
+        @InjectModel(AuthorProfile) private authorProfileModel: typeof AuthorProfile,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
     ) { }
 
@@ -44,7 +44,7 @@ export class SubscriptionService {
         userId: number,
         dto: PurchaseSubscriptionDto
     ): Promise<PaymentInitResponseDto> {
-        const profile = await this.artistProfileModel.findOne({
+        const profile = await this.authorProfileModel.findOne({
             where: { user_id: userId }
         });
 
@@ -150,7 +150,7 @@ export class SubscriptionService {
 
     // 3. Получить информацию о подписке
     async getSubscriptionInfo(userId: number): Promise<SubscriptionResponseDto> {
-        const profile = await this.artistProfileModel.findOne({
+        const profile = await this.authorProfileModel.findOne({
             where: { user_id: userId }
         });
 
@@ -218,7 +218,7 @@ export class SubscriptionService {
 
     // 4. Отменить подписку
     async cancelSubscription(userId: number): Promise<{ success: boolean; message: string }> {
-        const profile = await this.artistProfileModel.findOne({
+        const profile = await this.authorProfileModel.findOne({
             where: { user_id: userId }
         });
 
@@ -328,7 +328,7 @@ export class SubscriptionService {
     ): Promise<SubscriptionResponseDto> {
         try {
             // 1. Проверяем профиль
-            const profile = await this.artistProfileModel.findOne({
+            const profile = await this.authorProfileModel.findOne({
                 where: { user_id: userId }
             });
 

@@ -38,4 +38,80 @@ export class ProfessionsService {
         if (!profession) throw new HttpException('Профессия не найдена', HttpStatus.NOT_FOUND);
         return profession;
     }
+
+    async seedProfessions(): Promise<{ success: boolean; message: string; created: number }> {
+        const defaultProfessions: CreateProfessionDto[] = [
+            {
+                name: 'Художник',
+                description: 'Создает произведения изобразительного искусства (живопись, графика)'
+            },
+            {
+                name: 'Скульптор',
+                description: 'Создает трехмерные произведения искусства из различных материалов'
+            },
+            {
+                name: 'Фотограф',
+                description: 'Создает художественные и документальные фотографии'
+            },
+            {
+                name: 'Графический дизайнер',
+                description: 'Разрабатывает визуальные концепции и дизайн для различных медиа'
+            },
+            {
+                name: 'Иллюстратор',
+                description: 'Создает иллюстрации для книг, журналов, рекламы и цифровых проектов'
+            },
+            {
+                name: 'Архитектор',
+                description: 'Проектирует здания и сооружения с учетом эстетики и функциональности'
+            },
+            {
+                name: 'Музыкант',
+                description: 'Исполняет и создает музыкальные произведения'
+            },
+            {
+                name: 'Танцор',
+                description: 'Выражает художественные идеи через движение и хореографию'
+            },
+            {
+                name: 'Актер',
+                description: 'Исполняет роли в театре, кино и на телевидении'
+            },
+            {
+                name: 'Режиссер',
+                description: 'Руководит творческим процессом создания фильмов, спектаклей или других проектов'
+            },
+            {
+                name: 'Кинооператор',
+                description: 'Отвечает за визуальное воплощение замысла режиссера в кино и на ТВ'
+            },
+            {
+                name: 'Художник по костюмам',
+                description: 'Создает костюмы для театральных и кинопостановок'
+            },
+        ];
+
+        let createdCount = 0;
+
+        for (const professionDto of defaultProfessions) {
+            try {
+                const existing = await this.professionRepository.findOne({
+                    where: { name: professionDto.name }
+                });
+
+                if (!existing) {
+                    await this.professionRepository.create(professionDto);
+                    createdCount++;
+                }
+            } catch (error: any) {
+                console.error(`Ошибка при создании профессии "${professionDto.name}":`, error.message);
+            }
+        }
+
+        return {
+            success: true,
+            message: `Успешно добавлено ${createdCount} профессий из ${defaultProfessions.length}`,
+            created: createdCount,
+        };
+    }
 }

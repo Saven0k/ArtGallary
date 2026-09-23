@@ -34,6 +34,6 @@ export class AuthorFollow extends Model<AuthorFollow> {
     
 
     @ApiProperty({ example: '2024-01-01T00:00:00.000Z', description: 'Дата подписки' })
-    @Column({ type: DataType.DATE, defaultValue: DataType.NOW })
+    @Column({ type: DataType.DATE, defaultValue: DataType.NOW    })
     created_at: Date;
 }

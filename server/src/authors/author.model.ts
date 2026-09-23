@@ -4,7 +4,6 @@ import { User } from "../users/users.model";
 import { Art } from "../arts/arts.model";
 import { Profession } from "src/professions/profession.model";
 import { Subscription } from "src/subscriptions/subscription.model";
-import { AuthorLike } from "./author-like.model";
 import { AuthorView } from "./author-view.model";
 import { AuthorFollow } from "./author-follow.model";
 
@@ -15,6 +14,7 @@ export interface AuthorCreationAttrs {
     profession_id: number,
     is_deleted?: boolean;
     deleted_at?: Date | null;
+    avatar_path: string;
 }
 
 @Table({ tableName: "author_profiles" })
@@ -47,6 +47,10 @@ export class AuthorProfile extends Model<AuthorProfile, AuthorCreationAttrs> {
     @BelongsTo(() => Profession)
     profession: Profession;
 
+    @ApiProperty({ example: '/server/images/avatar.jpg', description: 'Путь к аватарке на сервере' })
+    @Column({ type: DataType.STRING, allowNull: false })
+    avatar_path: string;
+
 
     @ApiProperty({ example: false, description: 'Флаг удаления автора' })
     @Column({ type: DataType.BOOLEAN, defaultValue: false })
@@ -63,8 +67,6 @@ export class AuthorProfile extends Model<AuthorProfile, AuthorCreationAttrs> {
     subscription: Subscription;
 
 
-    @HasMany(() => AuthorLike)
-    likes: AuthorLike[];
 
     @HasMany(() => AuthorView)
     views: AuthorView[];

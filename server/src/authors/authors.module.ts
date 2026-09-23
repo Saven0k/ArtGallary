@@ -15,7 +15,6 @@ import { SubscriptionModule } from 'src/subscriptions/subscriptions.module';
 import { AuthorFollowService } from './author-follow.service';
 import { AuthorFollow } from './author-follow.model';
 import { NotificationModule } from 'src/notifications/notifications.module';
-import { AuthorLike } from './author-like.model';
 import { AuthorView } from './author-view.model';
 
 @Module({
@@ -24,7 +23,6 @@ import { AuthorView } from './author-view.model';
       Art,
       User,
       AuthorProfile,
-      AuthorLike,
       AuthorView,
       Genre,
       Profession,

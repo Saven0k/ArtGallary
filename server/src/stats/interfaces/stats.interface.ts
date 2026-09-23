@@ -1,18 +1,4 @@
 // src/stats/interfaces/stats.interface.ts
-export interface StatsResponse {
-    totalLikes: number;
-    totalViews: number;
-    uniqueUsers: number;
-    likesByGender: GenderStats;
-    viewsByGender: GenderStats;
-    likesByAge: AgeStats;
-    viewsByAge: AgeStats;
-    likesByCountry: CountryStats[];
-    viewsByCountry: CountryStats[];
-    likesTimeline: TimelineData[];
-    viewsTimeline: TimelineData[];
-}
-
 export interface GenderStats {
     male: number;
     female: number;
@@ -37,17 +23,44 @@ export interface TimelineData {
     count: number;
 }
 
-export interface ArtistStatsResponse extends StatsResponse {
-    recentLikes: RecentLike[];
+export interface AuthorStatsResponse {
+    authorId: number;
+
+    totalLikes: number;
+    totalViews: number;
+
+    likesByGender: GenderStats;
+    likesByAge: AgeStats;
+    likesByCountry: CountryStats[];
+    likesTimeline: TimelineData[];
+
+    viewsByGender: GenderStats;
+    viewsByAge: AgeStats;
+    viewsByCountry: CountryStats[];
+    viewsTimeline: TimelineData[];
+
+    artViews: number;
+    authorViews: number;
+    uniqueUsers: number;
 }
 
-export interface RecentLike {
-    id: number;
-    user: {
-        id: number;
-        name: string;
-        surname: string;
-        avatar_path?: string;
-    };
-    createdAt: Date;
+export interface ArtStatsResponse {
+    artId: number;
+    authorId: number;
+    title: string;
+
+    totalLikes: number;
+    totalViews: number;
+
+    likesByGender: GenderStats;
+    likesByAge: AgeStats;
+    likesByCountry: CountryStats[];
+    likesTimeline: TimelineData[];
+
+    viewsByGender: GenderStats;
+    viewsByAge: AgeStats;
+    viewsByCountry: CountryStats[];
+    viewsTimeline: TimelineData[];
+
+    uniqueUsers: number;
 }

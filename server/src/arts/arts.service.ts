@@ -33,7 +33,7 @@ export class ArtsService {
         @InjectModel(AuthorFollow) private followModel: typeof AuthorFollow,
         @InjectModel(ArtLike) private artLikeModel: typeof ArtLike,
         @InjectModel(ArtView) private artViewModel: typeof ArtView,
-        @InjectModel(AuthorProfile) private artistProfileModel: typeof AuthorProfile,
+        @InjectModel(AuthorProfile) private authorProfileModel: typeof AuthorProfile,
         @InjectModel(User) private userRepository: typeof User,
         private fileService: FilesService,
         @InjectConnection() private sequelize: Sequelize,
@@ -92,7 +92,7 @@ export class ArtsService {
                 include: [{ model: User, attributes: ['id'] }]
             });
 
-            const author = await this.artistProfileModel.findByPk(artistId, {
+            const author = await this.authorProfileModel.findByPk(artistId, {
                 include: [{ model: User, attributes: ['name', 'surname'] }]
             });
 
@@ -363,8 +363,8 @@ export class ArtsService {
             {
                 model: AuthorProfile,
                 required: false,
-                attributes: ['user_id'],
-                include: [{ model: User, attributes: ['id', 'name', 'surname', 'avatar_path'] }],
+                attributes: ['user_id', 'avatar_path'],
+                include: [{ model: User, attributes: ['id', 'name', 'surname'] }],
             },
             { model: Genre, required: false, attributes: ['id', 'title'] },
             { model: Style, required: false, attributes: ['id', 'name'] },
@@ -446,7 +446,7 @@ export class ArtsService {
 
         await art.increment('likes', { by: 1 });
 
-        const author = await this.artistProfileModel.findByPk(art.author_id);
+        const author = await this.authorProfileModel.findByPk(art.author_id);
         if (author) {
             await this.notificationService.createNotification(
                 author.user_id,
@@ -471,7 +471,7 @@ export class ArtsService {
         const { count, rows } = await this.artLikeModel.findAndCountAll({
             where: { art_id: artId },
             include: [
-                { model: User, attributes: ['id', 'name', 'surname', 'avatar_path', 'gender', 'date_birthday'] },
+                { model: User, attributes: ['id', 'name', 'surname', 'gender', 'date_birthday'] },
                 { model: City, attributes: ['id', 'name_ru', 'name_en'] },
                 { model: Country, attributes: ['id', 'name_ru', 'name_en'] }
             ],
@@ -484,6 +484,54 @@ export class ArtsService {
             data: rows.map(row => row.toJSON()),
             total: count,
             pagination: this.buildPagination(count, page, limit)
+        };
+    }
+
+    // src/arts/arts.service.ts
+
+    async getLikedArts(
+        userId: number,
+        page: number = 1,
+        limit: number = 12,
+        lang: string = 'ru',
+    ) {
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await this.artLikeModel.findAndCountAll({
+            where: { user_id: userId },
+            include: [
+                {
+                    model: Art,
+                    required: true,
+                    include: [
+                        {
+                            model: AuthorProfile,
+                            include: [
+                                {
+                                    model: User,
+                                    attributes: ['id', 'name', 'surname'],
+                                },
+                            ],
+                        },
+                        { model: City, attributes: ['id', 'name_ru', 'name_en'] },
+                        { model: Country, attributes: ['id', 'name_ru', 'name_en', 'iso2'] },
+                        { model: Genre },
+                        { model: Style },
+                    ],
+                },
+            ],
+            order: [['created_at', 'DESC']],
+            limit,
+            offset,
+        });
+
+        const arts = rows
+            .map(row => row.art)
+            .filter((art): art is Art => Boolean(art));
+
+        return {
+            arts,
+            pagination: this.buildPagination(count, page, limit),
         };
     }
 
@@ -622,7 +670,7 @@ export class ArtsService {
     }
 
     private async calculateScore(art: Art): Promise<number> {
-        const artist = await this.artistProfileModel.findOne({
+        const author = await this.authorProfileModel.findOne({
             where: { user_id: art.author_id },
             include: [{
                 model: Subscription,
@@ -630,7 +678,7 @@ export class ArtsService {
                 order: [['expires_at', 'DESC']]
             }]
         });
-        const subscription = artist?.subscription;
+        const subscription = author?.subscription;
         let planWeight = 0;
         if (subscription) {
             const weights = {

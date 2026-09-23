@@ -41,9 +41,6 @@ export class UpdateAuthorDto {
     @IsString()
     profession_id?: number;
 
-    @ApiProperty({ example: '/awd/photo.png', description: 'Фотография автора' })
-    readonly avatar_path?: string | null;
-
     @ApiProperty({ example: 1, description: 'Количество лайков' })
     @IsNumber()
     likes?: number;

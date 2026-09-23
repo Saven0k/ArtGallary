@@ -71,7 +71,6 @@ export class ModeratorsService {
                 second_name:  dto.second_name || '',
                 gender:       dto.gender,  
                 role:         'moderator',
-                avatar_path:  avatarPath,
             }, { transaction });
 
             // Создаём запись модератора
@@ -165,7 +164,6 @@ export class ModeratorsService {
             // Обновляем аватар если передан
             if (image) {
                 const user = await this.userRepository.findByPk(moderator.user_id);
-                if (user?.avatar_path) await this.fileService.removeFile(user.avatar_path);
                 userUpdate.avatar_path = await this.fileService.createFile(image);
             }
 
@@ -246,11 +244,6 @@ export class ModeratorsService {
             if (!moderator) throw new NotFoundException('Модератор не найден');
 
             const user = await this.userRepository.findByPk(moderator.user_id);
-
-            // Удаляем аватар если есть
-            if (user?.avatar_path) {
-                try { await this.fileService.removeFile(user.avatar_path); } catch {}
-            }
 
             await this.moderatorRepository.destroy({ where: { id }, transaction });
             await this.userRepository.destroy({ where: { id: moderator.user_id }, transaction });

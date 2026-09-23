@@ -37,7 +37,6 @@ import { StatsModule } from './stats/stats.module';
 import { ArtLike } from "./arts/art-like.model";
 import { SubscriptionHistory } from "./subscriptions/subscription-history.model";
 import { AuthorProfile } from "./authors/author.model";
-import { AuthorLike } from "./authors/author-like.model";
 import { AuthorView } from "./authors/author-view.model";
 import { AuthorsModule } from "./authors/authors.module";
 import { AuthorFollow } from "./authors/author-follow.model";
@@ -45,6 +44,14 @@ import { NotificationModule } from './notifications/notifications.module';
 import { Notification } from "./notifications/notification.model";
 import { EventsModule } from './events/events.module';
 import { Event } from "./events/event.model";
+import { CartModule } from './cart/cart.module';
+import { Cart } from "./cart/cart.model";
+import { CartHistoryModule } from './cart-history/cart-history.module';
+import { CartHistory } from "./cart-history/cart-history.model";
+import { SiteModule } from './site/site.module';
+import { SiteVisit } from "./site/models/site-visit.model";
+import { SiteRating } from "./site/models/site-rating.model";
+import { MailModule } from './mail/mail.module';
 
 @Module({
     imports: [
@@ -91,7 +98,7 @@ import { Event } from "./events/event.model";
             username: process.env.POSTGRES_USER,
             password: process.env.POSTGRES_PASSWORD,
             database: process.env.POSTGRES_DB,
-            models: [User, Art, Genre,  AuthorProfile, RefreshToken, ArtView, Moderator, ArtType, Profession, Style, Tag,ArtTag, Country,City, Event, Subscription, ArtLike, AuthorLike, AuthorView, SubscriptionHistory, Notification, AuthorFollow],
+            models: [User, Art, Genre,  AuthorProfile, RefreshToken, Cart, CartHistory, ArtView, Moderator, ArtType, Profession, Style, SiteVisit, SiteRating, Tag,ArtTag, Country,City, Event, Subscription, ArtLike, AuthorView, SubscriptionHistory, Notification, AuthorFollow],
             logging: process.env.NODE_ENV === 'development' ? console.log : false,
             sync: { alter: true },
             autoLoadModels: true,
@@ -113,6 +120,10 @@ import { Event } from "./events/event.model";
         StatsModule,
         NotificationModule,
         EventsModule,
+        CartModule,
+        CartHistoryModule,
+        SiteModule,
+        MailModule,
     ],
 })
 export class AppModule {}

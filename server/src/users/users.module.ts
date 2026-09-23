@@ -12,12 +12,13 @@ import { City } from 'src/location/models/city.model';
 import { Country } from 'src/location/models/country.model';
 import { AuthorProfile } from 'src/authors/author.model';
 import { AuthorsModule } from 'src/authors/authors.module';
+import { AuthorFollow } from 'src/authors/author-follow.model';
 
 @Module({
   controllers: [UsersController],
   providers: [UsersService],
   imports: [
-    SequelizeModule.forFeature([User, Art, AuthorProfile, Profession, City, Country]),
+    SequelizeModule.forFeature([User, Art, AuthorProfile, Profession, City, Country, AuthorFollow]),
     PasswordModule, FilesModule,LocationModule, AuthorsModule
   ],
   exports: [UsersService, SequelizeModule]

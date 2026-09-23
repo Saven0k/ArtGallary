@@ -12,9 +12,9 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 @ApiTags('professions')
 @ApiBearerAuth()
 @Controller('professions')
-@UseGuards(JwtAccessGuard, RolesGuard)
+@UseGuards(RolesGuard)
 export class ProfessionsController {
-    constructor(private professionsService: ProfessionsService) {}
+    constructor(private professionsService: ProfessionsService) { }
 
     @ApiOperation({ summary: 'Создание новой профессии' })
     @ApiResponse({ status: 201, type: Profession })
@@ -47,7 +47,6 @@ export class ProfessionsController {
     @ApiOperation({ summary: 'Получение всех профессий' })
     @ApiResponse({ status: 200, type: [Profession] })
     @Get()
-    @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
     getAll(): Promise<Profession[]> {
         return this.professionsService.getAll();
     }
@@ -55,8 +54,15 @@ export class ProfessionsController {
     @ApiOperation({ summary: 'Получение профессии по ID' })
     @ApiResponse({ status: 200, type: Profession })
     @Get(':id')
-    @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
     getById(@Param('id') id: number): Promise<Profession> {
         return this.professionsService.getById(id);
+    }
+
+    @Post('seed')
+    @ApiOperation({ summary: 'Заполнить базу данных начальными профессиями' })
+    @ApiResponse({ status: 200, description: 'Профессии успешно добавлены' })
+    @ApiResponse({ status: 409, description: 'Конфликт при добавлении' })
+    async seedProfessions() {
+        return this.professionsService.seedProfessions();
     }
 }

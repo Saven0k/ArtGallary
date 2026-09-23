@@ -1,8 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from "sequelize-typescript";
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Model, Table } from "sequelize-typescript";
 import { Country } from "src/location/models/country.model";
 import { City } from "src/location/models/city.model";
 import { AuthorProfile } from "src/authors/author.model";
+import { AuthorFollow } from "src/authors/author-follow.model";
 
 export type Gender = "M" | "F";
 
@@ -12,7 +13,6 @@ export interface UserCreationAttrs {
     surname: string,
     name: string,
     second_name: string,
-    avatar_path?: string;
     date_birthday: Date;
     role: "user" | "author" | "moderator" | "admin",
     gender: Gender,
@@ -48,12 +48,8 @@ export class User extends Model<User, UserCreationAttrs> {
     @Column({ type: DataType.DATE, allowNull: false })
     date_birthday: Date;
 
-    @ApiProperty({ example: 'server/images/1.jpg', description: 'Путь к аватарке на сервере' })
-    @Column({ type: DataType.STRING, allowNull: true })
-    avatar_path?: string;
-
     @ApiProperty({ example: 'Админ', description: 'Роль пользователя' })
-    @Column({ type: DataType.ENUM('admin', 'visitor', 'moderator', 'artist', 'user'), allowNull: false })
+    @Column({ type: DataType.ENUM('admin', 'visitor', 'moderator', 'author', 'user'), allowNull: false })
     role: string;
 
     @ApiProperty({ example: 'F', description: 'Женский пол' })
@@ -72,18 +68,21 @@ export class User extends Model<User, UserCreationAttrs> {
     @ForeignKey(() => Country)
     @Column({ type: DataType.INTEGER, allowNull: true })
     country_id: number | null;
- 
+
     @BelongsTo(() => Country)
     country: Country;
- 
+
     @ApiProperty({ example: 42, description: 'ID города из таблицы cities' })
     @ForeignKey(() => City)
     @Column({ type: DataType.INTEGER, allowNull: true })
     city_id: number | null;
- 
+
     @BelongsTo(() => City)
     city: City;
 
-    @HasOne(() => AuthorProfile, { foreignKey: 'user_id', as: 'artistProfile' })
+    @HasOne(() => AuthorProfile, { foreignKey: 'user_id', as: 'authorProfile' })
     authorProfile: AuthorProfile;
+
+    @HasMany(() => AuthorFollow, { foreignKey: 'user_id' })
+    following: AuthorFollow[];
 }

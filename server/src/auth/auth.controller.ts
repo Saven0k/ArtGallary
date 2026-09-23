@@ -9,7 +9,8 @@ import { JwtRefreshPayload } from './strategies/jwt-refresh.strategy';
 import { JwtAccessGuard, JwtRefreshGuard } from './guards/jwt.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Role } from './enums/role.enum';
-import { Request } from 'express';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { Roles } from './decorators/roles.decorator';
 
 @ApiTags("Авторизация")
 @Controller('auth')
@@ -18,7 +19,7 @@ export class AuthController {
     constructor(private authService: AuthService) { }
 
     @Post("/login")
-    @UsePipes(ValidationPipe)
+    // @UsePipes(ValidationPipe)
     login(@Body() userDto: AuthUserDto, @Req() req: any, @Res({ passthrough: true }) res: Response) {
         return this.authService.login(userDto, req, res)
     }
@@ -52,7 +53,24 @@ export class AuthController {
 
     @Get('me')
     @UseGuards(JwtAccessGuard, RolesGuard)
+    @Roles(Role.Admin, Role.User, Role.Author, Role.Moderator)
     getMe(@CurrentUser() user: { id: number; email: string, role: Role }) {
+        console.log("-----------------------------------------------------------------------------", user)
         return user;
+    }
+
+    @Post('change-password')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAccessGuard, RolesGuard)
+    @ApiResponse({ status: 200, description: 'Пароль успешно изменён' })
+    @ApiResponse({ status: 401, description: 'Неверный текущий пароль' })
+    @ApiResponse({ status: 409, description: 'Новый пароль совпадает с текущим' })
+    changePassword(
+        @CurrentUser('id') userId: number,
+        @Body() dto: ChangePasswordDto,
+        @Res({ passthrough: true }) res: Response,
+        @Req() req: any,
+    ) {
+        return this.authService.changePassword(userId, dto, res, req);
     }
 }

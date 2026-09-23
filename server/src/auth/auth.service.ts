@@ -14,22 +14,22 @@ import { JwtRefreshPayload } from './strategies/jwt-refresh.strategy';
 import { RefreshToken } from './models/refresh-token.model';
 import { v4 as uuidv4 } from 'uuid';
 import { InjectModel } from '@nestjs/sequelize';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 const COOKIE_BASE = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: 'strict' as const,
+    sameSite: 'lax' as const,
     path: '/'
 }
 
-const ACCESS_TOKEN_TTL_MS = 15 * 60 * 1000
+const ACCESS_TOKEN_TTL_MS = 24 * 60 * 60 * 1000
 const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000
 
 @Injectable()
 export class AuthService {
 
     constructor(
-        private userService: UsersService,
         private jwtService: JwtService,
         private config: ConfigService,
         @InjectModel(User) private userRepository: typeof User,
@@ -40,34 +40,44 @@ export class AuthService {
 
     async register(dto: RegisterDto, res: Response | any) {
         this.logger.log('info', JSON.stringify({
-            "message": "Начало Регистрации пользователя"
-        }))
+            message: "Начало регистрации пользователя"
+        }));
 
-        const exists = await this.userRepository.findOne({ where: { email: dto.email } });
+        const exists = await this.userRepository.findOne({
+            where: { email: dto.email }
+        });
+
         if (exists) {
             this.logger.error('error', JSON.stringify({
-                message: "Пользователь с такой почтой уже существует",
-            }))
+                message: "Пользователь с такой почтой уже существует",
+            }));
             throw new ConflictException("Пользователь с такой почтой уже существует");
         }
+
         const passwordHash = await this.passwordService.hashPassword(dto.password);
 
         try {
-            const newUser: any = {};
-            if (dto.email) newUser.email = dto.email;
-            if (dto.password) newUser.password = passwordHash;
-            if (dto.name) newUser.name = dto.name;
-            if (dto.surname) newUser.surname = dto.surname;
-            if (dto.second_name) newUser.second_name = dto.second_name;
-            newUser.role = "user";
+            const user = await this.userRepository.create({
+                email: dto.email,
+                password: passwordHash,
+                name: dto.name,
+                surname: dto.surname,
+                second_name: dto.second_name || '',
+                date_birthday: dto.date_birthday,
+                gender: dto.gender,
+                role: 'user'
+            });
 
-            const user = await this.userRepository.create(newUser);
             this.logger.log('success', JSON.stringify({
-                message: " Пользователь успешно создан"
-            }))
+                message: "Пользователь успешно создан"
+            }));
+
             return this.issueTokensAndSetCookies(user, res);
-        }
-        catch {
+        } catch (error: any) {
+            this.logger.error('error', JSON.stringify({
+                message: "Ошибка при создании пользователя",
+                error: error.message
+            }));
             throw new InternalServerErrorException('Ошибка при создании пользователя');
         }
     }
@@ -121,14 +131,10 @@ export class AuthService {
             const tokenMatch = await bcrypt.compare(payload.rawToken, tokenRecord.tokenHash);
 
             if (!tokenMatch) {
-                this.logger.error("error", JSON.stringify({
-                    "message": "Refresh token mismatch"
-                }))
-                await this.tokenRepository.destroy({ where: { userId: payload.sub } });
+                await tokenRecord.destroy();
                 this.clearCookies(res);
-                throw new UnauthorizedException("Refresh token mismatch");
+                throw new UnauthorizedException('Сессия недействительна, войдите заново');
             }
-
             await this.tokenRepository.destroy({
                 where: { id: tokenRecord.id }
             });
@@ -142,7 +148,7 @@ export class AuthService {
             }
 
             return this.issueTokensAndSetCookies(user, res, req);
-        } catch (e:any) {
+        } catch (e: any) {
             this.logger.error("error", JSON.stringify({
                 message: "Error refreshing token",
                 error: e.message,
@@ -199,7 +205,7 @@ export class AuthService {
         res.cookie('refreshToken', refreshToken, {
             ...COOKIE_BASE,
             maxAge: REFRESH_TOKEN_TTL_MS,
-            path: "/auth/refresh",
+            path: "/",
             httpOnly: true
         })
 
@@ -214,7 +220,7 @@ export class AuthService {
             { sub: userId, email, role },
             {
                 secret: this.config.getOrThrow<string>('JWT_ACCESS_SECRET'),
-                expiresIn: '15m',
+                expiresIn: '24h',
             } as any
         )
     }
@@ -231,6 +237,59 @@ export class AuthService {
 
     private clearCookies(res: Response) {
         res.clearCookie('accessToken', { ...COOKIE_BASE });
-        res.clearCookie('refreshToken', { ...COOKIE_BASE, path: '/auth/refresh' });
+        res.clearCookie('refreshToken', { ...COOKIE_BASE, path: '/' });
+    }
+
+    // Добавить в конец класса AuthService
+
+    async changePassword(
+        userId: number,
+        dto: ChangePasswordDto,
+        res: Response | any,
+        req: Request,
+    ) {
+        this.logger.log('info', JSON.stringify({
+            message: 'Запрос на смену пароля',
+            userId,
+        }));
+
+        const user = await this.userRepository.findByPk(userId);
+        if (!user) {
+            throw new UnauthorizedException('Пользователь не найден');
+        }
+
+        const match = await this.passwordService.comparePassword(
+            dto.currentPassword,
+            user.password,
+        );
+        if (!match) {
+            this.logger.error('error', JSON.stringify({
+                message: 'Неверный текущий пароль',
+                userId,
+            }));
+            throw new UnauthorizedException('Неверный текущий пароль');
+        }
+        const isSame = await this.passwordService.comparePassword(
+            dto.newPassword,
+            user.password,
+        );
+        if (isSame) {
+            throw new ConflictException('Новый пароль совпадает с текущим');
+        }
+
+        const newHash = await this.passwordService.hashPassword(dto.newPassword);
+        user.password = newHash;
+        await user.save();
+
+        await this.tokenRepository.destroy({ where: { userId } });
+
+        this.logger.log('success', JSON.stringify({
+            message: 'Пароль успешно изменён, все сессии сброшены',
+            userId,
+        }));
+
+        await this.issueTokensAndSetCookies(user, res, req);
+
+        return { message: 'Пароль успешно изменён' };
     }
 }

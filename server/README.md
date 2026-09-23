@@ -20,7 +20,7 @@ server/
 │   ├── app.module.ts              # Корневой модуль
 │   ├── auth/                      # Аутентификация и авторизация
 │   ├── users/                     # Пользователи
-│   ├── artists/                   # Артисты и подписки
+│   ├── authors/                   # Артисты и подписки
 │   ├── arts/                      # Произведения искусства
 │   ├── genres/                    # Жанры
 │   ├── styles/                    # Стили
@@ -72,7 +72,7 @@ server/
 | ----------- | ---------------------------- | ----------------------------------- |
 | Auth        | Аутентификация и авторизация | [README](src/auth/README.md)        |
 | Users       | Пользователи                 | [README](src/users/README.md)       |
-| Artists     | Артисты и подписки           | [README](src/artists/README.md)     |
+| Artists     | Артисты и подписки           | [README](src/authors/README.md)     |
 | Arts        | Произведения искусства       | [README](src/arts/README.md)        |
 | Genres      | Жанры                        | [README](src/genres/README.md)      |
 | Styles      | Стили                        | [README](src/styles/README.md)      |

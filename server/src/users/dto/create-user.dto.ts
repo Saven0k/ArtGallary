@@ -1,7 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDateString, IsEmail, IsPhoneNumber, IsString, Length } from "class-validator";
-import { Gender } from "../users.model";
+import { IsDateString, IsEmail, IsEnum, IsPhoneNumber, IsString, Length } from "class-validator";
 import { Type } from "class-transformer";
+
+export enum Gender {
+    MALE = 'M',
+    FEMALE = 'F'
+}
+
 
 export class CreateUserDto {
 
@@ -30,12 +35,9 @@ export class CreateUserDto {
     @IsDateString()
     readonly date_birthday: Date;
 
-
-    @ApiProperty({ example: 'F', description: 'Женский пол' })
+    @ApiProperty({ enum: Gender, example: Gender.MALE, description: 'Пол' })
+    @IsEnum(Gender, { message: "Пол должен быть M или F" })
     readonly gender: Gender;
-
-    @ApiProperty({ example: '/awd/photo.png', description: 'Фотография пользователя' })
-    readonly avatar_path: string;
 
     @ApiProperty({ example: 1, description: 'ID страны из таблицы countries', required: false })
     @Type(() => Number)

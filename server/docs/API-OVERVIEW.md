@@ -53,21 +53,21 @@ POST /auth/login
 
 | Метод | Путь | Описание | Требуется токен |
 |-------|------|----------|-----------------|
-| GET | `/artists` | Список артистов | ✅ |
-| GET | `/artists/:id` | Артист по ID | ✅ |
-| GET | `/artists/:id/arts` | Арты артиста | ✅ |
-| POST | `/artists` | Создать артиста | ✅ |
-| PATCH | `/artists/:id` | Обновить | ✅ |
-| DELETE | `/artists/:id` | Удалить | ✅ |
-| POST | `/artists/:id/restore` | Восстановить | ✅ |
-| GET | `/artists/unmoderated` | Немодерированные | ✅ |
-| GET | `/artists/moderated` | Модерированные | ✅ |
-| POST | `/artists/:id/moderate` | Модерация | ✅ |
-| GET | `/artists/top` | Топ артистов | ✅ |
-| GET | `/artists/subscription/info` | Инфо о подписке | ✅ |
-| POST | `/artists/subscription/purchase` | Купить подписку | ✅ |
-| DELETE | `/artists/subscription/cancel` | Отменить подписку | ✅ |
-| GET | `/artists/subscription/plans` | Планы | ✅ |
+| GET | `/authors` | Список артистов | ✅ |
+| GET | `/authors/:id` | Артист по ID | ✅ |
+| GET | `/authors/:id/arts` | Арты артиста | ✅ |
+| POST | `/authors` | Создать артиста | ✅ |
+| PATCH | `/authors/:id` | Обновить | ✅ |
+| DELETE | `/authors/:id` | Удалить | ✅ |
+| POST | `/authors/:id/restore` | Восстановить | ✅ |
+| GET | `/authors/unmoderated` | Немодерированные | ✅ |
+| GET | `/authors/moderated` | Модерированные | ✅ |
+| POST | `/authors/:id/moderate` | Модерация | ✅ |
+| GET | `/authors/top` | Топ артистов | ✅ |
+| GET | `/authors/subscription/info` | Инфо о подписке | ✅ |
+| POST | `/authors/subscription/purchase` | Купить подписку | ✅ |
+| DELETE | `/authors/subscription/cancel` | Отменить подписку | ✅ |
+| GET | `/authors/subscription/plans` | Планы | ✅ |
 
 ### Arts
 

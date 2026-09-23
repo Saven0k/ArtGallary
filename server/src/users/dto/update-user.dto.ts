@@ -34,10 +34,6 @@ export class UpdateuserDto {
     @IsOptional()
     readonly gender?: string;
 
-    @ApiProperty({ example: '/awd/photo.png', description: 'Фотография пользователя' })
-    @IsOptional()
-    readonly avatar_path?: string | null;
-
     @ApiProperty({ example: '1990-01-01', description: 'Дата рождения' })
     @IsDateString()
     @IsOptional()

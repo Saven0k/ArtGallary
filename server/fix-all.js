@@ -74,9 +74,9 @@ const fs = require('fs');
     console.log('✓ auth.service.ts fixed');
 }
 
-// === 4. artists.service.ts — typo + bcrypt cost ===
+// === 4. authors.service.ts — typo + bcrypt cost ===
 {
-    let c = fs.readFileSync('src/artists/artists.service.ts', 'utf8');
+    let c = fs.readFileSync('src/authors/authors.service.ts', 'utf8');
 
     // Исправляем опечатку fileSerivce -> fileService
     c = c.replace(/fileSerivce/g, 'fileService');
@@ -87,8 +87,8 @@ const fs = require('fs');
         'await this.passwordService.hashPassword(dto.password)'
     );
 
-    fs.writeFileSync('src/artists/artists.service.ts', c);
-    console.log('✓ artists.service.ts fixed');
+    fs.writeFileSync('src/authors/authors.service.ts', c);
+    console.log('✓ authors.service.ts fixed');
 }
 
 // === 5. users.service.ts — дефолтный пароль admin ===

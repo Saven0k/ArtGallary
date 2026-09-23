@@ -18,9 +18,8 @@ import { AuthorProfile } from 'src/authors/author.model';
 export class UsersService {
     constructor(
         @InjectModel(User) private userRepository: typeof User,
-        @InjectModel(AuthorProfile) private artistProfileModel: typeof AuthorProfile,
+        @InjectModel(AuthorProfile) private authorProfileModel: typeof AuthorProfile,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-        private fileService: FilesService,
         private passwordService: PasswordService,
         private locationService: LocationService,
     ) { }
@@ -43,8 +42,6 @@ export class UsersService {
             if (!city) throw new HttpException('Город не найден', HttpStatus.BAD_REQUEST);
         }
 
-        const filename = image ? await this.fileService.createFile(image) : '';
-
         const user = await this.userRepository.create({
             email: dto.email,
             password: await this.passwordService.hashPassword(dto.password),
@@ -52,9 +49,8 @@ export class UsersService {
             surname: dto.surname,
             second_name: dto.second_name || '',
             gender: dto.gender as 'M' | 'F',
-            avatar_path: filename,
             role: 'user',
-            date_birthday: dto.date_birthday, // 👈 ДОБАВЛЯЕМ
+            date_birthday: dto.date_birthday,
             city_id: dto.city_id ?? null,
             country_id: dto.country_id ?? null,
         });
@@ -80,12 +76,6 @@ export class UsersService {
             if (!city) throw new HttpException('Город не найден', HttpStatus.BAD_REQUEST);
         }
 
-        let filename = user.avatar_path;
-        if (image) {
-            if (user.avatar_path) await this.fileService.removeFile(user.avatar_path);
-            filename = await this.fileService.createFile(image);
-        }
-
         const updateData: any = {};
         if (dto.email !== undefined) updateData.email = dto.email;
         if (dto.password) updateData.password = await this.passwordService.hashPassword(dto.password);
@@ -96,7 +86,6 @@ export class UsersService {
         if (dto.date_birthday) updateData.date_birthday = dto.date_birthday; 
         if (dto.city_id !== undefined) updateData.city_id = dto.city_id ?? null;
         if (dto.country_id !== undefined) updateData.country_id = dto.country_id ?? null;
-        if (filename) updateData.avatar_path = filename;
 
         await this.userRepository.update(updateData, { where: { id } });
         return this.getUserById(id);
@@ -148,9 +137,9 @@ export class UsersService {
         if (!user) return false;
         if (user.is_deleted) throw new HttpException('Пользователь уже удален', 400);
 
-        const artistProfile = await this.artistProfileModel.findOne({ where: { user_id: id } });
+        const authorProfile = await this.authorProfileModel.findOne({ where: { user_id: id } });
         await user.update({ is_deleted: true, deleted_at: new Date() });
-        if (artistProfile) await artistProfile.update({ is_deleted: true, deleted_at: new Date() });
+        if (authorProfile) await authorProfile.update({ is_deleted: true, deleted_at: new Date() });
         return true;
     }
 
@@ -169,17 +158,16 @@ export class UsersService {
         }
 
         await user.update({ is_deleted: false, deleted_at: null });
-        const artistProfile = await this.artistProfileModel.findOne({ where: { user_id: id } });
-        if (artistProfile) await artistProfile.update({ is_deleted: false, deleted_at: null });
+        const authorProfile = await this.authorProfileModel.findOne({ where: { user_id: id } });
+        if (authorProfile) await authorProfile.update({ is_deleted: false, deleted_at: null });
         return user;
     }
 
     async permanentDeleteUser(id: number): Promise<boolean> {
         const user = await this.userRepository.findByPk(id);
         if (!user) return false;
-        if (user.avatar_path) await this.fileService.removeFile(user.avatar_path);
-        const artistProfile = await this.artistProfileModel.findOne({ where: { user_id: id } });
-        if (artistProfile) await artistProfile.destroy({ force: true });
+        const authorProfile = await this.authorProfileModel.findOne({ where: { user_id: id } });
+        if (authorProfile) await authorProfile.destroy({ force: true });
         await user.destroy({ force: true });
         return true;
     }
@@ -215,7 +203,6 @@ export class UsersService {
                     second_name: process.env.ADMIN_SECOND_NAME || 'Системович',
                     role: 'admin',
                     gender: 'M',
-                    avatar_path: '',
                     date_birthday: new Date('1990-01-01'), // 👈 ДОБАВЛЯЕМ
                 });
                 this.logger.log('info', `✅ Администратор создан: ${admin.email}`);

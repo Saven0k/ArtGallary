@@ -103,12 +103,12 @@ export class AuthorFollowService {
                 id: follow.user.id,
                 name: follow.user.name,
                 surname: follow.user.surname,
-                avatar_path: follow.user.avatar_path,
                 followed_at: follow.created_at,
             })),
             pagination: this.buildPagination(count, page, limit),
         };
     }
+    // src/authors/author-follow.service.ts
 
     async getUserFollowing(userId: number, page: number = 1, limit: number = 20) {
         this.log('getUserFollowing', { userId, page, limit });
@@ -127,7 +127,7 @@ export class AuthorFollowService {
                     include: [
                         {
                             model: User,
-                            attributes: ['id', 'name', 'surname', 'avatar_path'],
+                            attributes: ['id', 'name', 'surname'],
                         },
                     ],
                 },
@@ -138,14 +138,20 @@ export class AuthorFollowService {
         });
 
         const data = await Promise.all(
-            rows.map(async (follow) => ({
-                author_id: follow.author_id,
-                author_name: follow.author.user.name,
-                author_surname: follow.author.user.surname,
-                author_avatar: follow.author.user.avatar_path,
-                followers_count: await this.getFollowersCount(follow.author_id),
-                followed_at: follow.created_at,
-            }))
+            rows.map(async (follow) => {
+                const author = follow.author;
+                const authorUser = author.user;
+
+                return {
+                    author_id: follow.author_id,
+                    author_name: authorUser?.name ?? '',
+                    author_surname: authorUser?.surname ?? '',
+                    avatar_path: author.avatar_path ?? null,
+                    description: (author as any)?.description ?? 'Молодой художник',
+                    followers_count: await this.getFollowersCount(follow.author_id),
+                    followed_at: follow.created_at,
+                };
+            })
         );
 
         return {

@@ -18,7 +18,7 @@ export interface ArtCreationAttrs {
     likes?: number;
     views?: number;
     date_published: Date;
-    artist_id?: number;
+    author_id?: number;
     moderate: string;
     genre_id?: number;
     specifications: string;
@@ -80,7 +80,7 @@ export class Art extends Model<Art, ArtCreationAttrs> {
     author_id: number;
 
     @BelongsTo(() => AuthorProfile)
-    artist: AuthorProfile;
+    author: AuthorProfile;
 
     @ApiProperty({ example: false, description: 'Контент 18+' })
     @Column({ type: DataType.BOOLEAN, defaultValue: false })

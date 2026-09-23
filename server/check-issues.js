@@ -3,7 +3,7 @@ const files = [
     'src/main.ts',
     'src/app.module.ts',
     'src/auth/auth.service.ts',
-    'src/artists/artists.service.ts',
+    'src/authors/authors.service.ts',
     'src/users/users.service.ts',
     'src/files/files.service.ts'
 ];
