@@ -58,4 +58,13 @@ export class MailService {
             'Ваш код для подтверждения нового email',
         );
     }
+
+    async sendAccountDeletionCode(to: string, code: string): Promise<void> {
+        await this.sendCode(
+            to,
+            code,
+            'Подтверждение удаления аккаунта',
+            'Ваш код для подтверждения удаления аккаунта',
+        );
+    }
 }

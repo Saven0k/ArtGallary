@@ -681,7 +681,10 @@ export class AuthorsService {
             where: { user_id: userId },
             include: [
                 {
-                    model: Subscription
+                    model: Subscription,
+                },
+                {
+                    model: Profession,
                 }
             ],
             transaction,

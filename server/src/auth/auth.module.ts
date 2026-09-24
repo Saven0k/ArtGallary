@@ -15,12 +15,13 @@ import { PasswordModule } from '../password/password.module';
 import { PasswordResetCode } from './models/password-reset-code.model';
 import { MailModule } from 'src/mail/mail.module';
 import { EmailChangeCode } from './models/email-change-code.model';
+import { AccountDeletionCode } from './models/account-deletion-code.model';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, JwtService, JwtRefreshStrategy, JwtAccessStrategy, RolesGuard],
   imports: [UsersModule, ConfigModule,
-    SequelizeModule.forFeature([User, RefreshToken, PasswordResetCode, EmailChangeCode]),
+    SequelizeModule.forFeature([User, RefreshToken, PasswordResetCode, EmailChangeCode,AccountDeletionCode]),
     PassportModule,
     PasswordModule,
     JwtModule.register({}),

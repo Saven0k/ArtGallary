@@ -20,6 +20,7 @@ import {
     ConfirmEmailChangeDto,
     VerifyPasswordDto,
 } from './dto/email-change.dto';
+import { ConfirmDeleteAccountDto } from './dto/delete-account.dto';
 
 @ApiTags("Авторизация")
 @Controller('auth')
@@ -140,5 +141,22 @@ export class AuthController {
         @Body() dto: VerifyPasswordDto,
     ) {
         return this.authService.verifyPassword(userId, dto);
+    }
+
+    @Post('account/delete/request-code')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAccessGuard, RolesGuard)
+    requestAccountDeletionCode(@CurrentUser('id') userId: number) {
+        return this.authService.requestAccountDeletionCode(userId);
+    }
+
+    @Post('account/delete/verify-code')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAccessGuard, RolesGuard)
+    verifyAccountDeletionCode(
+        @CurrentUser('id') userId: number,
+        @Body() dto: ConfirmDeleteAccountDto,
+    ) {
+        return this.authService.verifyAccountDeletionCode(userId, dto);
     }
 }

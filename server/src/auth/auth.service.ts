@@ -25,6 +25,8 @@ import { Op } from 'sequelize';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { EmailChangeCode } from './models/email-change-code.model';
 import { ConfirmEmailChangeDto, RequestEmailChangeCodeDto, VerifyCurrentEmailDto, VerifyPasswordDto } from './dto/email-change.dto';
+import { ConfirmDeleteAccountDto } from './dto/delete-account.dto';
+import { AccountDeletionCode } from './models/account-deletion-code.model';
 
 const COOKIE_BASE = {
     httpOnly: true,
@@ -43,6 +45,9 @@ const RESET_MAX_ATTEMPTS = 5;
 const EMAIL_CODE_TTL_MS = 15 * 60 * 1000;
 const EMAIL_MAX_ATTEMPTS = 5;
 
+const DELETE_CODE_TTL_MS = 15 * 60 * 1000;
+const DELETE_MAX_ATTEMPTS = 5;
+
 @Injectable()
 export class AuthService {
 
@@ -56,6 +61,7 @@ export class AuthService {
         @InjectModel(PasswordResetCode) private resetCodeRepo: typeof PasswordResetCode,
         private mailService: MailService,
         @InjectModel(EmailChangeCode) private emailChangeRepo: typeof EmailChangeCode,
+        @InjectModel(AccountDeletionCode) private deleteCodeRepo: typeof AccountDeletionCode,
     ) { }
 
     async register(dto: RegisterDto, res: Response | any) {
@@ -552,5 +558,70 @@ export class AuthService {
             }));
         }
     }
+    /** Шаг 1: запросить код на почту текущего пользователя */
+    async requestAccountDeletionCode(userId: number) {
+        const user = await this.userRepository.findByPk(userId);
+        if (!user) throw new UnauthorizedException('Пользователь не найден');
 
+        // сносим старые коды
+        await this.deleteCodeRepo.destroy({ where: { user_id: user.id } });
+
+        const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
+        const codeHash = await bcrypt.hash(code, 10);
+
+        await this.deleteCodeRepo.create({
+            user_id: user.id,
+            code_hash: codeHash,
+            expires_at: new Date(Date.now() + DELETE_CODE_TTL_MS),
+        });
+
+        await this.mailService.sendAccountDeletionCode(user.email, code);
+
+        this.logger.log('info', JSON.stringify({
+            message: 'Account deletion code sent',
+            userId: user.id,
+        }));
+
+        return { message: 'Код отправлен на почту' };
+    }
+
+    /** Шаг 2: проверить код. Если ок — вернуть ok, но НЕ удалять аккаунт. */
+    async verifyAccountDeletionCode(userId: number, dto: ConfirmDeleteAccountDto) {
+        const user = await this.userRepository.findByPk(userId);
+        if (!user) throw new UnauthorizedException('Пользователь не найден');
+
+        const record = await this.deleteCodeRepo.findOne({
+            where: { user_id: user.id },
+            order: [['id', 'DESC']],
+        });
+
+        if (!record) throw new UnauthorizedException('Код не найден, запросите новый');
+        if (record.expires_at < new Date()) {
+            await record.destroy();
+            throw new UnauthorizedException('Код истёк');
+        }
+        if (record.attempts >= DELETE_MAX_ATTEMPTS) {
+            await record.destroy();
+            throw new UnauthorizedException('Слишком много попыток');
+        }
+
+        const match = await bcrypt.compare(dto.code, record.code_hash);
+        if (!match) {
+            record.attempts += 1;
+            await record.save();
+            throw new UnauthorizedException('Неверный код');
+        }
+
+        // Код верный — удаляем его, чтобы нельзя было использовать повторно
+        await record.destroy();
+
+        return { ok: true };
+    }
+
+    @Cron(CronExpression.EVERY_30_MINUTES)
+    async cleanupExpiredDeleteCodes() {
+        await this.deleteCodeRepo.destroy({
+            where: { expires_at: { [Op.lt]: new Date() } },
+        });
+    }
 }
