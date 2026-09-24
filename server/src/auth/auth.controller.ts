@@ -11,6 +11,15 @@ import { RolesGuard } from './guards/roles.guard';
 import { Role } from './enums/role.enum';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { Roles } from './decorators/roles.decorator';
+import { RequestCodeDto, VerifyCodeDto } from './dto/request-code.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+
+import {
+    VerifyCurrentEmailDto,
+    RequestEmailChangeCodeDto,
+    ConfirmEmailChangeDto,
+    VerifyPasswordDto,
+} from './dto/email-change.dto';
 
 @ApiTags("Авторизация")
 @Controller('auth')
@@ -72,5 +81,64 @@ export class AuthController {
         @Req() req: any,
     ) {
         return this.authService.changePassword(userId, dto, res, req);
+    }
+
+
+    @Post('password-reset/request-code')
+    @HttpCode(HttpStatus.OK)
+    requestResetCode(@Body() dto: RequestCodeDto) {
+        return this.authService.requestResetCode(dto);
+    }
+
+    @Post('password-reset/verify-code')
+    @HttpCode(HttpStatus.OK)
+    verifyResetCode(@Body() dto: VerifyCodeDto) {
+        return this.authService.verifyResetCode(dto);
+    }
+
+    @Post('password-reset/reset-password')
+    @HttpCode(HttpStatus.OK)
+    resetPassword(@Body() dto: ResetPasswordDto) {
+        return this.authService.resetPassword(dto);
+    }
+
+    @Post('email-change/verify-current')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAccessGuard, RolesGuard)
+    verifyCurrentEmail(
+        @CurrentUser('id') userId: number,
+        @Body() dto: VerifyCurrentEmailDto,
+    ) {
+        return this.authService.verifyCurrentEmail(userId, dto);
+    }
+
+    @Post('email-change/request-code')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAccessGuard, RolesGuard)
+    requestEmailChangeCode(
+        @CurrentUser('id') userId: number,
+        @Body() dto: RequestEmailChangeCodeDto,
+    ) {
+        return this.authService.requestEmailChangeCode(userId, dto);
+    }
+
+    @Post('email-change/confirm')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAccessGuard, RolesGuard)
+    confirmEmailChange(
+        @CurrentUser('id') userId: number,
+        @Body() dto: ConfirmEmailChangeDto,
+    ) {
+        return this.authService.confirmEmailChange(userId, dto);
+    }
+
+    @Post('verify-password')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAccessGuard, RolesGuard)
+    verifyPassword(
+        @CurrentUser('id') userId: number,
+        @Body() dto: VerifyPasswordDto,
+    ) {
+        return this.authService.verifyPassword(userId, dto);
     }
 }

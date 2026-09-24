@@ -52,6 +52,7 @@ import { SiteModule } from './site/site.module';
 import { SiteVisit } from "./site/models/site-visit.model";
 import { SiteRating } from "./site/models/site-rating.model";
 import { MailModule } from './mail/mail.module';
+import { PasswordResetCode } from "./auth/models/password-reset-code.model";
 
 @Module({
     imports: [
@@ -98,7 +99,7 @@ import { MailModule } from './mail/mail.module';
             username: process.env.POSTGRES_USER,
             password: process.env.POSTGRES_PASSWORD,
             database: process.env.POSTGRES_DB,
-            models: [User, Art, Genre,  AuthorProfile, RefreshToken, Cart, CartHistory, ArtView, Moderator, ArtType, Profession, Style, SiteVisit, SiteRating, Tag,ArtTag, Country,City, Event, Subscription, ArtLike, AuthorView, SubscriptionHistory, Notification, AuthorFollow],
+            models: [User, Art, Genre,  AuthorProfile, RefreshToken, PasswordResetCode, Cart, CartHistory, ArtView, Moderator, ArtType, Profession, Style, SiteVisit, SiteRating, Tag,ArtTag, Country,City, Event, Subscription, ArtLike, AuthorView, SubscriptionHistory, Notification, AuthorFollow],
             logging: process.env.NODE_ENV === 'development' ? console.log : false,
             sync: { alter: true },
             autoLoadModels: true,
