@@ -100,6 +100,54 @@
         }
     }
 
+    // ===== READONLY EMAIL BUTTON =====
+    &__readonly-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+
+        width: 100%;
+        padding: 14px 16px;
+
+        border: 1px solid var(--neutral-grey);
+        border-radius: var(--radius-m);
+        background: var(--bg-default);
+
+        font-family: inherit;
+        text-align: left;
+        cursor: pointer;
+
+        transition:
+            border-color 0.25s ease,
+            box-shadow 0.25s ease,
+            background-color 0.25s ease;
+
+        &:hover {
+            border-color: var(--brand-primary-gold);
+            box-shadow: 0 0 0 3px rgba(188, 149, 71, 0.15);
+            background: #fff;
+        }
+
+        &:focus-visible {
+            outline: none;
+            border-color: var(--brand-primary-gold);
+            box-shadow: 0 0 0 3px rgba(188, 149, 71, 0.25);
+        }
+    }
+
+    &__readonly-value {
+        font-size: 15px;
+        color: var(--neutral-grey-800);
+        word-break: break-all;
+    }
+
+    &__readonly-hint {
+        font-size: 12px;
+        color: var(--neutral-grey-600);
+        line-height: 1.4;
+    }
+
     // ===== GENDER =====
     &__gender-group {
         display: flex;
@@ -292,7 +340,7 @@
         align-self: flex-start;
     }
 
-    // ===== BUTTON =====
+    // ===== SUBMIT BUTTON =====
     &__button {
         align-self: flex-start;
         padding: 14px 32px;

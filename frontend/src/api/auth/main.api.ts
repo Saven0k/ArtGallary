@@ -184,11 +184,132 @@ export const requestResetCode = async (payload: RequestCodePayload) => {
     return await res.json();
 };
 
-export const verifyResetCode = async (payload: VerifyCodePayload) => {
+export interface VerifyCodeResponse {
+    resetToken: string;
+    message: string;
+}
+
+export const verifyResetCode = async (
+    payload: VerifyCodePayload,
+): Promise<VerifyCodeResponse> => {
     const res = await fetch(`${BASE_URL}/password-reset/verify-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || 'Неверный код');
+    }
+    return await res.json();
+};
+
+export interface ResetPasswordPayload {
+    resetToken: string;
+    newPassword: string;
+}
+
+export const resetPassword = async (
+    payload: ResetPasswordPayload,
+): Promise<{ message: string }> => {
+    const res = await fetch(`${BASE_URL}/password-reset/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || 'Не удалось изменить пароль');
+    }
+    return await res.json();
+};
+
+export interface VerifyCurrentEmailPayload { email: string; }
+export interface RequestEmailChangeCodePayload { newEmail: string; }
+export interface ConfirmEmailChangePayload {
+    newEmail: string;
+    code: string;
+    password: string;
+}
+export interface VerifyPasswordPayload { password: string; }
+
+export const verifyCurrentEmail = async (payload: VerifyCurrentEmailPayload) => {
+    const res = await fetch(`${BASE_URL}/email-change/verify-current`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || 'Email не совпадает');
+    }
+    return await res.json();
+};
+
+export const requestEmailChangeCode = async (payload: RequestEmailChangeCodePayload) => {
+    const res = await fetch(`${BASE_URL}/email-change/request-code`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || 'Не удалось отправить код');
+    }
+    return await res.json();
+};
+
+export const confirmEmailChange = async (payload: ConfirmEmailChangePayload) => {
+    const res = await fetch(`${BASE_URL}/email-change/confirm`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || 'Не удалось изменить email');
+    }
+    return await res.json();
+};
+
+export const verifyPassword = async (payload: VerifyPasswordPayload) => {
+    const res = await fetch(`${BASE_URL}/verify-password`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || 'Неверный пароль');
+    }
+    return await res.json();
+};
+
+export const requestAccountDeletionCode = async (): Promise<{ message: string }> => {
+    const res = await fetch(`${BASE_URL}/account/delete/request-code`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || 'Не удалось отправить код');
+    }
+    return await res.json();
+};
+
+export const verifyAccountDeletionCode = async (
+    code: string,
+): Promise<{ ok: true }> => {
+    const res = await fetch(`${BASE_URL}/account/delete/verify-code`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
     });
     if (!res.ok) {
         const data = await res.json().catch(() => null);

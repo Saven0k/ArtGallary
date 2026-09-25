@@ -74,7 +74,7 @@ function App() {
                       </Route>
 
                       <Route element={<ProtectedRoute allowedRoles={['admin']} redirectTo="/" />}>
-                        <Route path="/admin/*" element={<AdminPage />} />
+                        <Route path="/admin" element={<AdminPage />} />
                       </Route>
 
                       <Route path="/" element={<LazyHomePage />} />

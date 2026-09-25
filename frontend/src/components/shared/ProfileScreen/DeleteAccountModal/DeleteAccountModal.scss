@@ -1,0 +1,190 @@
+.delete-account-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: deleteFadeIn 0.15s ease;
+}
+
+.delete-account {
+    width: 100%;
+    max-width: 460px;
+    background: #fff;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: var(--font-h5);
+        font-weight: var(--font-weight-semibold);
+        color: var(--neutral-grey-800);
+    }
+
+    &__close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--neutral-grey-600);
+        display: flex;
+        align-items: center;
+        padding: 4px;
+        border-radius: 6px;
+
+        &:hover {
+            color: var(--neutral-black-900);
+            background: rgba(0, 0, 0, 0.05);
+        }
+    }
+
+    &__form,
+    &__confirm {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    &__hint {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--neutral-grey-600);
+    }
+
+    &__input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid var(--neutral-grey);
+        border-radius: var(--radius-s);
+        font-size: 15px;
+        font-family: inherit;
+        background: #fff;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+        &:focus {
+            outline: none;
+            border-color: var(--brand-primary-gold);
+            box-shadow: 0 0 0 3px rgba(188, 149, 71, 0.15);
+        }
+
+        &--code {
+            text-align: center;
+            font-size: 22px;
+            letter-spacing: 6px;
+            font-family: 'Courier New', monospace;
+        }
+    }
+
+    &__error {
+        padding: 10px 14px;
+        background: #fee2e2;
+        border: 1px solid #dc2626;
+        border-radius: var(--radius-s);
+        color: #dc2626;
+        font-size: 13px;
+    }
+
+    &__info {
+        padding: 10px 14px;
+        background: #dcfce7;
+        border: 1px solid #16a34a;
+        border-radius: var(--radius-s);
+        color: #16a34a;
+        font-size: 13px;
+    }
+
+    &__resend {
+        align-self: flex-start;
+        background: none;
+        border: none;
+        color: var(--brand-primary-gold);
+        font-size: 13px;
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 0;
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    }
+
+    &__warning {
+        display: flex;
+        gap: 12px;
+        padding: 14px 16px;
+        background: #fef3c7;
+        border: 1px solid #f59e0b;
+        border-radius: var(--radius-s);
+        color: #92400e;
+
+        svg {
+            flex-shrink: 0;
+            color: #d97706;
+        }
+
+        p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 4px;
+    }
+
+    &__btn {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        border-radius: var(--radius-full);
+        font-size: var(--font-label);
+        font-weight: var(--font-weight-medium);
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        &--secondary {
+            background: var(--neutral-grey);
+            color: var(--neutral-black-900);
+
+            &:hover:not(:disabled) {
+                background: #d0d0d0;
+            }
+        }
+
+        &--danger {
+            background: #dc2626;
+            color: #fff;
+
+            &:hover:not(:disabled) {
+                background: #b91c1c;
+            }
+        }
+    }
+}
+
+@keyframes deleteFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

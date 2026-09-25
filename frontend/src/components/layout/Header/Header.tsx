@@ -157,10 +157,10 @@ const Header = memo(() => {
                             <img src={Logo} alt={lang.logoTitle} className="header__logo-img" />
                         </Link>
                         <div className="header__icons">
-                            <Link to="/search" className="header__icon-link" aria-label={lang.search}>
+                            {/* <Link to="/search" className="header__icon-link" aria-label={lang.search}>
                                 <img src={Search} alt={lang.search} className="header__icon" />
-                            </Link>
-                            <Link to="/likes" className="header__icon-link" aria-label={lang.likes}>
+                            </Link> */}
+                            <Link to="/profile?section=likes" className="header__icon-link" aria-label={lang.likes}>
                                 <img src={Like} alt={lang.likes} className="header__icon" />
                             </Link>
                             <Link to="/cart" className="header__icon-link" aria-label={lang.cart}>

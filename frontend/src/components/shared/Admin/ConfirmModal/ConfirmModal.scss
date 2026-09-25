@@ -1,0 +1,93 @@
+.confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: confirmFadeIn 0.15s ease;
+}
+
+.confirm-modal {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    padding: 24px;
+
+    &__title {
+        margin: 0 0 10px;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--neutral-grey-800);
+    }
+
+    &__text {
+        margin: 0 0 20px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--neutral-grey-600);
+    }
+
+    &__actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    &__btn {
+        flex: 1;
+        padding: 10px 18px;
+        border: none;
+        border-radius: var(--radius-full);
+        font-size: 14px;
+        font-weight: 500;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.15s ease;
+
+        &--secondary {
+            background: var(--neutral-grey);
+            color: var(--neutral-black-900);
+
+            &:hover {
+                background: #d0d0d0;
+            }
+        }
+
+        &--primary {
+            background: var(--brand-primary-gold);
+            color: #fff;
+
+            &:hover {
+                background: #a87d3a;
+                transform: translateY(-1px);
+            }
+        }
+
+        &--danger {
+            background: #dc2626;
+            color: #fff;
+
+            &:hover {
+                background: #b91c1c;
+                transform: translateY(-1px);
+            }
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+}
+
+@keyframes confirmFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

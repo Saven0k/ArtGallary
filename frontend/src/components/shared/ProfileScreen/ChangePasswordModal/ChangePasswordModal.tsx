@@ -1,21 +1,22 @@
 // src/pages/Profile/components/ProfileContent/ChangePasswordModal/ChangePasswordModal.tsx
 import { useState } from 'react';
 import { Eye, EyeOff, X } from 'lucide-react';
-import { changePassword } from '../../../../api/auth/main.api';
+import { resetPassword } from '../../../../api/auth/main.api';
 import { useLanguage } from '../../../../hooks/useLanguage';
 import './ChangePasswordModal.scss';
 import { changePasswordTranslations } from './lang';
 
 interface ChangePasswordModalProps {
+    resetToken: string;
     onClose: () => void;
     onSuccess?: () => void;
+    onError?: () => void;
 }
 
-const ChangePasswordModal = ({ onClose, onSuccess }: ChangePasswordModalProps) => {
+const ChangePasswordModal = ({ resetToken, onClose, onSuccess, onError }: ChangePasswordModalProps) => {
     const { language } = useLanguage();
     const t = changePasswordTranslations[language];
 
-    const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPasswords, setShowPasswords] = useState(false);
@@ -23,12 +24,10 @@ const ChangePasswordModal = ({ onClose, onSuccess }: ChangePasswordModalProps) =
     const [error, setError] = useState<string | null>(null);
 
     const validate = (): string | null => {
-        if (!currentPassword) return t.errors.currentRequired;
         if (!newPassword) return t.errors.newRequired;
         if (newPassword.length < 8) return t.errors.newMin;
         if (newPassword.length > 25) return t.errors.newMax;
         if (newPassword !== confirmPassword) return t.errors.mismatch;
-        if (newPassword === currentPassword) return t.errors.sameAsCurrent;
         return null;
     };
 
@@ -44,13 +43,12 @@ const ChangePasswordModal = ({ onClose, onSuccess }: ChangePasswordModalProps) =
 
         setLoading(true);
         try {
-            await changePassword({ currentPassword, newPassword });
+            await resetPassword({ resetToken, newPassword });
             onSuccess?.();
             onClose();
         } catch (err: any) {
-            // сервер может вернуть своё сообщение — покажем его,
-            // иначе — общий текст
             setError(err?.message || t.errors.generic);
+            onError?.(); 
         } finally {
             setLoading(false);
         }
@@ -78,24 +76,7 @@ const ChangePasswordModal = ({ onClose, onSuccess }: ChangePasswordModalProps) =
 
                 <form className="change-password__form" onSubmit={handleSubmit}>
                     <div className="change-password__field">
-                        <label className="change-password__label">
-                            {t.currentPassword}
-                        </label>
-                        <input
-                            type={showPasswords ? 'text' : 'password'}
-                            className="change-password__input"
-                            value={currentPassword}
-                            onChange={(e) => setCurrentPassword(e.target.value)}
-                            placeholder={t.placeholders.current}
-                            autoComplete="current-password"
-                            disabled={loading}
-                        />
-                    </div>
-
-                    <div className="change-password__field">
-                        <label className="change-password__label">
-                            {t.newPassword}
-                        </label>
+                        <label className="change-password__label">{t.newPassword}</label>
                         <input
                             type={showPasswords ? 'text' : 'password'}
                             className="change-password__input"
@@ -108,9 +89,7 @@ const ChangePasswordModal = ({ onClose, onSuccess }: ChangePasswordModalProps) =
                     </div>
 
                     <div className="change-password__field">
-                        <label className="change-password__label">
-                            {t.confirmPassword}
-                        </label>
+                        <label className="change-password__label">{t.confirmPassword}</label>
                         <div className="change-password__input-wrap">
                             <input
                                 type={showPasswords ? 'text' : 'password'}
@@ -125,9 +104,7 @@ const ChangePasswordModal = ({ onClose, onSuccess }: ChangePasswordModalProps) =
                                 type="button"
                                 className="change-password__eye"
                                 onClick={() => setShowPasswords((v) => !v)}
-                                aria-label={
-                                    showPasswords ? t.hidePassword : t.showPassword
-                                }
+                                aria-label={showPasswords ? t.hidePassword : t.showPassword}
                                 tabIndex={-1}
                             >
                                 {showPasswords ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -135,9 +112,7 @@ const ChangePasswordModal = ({ onClose, onSuccess }: ChangePasswordModalProps) =
                         </div>
                     </div>
 
-                    {error && (
-                        <div className="change-password__error">{error}</div>
-                    )}
+                    {error && <div className="change-password__error">{error}</div>}
 
                     <div className="change-password__actions">
                         <button

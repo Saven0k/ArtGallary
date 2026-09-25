@@ -1,0 +1,39 @@
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+
+    &__text {
+        min-width: 0;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--neutral-grey-800);
+    }
+
+    &__subtitle {
+        margin: 4px 0 0;
+        font-size: 14px;
+        color: var(--neutral-grey-600);
+    }
+
+    &__actions {
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 600px) {
+        flex-direction: column;
+        align-items: stretch;
+
+        &__actions {
+            justify-content: flex-end;
+        }
+    }
+}

@@ -1,58 +1,101 @@
-// src/pages/Admin/AdminPage.tsx
-import { useState } from 'react';
-import { adminTranslations } from './lang';
-import AdminStyles from '../../components/shared/Admin/AdminStyles/AdminStyles';
-import AdminArtTypes from '../../components/shared/Admin/AdminArtTypes/AdminArtTypes';
-import AdminGenres from '../../components/shared/Admin/AdminGenres/AdminGenres';
-import AdminProfessions from '../../components/shared/Admin/AdminProfessions/AdminProfessions';
+// src/pages/admin/AdminPage.tsx
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useLanguage } from '../../hooks/useLanguage';
+import { useAuth } from '../../hooks/useAuth';
+import {
+    adminTranslations,
+    ADMIN_SECTIONS,
+    isValidAdminSection,
+    type AdminSectionId,
+} from './lang';
+import AdminSidebar from '../../components/shared/Admin/Sidebar/AdminSidebar';
+import ModerationSection from '../../components/shared/Admin/sections/Moderation/ModerationSection';
+import ArtsSection from '../../components/shared/Admin/sections/Arts/ArtsSection';
+import AuthorsSection from '../../components/shared/Admin/sections/Authors/AuthorsSection';
+import UsersSection from '../../components/shared/Admin/sections/Users/UsersSection';
+import ModeratorsSection from '../../components/shared/Admin/sections/Moderators/ModeratorsSection';
+import GenresSection from '../../components/shared/Admin/sections/Genres/GenresSection';
+import StylesSection from '../../components/shared/Admin/sections/Styles/StylesSection';
+import ArtTypesSection from '../../components/shared/Admin/sections/ArtTypes/ArtTypesSection';
+import ProfessionsSection from '../../components/shared/Admin/sections/Professions/ProfessionsSection';
+import EventsSection from '../../components/shared/Admin/sections/Events/EventsSection';
+import RatingsSection from '../../components/shared/Admin/sections/Ratings/RatingsSection';
 import './AdminPage.scss';
 
-type Tab = 'styles' | 'artTypes' | 'genres' | 'professions';
-
 const AdminPage = () => {
-    const t = adminTranslations.admin;
-    const [activeTab, setActiveTab] = useState<Tab>('styles');
+    const { language } = useLanguage();
+    const { user } = useAuth();
+    const t = adminTranslations[language];
 
-    const tabs: { id: Tab; label: string }[] = [
-        { id: 'styles', label: t.styles },
-        { id: 'artTypes', label: t.artTypes },
-        { id: 'genres', label: t.genres },
-        { id: 'professions', label: t.professions },
-    ];
+    const [searchParams, setSearchParams] = useSearchParams();
+    const role = user?.role ?? 'user';
 
-    const renderContent = () => {
-        switch (activeTab) {
-            case 'styles': return <AdminStyles />;
-            case 'artTypes': return <AdminArtTypes />;
-            case 'genres': return <AdminGenres />;
-            case 'professions': return <AdminProfessions />;
-            default: return null;
+    // секции, доступные текущей роли
+    const available = ADMIN_SECTIONS.filter((s) => s.roles.includes(role));
+
+    // URL — источник истины для активной секции
+    const sectionFromUrl = searchParams.get('section');
+    const initial: AdminSectionId =
+        isValidAdminSection(sectionFromUrl) &&
+        available.some((s) => s.id === sectionFromUrl)
+            ? sectionFromUrl
+            : (available[0]?.id ?? 'dashboard');
+
+    const [active, setActive] = useState<AdminSectionId>(initial);
+
+    useEffect(() => {
+        const s = searchParams.get('section');
+        const next: AdminSectionId =
+            isValidAdminSection(s) && available.some((x) => x.id === s)
+                ? s
+                : (available[0]?.id ?? 'dashboard');
+
+        setActive((prev) => (prev === next ? prev : next));
+
+        if (s !== null && s !== next) {
+            setSearchParams({ section: next }, { replace: true });
+        }
+    }, [searchParams, setSearchParams, available]);
+
+    const handleChange = (section: AdminSectionId) => {
+        if (!available.some((s) => s.id === section)) return;
+        setSearchParams({ section }, { replace: false });
+    };
+
+    const renderSection = () => {
+        switch (active) {
+            case 'moderation':  return <ModerationSection />;
+            case 'arts':        return <ArtsSection />;
+            case 'authors':     return <AuthorsSection />;
+            case 'users':       return <UsersSection />;
+            case 'moderators':  return <ModeratorsSection />;
+            case 'genres':      return <GenresSection />;
+            case 'styles':      return <StylesSection />;
+            case 'artTypes':    return <ArtTypesSection />;
+            case 'professions': return <ProfessionsSection />;
+            case 'events':      return <EventsSection />;
+            case 'ratings':     return <RatingsSection />;
+            default:            return null;
         }
     };
 
     return (
-        <div className="admin-page">
-            <div className="admin-page__header">
-                <h1 className="admin-page__title">{t.title}</h1>
-                <p className="admin-page__subtitle">{t.subtitle}</p>
-            </div>
+        <main className="admin-page">
+            <div className="admin-page__container">
+                <AdminSidebar
+                    sections={available}
+                    active={active}
+                    onChange={handleChange}
+                    title={t.title}
+                    labels={t.sections}
+                />
 
-            <div className="admin-page__tabs">
-                {tabs.map((tab) => (
-                    <button
-                        key={tab.id}
-                        className={`admin-page__tab ${activeTab === tab.id ? 'admin-page__tab--active' : ''}`}
-                        onClick={() => setActiveTab(tab.id)}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
+                <section className="admin-page__content">
+                    {renderSection()}
+                </section>
             </div>
-
-            <div className="admin-page__content">
-                {renderContent()}
-            </div>
-        </div>
+        </main>
     );
 };
 

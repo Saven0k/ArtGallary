@@ -25,6 +25,9 @@ import {
 } from "../../../../../api/professions/main.api";
 import AvatarCropModal from "../../../../layout/AvatarCropModal/AvatarCropModal";
 import "./PersonalInfo.scss";
+import { usePersonalInfoTranslation } from './lang';
+import { useNavigate } from 'react-router-dom';
+
 
 interface PersonalInfoProps {
     id: number;
@@ -49,7 +52,8 @@ const MAX_AVATAR_BYTES = MAX_AVATAR_SIZE_MB * 1024 * 1024;
 
 const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
     const { language } = useLanguage();
-    const t = profileTranslations[language].personalInfo;
+    const navigate = useNavigate();
+    const t = usePersonalInfoTranslation(language);
     const f = t.fields;
     const p = t.placeholders;
     const av = t.avatar;
@@ -267,7 +271,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         if (file.size > MAX_AVATAR_BYTES) {
             setAvatarError(
                 av.errors?.size?.replace("{max}", String(MAX_AVATAR_SIZE_MB)) ??
-                    `Файл больше ${MAX_AVATAR_SIZE_MB} МБ`,
+                `Файл больше ${MAX_AVATAR_SIZE_MB} МБ`,
             );
             e.target.value = "";
             return;
@@ -441,22 +445,20 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                         <div className="personal-info__gender-group">
                             <button
                                 type="button"
-                                className={`personal-info__gender-btn ${
-                                    formData.gender === "M"
-                                        ? "personal-info__gender-btn--active"
-                                        : ""
-                                }`}
+                                className={`personal-info__gender-btn ${formData.gender === "M"
+                                    ? "personal-info__gender-btn--active"
+                                    : ""
+                                    }`}
                                 onClick={() => handleGenderChange("M")}
                             >
                                 {t.gender?.male ?? "Мужской"}
                             </button>
                             <button
                                 type="button"
-                                className={`personal-info__gender-btn ${
-                                    formData.gender === "F"
-                                        ? "personal-info__gender-btn--active"
-                                        : ""
-                                }`}
+                                className={`personal-info__gender-btn ${formData.gender === "F"
+                                    ? "personal-info__gender-btn--active"
+                                    : ""
+                                    }`}
                                 onClick={() => handleGenderChange("F")}
                             >
                                 {t.gender?.female ?? "Женский"}
@@ -496,10 +498,10 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                             <option value="">
                                 {!formData.countryId
                                     ? t.common?.selectCountryFirst ??
-                                      "Сначала выберите страну"
+                                    "Сначала выберите страну"
                                     : loadingCities
-                                      ? t.common?.loading ?? "Загрузка..."
-                                      : f.city}
+                                        ? t.common?.loading ?? "Загрузка..."
+                                        : f.city}
                             </option>
                             {cities.map((city) => (
                                 <option key={city.id} value={city.id}>
@@ -511,13 +513,20 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
 
                     <div className="personal-info__field">
                         <label>{f.email}</label>
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder={p.email}
-                            value={formData.email}
-                            disabled
-                        />
+                        <button
+                            type="button"
+                            className="personal-info__readonly-btn"
+                            onClick={() => navigate('/profile?section=settings', { replace: true })}
+                            title={t.emailHint}
+                            aria-label={t.emailHint}
+                        >
+                            <span className="personal-info__readonly-value">
+                                {formData.email || p.email}
+                            </span>
+                            <span className="personal-info__readonly-hint">
+                                {t.emailHint}
+                            </span>
+                        </button>
                     </div>
 
                     {isAuthor && (

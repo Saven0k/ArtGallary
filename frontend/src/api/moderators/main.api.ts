@@ -8,8 +8,6 @@ export interface CreateModeratorData {
     name: string;
     surname: string;
     second_name?: string;
-    phone_number: string;
-    avatar_path?: File | null;
 }
 
 export interface Moderator {
@@ -24,9 +22,7 @@ export interface Moderator {
         name: string;
         surname: string;
         second_name?: string;
-        phone_number: string;
         role: string;
-        avatar_path?: string | null;
     };
 }
 
@@ -82,18 +78,14 @@ export const getModeratorById = async (id: number): Promise<Moderator | null> =>
 export const createModerator = async (data: CreateModeratorData): Promise<Moderator | null> => {
     try {
         const formData = new FormData();
-        
+
         formData.append("email", data.email);
         formData.append("password", data.password);
         formData.append("name", data.name);
         formData.append("surname", data.surname);
-        formData.append("phone_number", data.phone_number);
-        
+
         if (data.second_name) {
             formData.append("second_name", data.second_name);
-        }
-        if (data.avatar_path && data.avatar_path instanceof File) {
-            formData.append("avatar_path", data.avatar_path);
         }
 
         const res = await fetch(BASE_URL, {
@@ -130,5 +122,47 @@ export const deleteModerator = async (id: number): Promise<boolean> => {
     } catch (e) {
         console.log("deleteModerator error:", e);
         return false;
+    }
+};
+
+// src/api/moderators/main.api.ts — добавить в конец
+
+export interface UpdateModeratorData {
+    email?: string;
+    password?: string;
+    name?: string;
+    surname?: string;
+    second_name?: string;
+}
+
+export const updateModerator = async (
+    id: number,
+    data: UpdateModeratorData,
+): Promise<Moderator | null> => {
+    try {
+        const formData = new FormData();
+
+        if (data.email) formData.append('email', data.email);
+        if (data.password) formData.append('password', data.password);
+        if (data.name) formData.append('name', data.name);
+        if (data.surname) formData.append('surname', data.surname);
+        if (data.second_name !== undefined)
+            formData.append('second_name', data.second_name);
+
+        const res = await fetch(`${BASE_URL}/${id}`, {
+            method: 'PUT',
+            credentials: 'include',
+            body: formData,
+        });
+
+        if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.message || res.statusText);
+        }
+
+        return await res.json();
+    } catch (e) {
+        console.log('updateModerator error:', e);
+        return null;
     }
 };

@@ -1,0 +1,129 @@
+// src/components/shared/Admin/sections/Styles/StyleFormModal.scss
+.style-form-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.style-form {
+    width: 100%;
+    max-width: 480px;
+    background: #fff;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #f0f0f0;
+
+        h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--neutral-grey-800);
+        }
+
+        button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--neutral-grey-600);
+            padding: 4px;
+
+            &:hover {
+                color: var(--neutral-black-900);
+            }
+        }
+    }
+
+    &__body {
+        padding: 20px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--neutral-grey-800);
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: var(--radius-s);
+            font-size: 14px;
+            font-family: inherit;
+            background: #fff;
+            resize: vertical;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+            &:focus {
+                outline: none;
+                border-color: var(--brand-primary-gold);
+                box-shadow: 0 0 0 3px rgba(188, 149, 71, 0.15);
+            }
+        }
+    }
+
+    &__err {
+        font-size: 12px;
+        color: #dc2626;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 12px;
+        padding: 16px 24px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    &__btn {
+        flex: 1;
+        padding: 10px 18px;
+        border: none;
+        border-radius: var(--radius-full);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        &--secondary {
+            background: var(--neutral-grey);
+            color: var(--neutral-black-900);
+
+            &:hover:not(:disabled) {
+                background: #d0d0d0;
+            }
+        }
+
+        &--primary {
+            background: var(--brand-primary-gold);
+            color: #fff;
+
+            &:hover:not(:disabled) {
+                background: #a87d3a;
+            }
+        }
+    }
+}

@@ -5,14 +5,51 @@
     width: 280px;
 }
 
-.profile-sidebar__item { 
-    display: flex; 
-    align-items: center; 
+.profile-sidebar {
+    &__icon-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    &__badge {
+        position: absolute;
+        top: -4px;
+        right: -6px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+
+        background: #dc2626;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1;
+
+        border-radius: 999px;
+        border: 2px solid #fff; // чтобы кружок «отклеивался» от иконки
+        box-sizing: content-box;
+
+        pointer-events: none;
+        user-select: none;
+    }
+}
+
+.profile-sidebar__item {
+    display: flex;
+    align-items: center;
     gap: 16px;
-    width: 100%; 
-    padding: 18px 20px; 
+    width: 100%;
+    padding: 18px 20px;
     border: none;
-    border-radius: var(--radius-l); 
+    border-radius: var(--radius-l);
     background: #ffffff;
     cursor: pointer;
     text-align: left;
@@ -21,13 +58,14 @@
 
 .profile-sidebar__item--active {
     background: var(--brand-gold-light);
+
     .profile-sidebar__icon {
         color: #000000;
     }
 }
 
 .profile-sidebar__item--active .profile-sidebar__icon {
-    color: rgb(0,0,0,52%);
+    color: rgb(0, 0, 0, 52%);
 }
 
 /* ===================================== */

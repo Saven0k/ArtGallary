@@ -23,6 +23,41 @@
         border-color .25s ease,
         transform .2s ease,
         box-shadow .25s ease;
+
+
+    &__meta {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+        flex-shrink: 0;
+        align-self: flex-start;
+    }
+
+    &__delete {
+        background: none;
+        border: none;
+        padding: 4px;
+        cursor: pointer;
+        color: var(--neutral-grey-600);
+        border-radius: 6px;
+        transition: color 0.15s ease, background-color 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            color: #dc2626;
+            background: rgba(220, 38, 38, 0.08);
+        }
+    }
+
+    @media (max-width: 768px) {
+        &__meta {
+            flex-direction: row;
+            align-items: center;
+        }
+    }
 }
 
 .notification-card:hover {
@@ -30,7 +65,7 @@
 
     border-color: var(--brand-primary-gold);
 
-    box-shadow: 0 10px 28px rgba(0,0,0,.08);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .08);
 }
 
 .notification-card:active {
@@ -61,7 +96,7 @@
 
     border-radius: 50%;
 
-    background: rgba(188,149,71,.12);
+    background: rgba(188, 149, 71, .12);
 
     color: var(--neutral-grey-800);
 }

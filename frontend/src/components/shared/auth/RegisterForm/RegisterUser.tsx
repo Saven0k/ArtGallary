@@ -44,7 +44,11 @@ interface ValidationErrors {
     api?: string;
 }
 
-const RegisterUser = () => {
+interface RegisterUserProps {
+    onClose?: () => void;
+}
+
+const RegisterUser = (_props: RegisterUserProps) => {
     const { language } = useLanguage();
     const t = registerUserTranslations[language].registerUser;
     const navigate = useNavigate();

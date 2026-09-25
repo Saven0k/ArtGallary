@@ -7,10 +7,8 @@ import { codeModalTranslations } from './lang';
 import './CodeModal.scss';
 
 interface CodeModalProps {
-    /** если email уже известен — можно передать и пропустить шаг ввода */
     initialEmail?: string;
-    /** вызывается после успешной проверки кода */
-    onVerified: (email: string, code: string) => void;
+    onVerified: (payload: { email: string; resetToken: string }) => void;
     onClose: () => void;
 }
 
@@ -45,8 +43,8 @@ const CodeModal = ({ initialEmail = '', onVerified, onClose }: CodeModalProps) =
         setError(null);
         setLoading(true);
         try {
-            await verifyResetCode({ email, code });
-            onVerified(email, code);
+            const res = await verifyResetCode({ email, code });
+            onVerified({ email, resetToken: res.resetToken });
             onClose();
         } catch (err: any) {
             setError(err?.message || t.errors.generic);
