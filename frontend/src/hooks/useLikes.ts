@@ -13,7 +13,7 @@ export const useLikes = () => {
         if (!isAuthenticated) {
             const storedArts = localStorage.getItem(LIKED_ARTS_KEY);
             const storedAuthors = localStorage.getItem(LIKED_AUTHORS_KEY);
-            
+
             if (storedArts) {
                 try { setLikedArts(JSON.parse(storedArts)); } catch { setLikedArts([]); }
             }
@@ -27,16 +27,16 @@ export const useLikes = () => {
         if (isAuthenticated) {
             // TODO: API запрос на лайк/дизлайк картины на сервере
             console.log("Authenticated - toggle like art API:", artId);
-            // Здесь будет запрос на сервер
+
             return;
         }
 
-        // Не авторизован - сохраняем в localStorage
+
         const isLiked = likedArts.includes(artId);
-        const updated = isLiked 
+        const updated = isLiked
             ? likedArts.filter(id => id !== artId)
             : [...likedArts, artId];
-        
+
         setLikedArts(updated);
         localStorage.setItem(LIKED_ARTS_KEY, JSON.stringify(updated));
         console.log(`${isLiked ? 'Unliked' : 'Liked'} art (local):`, artId);
@@ -50,10 +50,10 @@ export const useLikes = () => {
         }
 
         const isLiked = likedAuthors.includes(authorId);
-        const updated = isLiked 
+        const updated = isLiked
             ? likedAuthors.filter(id => id !== authorId)
             : [...likedAuthors, authorId];
-        
+
         setLikedAuthors(updated);
         localStorage.setItem(LIKED_AUTHORS_KEY, JSON.stringify(updated));
         console.log(`${isLiked ? 'Unliked' : 'Liked'} author (local):`, authorId);

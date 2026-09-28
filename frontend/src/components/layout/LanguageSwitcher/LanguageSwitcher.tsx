@@ -46,10 +46,10 @@ const LanguageSwitcher = () => {
             >
                 <img src={Global} alt="global icon" className="lang-switcher__icon" />
                 <span className="lang-switcher__text">{displayCode}</span>
-                <img 
-                    src={Arrow} 
-                    alt="arrow icon" 
-                    className={`lang-switcher__arrow ${isOpen ? 'lang-switcher__arrow--rotated' : ''}`} 
+                <img
+                    src={Arrow}
+                    alt="arrow icon"
+                    className={`lang-switcher__arrow ${isOpen ? 'lang-switcher__arrow--rotated' : ''}`}
                 />
             </button>
 

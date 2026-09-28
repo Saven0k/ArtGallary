@@ -1,11 +1,11 @@
+// src/pages/Profile/components/ChangeEmailModal/lang.ts
 export type Language = 'ru' | 'en' | 'zh';
 
 export const changeEmailTranslations = {
     ru: {
         title: 'Изменение email',
         close: 'Закрыть',
-        currentHint: 'Введите текущий email',
-        currentPlaceholder: 'Текущий email',
+        currentLabel: 'Текущий email',
         newHint: 'Введите новый email — мы отправим на него код',
         newPlaceholder: 'Новый email',
         codeHint: 'Введите код, отправленный на {email}',
@@ -14,19 +14,18 @@ export const changeEmailTranslations = {
         next: 'Далее',
         sendCode: 'Отправить код',
         sending: 'Отправка…',
-        checking: 'Проверка…',
         confirm: 'Подтвердить',
         saving: 'Сохранение…',
         errors: {
             codeLength: 'Код должен состоять из 6 цифр',
+            sameAsCurrent: 'Новый email совпадает с текущим',
             generic: 'Что-то пошло не так',
         },
     },
     en: {
         title: 'Change email',
         close: 'Close',
-        currentHint: 'Enter your current email',
-        currentPlaceholder: 'Current email',
+        currentLabel: 'Current email',
         newHint: 'Enter the new email — we will send a code to it',
         newPlaceholder: 'New email',
         codeHint: 'Enter the code sent to {email}',
@@ -35,19 +34,18 @@ export const changeEmailTranslations = {
         next: 'Next',
         sendCode: 'Send code',
         sending: 'Sending…',
-        checking: 'Checking…',
         confirm: 'Confirm',
         saving: 'Saving…',
         errors: {
             codeLength: 'Code must be 6 digits',
+            sameAsCurrent: 'New email matches the current one',
             generic: 'Something went wrong',
         },
     },
     zh: {
         title: '修改邮箱',
         close: '关闭',
-        currentHint: '请输入当前邮箱',
-        currentPlaceholder: '当前邮箱',
+        currentLabel: '当前邮箱',
         newHint: '请输入新邮箱，我们将向该邮箱发送验证码',
         newPlaceholder: '新邮箱',
         codeHint: '请输入发送到 {email} 的验证码',
@@ -56,11 +54,11 @@ export const changeEmailTranslations = {
         next: '下一步',
         sendCode: '发送验证码',
         sending: '发送中…',
-        checking: '验证中…',
         confirm: '确认',
         saving: '保存中…',
         errors: {
             codeLength: '验证码必须为 6 位',
+            sameAsCurrent: '新邮箱与当前邮箱相同',
             generic: '出现错误',
         },
     },

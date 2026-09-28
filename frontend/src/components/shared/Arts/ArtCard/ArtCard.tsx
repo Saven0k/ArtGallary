@@ -1,4 +1,4 @@
-// ArtCard.tsx
+
 import type { Art } from "../../../../api/arts/main.api";
 import "./ArtCard.scss";
 import LikeIcon from "./icons/like.svg";
@@ -22,14 +22,14 @@ const ArtCard = ({ art_id, art }: ArtCardProps) => {
     const { isAuthenticated } = useAuth();
     const { isArtLiked, toggleLikeArt } = useLikes();
     const { isInCart, addToCart } = useCart();
-    
+
     const isLiked = isArtLiked(art_id);
     const inCart = isInCart(art_id);
     const [likesCount, setLikesCount] = useState<number>(art.likes || 0);
 
     const handleLike = () => {
         if (!isAuthenticated) {
-            // Если не авторизован - сохраняем в localStorage
+
             toggleLikeArt(art_id);
             setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
             return;
@@ -43,7 +43,7 @@ const ArtCard = ({ art_id, art }: ArtCardProps) => {
 
     const handleAddToCart = () => {
         if (!isAuthenticated) {
-            // Если не авторизован - сохраняем в localStorage
+
             addToCart(art_id);
             return;
         }

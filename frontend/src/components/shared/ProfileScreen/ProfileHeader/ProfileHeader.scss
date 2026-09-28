@@ -1,4 +1,4 @@
-/* src/pages/Profile/components/ProfileHeader/ProfileHeader.css */
+
 
 .profile-header {
     display: flex;
@@ -17,9 +17,9 @@
         0 8px 22px rgba(0,0,0,.06);
 }
 
-/* ======================================
-   Avatar
-====================================== */
+
+
+
 
 .profile-header__avatar {
     flex-shrink: 0;
@@ -61,9 +61,9 @@
     font-weight: 600;
 }
 
-/* ======================================
-   Content
-====================================== */
+
+
+
 
 .profile-header__content {
     display: flex;
@@ -113,9 +113,9 @@
     color: var(--neutral-grey-600);
 }
 
-/* ======================================
-   Responsive
-====================================== */
+
+
+
 
 @media (max-width: 768px) {
 

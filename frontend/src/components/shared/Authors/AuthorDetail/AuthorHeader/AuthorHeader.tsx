@@ -1,4 +1,4 @@
-// src/pages/Author/components/AuthorHeader/AuthorHeader.tsx
+
 import { useEffect, useState } from 'react';
 import type { AuthorProfileResponse } from '../../../../../api/authors/main.api';
 import {
@@ -29,7 +29,7 @@ const AuthorHeader = ({ author }: AuthorHeaderProps) => {
     const [loadingFollow, setLoadingFollow] = useState(false);
     const [authModalOpen, setAuthModalOpen] = useState(false);
 
-    // проверяем подписку только для авторизованных
+
     useEffect(() => {
         if (!user) {
             setIsFollowing(false);
@@ -50,7 +50,7 @@ const AuthorHeader = ({ author }: AuthorHeaderProps) => {
     const toggleBio = () => setIsBioExpanded((v) => !v);
 
     const handleSubscribe = async () => {
-        // гость → модалка, без запросов
+
         if (!user) {
             setAuthModalOpen(true);
             return;
@@ -63,7 +63,7 @@ const AuthorHeader = ({ author }: AuthorHeaderProps) => {
         const prev = isFollowing;
         const prevCount = followersCount;
 
-        // оптимистично
+
         setIsFollowing(!prev);
         setFollowersCount(prevCount + (prev ? -1 : 1));
 

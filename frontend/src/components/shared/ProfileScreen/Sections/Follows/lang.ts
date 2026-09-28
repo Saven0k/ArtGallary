@@ -1,4 +1,4 @@
-// src/components/Follows/lang.ts
+
 
 export const followsTranslations = {
     ru: {

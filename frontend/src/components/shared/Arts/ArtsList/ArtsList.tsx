@@ -1,4 +1,4 @@
-// ArtsList.tsx
+
 import type { ArtsResponse } from "../../../../api/arts/main.api";
 import ArtCard from "../ArtCard/ArtCard";
 import "./ArtsList.scss";

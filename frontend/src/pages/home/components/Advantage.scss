@@ -14,7 +14,7 @@
 
 .advantages__list {
     display: grid;
-    grid-template-columns: repeat(6, 1fr); 
+    grid-template-columns: repeat(6, 1fr);
     list-style: none;
 }
 
@@ -105,9 +105,9 @@
     }
 }
 
-/* ==========================================
-   MOBILE
-========================================== */
+
+
+
 
 @media (max-width: 768px) {
 

@@ -1,4 +1,4 @@
-// src/pages/admin/lang.ts
+
 import type { Language } from '../../hooks/useLanguage';
 
 export interface AdminTranslations {

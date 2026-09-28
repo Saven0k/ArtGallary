@@ -1,4 +1,4 @@
-// src/components/shared/ProfileScreen/ProfileHeader/lang.ts
+
 
 export type Language = 'ru' | 'en' | 'zh';
 
@@ -12,7 +12,7 @@ export const profileHeaderTranslations: Record<Language, ProfileHeaderTranslatio
     zh: { roleUser: '用户' },
 };
 
-/** Подписи планов подписки. Ключи — значения SubscriptionPlan с бэка. */
+
 export const planLabels: Record<Language, Record<string, string>> = {
     ru: {
         free: 'Бесплатный',
@@ -31,7 +31,7 @@ export const planLabels: Record<Language, Record<string, string>> = {
     },
 };
 
-/** Профессии автора. Ключ — название профессии на русском (как в БД). */
+
 export const professionTranslations: Record<Language, Record<string, string>> = {
     ru: {
         'Художник': 'Художник',
@@ -85,13 +85,13 @@ export const useProfileHeaderTranslation = (lang: Language) => {
     };
 };
 
-/** Возвращает локализованное название профессии по русскому ключу. */
+
 export const getProfessionLabel = (lang: Language, professionName: string): string => {
     const dict = professionTranslations[lang];
     return dict[professionName] ?? professionName;
 };
 
-/** Возвращает локализованное название плана по ключу 'free' | 'pro' | 'vip'. */
+
 export const getPlanLabel = (lang: Language, planKey: string): string => {
     const dict = planLabels[lang];
     return dict[planKey] ?? planKey;

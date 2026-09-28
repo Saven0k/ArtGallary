@@ -1,4 +1,4 @@
-// src/components/shared/Admin/EmptyState/EmptyState.tsx
+
 import type { ReactNode } from 'react';
 import './EmptyState.scss';
 

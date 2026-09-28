@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Arts/ArtsSection.tsx
+
 import { useCallback, useEffect, useState } from 'react';
 import { Eye, Check, X, Trash2, Image as ImageIcon } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
@@ -39,7 +39,7 @@ const ArtsSection = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [total, setTotal] = useState(0);
 
-    // модалки
+
     const [viewArt, setViewArt] = useState<Art | null>(null);
     const [moderateTarget, setModerateTarget] = useState<{
         art: Art;
@@ -49,7 +49,7 @@ const ArtsSection = () => {
     const [deleteTarget, setDeleteTarget] = useState<Art | null>(null);
     const [busy, setBusy] = useState(false);
 
-    // загрузка
+
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -79,14 +79,14 @@ const ArtsSection = () => {
         load();
     }, [load]);
 
-    // смена таба — сброс страницы
+
     const handleTab = (next: Tab) => {
         if (next === tab) return;
         setTab(next);
         setPage(1);
     };
 
-    // ---------- moderate ----------
+
     const handleModerate = async () => {
         if (!moderateTarget || !user) return;
         setBusy(true);
@@ -109,7 +109,7 @@ const ArtsSection = () => {
         }
     };
 
-    // ---------- delete ----------
+
     const handleDelete = async () => {
         if (!deleteTarget) return;
         setBusy(true);
@@ -126,7 +126,7 @@ const ArtsSection = () => {
         }
     };
 
-    // ---------- columns ----------
+
     const statusLabel = (s: ModerationStatus) => t.status[s];
 
     const columns: Column<Art>[] = [
@@ -262,7 +262,7 @@ const ArtsSection = () => {
         },
     ];
 
-    // ---------- tabs ----------
+
     const tabs: { value: Tab; label: string }[] = [
         { value: 'unmoderated', label: t.tabs.unmoderated },
         { value: 'moderated', label: t.tabs.moderated },
@@ -273,7 +273,7 @@ const ArtsSection = () => {
         <div className="admin-section arts-section">
             <SectionHeader title={t.title} subtitle={t.subtitle} />
 
-            {/* Tabs */}
+
             <div className="arts-section__tabs">
                 {tabs.map((tabItem) => (
                     <button
@@ -291,7 +291,7 @@ const ArtsSection = () => {
 
             {error && <div className="arts-section__error">{error}</div>}
 
-            {/* Table / Empty */}
+
             {!loading && arts.length === 0 ? (
                 <EmptyState text={t.empty} icon={<ImageIcon size={24} />} />
             ) : (
@@ -304,7 +304,7 @@ const ArtsSection = () => {
                 />
             )}
 
-            {/* Pagination */}
+
             {!loading && totalPages > 1 && (
                 <div className="arts-section__pagination">
                     <button
@@ -328,7 +328,7 @@ const ArtsSection = () => {
                 </div>
             )}
 
-            {/* View modal */}
+
             {viewArt && (
                 <div
                     className="arts-section__modal-overlay"
@@ -447,7 +447,7 @@ const ArtsSection = () => {
                 </div>
             )}
 
-            {/* Moderate modal */}
+
             {moderateTarget && (
                 <div
                     className="arts-section__modal-overlay"
@@ -504,7 +504,7 @@ const ArtsSection = () => {
                 </div>
             )}
 
-            {/* Delete confirm */}
+
             {deleteTarget && (
                 <ConfirmModal
                     title={t.deleteModal.title}

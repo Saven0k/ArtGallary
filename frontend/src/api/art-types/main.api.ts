@@ -1,4 +1,4 @@
-// src/api/art-types/main.api.ts
+
 import type { Genre } from "../genres/main.api";
 import { BASE_URL_API } from "../main.api";
 

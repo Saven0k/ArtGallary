@@ -1,11 +1,11 @@
 import "./PaymentHistory.scss";
 
 const PaymentHistory = () => {
-    return ( 
+    return (
         <div className="histoty">
 
         </div>
      );
 }
- 
+
 export default PaymentHistory;

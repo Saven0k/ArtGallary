@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Professions/ProfessionFormModal.tsx
+
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
@@ -9,10 +9,11 @@ import type {
     UpdateProfessionData,
 } from '../../../../../api/professions/main.api';
 import { professionsTranslations } from './lang';
+import "./ProfessionFormModal.scss"
 
-// ============================================================
-// Props — discriminated union
-// ============================================================
+
+
+
 
 interface ProfessionFormBaseProps {
     busy: boolean;
@@ -35,9 +36,9 @@ type ProfessionFormModalProps =
     | ProfessionFormCreateProps
     | ProfessionFormEditProps;
 
-// ============================================================
-// Component
-// ============================================================
+
+
+
 
 const ProfessionFormModal = (props: ProfessionFormModalProps) => {
     const { busy, onClose } = props;

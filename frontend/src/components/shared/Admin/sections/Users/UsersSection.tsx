@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Users/UsersSection.tsx
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     Eye,
@@ -46,7 +46,7 @@ const UsersSection = () => {
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 15;
 
-    // модалки
+
     const [createOpen, setCreateOpen] = useState(false);
     const [editTarget, setEditTarget] = useState<User | null>(null);
     const [viewTarget, setViewTarget] = useState<User | null>(null);
@@ -54,7 +54,7 @@ const UsersSection = () => {
     const [restoreTarget, setRestoreTarget] = useState<User | null>(null);
     const [busy, setBusy] = useState(false);
 
-    // ---------- load ----------
+
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -78,7 +78,7 @@ const UsersSection = () => {
         setPage(1);
     }, [tab, search]);
 
-    // ---------- filter + paginate ----------
+
     const filtered = useMemo(() => {
         if (!search.trim()) return users;
         const q = search.trim().toLowerCase();
@@ -97,7 +97,7 @@ const UsersSection = () => {
         [filtered, page],
     );
 
-    // ---------- actions ----------
+
     const handleCreate = async (data: CreateUserData) => {
         setBusy(true);
         try {
@@ -160,7 +160,7 @@ const UsersSection = () => {
         }
     };
 
-    // ---------- columns ----------
+
     const columns: Column<User>[] = useMemo(
         () => [
             {
@@ -372,12 +372,12 @@ const UsersSection = () => {
                 </div>
             )}
 
-            {/* View */}
+
             {viewTarget && (
                 <UserViewModal user={viewTarget} onClose={() => setViewTarget(null)} />
             )}
 
-            {/* Create */}
+
             {createOpen && (
                 <UserFormModal
                     mode="create"
@@ -387,7 +387,7 @@ const UsersSection = () => {
                 />
             )}
 
-            {/* Edit */}
+
             {editTarget && (
                 <UserFormModal
                     mode="edit"
@@ -398,7 +398,7 @@ const UsersSection = () => {
                 />
             )}
 
-            {/* Delete */}
+
             {deleteTarget && (
                 <ConfirmModal
                     title={t.deleteModal.title}
@@ -411,7 +411,7 @@ const UsersSection = () => {
                 />
             )}
 
-            {/* Restore */}
+
             {restoreTarget && (
                 <ConfirmModal
                     title={t.restoreModal.title}

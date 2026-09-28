@@ -13,7 +13,7 @@ interface AgeVerificationModalProps {
 export const AgeVerificationModal = ({ isOpen, onClose, onSuccess, onFail }: AgeVerificationModalProps) => {
     const { language } = useLanguage();
     const lang = ageVerificationModalTranslations[language];
-    
+
     const [birthDate, setBirthDate] = useState('');
     const [error, setError] = useState('');
 

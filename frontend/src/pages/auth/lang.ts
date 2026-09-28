@@ -1,4 +1,4 @@
-// src/pages/Register/lang.ts
+
 export type Language = 'ru' | 'en' | 'zh';
 
 export const registerPageTranslations = {

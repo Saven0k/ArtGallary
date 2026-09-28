@@ -1,6 +1,6 @@
-/* ProfileSideBar.css */
 
-/* Основные стили */
+
+
 .sidebarProfile {
     position: fixed;
     top: 0;
@@ -25,7 +25,7 @@
     transform: translateX(100%);
 }
 
-/* Оверлей */
+
 .sidebarProfile__overlay {
     position: fixed;
     top: 0;
@@ -50,7 +50,7 @@
     visibility: hidden;
 }
 
-/* Хедер - исправлен для мобильных */
+
 .sidebarProfile__header {
     display: flex;
     justify-content: space-between;
@@ -139,7 +139,7 @@
     transform: scale(0.95);
 }
 
-/* Навигация */
+
 .sidebarProfile__nav {
     flex: 1;
     overflow-y: auto;
@@ -236,7 +236,7 @@
     text-align: center;
 }
 
-/* Футер */
+
 .sidebarProfile__footer {
     border-top: 1px solid #f0f0f0;
     padding: 16px 20px;
@@ -289,7 +289,7 @@
     color: #9b2c2c;
 }
 
-/* Гостевой режим */
+
 .sidebarProfile__guest-header {
     display: flex;
     align-items: center;
@@ -384,7 +384,7 @@
     background: rgba(102, 126, 234, 0.05);
 }
 
-/* Баннер модерации */
+
 .sidebarProfile__moderation-banner {
     display: flex;
     align-items: center;
@@ -413,7 +413,7 @@
     color: #78350f;
 }
 
-/* Мета информация */
+
 .sidebarProfile__meta {
     display: flex;
     flex-wrap: wrap;
@@ -440,7 +440,7 @@
     font-family: monospace;
 }
 
-/* Адаптив для мобильных */
+
 @media (max-width: 768px) {
     .sidebarProfile {
         width: 100%;
@@ -495,7 +495,7 @@
     }
 }
 
-/* Темная тема */
+
 @media (prefers-color-scheme: dark) {
     .sidebarProfile {
         background: #1a202c;
@@ -574,7 +574,7 @@
     }
 }
 
-/* Фокус состояния */
+
 .sidebarProfile__link:focus-visible,
 .sidebarProfile__action-btn:focus-visible,
 .sidebarProfile__close:focus-visible {
@@ -583,7 +583,7 @@
 }
 
 
-/* Benefits.css - добавь в ProfileSideBar.css */
+
 
 .sidebarProfile__guest-benefits {
     display: flex;
@@ -624,7 +624,7 @@
     transform: translateX(4px);
 }
 
-/* Темная тема */
+
 @media (prefers-color-scheme: dark) {
     .sidebarProfile__benefit {
         background: #2d3748;
@@ -641,7 +641,7 @@
     }
 }
 
-/* Адаптив для мобильных */
+
 @media (max-width: 768px) {
     .sidebarProfile__guest-benefits {
         gap: 10px;

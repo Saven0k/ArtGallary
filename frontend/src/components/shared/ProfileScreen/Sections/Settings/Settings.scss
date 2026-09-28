@@ -1,4 +1,4 @@
-/* src/pages/Profile/components/ProfileContent/Settings.css */
+
 
 .profile-settings {
     width: 100%;
@@ -12,7 +12,7 @@
     box-shadow: 0 10px 30px rgba(0,0,0,.08);
 }
 
-/* ========================= */
+
 
 .profile-settings__header {
     margin-bottom: 32px;
@@ -36,7 +36,7 @@
     font-size: 15px;
 }
 
-/* ========================= */
+
 
 .profile-settings__list {
     display: flex;
@@ -78,7 +78,7 @@
     box-shadow: 0 10px 28px rgba(0,0,0,.08);
 }
 
-/* ========================= */
+
 
 .profile-settings__icon {
     display: flex;
@@ -121,7 +121,7 @@
     line-height: 1.5;
 }
 
-/* ========================= */
+
 
 .profile-settings__item--danger {
     border-color: rgba(184,7,7,.18);
@@ -139,7 +139,7 @@
     color: var(--error-background);
 }
 
-/* ========================= */
+
 
 @media (max-width:768px) {
 

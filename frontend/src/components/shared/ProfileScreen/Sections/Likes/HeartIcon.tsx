@@ -1,4 +1,4 @@
-// src/components/Likes/HeartIcon.tsx
+
 interface HeartIconProps {
     filled?: boolean;
     size?: number;

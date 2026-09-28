@@ -1,4 +1,4 @@
-// src/components/shared/Admin/ConfirmModal/ConfirmModal.tsx
+
 import './ConfirmModal.scss';
 
 interface ConfirmModalProps {

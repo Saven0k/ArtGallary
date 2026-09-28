@@ -1,4 +1,4 @@
-// src/context/SettingsContext.tsx
+
 import React, { createContext, useContext } from 'react';
 import { useSettingsStorage } from '../hooks/useSettingsStorage';
 

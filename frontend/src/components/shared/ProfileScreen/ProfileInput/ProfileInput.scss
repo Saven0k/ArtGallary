@@ -1,4 +1,4 @@
-/* src/pages/Profile/components/ProfileInput/ProfileInput.css */
+
 
 .profile-input {
     display: flex;
@@ -8,7 +8,7 @@
     width: 100%;
 }
 
-/* ===================== */
+
 
 .profile-input__label {
     color: var(--neutral-grey-800);
@@ -17,7 +17,7 @@
     font-weight: var(--font-weight-medium);
 }
 
-/* ===================== */
+
 
 .profile-input__field {
     width: 100%;
@@ -58,7 +58,7 @@
     box-shadow: 0 0 0 3px rgba(188,149,71,.15);
 }
 
-/* ===================== */
+
 
 .profile-input__field:disabled {
     background: #f3f3f3;
@@ -68,7 +68,7 @@
     opacity: .8;
 }
 
-/* ===================== */
+
 
 .profile-input__field--error {
     border-color: var(--error-background);
@@ -88,7 +88,7 @@
     font-weight: 500;
 }
 
-/* ===================== */
+
 
 @media (max-width: 768px) {
 

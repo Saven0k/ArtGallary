@@ -1,4 +1,4 @@
-// src/components/shared/auth/LoginForm/lang.ts
+
 export type Language = 'ru' | 'en' | 'zh';
 
 export const loginFormTranslations = {

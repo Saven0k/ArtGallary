@@ -15,12 +15,13 @@ const Navigation = () => {
     const { language } = useLanguage();
     const t = navigationTranslations[language].navigation;
 
-    // Маппинг путей на названия
+
     const routeMap: Record<string, string> = {
         '/': t.home,
         '/arts': t.arts,
         '/authors': t.authors,
         '/services': t.services,
+        '/consultation': t.consultation,
         '/contacts': t.contacts,
         '/about': t.about,
         '/gallery': t.gallery,
@@ -32,11 +33,11 @@ const Navigation = () => {
         '/login': t.login,
     };
 
-    // Создаем хлебные крошки из текущего пути
+
     const getBreadcrumbs = (): BreadcrumbItem[] => {
         const pathnames = location.pathname.split('/').filter((x) => x);
-        
-        // Если мы на главной, показываем только "Главная"
+
+
         if (pathnames.length === 0) {
             return [{ path: '/', label: t.home, isActive: true }];
         }
@@ -49,8 +50,8 @@ const Navigation = () => {
         pathnames.forEach((segment, index) => {
             currentPath += `/${segment}`;
             const isLast = index === pathnames.length - 1;
-            
-            // Декодируем URL и пытаемся найти в routeMap
+
+
             const decodedSegment = decodeURIComponent(segment);
             const label = routeMap[currentPath] || decodedSegment;
 
@@ -66,7 +67,7 @@ const Navigation = () => {
 
     const breadcrumbs = getBreadcrumbs();
 
-    // Определяем, показывать ли кнопку "Назад"
+
     const showBackButton = location.pathname !== '/';
 
     const handleGoBack = () => {

@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Moderators/ModeratorFormModal.scss
+
 
 .moderator-form-overlay {
     position: fixed;
@@ -23,7 +23,7 @@
     overflow: hidden;
     max-height: 90vh;
 
-    // ---------- header ----------
+
     &__header {
         display: flex;
         justify-content: space-between;
@@ -57,7 +57,7 @@
         }
     }
 
-    // ---------- body ----------
+
     &__body {
         padding: 20px 24px;
         display: flex;
@@ -76,7 +76,7 @@
         }
     }
 
-    // ---------- field ----------
+
     &__field {
         display: flex;
         flex-direction: column;
@@ -117,7 +117,7 @@
         color: #dc2626;
     }
 
-    // ---------- avatar ----------
+
     &__avatar-block {
         display: flex;
         flex-direction: column;
@@ -208,7 +208,7 @@
         max-width: 320px;
     }
 
-    // ---------- actions ----------
+
     &__actions {
         display: flex;
         gap: 12px;

@@ -1,4 +1,4 @@
-// AuthorPage.tsx
+
 import { useParams } from "react-router-dom";
 import ArtsList from "../../../components/shared/Arts/ArtsList/ArtsList";
 import AuthorHeader from "../../../components/shared/Authors/AuthorDetail/AuthorHeader/AuthorHeader";
@@ -11,7 +11,7 @@ import AuthorProfile from "../../../components/shared/Authors/AuthorDetail/Autho
 
 const AuthorPage = () => {
     const { id } = useParams<{ id: string }>();
-    
+
     const [author, setAuthor] = useState<AuthorProfileResponse | null>(null);
     const [arts, setArts] = useState<ArtsResponse | null>(null);
     const [loading, setLoading] = useState<boolean>(true);

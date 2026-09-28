@@ -1,4 +1,4 @@
-/* src/pages/Profile/components/NotificationCard/NotificationCard.css */
+
 
 .notification-card {
     display: flex;
@@ -72,17 +72,17 @@
     transform: scale(.99);
 }
 
-/* ===============================
-   Unread
-================================ */
+
+
+
 
 .notification-card--unread {
     background: var(--overlay-gold);
 }
 
-/* ===============================
-   Icon
-================================ */
+
+
+
 
 .notification-card__icon {
     display: flex;
@@ -101,9 +101,9 @@
     color: var(--neutral-grey-800);
 }
 
-/* ===============================
-   Content
-================================ */
+
+
+
 
 .notification-card__content {
     flex: 1;
@@ -128,9 +128,9 @@
     line-height: 1.45;
 }
 
-/* ===============================
-   Time
-================================ */
+
+
+
 
 .notification-card__time {
     flex-shrink: 0;
@@ -143,9 +143,9 @@
     font-weight: 500;
 }
 
-/* ===============================
-   Responsive
-================================ */
+
+
+
 
 @media (max-width: 768px) {
 

@@ -1,5 +1,5 @@
-// src/components/LocationSelect/LocationSelect.tsx
-// Поля CountrySuggestion/CitySuggestion теперь соответствуют серверным моделям (name_en, name_ru)
+
+
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
@@ -55,7 +55,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
   const cityRef = useRef<HTMLDivElement>(null);
   const initialized = useRef(false);
 
-  // Инициализация
+
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
@@ -81,7 +81,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
     init();
   }, []);
 
-  // Обновление страны при изменении пропса
+
   useEffect(() => {
     if (!initialized.current) return;
     const currentCountryValueStr = String(countryValue || '');
@@ -96,7 +96,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
     }
   }, [countryValue, lang]);
 
-  // Поиск стран
+
   useEffect(() => {
     if (debouncedCountryQuery.length < 2) {
       setCountrySuggestions([]);
@@ -115,7 +115,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
     return () => { cancelled = true; };
   }, [debouncedCountryQuery, lang]);
 
-  // Поиск городов
+
   useEffect(() => {
     if (debouncedCityQuery.length < 2) {
       setCitySuggestions([]);
@@ -134,7 +134,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
     return () => { cancelled = true; };
   }, [debouncedCityQuery, selectedCountryCode, lang]);
 
-  // Клик вне компонента
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (countryRef.current && !countryRef.current.contains(e.target as Node)) {
@@ -150,7 +150,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Обработчики выбора
+
   const handleCountrySelect = useCallback((country: CountrySuggestion) => {
     const name = country.name_en || country.iso2;
     setCountryDisplay(name);
@@ -176,7 +176,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
     onCityChange(city.id, name);
   }, [onCityChange]);
 
-  // View mode
+
   if (!isEditing) {
     return (
       <div className="location-select location-select--view">
@@ -194,7 +194,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
     );
   }
 
-  // Edit mode
+
   return (
     <div className="location-select">
       <div className="location-select__group" ref={countryRef}>

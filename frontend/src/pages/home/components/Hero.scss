@@ -12,7 +12,7 @@
     background-position: center;
     background-repeat: no-repeat;
 
-    // Псевдоэлемент для затемнения
+
     &::before {
         content: '';
         position: absolute;
@@ -24,13 +24,13 @@
         z-index: 1;
     }
 
-    // Все прямые дочерние элементы поднимаем над затемнением
+
     > * {
         position: relative;
         z-index: 2;
     }
 
-    // Навигация
+
     &__nav {
         display: flex;
         margin-top: 16px;
@@ -73,7 +73,7 @@
         }
     }
 
-    // Заголовок
+
     &__title {
         margin-left: 274px;
         max-width: 1010px;
@@ -82,7 +82,7 @@
         letter-spacing: 0.03em;
     }
 
-    // Подзаголовок
+
     &__subtitle {
         margin-left: 274px;
         max-width: 1060px;
@@ -93,7 +93,7 @@
         letter-spacing: 0.03em;
     }
 
-    // Кнопка
+
     &__button {
         margin-left: 274px;
         width: fit-content;
@@ -134,9 +134,9 @@
         }
     }
 
-    // ===========================
-    // 1400px
-    // ===========================
+
+
+
     @media (max-width: 1400px) {
         padding: 0 80px;
 
@@ -145,9 +145,9 @@
         }
     }
 
-    // ===========================
-    // 992px
-    // ===========================
+
+
+
     @media (max-width: 992px) {
         min-height: 640px;
         padding: 0 48px;
@@ -161,9 +161,9 @@
         }
     }
 
-    // ===========================
-    // MOBILE
-    // ===========================
+
+
+
     @media (max-width: 768px) {
         min-height: 560px;
         padding: 0 24px;

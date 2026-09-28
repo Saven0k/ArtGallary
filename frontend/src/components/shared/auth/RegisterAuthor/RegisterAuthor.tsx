@@ -1,4 +1,4 @@
-// src/pages/Register/components/RegisterAuthor/RegisterAuthor.tsx
+
 import { useState, useEffect } from "react";
 import "./RegisterAuthor.scss";
 import { useLanguage } from "../../../../hooks/useLanguage";
@@ -88,7 +88,7 @@ const RegisterAuthor = (_props: RegisterAuthorProps) => {
     const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
     const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
 
-    // ---------- первичная загрузка ----------
+
     useEffect(() => {
         const fetchInitialData = async () => {
             setLoadingCountries(true);
@@ -117,7 +117,7 @@ const RegisterAuthor = (_props: RegisterAuthorProps) => {
         fetchInitialData();
     }, [language]);
 
-    // ---------- города ----------
+
     useEffect(() => {
         const fetchCities = async () => {
             if (!formData.countryId) {
@@ -145,7 +145,7 @@ const RegisterAuthor = (_props: RegisterAuthorProps) => {
         fetchCities();
     }, [formData.countryId, countries, language]);
 
-    // ---------- валидация ----------
+
     const validateField = (
         name: string,
         value: string | number | boolean,
@@ -221,7 +221,7 @@ const RegisterAuthor = (_props: RegisterAuthorProps) => {
         return Object.keys(errors).length === 0;
     };
 
-    // ---------- обработчики ----------
+
     const handleChange = (
         e: React.ChangeEvent<
             HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -324,7 +324,7 @@ const RegisterAuthor = (_props: RegisterAuthorProps) => {
         }
     };
 
-    // ---------- шаги ----------
+
     const renderStep = () => {
         switch (currentStep) {
             case 1:
@@ -703,7 +703,7 @@ const RegisterAuthor = (_props: RegisterAuthorProps) => {
                             />
                         </div>
 
-                        {/* --- Согласие с правилами и офертой --- */}
+
                         <div className="register-author__form-group register-author__form-group--checkbox">
                             <label className="register-author__checkbox-label">
                                 <input

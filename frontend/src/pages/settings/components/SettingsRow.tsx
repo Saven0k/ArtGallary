@@ -1,4 +1,4 @@
-// src/pages/Settings/components/SettingsRow.tsx
+
 import "./SettingsRow.scss";
 
 interface SettingsRowProps {

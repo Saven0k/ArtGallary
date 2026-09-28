@@ -1,4 +1,4 @@
-// src/components/shared/Admin/DataTable/DataTable.tsx
+
 import type { ReactNode } from 'react';
 import './DataTable.scss';
 

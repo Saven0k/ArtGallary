@@ -1,4 +1,4 @@
-// src/pages/Authors/components/AuthorList/AuthorList.tsx
+
 import { useEffect, useState } from "react";
 import "./AuthorsList.scss";
 import { useLanguage } from "../../../../hooks/useLanguage";

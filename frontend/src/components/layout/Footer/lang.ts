@@ -39,7 +39,7 @@ export const footerTranslations = {
         contact: {
             title: "Contacts",
             address: "Moscow, Tverskaya St., 10"
-        }, 
+        },
         newsletter: {
             title: "Newsletter",
             placeholder: "Your Email",

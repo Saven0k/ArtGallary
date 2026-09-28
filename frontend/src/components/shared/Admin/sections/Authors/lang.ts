@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Authors/lang.ts
+
 import type { Language } from "../../../../../context/LanguageContext";
 
 export interface AuthorsTranslations {
@@ -39,7 +39,7 @@ export interface AuthorsTranslations {
         create: string;
     };
 
-    // ---------- create/edit modal ----------
+
     form: {
         titleCreate: string;
         stepPersonal: string;
@@ -96,7 +96,7 @@ export interface AuthorsTranslations {
         };
     };
 
-    // ---------- view modal ----------
+
     viewModal: {
         title: string;
         biography: string;

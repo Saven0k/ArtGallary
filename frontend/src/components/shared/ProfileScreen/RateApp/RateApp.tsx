@@ -29,7 +29,7 @@ const RateApp = () => {
     const handleRate = async (value: number) => {
         if (saving) return;
         setSaving(true);
-        // оптимистично обновляем UI
+
         const prev = rating;
         setRating(value);
         const res = await rateSite(value);

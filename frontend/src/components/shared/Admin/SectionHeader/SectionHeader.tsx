@@ -1,4 +1,4 @@
-// src/components/shared/Admin/SectionHeader/SectionHeader.tsx
+
 import type { ReactNode } from 'react';
 import './SectionHeader.scss';
 

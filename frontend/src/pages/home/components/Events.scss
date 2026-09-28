@@ -132,7 +132,7 @@
     margin-bottom: 4px;
     z-index: 12;
     max-height: 210px;
-    /* height: 100%; */
+
     overflow: hidden;
     position: relative;
 
@@ -177,9 +177,9 @@
     transform: translateX(6px);
 }
 
-/* ==========================================
-   TABLET
-========================================== */
+
+
+
 
 @media (max-width: 1200px) {
 
@@ -192,9 +192,9 @@
     }
 }
 
-/* ==========================================
-   MOBILE
-========================================== */
+
+
+
 
 @media (max-width: 768px) {
 

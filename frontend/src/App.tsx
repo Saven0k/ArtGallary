@@ -12,7 +12,7 @@ import SettingsPage from './pages/settings/SettingsPage';
 import { SettingsProvider } from './context/SettingsContext';
 import AdminPage from './pages/admin/AdminPage';
 import AboutPage from './pages/about/AboutPage';
-import ConsultationPage from './pages/consultation/ConsultationPage';
+import ArtConsultationPage from './pages/art-consultation/ArtConsultationPage';
 import ServicesPage from './pages/services/ServicesPage';
 
 const LazyForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
@@ -46,7 +46,7 @@ function App() {
                       <Route path="register" element={<  LazyRegisterPage />} />
                       <Route path="forgot-password" element={<LazyForgotPasswordPage />} />
 
-                      {/* <Route path="arts" element={<LazyArtsPage />} /> */}
+                      {                                                      }
                       <Route path="arts/:id" element={<LazyArtPage />} />
 
                       <Route path='authors' element={<LazyAuthorsPage />} />
@@ -55,12 +55,12 @@ function App() {
                       <Route path="/settings" element={<SettingsPage />} />
                       <Route path="/help" element={<HelpPage />} />
                       <Route path="/about" element={<AboutPage />} />
-                      <Route path="/consultation" element={<ConsultationPage />} />
+                      <Route path="/consultation" element={<ArtConsultationPage />} />
                       <Route path="/services" element={<ServicesPage />} />
 
                       <Route element={<ProtectedRoute allowedRoles={['admin', 'author']} />}>
-                        {/* <Route path="/arts/my" element={<LazyMyArtsPage />} /> */}
-                        {/* <Route path="/arts/my/new" element={<LazyArtCreatePage />} /> */}
+                        {                                                            }
+                        {                                                                   }
                         <Route path="/arts/my/edit/:id" element={<LazyArtEditPage />} />
                       </Route>
 

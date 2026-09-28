@@ -12,7 +12,7 @@ interface ProfileStatsProps {
     authorId: number;
 }
 
-/** Превращает выбранный период в startDate/endDate для API */
+
 const periodToFilter = (period: Period): StatsQuery => {
     const end = new Date();
     const start = new Date(end);
@@ -51,7 +51,7 @@ const Statistics = ({ authorId }: ProfileStatsProps) => {
 
     return (
         <div className="profile-stats">
-            {/* верхние карточки */}
+            {                      }
             <div className="stats-cards">
                 <div className="stats-card">
                     <span className="stats-card__label">Лайков</span>
@@ -75,7 +75,7 @@ const Statistics = ({ authorId }: ProfileStatsProps) => {
                 </div>
             </div>
 
-            {/* сетка чартов */}
+            {                  }
             <div className="stats-grid">
                 <div className="stats-grid__wide">
                     <ViewsChart

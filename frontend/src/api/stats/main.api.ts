@@ -1,9 +1,9 @@
-// src/api/stats/main.api.ts
+
 import { BASE_URL_API } from "../main.api";
 
 const BASE_URL = `${BASE_URL_API}/stats`;
 
-// -------------------- types --------------------
+
 
 export interface GenderStatsData {
     male: number;
@@ -68,7 +68,7 @@ export interface StatsQuery {
     countryId?: number;
 }
 
-// -------------------- helpers --------------------
+
 
 const buildQuery = (filter?: StatsQuery): string => {
     if (!filter) return '';
@@ -82,7 +82,7 @@ const buildQuery = (filter?: StatsQuery): string => {
     return qs ? `?${qs}` : '';
 };
 
-// -------------------- author --------------------
+
 
 export const getAuthorStats = async (
     authorId: number,
@@ -101,7 +101,7 @@ export const getAuthorStats = async (
     }
 };
 
-// -------------------- art --------------------
+
 
 export const getArtStats = async (
     artId: number,

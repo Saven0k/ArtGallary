@@ -1,4 +1,4 @@
-// src/api/authors/main.api.ts
+
 import { BASE_URL_API } from "../main.api";
 import type { UserRole } from "../users/main.api";
 
@@ -351,7 +351,7 @@ export const getTopAuthors = async (limit = 10, lang = 'ru'): Promise<AuthorProf
     }
 };
 
-// ==================== ПОДПИСКИ ====================
+
 
 export const toggleFollow = async (authorId: number): Promise<FollowResponse | null> => {
     try {
@@ -426,7 +426,7 @@ export const getFollowersCount = async (authorId: number): Promise<{ count: numb
     }
 };
 
-// ==================== ЛАЙКИ И ПРОСМОТРЫ ====================
+
 export const viewAuthor = async (authorId: number): Promise<void> => {
     try {
         await fetch(`${BASE_URL}/${authorId}/view`, {
@@ -451,7 +451,7 @@ export const getAuthorViewsCount = async (authorId: number): Promise<{ count: nu
     }
 };
 
-// ==================== ШАРЫ ====================
+
 
 export const incrementAuthorShares = async (authorId: number): Promise<{ success: boolean; shares: number } | null> => {
     try {

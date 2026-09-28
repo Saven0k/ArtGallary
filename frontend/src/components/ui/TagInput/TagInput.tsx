@@ -51,13 +51,13 @@ export const TagInput: React.FC<TagInputProps> = ({
         }
     };
 
-    // Симуляция подсказок (в реальном приложении - запрос к API)
+
     useEffect(() => {
         if (inputValue.length < 2) {
             setSuggestions([]);
             return;
         }
-        // Здесь можно сделать запрос к API для поиска существующих тегов
+
         const mockSuggestions = ['пейзаж', 'природа', 'город', 'море', 'горы', 'лето', 'зима']
             .filter(tag => tag.includes(inputValue.toLowerCase()))
             .slice(0, 5);

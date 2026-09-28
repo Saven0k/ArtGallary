@@ -1,4 +1,4 @@
-// src/components/LikeCard/LikeCard.tsx
+
 import { useState } from 'react';
 import type { Art } from '../../../../../api/arts/main.api';
 import { BASE_URL_API } from '../../../../../api/main.api';

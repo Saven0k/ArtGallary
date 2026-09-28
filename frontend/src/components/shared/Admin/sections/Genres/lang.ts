@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Genres/lang.ts
+
 import type { Language } from '../../../../../context/LanguageContext';
 
 export interface GenresTranslations {

@@ -1,4 +1,4 @@
-// src/pages/Profile/components/ProfileContent/PersonalInfo/AvatarCropModal.tsx
+
 import { useCallback, useState } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
 import { getCroppedImg, type PixelCrop } from '../../../utils/cropImage';

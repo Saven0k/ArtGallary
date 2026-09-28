@@ -1,4 +1,4 @@
-// src/pages/Help/components/FAQ.tsx
+
 import { useState, useMemo } from "react";
 import FAQItem from "../FAQItem/FAQItem";
 import "./FAQ.scss";

@@ -1,4 +1,4 @@
-// src/components/shared/ProfileScreen/Charts/ViewsChart.tsx
+
 import { useMemo } from "react";
 import {
     Chart as ChartJS,

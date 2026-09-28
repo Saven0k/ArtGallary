@@ -1,4 +1,4 @@
-// src/pages/Profile/components/DeleteAccountModal/DeleteAccountModal.tsx
+
 import { useEffect, useState } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 import {
@@ -27,7 +27,7 @@ const DeleteAccountModal = ({ onConfirm, onClose }: DeleteAccountModalProps) => 
     const [error, setError] = useState<string | null>(null);
     const [info, setInfo] = useState<string | null>(null);
 
-    // при открытии сразу шлём код на почту
+
     useEffect(() => {
         let alive = true;
         (async () => {
@@ -45,7 +45,7 @@ const DeleteAccountModal = ({ onConfirm, onClose }: DeleteAccountModalProps) => 
         return () => {
             alive = false;
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, []);
 
     const handleResend = async () => {

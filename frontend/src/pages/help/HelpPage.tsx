@@ -1,4 +1,4 @@
-// src/pages/Help/HelpPage.tsx
+
 import { useState } from "react";
 import "./HelpPage.scss";
 import HelpSidebar from "./components/HelpSideBar/HelpSidebar";
@@ -37,9 +37,9 @@ const HelpPage = () => {
             </header>
 
             <section className="help-page__content">
-                <HelpSidebar 
-                    activeSection={activeSection} 
-                    onSectionChange={setActiveSection} 
+                <HelpSidebar
+                    activeSection={activeSection}
+                    onSectionChange={setActiveSection}
                 />
                 {renderContent()}
             </section>

@@ -1,4 +1,4 @@
-// src/components/TariffPlan/lang.ts
+
 
 export const tariffPlanTranslations = {
     ru: {

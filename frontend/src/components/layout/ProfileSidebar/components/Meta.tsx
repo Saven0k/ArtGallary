@@ -1,4 +1,4 @@
-// src/components/ProfileSideBar/components/Meta.tsx
+
 import React from 'react';
 import { useLanguage } from '../../../../hooks/useLanguage';
 import { sidebarTranslations } from '../lang';

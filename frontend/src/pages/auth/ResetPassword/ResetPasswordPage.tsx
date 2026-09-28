@@ -25,7 +25,7 @@ const ResetPasswordPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Шаг 1: запросить код
+
     const handleRequestCode = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
@@ -40,7 +40,7 @@ const ResetPasswordPage = () => {
         }
     };
 
-    // Шаг 2: проверить код
+
     const handleVerifyCode = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
@@ -56,7 +56,7 @@ const ResetPasswordPage = () => {
         }
     };
 
-    // Шаг 3: сменить пароль
+
     const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);

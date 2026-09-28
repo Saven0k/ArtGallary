@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Arts/utils.ts
+
 import type { Art } from '../../../../../api/arts/main.api';
 
 export type ModerationStatus = 'moderated' | 'pending' | 'rejected';
@@ -21,7 +21,7 @@ export const parseModerate = (raw?: string): ModerateObject | null => {
 
 export const getModerationStatus = (art: Art): ModerationStatus => {
     const obj = parseModerate(art.moderate);
-    if (!obj) return 'pending';                 // пусто → ждёт модерации
+    if (!obj) return 'pending';
     if (obj.moderate === true) return 'moderated';
     if (obj.moderate === false) return 'rejected';
     return 'pending';

@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Professions/lang.ts
+
 import type { Language } from '../../../../../context/LanguageContext';
 
 export interface ProfessionsTranslations {

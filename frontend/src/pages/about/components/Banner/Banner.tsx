@@ -1,4 +1,4 @@
-// src/pages/About/components/Banner/Banner.tsx
+
 import { Link } from 'react-router-dom';
 import { useLanguage } from "../../../../hooks/useLanguage";
 import { translations } from "../../lang";

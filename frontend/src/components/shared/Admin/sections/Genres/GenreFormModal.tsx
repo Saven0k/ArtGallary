@@ -1,8 +1,9 @@
-// src/components/shared/Admin/sections/Genres/GenreFormModal.tsx
+
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { adminTranslations } from '../../../../../pages/admin/lang';
+import "./GenreFormModal.scss"
 import type {
     Genre,
     CreateGenreData,

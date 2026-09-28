@@ -1,9 +1,9 @@
-// src/api/cart-history/main.api.ts
+
 import { BASE_URL_API } from "../main.api";
 
 const BASE_URL = `${BASE_URL_API}/cart-history`;
 
-// -------------------- types --------------------
+
 
 export type OrderStatus = "delivered" | "in_transit" | "cancelled";
 
@@ -12,7 +12,7 @@ export interface OrderHistoryItem {
     userId: number;
     artIds: number[];
     status: OrderStatus;
-    createdAt: string; // ISO
+    createdAt: string;
 }
 
 export interface OrderHistoryResponse {
@@ -24,7 +24,7 @@ export interface HistoryFilter {
     status?: OrderStatus;
 }
 
-// -------------------- helpers --------------------
+
 
 const request = async <T>(
     url: string,
@@ -54,7 +54,7 @@ const json = (body: unknown): RequestInit => ({
     body: JSON.stringify(body),
 });
 
-// -------------------- endpoints --------------------
+
 
 export const getCartHistory = (filter?: HistoryFilter) =>
     request<OrderHistoryResponse>(`${BASE_URL}${buildQuery(filter)}`);

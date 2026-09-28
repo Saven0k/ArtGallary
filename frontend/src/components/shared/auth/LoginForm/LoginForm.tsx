@@ -1,4 +1,4 @@
-// src/components/shared/auth/LoginForm/LoginForm.tsx
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./LoginForm.scss";
@@ -25,7 +25,7 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
     const t = loginFormTranslations[language].loginForm;
     const navigate = useNavigate();
     const { refetch } = useAuth();
-    
+
     const [mode, setMode] = useState<FormMode>('login');
     const [formData, setFormData] = useState<LoginData>({
         email: "",
@@ -78,7 +78,7 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
 
     const handleForgotPassword = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!resetData.email.trim()) {
             setError(t.errors.emailRequired);
             return;
@@ -90,11 +90,11 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
 
         try {
             // TODO: Заменить на реальный API вызов
-            // await requestPasswordReset(resetData.email);
-            
-            // Имитация успешного запроса
+
+
+
             await new Promise(resolve => setTimeout(resolve, 1500));
-            
+
             setCodeSent(true);
             setSuccess(t.reset.success);
             setError(null);
@@ -108,7 +108,7 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
     const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Валидация полей
+
         if (!resetData.code.trim()) {
             setError(t.errors.codeRequired);
             return;
@@ -135,14 +135,14 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
 
         try {
             // TODO: Заменить на реальный API вызов
-            // await confirmPasswordReset(resetData.email, resetData.code, resetData.newPassword);
-            
-            // Имитация успешного сброса
+
+
+
             await new Promise(resolve => setTimeout(resolve, 1500));
-            
+
             setSuccess(t.reset.passwordChanged);
-            
-            // Возвращаемся к логину через 2 секунды
+
+
             setTimeout(() => {
                 setMode('login');
                 setSuccess(null);
@@ -154,7 +154,7 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
                     newPassword: "",
                     confirmPassword: "",
                 });
-                // Очищаем форму логина
+
                 setFormData({
                     email: "",
                     password: "",
@@ -183,7 +183,7 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
     const renderForgotPassword = () => (
         <form className="login-form__form" onSubmit={handleForgotPassword}>
             <p className="login-form__reset-text">{t.reset.instruction}</p>
-            
+
             <div className="login-form__group">
                 <label className="login-form__label">{t.fields.email}</label>
                 <input
@@ -248,7 +248,7 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
     const renderResetPassword = () => (
         <form className="login-form__form" onSubmit={handleResetPassword}>
             <p className="login-form__reset-text">{t.reset.enterCodeInstruction}</p>
-            
+
             <div className="login-form__group">
                 <label className="login-form__label">{t.reset.codeLabel}</label>
                 <input
@@ -382,11 +382,11 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
     return (
         <div className="login-form">
             <h2 className="login-form__title">
-                {mode === 'login' ? t.title : 
+                {mode === 'login' ? t.title :
                  mode === 'forgotPassword' ? t.reset.title : t.reset.newPasswordTitle}
             </h2>
             <p className="login-form__subtitle">
-                {mode === 'login' ? t.subtitle : 
+                {mode === 'login' ? t.subtitle :
                  mode === 'forgotPassword' ? t.reset.subtitle : t.reset.enterNewPassword}
             </p>
 

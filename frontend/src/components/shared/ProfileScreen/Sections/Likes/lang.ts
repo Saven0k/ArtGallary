@@ -1,4 +1,4 @@
-// src/components/Likes/lang.ts
+
 
 export const likesTranslations = {
     ru: {

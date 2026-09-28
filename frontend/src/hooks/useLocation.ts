@@ -1,4 +1,4 @@
-// src/hooks/useLocation.ts
+
 import { useState, useEffect, useCallback } from 'react';
 import { getAllCountries, getCitiesByCountryCode, searchCountries, type CountrySuggestion, type CitySuggestion } from '../api/location/main.api';
 
@@ -9,7 +9,7 @@ export const useLocation = (lang: 'ru' | 'en' = 'ru') => {
     const [selectedCountry, setSelectedCountry] = useState<CountrySuggestion | null>(null);
     const [selectedCity, setSelectedCity] = useState<CitySuggestion | null>(null);
 
-    // Загрузка всех стран
+
     const loadCountries = useCallback(async () => {
         setLoading(true);
         try {
@@ -24,13 +24,13 @@ export const useLocation = (lang: 'ru' | 'en' = 'ru') => {
         }
     }, [lang]);
 
-    // Загрузка городов по коду страны (ISO2)
+
     const loadCities = useCallback(async (countryCode: string) => {
         if (!countryCode) {
             setCities([]);
             return [];
         }
-        
+
         setLoading(true);
         try {
             const data = await getCitiesByCountryCode(countryCode, lang);
@@ -44,12 +44,12 @@ export const useLocation = (lang: 'ru' | 'en' = 'ru') => {
         }
     }, [lang]);
 
-    // Поиск стран
+
     const search = useCallback(async (query: string) => {
         if (!query || query.length < 2) {
             return countries;
         }
-        
+
         setLoading(true);
         try {
             const data = await searchCountries(query, lang);
@@ -63,7 +63,7 @@ export const useLocation = (lang: 'ru' | 'en' = 'ru') => {
         }
     }, [lang, countries]);
 
-    // Выбор страны
+
     const selectCountry = useCallback((countryId: number) => {
         const country = countries.find(c => c.id === countryId) || null;
         setSelectedCountry(country);
@@ -75,7 +75,7 @@ export const useLocation = (lang: 'ru' | 'en' = 'ru') => {
         return country;
     }, [countries, loadCities]);
 
-    // Первоначальная загрузка
+
     useEffect(() => {
         loadCountries();
     }, [loadCountries]);

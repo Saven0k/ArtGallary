@@ -1,11 +1,11 @@
 import "./Cart.scss"
 
 const Cart = () => {
-    return ( 
+    return (
         <div className="cart">
 
         </div>
      );
 }
- 
+
 export default Cart;

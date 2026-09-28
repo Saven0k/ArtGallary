@@ -1,4 +1,4 @@
-// src/api/users/main.api.ts
+
 import { BASE_URL_API } from "../main.api";
 
 export type UserRole = 'admin' | 'moderator' | 'author' | 'user' ;
@@ -235,7 +235,7 @@ export const restoreUser = async (id: number): Promise<User | null> => {
     }
 };
 
-// ==================== ПОДПИСКИ ЧЕРЕЗ USERS ====================
+
 
 export const toggleFollow = async (authorId: number): Promise<FollowResponse | null> => {
     try {

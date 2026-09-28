@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Styles/lang.ts
+
 import type { Language } from "../../../../../context/LanguageContext";
 
 export interface StylesTranslations {

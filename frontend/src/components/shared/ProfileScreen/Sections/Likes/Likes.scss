@@ -1,4 +1,4 @@
-/* src/components/Likes/Likes.css */
+
 
 .likes {
     max-width: 1280px;
@@ -16,14 +16,14 @@
     letter-spacing: -0.02em;
 }
 
-/* ==== Сетка ==== */
+
 .likes__grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 20px;
 }
 
-/* ==== Карточка ==== */
+
 .like-card {
     background: #f4f4f4;
     border-radius: 16px;
@@ -103,7 +103,7 @@
     text-overflow: ellipsis;
 }
 
-/* ==== Сердечко ==== */
+
 .like-card__heart {
     background: transparent;
     border: none;
@@ -131,7 +131,7 @@
     pointer-events: none;
 }
 
-/* ==== Скелетон ==== */
+
 .like-card--skeleton {
     height: 300px;
     background: linear-gradient(90deg, #ececec 25%, #f5f5f5 50%, #ececec 75%);
@@ -144,7 +144,7 @@
     100% { background-position: -200% 0; }
 }
 
-/* ==== Пустое состояние ==== */
+
 .likes__empty {
     font-size: 15px;
     color: #888;
@@ -152,7 +152,7 @@
     padding: 60px 20px;
 }
 
-/* ==== Пагинация ==== */
+
 .likes__pagination {
     display: flex;
     align-items: center;
@@ -188,7 +188,7 @@
     font-weight: 500;
 }
 
-/* ==== Адаптив ==== */
+
 @media (max-width: 768px) {
     .likes {
         padding: 20px 16px 48px;

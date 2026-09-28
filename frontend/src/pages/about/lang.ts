@@ -1,4 +1,4 @@
-// src/pages/About/lang.ts
+
 
 import tema from "./images/tema.png"
 import margarita from "./images/margarita.png"

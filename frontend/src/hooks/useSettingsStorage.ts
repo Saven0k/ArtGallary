@@ -1,4 +1,4 @@
-// src/hooks/useSettingsStorage.ts
+
 import { useState, useEffect } from 'react';
 
 const SETTINGS_STORAGE_KEY = 'app_settings';
@@ -22,7 +22,7 @@ const loadSettings = (): Settings => {
         const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
         if (stored) {
             const parsed = JSON.parse(stored);
-            // Проверяем структуру и подставляем дефолты для отсутствующих полей
+
             return {
                 notifications: {
                     email: parsed.notifications?.email ?? defaultSettings.notifications.email,

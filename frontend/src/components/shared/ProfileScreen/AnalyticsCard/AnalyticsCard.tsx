@@ -1,4 +1,4 @@
-// src/pages/Profile/components/AnalyticsCard/AnalyticsCard.tsx
+
 import { BarChart3, Palette, Lightbulb } from "lucide-react";
 import { useLanguage } from "../../../../hooks/useLanguage";
 import { profileTranslations } from "../lang";

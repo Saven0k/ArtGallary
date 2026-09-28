@@ -1,4 +1,4 @@
-// src/components/shared/ProfileScreen/Sections/Notifications/lang.ts
+
 
 export type Language = 'ru' | 'en' | 'zh';
 

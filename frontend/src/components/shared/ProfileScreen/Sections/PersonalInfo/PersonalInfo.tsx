@@ -1,4 +1,4 @@
-// src/pages/Profile/components/ProfileContent/PersonalInfo/PersonalInfo.tsx
+
 import { useState, useEffect, useRef } from "react";
 import { useLanguage } from "../../../../../hooks/useLanguage";
 import { profileTranslations } from "../../lang";
@@ -78,7 +78,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    // Селекты
+
     const [countries, setCountries] = useState<CountrySuggestion[]>([]);
     const [cities, setCities] = useState<CitySuggestion[]>([]);
     const [professions, setProfessions] = useState<Profession[]>([]);
@@ -86,14 +86,14 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
     const [loadingCities, setLoadingCities] = useState(false);
     const [loadingProfessions, setLoadingProfessions] = useState(false);
 
-    // Аватар
+
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [cropSrc, setCropSrc] = useState<string | null>(null);
     const [avatarError, setAvatarError] = useState<string | null>(null);
 
-    // ============================ ЗАГРУЗКА ПРОФИЛЯ ============================
+
     useEffect(() => {
         const fetchProfile = async () => {
             if (!id) return;
@@ -153,7 +153,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         fetchProfile();
     }, [id, role, language, isAuthor]);
 
-    // ============================ СТРАНЫ ============================
+
     useEffect(() => {
         const fetchCountries = async () => {
             setLoadingCountries(true);
@@ -172,7 +172,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         fetchCountries();
     }, [language]);
 
-    // ============================ ПРОФЕССИИ ============================
+
     useEffect(() => {
         if (!isAuthor) return;
 
@@ -191,7 +191,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         fetchProfessions();
     }, [isAuthor]);
 
-    // ============================ ГОРОДА ============================
+
     useEffect(() => {
         const fetchCities = async () => {
             if (!formData.countryId) {
@@ -222,7 +222,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         fetchCities();
     }, [formData.countryId, countries, language]);
 
-    // ============================ ОБРАБОТЧИКИ ФОРМЫ ============================
+
     const handleChange = (
         e: React.ChangeEvent<
             HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -252,7 +252,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         setFormData((prev) => ({ ...prev, gender: value }));
     };
 
-    // ============================ АВАТАР ============================
+
     const handleAvatarPick = () => fileInputRef.current?.click();
 
     const handleAvatarInputChange = (
@@ -305,7 +305,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         setAvatarError(null);
     };
 
-    // ============================ SUBMIT ============================
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
@@ -569,7 +569,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                     </div>
                 )}
 
-                {/* ===================== AVATAR ===================== */}
+
                 {isAuthor && (
                     <div className="personal-info__avatar-block">
                         <label className="personal-info__avatar-label">

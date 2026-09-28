@@ -38,7 +38,7 @@ export interface ModeratorsResponse {
     };
 }
 
-// Получение всех модераторов
+
 export const getAllModerators = async (page: number = 1, limit: number = 10): Promise<ModeratorsResponse | null> => {
     try {
         const res = await fetch(`${BASE_URL}?page=${page}&limit=${limit}`, {
@@ -56,7 +56,7 @@ export const getAllModerators = async (page: number = 1, limit: number = 10): Pr
     }
 };
 
-// Получение модератора по ID
+
 export const getModeratorById = async (id: number): Promise<Moderator | null> => {
     try {
         const res = await fetch(`${BASE_URL}/${id}`, {
@@ -74,7 +74,7 @@ export const getModeratorById = async (id: number): Promise<Moderator | null> =>
     }
 };
 
-// Создание модератора (создание нового пользователя с ролью moderator)
+
 export const createModerator = async (data: CreateModeratorData): Promise<Moderator | null> => {
     try {
         const formData = new FormData();
@@ -106,7 +106,7 @@ export const createModerator = async (data: CreateModeratorData): Promise<Modera
     }
 };
 
-// Удаление модератора
+
 export const deleteModerator = async (id: number): Promise<boolean> => {
     try {
         const res = await fetch(`${BASE_URL}/${id}`, {
@@ -125,7 +125,7 @@ export const deleteModerator = async (id: number): Promise<boolean> => {
     }
 };
 
-// src/api/moderators/main.api.ts — добавить в конец
+
 
 export interface UpdateModeratorData {
     email?: string;

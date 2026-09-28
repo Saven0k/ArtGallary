@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Moderators/lang.ts
+
 import type { Language } from '../../../../../context/LanguageContext';
 
 export interface ModeratorsTranslations {

@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Arts/lang.ts
+
 
 import type { Language } from "../../../../../context/LanguageContext";
 

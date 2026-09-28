@@ -2,10 +2,10 @@ import { BASE_URL_API } from "../main.api";
 
 const BASE_URL = `${BASE_URL_API}/styles`;
 
-// === SERVER: styles.model.ts ===
-// id: integer auto-increment
-// name: string (unique, not null)
-// description: text (nullable)
+
+
+
+
 
 export interface Style {
     id: number;

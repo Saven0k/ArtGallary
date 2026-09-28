@@ -1,9 +1,9 @@
 import "./UpdateArtForm.scss";
 
 const UpdateArtForm = () => {
-    return ( 
+    return (
         <form className="art-form"></form>
      );
 }
- 
+
 export default UpdateArtForm;

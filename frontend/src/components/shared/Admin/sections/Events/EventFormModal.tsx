@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Events/EventFormModal.tsx
+
 import { useRef, useState } from 'react';
 import { X, Upload, Image as ImageIcon } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
@@ -9,10 +9,11 @@ import type {
     UpdateEventData,
 } from '../../../../../api/events/main.api';
 import { eventsTranslations } from './lang';
+import "./EventFormModal.scss"
 
-// ============================================================
-// Props — discriminated union
-// ============================================================
+
+
+
 
 interface EventFormBaseProps {
     busy: boolean;
@@ -33,9 +34,9 @@ interface EventFormEditProps extends EventFormBaseProps {
 
 type EventFormModalProps = EventFormCreateProps | EventFormEditProps;
 
-// ============================================================
-// Component
-// ============================================================
+
+
+
 
 const MAX_IMAGE_MB = 5;
 
@@ -46,7 +47,7 @@ const EventFormModal = (props: EventFormModalProps) => {
     const t = eventsTranslations[language];
     const common = adminTranslations[language].common;
 
-    // В edit-режиме event гарантирован типом
+
     const initialEvent = props.mode === 'edit' ? props.event : undefined;
 
     const [title, setTitle] = useState(initialEvent?.title ?? '');
@@ -64,7 +65,7 @@ const EventFormModal = (props: EventFormModalProps) => {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // ---------- image ----------
+
     const handleImagePick = () => fileInputRef.current?.click();
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,7 +98,7 @@ const EventFormModal = (props: EventFormModalProps) => {
         setImagePreview(null);
     };
 
-    // ---------- submit ----------
+
     const handleSubmit = () => {
         const e: typeof errors = {};
         if (!title.trim()) e.title = t.form.errors.titleRequired;
@@ -111,14 +112,14 @@ const EventFormModal = (props: EventFormModalProps) => {
         setErrors({});
 
         if (props.mode === 'create') {
-            // здесь TS знает, что props.onSubmit: (data: CreateEventData) => void
+
             props.onSubmit({
                 title: title.trim(),
                 description: description.trim(),
                 image: imageFile as File,
             });
         } else {
-            // здесь TS знает, что props.onSubmit: (data: UpdateEventData) => void
+
             const data: UpdateEventData = {};
 
             if (title.trim() && title.trim() !== props.event.title) {
@@ -135,7 +136,7 @@ const EventFormModal = (props: EventFormModalProps) => {
         }
     };
 
-    // ---------- render ----------
+
     const isCreate = props.mode === 'create';
 
     return (
@@ -185,7 +186,7 @@ const EventFormModal = (props: EventFormModalProps) => {
                         />
                     </label>
 
-                    {/* image */}
+                    {           }
                     <div className="event-form__image-block">
                         <span className="event-form__field-label">
                             {t.form.fields.image}

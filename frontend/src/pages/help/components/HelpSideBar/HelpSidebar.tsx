@@ -1,4 +1,4 @@
-// src/pages/Help/components/HelpSidebar.tsx
+
 import "./HelpSidebar.scss";
 import { translations } from "../../lang";
 import { useLanguage } from "../../../../hooks/useLanguage";

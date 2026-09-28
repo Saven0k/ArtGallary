@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Authors/AuthorFormModal.tsx
+
 import { useEffect, useRef, useState } from 'react';
 import { X, Upload, User as UserIcon } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
@@ -73,7 +73,7 @@ const AuthorFormModal = ({ busy, onClose, onSubmit }: AuthorFormModalProps) => {
 
     const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
 
-    // ---------- load dictionaries ----------
+
     useEffect(() => {
         (async () => {
             setLoadingCountries(true);
@@ -105,7 +105,7 @@ const AuthorFormModal = ({ busy, onClose, onSubmit }: AuthorFormModalProps) => {
         })();
     }, [form.countryId, countries, language]);
 
-    // ---------- field handlers ----------
+
     const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
         setForm((prev) => ({ ...prev, [key]: value }));
         setErrors((prev) => ({ ...prev, [key]: undefined }));
@@ -125,7 +125,7 @@ const AuthorFormModal = ({ busy, onClose, onSubmit }: AuthorFormModalProps) => {
         }
     };
 
-    // ---------- avatar ----------
+
     const handleAvatarPick = () => fileInputRef.current?.click();
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,7 +143,7 @@ const AuthorFormModal = ({ busy, onClose, onSubmit }: AuthorFormModalProps) => {
         setAvatarPreview(null);
     };
 
-    // ---------- validation ----------
+
     const validateStep = (): boolean => {
         const e: Partial<Record<keyof FormState, string>> = {};
 
@@ -203,7 +203,7 @@ const AuthorFormModal = ({ busy, onClose, onSubmit }: AuthorFormModalProps) => {
         onSubmit(data, avatarFile);
     };
 
-    // ---------- steps render ----------
+
     const renderPersonal = () => (
         <>
             <div className="author-form__row">
@@ -367,7 +367,7 @@ const AuthorFormModal = ({ busy, onClose, onSubmit }: AuthorFormModalProps) => {
                 />
             </label>
 
-            {/* avatar */}
+            {            }
             <div className="author-form__avatar-block">
                 <span className="author-form__field-label">
                     {t.form.fields.avatar}

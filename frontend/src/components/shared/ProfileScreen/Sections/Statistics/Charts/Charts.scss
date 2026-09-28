@@ -1,4 +1,4 @@
-// src/components/shared/ProfileScreen/Charts/Charts.scss
+
 
 .profile-stats {
     display: flex;
@@ -6,7 +6,7 @@
     gap: 24px;
 }
 
-/* верхние карточки */
+
 .stats-cards {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -38,7 +38,7 @@
     }
 }
 
-/* сетка чартов */
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -69,7 +69,7 @@
     grid-column: span 1;
 }
 
-/* общий контейнер графика */
+
 .chart-container {
     background: #fff;
     border: 1px solid #ececec;
@@ -131,7 +131,7 @@
     }
 }
 
-/* состояния */
+
 .chart-loading,
 .chart-empty,
 .stats-loading,

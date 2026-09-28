@@ -1,4 +1,4 @@
-// src/components/layout/CodeModal/CodeModal.tsx
+
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { requestResetCode, verifyResetCode } from '../../../api/auth/main.api';

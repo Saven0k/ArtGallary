@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Authors/AuthorsSection.tsx
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     Eye,
@@ -52,7 +52,7 @@ const AuthorsSection = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [total, setTotal] = useState(0);
 
-    // модалки
+
     const [createOpen, setCreateOpen] = useState(false);
     const [viewAuthor, setViewAuthor] = useState<AuthorProfileResponse | null>(null);
     const [moderateTarget, setModerateTarget] = useState<{
@@ -64,13 +64,13 @@ const AuthorsSection = () => {
     const [restoreTarget, setRestoreTarget] = useState<AuthorProfileResponse | null>(null);
     const [busy, setBusy] = useState(false);
 
-    // ---------- load ----------
+
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            // 'deleted' и 'all' пока через getAllAuthors + клиентский фильтр
-            // (у бэка есть только moderated/unmoderated)
+
+
             let res: Awaited<ReturnType<typeof getAuthors>> = null;
             if (tab === 'moderated') {
                 res = await getModeratedAuthors(page, PAGE_SIZE, language);
@@ -111,7 +111,7 @@ const AuthorsSection = () => {
         setPage(1);
     };
 
-    // ---------- actions ----------
+
     const handleModerate = async () => {
         if (!moderateTarget || !user) return;
         setBusy(true);
@@ -185,7 +185,7 @@ const AuthorsSection = () => {
         }
     };
 
-    // ---------- columns ----------
+
     const columns: Column<AuthorProfileResponse>[] = useMemo(
         () => [
             {
@@ -391,7 +391,7 @@ const AuthorsSection = () => {
                 </div>
             )}
 
-            {/* View */}
+
             {viewAuthor && (
                 <AuthorViewModal
                     author={viewAuthor}
@@ -399,7 +399,7 @@ const AuthorsSection = () => {
                 />
             )}
 
-            {/* Create */}
+
             {createOpen && (
                 <AuthorFormModal
                     busy={busy}
@@ -408,7 +408,7 @@ const AuthorsSection = () => {
                 />
             )}
 
-            {/* Moderate */}
+
             {moderateTarget && (
                 <div
                     className="authors-section__modal-overlay"
@@ -463,7 +463,7 @@ const AuthorsSection = () => {
                 </div>
             )}
 
-            {/* Delete */}
+
             {deleteTarget && (
                 <ConfirmModal
                     title={t.deleteModal.title}
@@ -476,7 +476,7 @@ const AuthorsSection = () => {
                 />
             )}
 
-            {/* Restore */}
+
             {restoreTarget && (
                 <ConfirmModal
                     title={t.restoreModal.title}

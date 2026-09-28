@@ -1,4 +1,4 @@
-// src/components/shared/ProfileScreen/PurchaseHistory/PurchaseHistory.tsx
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
     getCartHistory,
@@ -12,7 +12,7 @@ import {
 } from "./lang";
 import "./PurchaseHistory.scss";
 
-// ---------------- types ----------------
+
 
 type TabValue = "all" | OrderStatus;
 
@@ -31,7 +31,7 @@ interface PurchaseHistoryProps {
     userId?: number;
 }
 
-// ---------------- helpers ----------------
+
 
 const STATUS_TONE: Record<OrderStatus, "success" | "warning" | "danger"> = {
     delivered: "success",
@@ -45,7 +45,7 @@ const LOCALES: Record<Language, string> = {
     zh: "zh-CN",
 };
 
-// ---------------- component ----------------
+
 
 const PurchaseHistory = ({ lang = "ru", userId }: PurchaseHistoryProps) => {
     const { t } = usePurchaseHistoryTranslation(lang);
@@ -61,7 +61,7 @@ const PurchaseHistory = ({ lang = "ru", userId }: PurchaseHistoryProps) => {
         artsRef.current = arts;
     }, [arts]);
 
-    // --- форматирование прямо в компоненте ---
+
 
     const formatDate = (iso: string): string => {
         const d = new Date(iso);
@@ -92,7 +92,7 @@ const PurchaseHistory = ({ lang = "ru", userId }: PurchaseHistoryProps) => {
         { value: "cancelled", label: t("tabs.cancelled") },
     ];
 
-    // --- загрузка ---
+
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -133,14 +133,14 @@ const PurchaseHistory = ({ lang = "ru", userId }: PurchaseHistoryProps) => {
         }
 
         setLoading(false);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [tab, lang, userId]);
 
     useEffect(() => {
         load();
     }, [load]);
 
-    // --- render ---
+
     if (loading) {
         return (
             <section className="purchase-history purchase-history--loading">

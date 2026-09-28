@@ -1,4 +1,4 @@
-// src/pages/Services/ServicesPage.tsx
+
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import { servicesTranslations } from './lang';
@@ -23,10 +23,11 @@ const ServicesPage = () => {
                         <article key={card.id} className="service-card">
                             <div className="service-card__icon-wrapper">
                                 <img
-                                    src={card.icon}
+                                    src={card.img}
                                     alt={card.title}
-                                    className="service-card__icon"
+                                    className="service-card__img"
                                 />
+                                <img src={card.icon} alt={card.title} className="service-card__icon" />
                             </div>
 
                             <h2 className="service-card__title">{card.title}</h2>
@@ -37,11 +38,6 @@ const ServicesPage = () => {
                             <ul className="service-card__features">
                                 {card.features.map((feature, idx) => (
                                     <li key={idx} className="service-card__feature">
-                                        {/* <img
-                                            src={CheckIcon}
-                                            alt=""
-                                            className="service-card__feature-icon"
-                                        /> */}
                                         <span>{feature}</span>
                                     </li>
                                 ))}
@@ -51,11 +47,6 @@ const ServicesPage = () => {
 
                             <Link to={`/services/${card.id}`} className="service-card__more">
                                 <span>{t.more}</span>
-                                {/* <img
-                                    src={ArrowIcon}
-                                    alt=""
-                                    className="service-card__more-icon"
-                                /> */}
                             </Link>
                         </article>
                     ))}

@@ -1,4 +1,4 @@
-// src/pages/Authors/components/AuthorFilter/AuthorFilter.tsx
+
 import { useEffect, useState } from "react";
 import "./AuthorFilter.scss";
 import { authorsTranslations } from "../../lang";

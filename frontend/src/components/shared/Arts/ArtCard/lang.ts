@@ -1,4 +1,4 @@
-// src/components/ArtCard/lang.ts
+
 export type Language = 'ru' | 'en' | 'zh';
 
 export const artCardTranslations = {

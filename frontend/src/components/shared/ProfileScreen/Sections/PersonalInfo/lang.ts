@@ -1,4 +1,4 @@
-// src/pages/Profile/components/ProfileContent/PersonalInfo/lang.ts
+
 
 export type Language = 'ru' | 'en' | 'zh';
 
@@ -37,7 +37,7 @@ export interface PersonalInfoTranslations {
         errorLoading: string;
         errorSaving: string;
     };
-    emailHint: string;      // «изменить можно в настройках» — для hover
+    emailHint: string;
     button: string;
     avatar: {
         label: string;

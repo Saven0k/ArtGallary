@@ -1,4 +1,4 @@
-// src/components/shared/ProfileScreen/Charts/CountriesChart.tsx
+
 import { useMemo } from "react";
 import {
     Chart as ChartJS,
@@ -21,7 +21,7 @@ interface CountriesChartProps {
 }
 
 const CountriesChart = ({ data }: CountriesChartProps) => {
-    /** Топ-5 и перевод в проценты от общего числа просмотров */
+
     const items = useMemo(() => {
         const total = data.reduce((sum, item) => sum + item.count, 0);
         return data

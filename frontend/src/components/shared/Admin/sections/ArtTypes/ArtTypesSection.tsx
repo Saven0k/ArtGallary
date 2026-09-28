@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/ArtTypes/ArtTypesSection.tsx
+
 import { useCallback, useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Sparkles, Brush } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
@@ -36,7 +36,7 @@ const ArtTypesSection = () => {
     const [deleteTarget, setDeleteTarget] = useState<ArtType | null>(null);
     const [seedOpen, setSeedOpen] = useState(false);
 
-    // ---------- load ----------
+
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -55,7 +55,7 @@ const ArtTypesSection = () => {
         load();
     }, [load]);
 
-    // ---------- actions ----------
+
     const handleCreate = async (data: CreateArtTypeData) => {
         setBusy(true);
         try {
@@ -113,7 +113,7 @@ const ArtTypesSection = () => {
         }
     };
 
-    // ---------- columns ----------
+
     const columns: Column<ArtType>[] = [
         { key: 'id', title: t.table.id, width: '60px', render: (a) => a.id },
         {

@@ -1,4 +1,4 @@
-// src/pages/Settings/components/Toggle.tsx
+
 
 import "./Toggle.scss";
 

@@ -1,4 +1,4 @@
-// src/utils/cropImage.ts
+
 export interface PixelCrop {
     x: number;
     y: number;
@@ -15,10 +15,10 @@ const createImage = (url: string): Promise<HTMLImageElement> =>
         image.src = url;
     });
 
-/**
- * Обрезает изображение по pixelCrop и возвращает Blob.
- * Формат — JPEG, качество 0.92.
- */
+
+
+
+
 export const getCroppedImg = async (
     imageSrc: string,
     pixelCrop: PixelCrop,
@@ -30,7 +30,7 @@ export const getCroppedImg = async (
 
     if (!ctx) throw new Error('Canvas context is null');
 
-    const targetSize = 512; // квадрат 512x512 — оптимально для аватара
+    const targetSize = 512;
 
     canvas.width = targetSize;
     canvas.height = targetSize;

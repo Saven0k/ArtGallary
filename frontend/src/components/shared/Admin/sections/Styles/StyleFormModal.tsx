@@ -1,10 +1,11 @@
-// src/components/shared/Admin/sections/Styles/StyleFormModal.tsx
+
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { adminTranslations } from '../../../../../pages/admin/lang';
 import type { Style } from '../../../../../api/styles/main.api';
 import { stylesTranslations } from './lang';
+import "./StyleFormModal.scss"
 
 interface StyleFormModalProps {
     mode: 'create' | 'edit';

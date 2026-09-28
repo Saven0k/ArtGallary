@@ -1,11 +1,12 @@
-import { useState } from 'react';
+// src/pages/Profile/components/ChangeEmailModal/ChangeEmailModal.tsx
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import {
-    verifyCurrentEmail,
     requestEmailChangeCode,
     confirmEmailChange,
 } from '../../../../api/auth/main.api';
 import { useLanguage } from '../../../../hooks/useLanguage';
+import { useAuth } from '../../../../hooks/useAuth';
 import { changeEmailTranslations } from './lang';
 import './ChangeEmailModal.scss';
 
@@ -15,42 +16,44 @@ interface ChangeEmailModalProps {
     onError?: () => void;
 }
 
-type Step = 'current' | 'newEmail' | 'code' | 'password';
+type Step = 'newEmail' | 'code' | 'password';
 
 const ChangeEmailModal = ({ onClose, onSuccess, onError }: ChangeEmailModalProps) => {
     const { language } = useLanguage();
+    const { user } = useAuth();
     const t = changeEmailTranslations[language];
 
-    const [step, setStep] = useState<Step>('current');
-    const [currentEmail, setCurrentEmail] = useState('');
+    // Текущий email — из контекста, ничего вводить не надо
+    const currentEmail = user?.email ?? '';
+
+    const [step, setStep] = useState<Step>('newEmail');
     const [newEmail, setNewEmail] = useState('');
     const [code, setCode] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Шаг 1: текущий email
-    const handleVerifyCurrent = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-        setLoading(true);
-        try {
-            await verifyCurrentEmail({ email: currentEmail });
-            setStep('newEmail');
-        } catch (err: any) {
-            setError(err?.message || t.errors.generic);
-        } finally {
-            setLoading(false);
+    // Если пользователь не авторизован — закрываем модалку сразу
+    useEffect(() => {
+        if (!currentEmail) {
+            onClose();
         }
-    };
+    }, [currentEmail, onClose]);
 
-    // Шаг 2: новый email → отправить код
+    // ---------- шаг 1: новый email → отправляем код ----------
     const handleRequestCode = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+
+        if (!newEmail.trim()) return;
+        if (newEmail.trim().toLowerCase() === currentEmail.toLowerCase()) {
+            setError(t.errors.sameAsCurrent);
+            return;
+        }
+
         setLoading(true);
         try {
-            await requestEmailChangeCode({ newEmail });
+            await requestEmailChangeCode({ newEmail: newEmail.trim() });
             setStep('code');
         } catch (err: any) {
             setError(err?.message || t.errors.generic);
@@ -59,7 +62,7 @@ const ChangeEmailModal = ({ onClose, onSuccess, onError }: ChangeEmailModalProps
         }
     };
 
-    // Шаг 3: код → дальше к паролю (локальная проверка длины)
+    // ---------- шаг 2: код → переходим к паролю ----------
     const handleCodeNext = (e: React.FormEvent) => {
         e.preventDefault();
         if (code.length !== 6) {
@@ -70,13 +73,17 @@ const ChangeEmailModal = ({ onClose, onSuccess, onError }: ChangeEmailModalProps
         setStep('password');
     };
 
-    // Шаг 4: пароль + подтверждение
+    // ---------- шаг 3: пароль + подтверждение ----------
     const handleConfirm = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         setLoading(true);
         try {
-            await confirmEmailChange({ newEmail, code, password });
+            await confirmEmailChange({
+                newEmail: newEmail.trim(),
+                code,
+                password,
+            });
             onSuccess?.();
             onClose();
         } catch (err: any) {
@@ -107,28 +114,10 @@ const ChangeEmailModal = ({ onClose, onSuccess, onError }: ChangeEmailModalProps
                     </button>
                 </header>
 
-                {step === 'current' && (
-                    <form className="change-email__form" onSubmit={handleVerifyCurrent}>
-                        <p className="change-email__hint">{t.currentHint}</p>
-                        <input
-                            type="email"
-                            className="change-email__input"
-                            value={currentEmail}
-                            onChange={(e) => setCurrentEmail(e.target.value)}
-                            placeholder={t.currentPlaceholder}
-                            autoFocus
-                            disabled={loading}
-                        />
-                        {error && <div className="change-email__error">{error}</div>}
-                        <button
-                            type="submit"
-                            className="change-email__btn change-email__btn--primary"
-                            disabled={loading || !currentEmail}
-                        >
-                            {loading ? t.checking : t.next}
-                        </button>
-                    </form>
-                )}
+                {/* подсказка: текущий email */}
+                <div className="change-email__current">
+                    {t.currentLabel}: <strong>{currentEmail}</strong>
+                </div>
 
                 {step === 'newEmail' && (
                     <form className="change-email__form" onSubmit={handleRequestCode}>
@@ -146,7 +135,7 @@ const ChangeEmailModal = ({ onClose, onSuccess, onError }: ChangeEmailModalProps
                         <button
                             type="submit"
                             className="change-email__btn change-email__btn--primary"
-                            disabled={loading || !newEmail}
+                            disabled={loading || !newEmail.trim()}
                         >
                             {loading ? t.sending : t.sendCode}
                         </button>

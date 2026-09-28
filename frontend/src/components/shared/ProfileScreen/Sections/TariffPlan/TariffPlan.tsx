@@ -1,4 +1,4 @@
-// src/components/TariffPlan/TariffPlan.tsx
+
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { tariffPlanTranslations } from './lang';
 import './TariffPlan.scss';

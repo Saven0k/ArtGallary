@@ -1,4 +1,4 @@
-// src/components/layout/CodeModal/lang.ts
+
 
 export type Language = 'ru' | 'en' | 'zh';
 

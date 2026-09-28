@@ -1,4 +1,4 @@
-// src/components/shared/ProfileScreen/Cart/Cart.tsx
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     clearCart,
@@ -6,10 +6,10 @@ import {
     removeFromCart,
     type CartData,
 } from "../../../../../api/cart/main.api";
-import { getArtById } from "../../../../../api/arts/main.api"; // ваш существующий метод
+import { getArtById } from "../../../../../api/arts/main.api";
 import "./Cart.scss";
 
-// ---------------- types ----------------
+
 
 interface ArtPreview {
     id: number;
@@ -18,7 +18,7 @@ interface ArtPreview {
     authorName: string;
     price: number;
     currency: string;
-    isOriginal: boolean; // на фронте решаем: оригинал = дорогая версия
+    isOriginal: boolean;
 }
 
 interface CartLine extends ArtPreview {
@@ -26,7 +26,7 @@ interface CartLine extends ArtPreview {
     total: number;
 }
 
-// ---------------- promo ----------------
+
 
 const PROMO_CODES: Record<string, number> = {
     SALE10: 10,
@@ -34,17 +34,17 @@ const PROMO_CODES: Record<string, number> = {
     ART20: 20,
 };
 
-// ---------------- helpers ----------------
+
 
 const formatPrice = (value: number, currency: string = "RUB"): string => {
     const symbol = currency === "RUB" ? "₽" : currency;
     return `${value.toLocaleString("ru-RU")} ${symbol}`;
 };
 
-/** Оригиналом считаем всё, что дороже 5000 ₽ — эвристика для MVP */
+
 const isOriginalByPrice = (price: number): boolean => price > 5000;
 
-// ---------------- row ----------------
+
 
 const CartItemRow = ({
     line,
@@ -108,7 +108,7 @@ const CartItemRow = ({
     </div>
 );
 
-// ---------------- component ----------------
+
 
 const Cart = () => {
     const [artIds, setArtIds] = useState<number[]>([]);
@@ -120,7 +120,7 @@ const Cart = () => {
     const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    // --- загрузка корзины и картин ---
+
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -134,7 +134,7 @@ const Cart = () => {
 
         setArtIds(cart.artIds);
 
-        // догружаем недостающие картины параллельно
+
         const missing = cart.artIds.filter((id) => !arts[id]);
         const fetched = await Promise.all(
             missing.map((id) => getArtById(id)),
@@ -155,7 +155,7 @@ const Cart = () => {
         });
         setArts(next);
 
-        // инициализируем количество = 1 для новых позиций
+
         setQuantities((prev) => {
             const copy = { ...prev };
             cart.artIds.forEach((id) => {
@@ -169,10 +169,10 @@ const Cart = () => {
 
     useEffect(() => {
         load();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, []);
 
-    // --- сборка строк корзины ---
+
     const lines: CartLine[] = useMemo(() => {
         return artIds
             .map((id) => {
@@ -188,7 +188,7 @@ const Cart = () => {
             .filter((line): line is CartLine => line !== null);
     }, [artIds, arts, quantities]);
 
-    // --- подсчёт итогов ---
+
     const totals = useMemo(() => {
         const subtotal = lines.reduce((sum, l) => sum + l.total, 0);
         const percent = appliedPromo ? PROMO_CODES[appliedPromo] ?? 0 : 0;
@@ -201,7 +201,7 @@ const Cart = () => {
         };
     }, [lines, appliedPromo]);
 
-    // --- действия ---
+
     const handleQuantity = (id: number, quantity: number) => {
         const next = Math.max(1, Math.min(999, Math.floor(quantity)));
         setQuantities((prev) => ({ ...prev, [id]: next }));
@@ -252,7 +252,7 @@ const Cart = () => {
 
     const handleRemovePromo = () => setAppliedPromo(null);
 
-    // --- render ---
+
     if (loading) {
         return (
             <section className="profile-cart profile-cart--loading">

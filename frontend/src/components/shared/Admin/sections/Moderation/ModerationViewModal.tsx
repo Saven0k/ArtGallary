@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Moderation/ModerationViewModal.tsx
+
 import { X, Image as ImageIcon, User as UserIcon } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { adminTranslations } from '../../../../../pages/admin/lang';

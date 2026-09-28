@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Moderators/ModeratorFormModal.tsx
+
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
@@ -11,9 +11,9 @@ import type {
 import { moderatorsTranslations } from './lang';
 import './ModeratorFormModal.scss';
 
-// ============================================================
-// Props — discriminated union
-// ============================================================
+
+
+
 
 interface ModeratorFormBaseProps {
     busy: boolean;
@@ -36,7 +36,7 @@ type ModeratorFormModalProps =
     | ModeratorFormCreateProps
     | ModeratorFormEditProps;
 
-// ============================================================
+
 
 const ModeratorFormModal = (props: ModeratorFormModalProps) => {
     const { busy, onClose } = props;
@@ -58,7 +58,7 @@ const ModeratorFormModal = (props: ModeratorFormModalProps) => {
 
     const [errors, setErrors] = useState<Record<string, string | undefined>>({});
 
-    // ---------- submit ----------
+
     const handleSubmit = () => {
         const e: typeof errors = {};
 

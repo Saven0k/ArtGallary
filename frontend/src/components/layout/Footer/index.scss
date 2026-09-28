@@ -5,7 +5,7 @@ body {
     padding: 0;
 }
 
-#root,
+
 .app {
     min-height: 100%;
     display: flex;
@@ -39,7 +39,7 @@ body {
     margin-bottom: 50px;
 }
 
-/* Колонки */
+
 .footer__column {
     animation: fadeInUp 0.6s ease-out;
 }
@@ -56,7 +56,7 @@ body {
     }
 }
 
-/* Логотип */
+
 .footer__logo {
     display: flex;
     align-items: center;
@@ -90,7 +90,7 @@ body {
     color: transparent;
 }
 
-/* Описание */
+
 .footer__description {
     color: rgba(255, 255, 255, 0.8);
     line-height: 1.6;
@@ -98,7 +98,7 @@ body {
     font-size: 14px;
 }
 
-/* Социальные сети */
+
 .footer__social {
     display: flex;
     gap: 16px;
@@ -129,7 +129,7 @@ body {
 
 }
 
-/* Заголовки колонок */
+
 .footer__title {
     font-size: 18px;
     font-weight: 600;
@@ -149,7 +149,7 @@ body {
     border-radius: 2px;
 }
 
-/* Ссылки */
+
 .footer__links {
     list-style: none;
     padding: 0;
@@ -173,7 +173,7 @@ body {
     transform: translateX(5px);
 }
 
-/* Контактная информация */
+
 .footer__contact-info {
     display: flex;
     flex-direction: column;
@@ -204,7 +204,7 @@ body {
     color: white;
 }
 
-/* Подписка на новости */
+
 .footer__newsletter {
     margin-top: 20px;
 }
@@ -260,7 +260,7 @@ body {
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
-/* Нижняя часть */
+
 .footer__bottom {
     display: flex;
     justify-content: space-between;
@@ -276,7 +276,7 @@ body {
     font-size: 14px;
 }
 
-/* Кнопка скролла вверх */
+
 .footer__scroll-top {
     width: 44px;
     height: 44px;
@@ -303,9 +303,9 @@ body {
     color: #fff;
 }
 
-/* ============================================
-   АДАПТИВНОСТЬ
-   ============================================ */
+
+
+
 
 @media (max-width: 768px) {
     .footer__content {
@@ -362,20 +362,20 @@ body {
     }
 }
 
-/* ============================================
-   ТЕМНАЯ ТЕМА (уже применена)
-   ============================================ */
 
-/* Футер уже имеет темную тему, но для поддержки глобальной темы */
+
+
+
+
 [data-theme="light"] .footer {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* ============================================
-   ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ ПРИЖАТИЯ
-   ============================================ */
 
-/* Убедитесь, что основной контент занимает всё доступное пространство */
+
+
+
+
 .main-content,
 .page-container,
 .author-arts,
@@ -386,7 +386,7 @@ body {
     flex: 1 0 auto;
 }
 
-/* Для страниц, которые могут быть меньше экрана */
+
 .centered {
     flex: 1;
     display: flex;

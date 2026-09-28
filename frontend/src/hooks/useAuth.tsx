@@ -9,13 +9,13 @@ export const useAuth = () => {
         if (!ctx.user) return false;
         return roles.includes(ctx.user.role);
     };
-    
+
     const isAdmin = () => ctx.user?.role === 'admin';
     const isModerator = () => ctx.user?.role === 'moderator';
     const isAuthor = () => ctx.user?.role === 'author';
     const isVisitor = () => false;
     const isUser = () => ctx.user?.role === 'user';
-    
+
     return {
         ...ctx,
         hasRole,

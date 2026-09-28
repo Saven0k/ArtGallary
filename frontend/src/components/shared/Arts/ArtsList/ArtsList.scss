@@ -1,4 +1,4 @@
-// ArtsList.scss
+
 
 .art-list {
     display: grid;
@@ -13,7 +13,7 @@
         min-width: 0;
     }
 
-    // Если карточки маленькие — больше колонок
+
     @media (min-width: 1600px) {
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: 28px;

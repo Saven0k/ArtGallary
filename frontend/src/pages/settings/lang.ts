@@ -1,4 +1,4 @@
-// src/pages/Settings/lang.ts
+
 
 export type Language = 'ru' | 'en' | 'zh';
 

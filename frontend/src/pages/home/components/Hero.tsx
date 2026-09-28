@@ -7,7 +7,7 @@ const Hero = () => {
     const { language } = useLanguage();
     const t = translations[language].home.hero;
 
-    // Массив навигационных ссылок для удобства
+
     const navLinks = [
         { path: '/arts', label: t.nav.paintings },
         { path: '/authors', label: t.nav.guohua },

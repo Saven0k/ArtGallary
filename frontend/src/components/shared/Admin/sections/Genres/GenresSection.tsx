@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Genres/GenresSection.tsx
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Plus, Pencil, Trash2, Sparkles, BookOpen } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
@@ -43,7 +43,7 @@ const GenresSection = () => {
     const [deleteTarget, setDeleteTarget] = useState<Genre | null>(null);
     const [seedOpen, setSeedOpen] = useState(false);
 
-    // ---------- load ----------
+
     const loadArtTypes = useCallback(async () => {
         try {
             const data = await getAllArtTypes();
@@ -79,7 +79,7 @@ const GenresSection = () => {
         loadGenres();
     }, [loadGenres]);
 
-    // ---------- actions ----------
+
     const handleCreate = async (data: CreateGenreData) => {
         setBusy(true);
         try {
@@ -137,7 +137,7 @@ const GenresSection = () => {
         }
     };
 
-    // ---------- columns ----------
+
     const columns: Column<Genre>[] = [
         { key: 'id', title: t.table.id, width: '60px', render: (g) => g.id },
         {

@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Moderators/ModeratorsSection.tsx
+
 import { useCallback, useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, UserCog } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
@@ -40,7 +40,7 @@ const ModeratorsSection = () => {
     const [editTarget, setEditTarget] = useState<Moderator | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<Moderator | null>(null);
 
-    // ---------- load ----------
+
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -62,7 +62,7 @@ const ModeratorsSection = () => {
         load();
     }, [load]);
 
-    // ---------- actions ----------
+
     const handleCreate = async (data: CreateModeratorData) => {
         setBusy(true);
         try {
@@ -109,7 +109,7 @@ const ModeratorsSection = () => {
         }
     };
 
-    // ---------- columns ----------
+
     const columns: Column<Moderator>[] = [
         {
             key: 'avatar',
@@ -246,7 +246,7 @@ const ModeratorsSection = () => {
                 </div>
             )}
 
-            {/* Create */}
+
             {createOpen && (
                 <ModeratorFormModal
                     mode="create"
@@ -256,7 +256,7 @@ const ModeratorsSection = () => {
                 />
             )}
 
-            {/* Edit */}
+
             {editTarget && (
                 <ModeratorFormModal
                     mode="edit"
@@ -267,7 +267,7 @@ const ModeratorsSection = () => {
                 />
             )}
 
-            {/* Delete */}
+
             {deleteTarget && (
                 <ConfirmModal
                     title={t.deleteModal.title}

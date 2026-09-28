@@ -1,4 +1,4 @@
-// src/pages/Profile/components/ProfileContent/ChangePasswordModal/ChangePasswordModal.tsx
+
 import { useState } from 'react';
 import { Eye, EyeOff, X } from 'lucide-react';
 import { resetPassword } from '../../../../api/auth/main.api';
@@ -48,7 +48,7 @@ const ChangePasswordModal = ({ resetToken, onClose, onSuccess, onError }: Change
             onClose();
         } catch (err: any) {
             setError(err?.message || t.errors.generic);
-            onError?.(); 
+            onError?.();
         } finally {
             setLoading(false);
         }

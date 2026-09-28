@@ -1,4 +1,4 @@
-// src/pages/Register/RegisterPage.tsx
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import RegisterUser from "../../components/shared/auth/RegisterForm/RegisterUser";
@@ -25,7 +25,7 @@ const RegisterPage = () => {
         }
     }, [isLoading, user, navigate]);
 
-    // Пока проверяем авторизацию — не мигаем формой
+
     if (isLoading) {
         return (
             <div className="register-page auth-page">
@@ -36,7 +36,7 @@ const RegisterPage = () => {
         );
     }
 
-    // Если уже авторизован — не рендерим ничего (уйдёт редирект)
+
     if (user) return null;
 
     return (

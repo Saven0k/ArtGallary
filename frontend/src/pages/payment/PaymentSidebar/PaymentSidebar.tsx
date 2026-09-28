@@ -1,11 +1,11 @@
 import "./PaymentSidebar.scss";
 
 const PaymentSidebar = () => {
-    return ( 
+    return (
         <div className="payment-sidebar">
 
         </div>
      );
 }
- 
+
 export default PaymentSidebar;

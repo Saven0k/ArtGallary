@@ -1,11 +1,11 @@
-// import { ArtDetail } from "../../components/shared/ArtDetail/ArtDetail";
+
 
 const ArtPage = () => {
-    return ( 
+    return (
         <>
-        {/* <ArtDetail /> */}
+        {                   }
         </>
      );
 }
- 
+
 export default ArtPage;

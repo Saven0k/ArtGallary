@@ -1,4 +1,4 @@
-// src/pages/admin/AdminPage.tsx
+
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -31,10 +31,10 @@ const AdminPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const role = user?.role ?? 'user';
 
-    // секции, доступные текущей роли
+
     const available = ADMIN_SECTIONS.filter((s) => s.roles.includes(role));
 
-    // URL — источник истины для активной секции
+
     const sectionFromUrl = searchParams.get('section');
     const initial: AdminSectionId =
         isValidAdminSection(sectionFromUrl) &&

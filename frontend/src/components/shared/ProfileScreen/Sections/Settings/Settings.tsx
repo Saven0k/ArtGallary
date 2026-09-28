@@ -46,12 +46,12 @@ const Settings = ({ id, role }: SettingsProps) => {
                 await deleteUser(id);
             }
             showNotification(n.accountDeleted, 'success');
-            // Выход из аккаунта + редирект на /
+
             await logout();
         } catch (err) {
             console.error('delete account error:', err);
             showNotification(n.accountDeleteFailed, 'error');
-            throw err;   // чтобы модалка показала ошибку
+            throw err;
         }
     };
 

@@ -1,4 +1,4 @@
-// src/pages/Author/components/AuthRequiredModal/AuthRequiredModal.tsx
+
 import { Link } from 'react-router-dom';
 import './AuthRequiredModal.scss';
 
@@ -7,7 +7,7 @@ export interface AuthRequiredModalProps {
     text: string;
     loginLabel: string;
     cancelLabel: string;
-    /** куда вернуть пользователя после логина */
+
     redirectTo?: string;
     onClose: () => void;
 }

@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/ArtTypes/lang.ts
+
 import type { Language } from '../../../../../context/LanguageContext';
 
 export interface ArtTypesTranslations {

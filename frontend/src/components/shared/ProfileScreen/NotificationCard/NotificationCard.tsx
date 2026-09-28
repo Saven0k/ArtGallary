@@ -1,4 +1,4 @@
-// src/components/shared/ProfileScreen/NotificationCard/NotificationCard.tsx
+
 import { X } from 'lucide-react';
 import './NotificationCard.scss';
 

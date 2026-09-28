@@ -1,4 +1,4 @@
-// src/components/layout/Header/lang.ts
+
 export type Language = 'ru' | 'en' | 'zh';
 
 export const headerTranslations = {
@@ -61,7 +61,7 @@ export const headerTranslations = {
     }
 };
 
-// Вспомогательные функции для работы с переводами
+
 export const getTranslation = (lang: Language, path: string): string => {
     const keys = path.split('.');
     let result: any = headerTranslations[lang];

@@ -1,4 +1,4 @@
-// src/components/shared/ProfileScreen/Sections/Notifications/Notifications.tsx
+
 import { useEffect, useState, type JSX } from 'react';
 import { Heart, UserPlus, BadgeCheck, Palette, Bell, Trash2 } from 'lucide-react';
 import {
@@ -53,7 +53,7 @@ const Notifications = ({ id, role }: NotificationsProps) => {
     const [hasNextPage, setHasNextPage] = useState(false);
     const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
 
-    // Загрузка первой страницы
+
     useEffect(() => {
         let alive = true;
         (async () => {

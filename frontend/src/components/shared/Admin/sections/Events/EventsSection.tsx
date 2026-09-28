@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Events/EventsSection.tsx
+
 import { useCallback, useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Image as ImageIcon } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
@@ -40,7 +40,7 @@ const EventsSection = () => {
     const [editTarget, setEditTarget] = useState<Event | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<Event | null>(null);
 
-    // ---------- load ----------
+
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -62,7 +62,7 @@ const EventsSection = () => {
         load();
     }, [load]);
 
-    // ---------- actions ----------
+
     const handleCreate = async (data: CreateEventData) => {
         setBusy(true);
         try {
@@ -109,7 +109,7 @@ const EventsSection = () => {
         }
     };
 
-    // ---------- columns ----------
+
     const columns: Column<Event>[] = [
         {
             key: 'image',
@@ -243,7 +243,7 @@ const EventsSection = () => {
                 </div>
             )}
 
-            {/* Create */}
+
             {createOpen && (
                 <EventFormModal
                     mode="create"
@@ -253,7 +253,7 @@ const EventsSection = () => {
                 />
             )}
 
-            {/* Edit */}
+
             {editTarget && (
                 <EventFormModal
                     mode="edit"
@@ -264,7 +264,7 @@ const EventsSection = () => {
                 />
             )}
 
-            {/* Delete */}
+
             {deleteTarget && (
                 <ConfirmModal
                     title={t.deleteModal.title}

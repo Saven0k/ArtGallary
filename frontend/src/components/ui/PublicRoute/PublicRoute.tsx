@@ -8,9 +8,9 @@ interface PublicRouteProps {
     redirectTo?: string;
 }
 
-export const PublicRoute: React.FC<PublicRouteProps> = ({ 
-    children, 
-    redirectTo = "/profile" 
+export const PublicRoute: React.FC<PublicRouteProps> = ({
+    children,
+    redirectTo = "/profile"
 }) => {
     const { isLoading, isAuthenticated } = useAuth();
     const { language } = useLanguage();

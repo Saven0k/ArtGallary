@@ -1,4 +1,4 @@
-// src/components/Likes/Likes.tsx
+
 import { useCallback, useEffect, useState } from 'react';
 import {
     getLikedArts,
@@ -42,12 +42,12 @@ const Likes = () => {
     }, [page, fetchLiked]);
 
     const handleUnlike = async (artId: number) => {
-        // Оптимистично убираем из UI
+
         setArts(prev => prev.filter(a => a.id !== artId));
 
         const res = await unlikeArt(artId);
         if (!res || !res.success) {
-            // Откат при ошибке
+
             fetchLiked(page);
         }
     };

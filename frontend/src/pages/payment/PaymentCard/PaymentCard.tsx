@@ -1,9 +1,9 @@
 import "./PaymentCard.scss"
 
 const PaymentCard = () => {
-    return ( 
+    return (
         <div className="payment-card"></div>
      );
 }
- 
+
 export default PaymentCard;

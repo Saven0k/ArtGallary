@@ -1,4 +1,4 @@
-// src/pages/Settings/components/LanguageSwitcher.tsx
+
 
 import { useLanguage } from "../../../hooks/useLanguage";
 import {

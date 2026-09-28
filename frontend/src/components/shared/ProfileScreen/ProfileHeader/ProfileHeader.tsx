@@ -1,4 +1,4 @@
-// src/components/shared/ProfileScreen/ProfileHeader/ProfileHeader.tsx
+
 import { Crown } from 'lucide-react';
 import { useLanguage } from '../../../../hooks/useLanguage';
 import {
@@ -12,9 +12,9 @@ interface ProfileHeaderProps {
     avatar: string;
     name: string;
     role: string;
-    /** Ключ плана с бэка: 'free' | 'pro' | 'vip' */
+
     plan: string;
-    /** Название профессии на русском (как в БД). Только для авторов. */
+
     professionName?: string | null;
 }
 

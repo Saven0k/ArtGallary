@@ -1,8 +1,9 @@
-// src/components/shared/Admin/sections/ArtTypes/ArtTypeFormModal.tsx
+
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { adminTranslations } from '../../../../../pages/admin/lang';
+import "./ArtTypeFormModal.scss"
 import type {
     ArtType,
     CreateArtTypeData,

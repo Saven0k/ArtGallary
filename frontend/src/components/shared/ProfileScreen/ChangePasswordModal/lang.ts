@@ -1,4 +1,4 @@
-// src/pages/Profile/components/ProfileContent/ChangePasswordModal/lang.ts
+
 
 export type Language = 'ru' | 'en' | 'zh';
 

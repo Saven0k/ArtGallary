@@ -1,4 +1,4 @@
-// src/components/Navigation/lang.ts
+
 export type Language = 'ru' | 'en' | 'zh';
 
 export const navigationTranslations = {
@@ -10,6 +10,7 @@ export const navigationTranslations = {
             arts: "Арты",
             authors: "Авторы",
             services: "Услуги",
+            consultation: "Арт-консультация",
             contacts: "Контакты",
             about: "О нас",
             gallery: "Галерея",
@@ -29,6 +30,7 @@ export const navigationTranslations = {
             arts: "Arts",
             authors: "Authors",
             services: "Services",
+            consultation: "Art consultation",
             contacts: "Contacts",
             about: "About us",
             gallery: "Gallery",
@@ -48,6 +50,7 @@ export const navigationTranslations = {
             arts: "艺术作品",
             authors: "作者",
             services: "服务",
+            consultation: "艺术咨询",
             contacts: "联系方式",
             about: "关于我们",
             gallery: "画廊",

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { UserDataForSidebar } from '../ProfileSidebar';    
+import type { UserDataForSidebar } from '../ProfileSidebar';
 
 interface UserHeaderProps {
     userData: UserDataForSidebar;

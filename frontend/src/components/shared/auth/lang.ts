@@ -1,4 +1,4 @@
-// src/pages/Register/components/lang.ts
+
 
 export const registerAuthorTranslations = {
     ru: {
@@ -222,7 +222,7 @@ export const registerAuthorTranslations = {
     }
 };
 
-// Переводы для RegisterUser (3 шага)
+
 export const registerUserTranslations = {
     ru: {
         registerUser: {

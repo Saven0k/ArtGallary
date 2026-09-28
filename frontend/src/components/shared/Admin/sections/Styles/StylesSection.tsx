@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Styles/StylesSection.tsx
+
 import { useCallback, useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Palette } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
@@ -32,7 +32,7 @@ const StylesSection = () => {
     const [editTarget, setEditTarget] = useState<Style | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<Style | null>(null);
 
-    // ---------- load ----------
+
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -51,7 +51,7 @@ const StylesSection = () => {
         load();
     }, [load]);
 
-    // ---------- actions ----------
+
     const handleCreate = async (data: { name: string; description?: string }) => {
         setBusy(true);
         try {
@@ -98,7 +98,7 @@ const StylesSection = () => {
         }
     };
 
-    // ---------- columns ----------
+
     const columns: Column<Style>[] = [
         {
             key: 'id',
@@ -177,7 +177,7 @@ const StylesSection = () => {
                 />
             )}
 
-            {/* Create */}
+            {            }
             {createOpen && (
                 <StyleFormModal
                     mode="create"
@@ -187,7 +187,7 @@ const StylesSection = () => {
                 />
             )}
 
-            {/* Edit */}
+            {          }
             {editTarget && (
                 <StyleFormModal
                     mode="edit"
@@ -198,7 +198,7 @@ const StylesSection = () => {
                 />
             )}
 
-            {/* Delete */}
+            {            }
             {deleteTarget && (
                 <ConfirmModal
                     title={t.deleteModal.title}

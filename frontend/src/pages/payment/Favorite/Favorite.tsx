@@ -1,11 +1,11 @@
 import "./Favorite.scss"
 
 const Favorite = () => {
-    return ( 
+    return (
         <div className="favorite">
 
         </div>
      );
 }
- 
+
 export default Favorite;

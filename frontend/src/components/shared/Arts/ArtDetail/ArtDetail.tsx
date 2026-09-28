@@ -1,9 +1,9 @@
 import "./ArtDetail.scss";
 
 const ArtDetail = () => {
-    return ( 
+    return (
         <div className="art"></div>
      );
 }
- 
+
 export default ArtDetail;

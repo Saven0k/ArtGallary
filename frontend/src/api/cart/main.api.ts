@@ -1,9 +1,9 @@
-// src/api/cart/main.api.ts
+
 import { BASE_URL_API } from "../main.api";
 
 const BASE_URL = `${BASE_URL_API}/cart`;
 
-// -------------------- types --------------------
+
 
 export interface CartData {
     userId: number;
@@ -11,7 +11,7 @@ export interface CartData {
     itemsCount: number;
 }
 
-// -------------------- helpers --------------------
+
 
 const request = async <T>(
     url: string,
@@ -36,7 +36,7 @@ const json = (body: unknown): RequestInit => ({
     body: JSON.stringify(body),
 });
 
-// -------------------- endpoints --------------------
+
 
 export const getCart = () => request<CartData>(`${BASE_URL}`);
 

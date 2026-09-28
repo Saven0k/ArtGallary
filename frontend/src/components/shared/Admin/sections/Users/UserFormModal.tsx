@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Users/UserFormModal.tsx
+
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
@@ -9,6 +9,8 @@ import {
     type CountrySuggestion,
     type CitySuggestion,
 } from '../../../../../api/location/main.api';
+
+import "./UserFormModal.scss"
 import type {
     User,
     CreateUserData,
@@ -61,7 +63,7 @@ const UserFormModal = ({ mode, user, busy, onClose, onSubmit }: UserFormModalPro
 
     const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
 
-    // ---------- dictionaries ----------
+
     useEffect(() => {
         (async () => {
             setLoadingCountries(true);
@@ -90,7 +92,7 @@ const UserFormModal = ({ mode, user, busy, onClose, onSubmit }: UserFormModalPro
         })();
     }, [form.countryId, countries, language]);
 
-    // ---------- handlers ----------
+
     const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
         setForm((prev) => ({ ...prev, [key]: value }));
         setErrors((prev) => ({ ...prev, [key]: undefined }));
@@ -110,7 +112,7 @@ const UserFormModal = ({ mode, user, busy, onClose, onSubmit }: UserFormModalPro
         }
     };
 
-    // ---------- validation ----------
+
     const validate = (): boolean => {
         const e: Partial<Record<keyof FormState, string>> = {};
 

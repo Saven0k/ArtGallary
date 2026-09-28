@@ -1,4 +1,4 @@
-// src/pages/About/components/AboutUs/AboutUs.scss
+
 .about-us {
     background: var(--bg-default, #F8F8F8);
 
@@ -60,7 +60,7 @@
         }
     }
 
-    // Разделители между параграфами (декоративные линии)
+
     &__text:not(:last-of-type) {
         position: relative;
 
@@ -76,7 +76,7 @@
         }
     }
 
-    // Адаптив для планшетов
+
     @media (max-width: 1024px) {
         padding: 48px 0 64px;
 
@@ -98,7 +98,7 @@
         }
     }
 
-    // Адаптив для мобильных
+
     @media (max-width: 768px) {
         padding: 32px 0 48px;
 

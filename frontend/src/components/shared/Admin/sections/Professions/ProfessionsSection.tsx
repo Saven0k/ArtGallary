@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Professions/ProfessionsSection.tsx
+
 import { useCallback, useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Briefcase } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
@@ -34,7 +34,7 @@ const ProfessionsSection = () => {
     const [editTarget, setEditTarget] = useState<Profession | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<Profession | null>(null);
 
-    // ---------- load ----------
+
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -54,7 +54,7 @@ const ProfessionsSection = () => {
         load();
     }, [load]);
 
-    // ---------- actions ----------
+
     const handleCreate = async (data: CreateProfessionData) => {
         setBusy(true);
         try {
@@ -101,7 +101,7 @@ const ProfessionsSection = () => {
         }
     };
 
-    // ---------- columns ----------
+
     const columns: Column<Profession>[] = [
         {
             key: 'id',
@@ -183,7 +183,7 @@ const ProfessionsSection = () => {
                 />
             )}
 
-            {/* Create */}
+            {            }
             {createOpen && (
                 <ProfessionFormModal
                     mode="create"
@@ -193,7 +193,7 @@ const ProfessionsSection = () => {
                 />
             )}
 
-            {/* Edit */}
+            {          }
             {editTarget && (
                 <ProfessionFormModal
                     mode="edit"
@@ -204,7 +204,7 @@ const ProfessionsSection = () => {
                 />
             )}
 
-            {/* Delete */}
+            {            }
             {deleteTarget && (
                 <ConfirmModal
                     title={t.deleteModal.title}

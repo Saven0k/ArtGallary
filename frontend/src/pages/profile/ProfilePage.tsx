@@ -1,4 +1,4 @@
-// src/pages/Profile/ProfilePage.tsx
+
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { ProfileSection } from "../../components/shared/ProfileScreen/ProfileSidebar/ProfileSidebar";
@@ -31,7 +31,7 @@ const sectionIds: Record<ProfileSection, string> = {
     tariff: "tariff",
 };
 
-/** Секции, доступные только авторам */
+
 const AUTHOR_ONLY_SECTIONS: ProfileSection[] = ["statistics", "tariff"];
 
 const isValidSection = (s: string | null): s is ProfileSection =>
@@ -46,31 +46,31 @@ const ProfilePage = () => {
 
     const isAuthor = authUser?.role === "author";
 
-    // URL — единственный источник истины для секции
+
     const sectionFromUrl = searchParams.get("section");
     const [activeSection, setActiveSection] = useState<ProfileSection>(
         isValidSection(sectionFromUrl) ? sectionFromUrl : "personal"
     );
 
-    // URL → state: любое изменение ?section= подхватываем в стейт
+
     useEffect(() => {
         const s = searchParams.get("section");
         let next: ProfileSection = isValidSection(s) ? s : "personal";
 
-        // Защита: если секция только для авторов, а роль не author — сбрасываем
+
         if (AUTHOR_ONLY_SECTIONS.includes(next) && !isAuthor) {
             next = "personal";
         }
 
         setActiveSection((prev) => (prev === next ? prev : next));
 
-        // Если URL содержал мусор или запрещённую секцию — чиним URL
+
         if (s !== null && s !== next) {
             setSearchParams({ section: next }, { replace: true });
         }
     }, [searchParams, setSearchParams, isAuthor]);
 
-    // Загрузка профиля
+
     useEffect(() => {
         const getProfile = async () => {
             if (!authUser?.id) {
@@ -95,9 +95,9 @@ const ProfilePage = () => {
         getProfile();
     }, [authUser]);
 
-    // state → URL: клик по сайдбару
+
     const handleSectionChange = (section: ProfileSection) => {
-        // Не даём не-автору открыть закрытую секцию
+
         if (AUTHOR_ONLY_SECTIONS.includes(section) && !isAuthor) {
             return;
         }

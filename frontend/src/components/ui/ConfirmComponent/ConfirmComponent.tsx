@@ -8,7 +8,7 @@ type ConfirmComponentProps = {
     type?: "danger" | "warning" | "info";
     onConfirm: () => void;
     onCancel: () => void;
-    
+
 };
 
 export const ConfirmComponent = ({

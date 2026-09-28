@@ -1,4 +1,4 @@
-/* src/pages/Profile/components/ProfileSelect/ProfileSelect.css */
+
 
 .profile-select {
     display: flex;
@@ -8,7 +8,7 @@
     width: 100%;
 }
 
-/* ===================== */
+
 
 .profile-select__label {
     color: var(--neutral-grey-800);
@@ -17,13 +17,13 @@
     font-weight: var(--font-weight-medium);
 }
 
-/* ===================== */
+
 
 .profile-select__wrapper {
     position: relative;
 }
 
-/* ===================== */
+
 
 .profile-select__field {
     width: 100%;
@@ -63,7 +63,7 @@
     box-shadow: 0 0 0 3px rgba(188,149,71,.15);
 }
 
-/* ===================== */
+
 
 .profile-select__icon {
     position: absolute;
@@ -84,7 +84,7 @@
     color: var(--brand-primary-gold);
 }
 
-/* ===================== */
+
 
 .profile-select__field--error {
     border-color: var(--error-background);
@@ -103,7 +103,7 @@
     font-weight: 500;
 }
 
-/* ===================== */
+
 
 .profile-select__field:disabled {
     background: #f4f4f4;
@@ -113,7 +113,7 @@
     opacity: .8;
 }
 
-/* ===================== */
+
 
 @media (max-width: 768px) {
 

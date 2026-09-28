@@ -1,4 +1,4 @@
-// Resources.tsx (обновленный)
+
 import { useState } from "react";
 import "./Resources.scss";
 import { translations } from "../../lang";

@@ -1,11 +1,11 @@
-// src/components/shared/ProfileScreen/Charts/utils.ts
+
 
 export const CHART_COLORS = [
-    "#BC9547", // основной золотой
-    "#ECDCBD", // светло-золотой
-    "#5E5E5E", // тёмно-серый
-    "#C99F9F", // пыльно-розовый
-    "#DEEFD1", // пыльно-зелёный
+    "#BC9547",
+    "#ECDCBD",
+    "#5E5E5E",
+    "#C99F9F",
+    "#DEEFD1",
 ];
 
 export const AGE_RANGE_LABELS: Record<string, string> = {
@@ -15,18 +15,18 @@ export const AGE_RANGE_LABELS: Record<string, string> = {
     "50+": "55+",
 };
 
-/** Превращает сырые счётчики в проценты */
+
 export const toPercent = (value: number, total: number): number =>
     total > 0 ? Math.round((value / total) * 100) : 0;
 
-/** "2024-07-01" -> "1 июл" */
+
 export const formatShortDate = (iso: string): string => {
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return iso;
     return `${d.getDate()} ${d.toLocaleString("ru", { month: "short" })}`;
 };
 
-/** Общие опции тултипа, чтобы не дублировать в каждом чарте */
+
 export const tooltipStyle = {
     backgroundColor: "#fff",
     titleColor: "#222222",

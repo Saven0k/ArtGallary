@@ -1,4 +1,4 @@
-// src/pages/Author/lang.ts
+
 export type Language = 'ru' | 'en' | 'zh';
 
 export const authorTranslations = {
@@ -11,7 +11,7 @@ export const authorTranslations = {
             profile: 'Профиль',
             allWorks: 'Все работы',
 
-            // --- модалка "требуется авторизация" ---
+
             authRequiredTitle: 'Войдите, чтобы подписаться',
             authRequiredText:
                 'Подписка на автора доступна только авторизованным пользователям. Войдите в аккаунт или зарегистрируйтесь.',

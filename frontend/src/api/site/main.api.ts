@@ -1,4 +1,4 @@
-// src/api/site/main.api.ts
+
 import { BASE_URL_API } from '../main.api';
 
 const BASE_URL = `${BASE_URL_API}/site`;
@@ -18,7 +18,7 @@ const request = async <T>(url: string, init?: RequestInit): Promise<T | null> =>
     try {
         const res = await fetch(url, { credentials: 'include', ...init });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        // 204 — пустое тело
+
         if (res.status === 204) return null;
         return (await res.json()) as T;
     } catch (e) {
@@ -33,7 +33,7 @@ const json = (body: unknown): RequestInit => ({
     body: JSON.stringify(body),
 });
 
-/** Трекинг посещения — вызывается один раз при монтировании App */
+
 export const trackSiteVisit = (path: string = window.location.pathname) =>
     request<null>(`${BASE_URL}/visit`, json({ path }));
 

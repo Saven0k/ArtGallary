@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Authors/AuthorViewModal.tsx
+
 import { X, User as UserIcon } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { adminTranslations } from '../../../../../pages/admin/lang';

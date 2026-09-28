@@ -1,4 +1,4 @@
-// src/pages/Register/components/RegisterUser/RegisterUser.tsx
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./RegisterUser.scss";
@@ -80,7 +80,7 @@ const RegisterUser = (_props: RegisterUserProps) => {
     const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
     const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
 
-    // ---------- загрузка стран ----------
+
     useEffect(() => {
         const fetchCountries = async () => {
             setLoadingCountries(true);
@@ -96,7 +96,7 @@ const RegisterUser = (_props: RegisterUserProps) => {
         fetchCountries();
     }, [language]);
 
-    // ---------- загрузка городов ----------
+
     useEffect(() => {
         const fetchCities = async () => {
             if (!formData.countryId) {
@@ -123,7 +123,7 @@ const RegisterUser = (_props: RegisterUserProps) => {
         fetchCities();
     }, [formData.countryId, countries, language]);
 
-    // ---------- валидация ----------
+
     const validateField = (
         name: string,
         value: string | boolean,
@@ -192,7 +192,7 @@ const RegisterUser = (_props: RegisterUserProps) => {
         return Object.keys(errors).length === 0;
     };
 
-    // ---------- обработчики ----------
+
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     ) => {
@@ -297,7 +297,7 @@ const RegisterUser = (_props: RegisterUserProps) => {
         }
     };
 
-    // ---------- шаги ----------
+
     const renderStep = () => {
         switch (currentStep) {
             case 1:
@@ -563,7 +563,7 @@ const RegisterUser = (_props: RegisterUserProps) => {
                             </select>
                         </div>
 
-                        {/* --- Согласие с правилами и офертой --- */}
+
                         <div className="register-user__form-group register-user__form-group--checkbox">
                             <label className="register-user__checkbox-label">
                                 <input

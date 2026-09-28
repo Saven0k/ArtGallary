@@ -1,4 +1,4 @@
-// src/pages/Help/lang.ts
+
 export type Language = 'ru' | 'en' | 'zh';
 import PaintImage from  "./icons/PaintImage.svg";
 import ScalesImage from "./icons/SclesImage.svg";

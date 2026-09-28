@@ -1,4 +1,4 @@
-// src/components/shared/ProfileScreen/ProfileSidebar/ProfileSidebar.tsx
+
 import { useEffect, useState } from "react";
 import "./ProfileSidebar.scss";
 import {
@@ -32,7 +32,7 @@ interface SidebarItem {
     id: ProfileSection;
     title: string;
     icon: React.FC<{ className?: string }>;
-    /** true — пункт виден только авторам */
+
     authorOnly?: boolean;
 }
 
@@ -43,7 +43,7 @@ const ProfileSidebar = ({
 }: ProfileSidebarProps) => {
     const [unreadCount, setUnreadCount] = useState<number>(0);
 
-    // Загрузка непрочитанных + периодическое обновление
+
     useEffect(() => {
         let alive = true;
 
@@ -54,7 +54,7 @@ const ProfileSidebar = ({
 
         fetchUnread();
 
-        // обновляем каждые 30 секунд
+
         const interval = setInterval(fetchUnread, 30_000);
 
         return () => {
@@ -63,8 +63,8 @@ const ProfileSidebar = ({
         };
     }, []);
 
-    // Отдельный эффект: после перехода на "notifications" даём
-    // Notifications.tsx время пометить всё прочитанным и обновляем счётчик
+
+
     useEffect(() => {
         if (active !== "notifications") return;
 

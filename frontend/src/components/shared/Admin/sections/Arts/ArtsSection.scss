@@ -39,7 +39,7 @@
         font-size: 13px;
     }
 
-    // ---------- thumb & title ----------
+
     &__thumb {
         width: 48px;
         height: 48px;
@@ -78,7 +78,7 @@
         border-radius: 4px;
     }
 
-    // ---------- status ----------
+
     &__status {
         display: inline-flex;
         align-items: center;
@@ -103,7 +103,7 @@
         }
     }
 
-    // ---------- actions ----------
+
     &__actions {
         display: flex;
         justify-content: flex-end;
@@ -144,7 +144,7 @@
         }
     }
 
-    // ---------- pagination ----------
+
     &__pagination {
         display: flex;
         align-items: center;
@@ -179,7 +179,7 @@
         color: var(--neutral-grey-600);
     }
 
-    // ---------- modals ----------
+
     &__modal-overlay {
         position: fixed;
         inset: 0;

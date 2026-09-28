@@ -1,4 +1,4 @@
-// src/pages/About/components/Team/Team.tsx
+
 import { useLanguage } from "../../../../hooks/useLanguage";
 import { translations } from "../../lang";
 import "./Team.scss";

@@ -1,4 +1,4 @@
-// src/components/shared/Admin/sections/Moderation/ModerationSection.tsx
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     Eye,
@@ -30,7 +30,7 @@ import './ModerationSection.scss';
 
 type Tab = 'all' | 'arts' | 'authors';
 
-// Универсальный элемент очереди
+
 type QueueItem =
     | { kind: 'art'; data: Art; date: string }
     | { kind: 'author'; data: AuthorProfileResponse; date: string };
@@ -52,7 +52,7 @@ const ModerationSection = () => {
 
     const [page, setPage] = useState(1);
 
-    // модалки
+
     const [viewItem, setViewItem] = useState<QueueItem | null>(null);
     const [moderateTarget, setModerateTarget] = useState<{
         item: QueueItem;
@@ -60,12 +60,12 @@ const ModerationSection = () => {
     } | null>(null);
     const [moderateComment, setModerateComment] = useState('');
 
-    // ---------- load ----------
+
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            // грузим оба списка сразу — потом фильтруем по вкладке
+
             const [artsRes, authorsRes] = await Promise.all([
                 getUnmoderatedArts(1, 100, language),
                 getUnmoderatedAuthors(1, 100, language),
@@ -89,7 +89,7 @@ const ModerationSection = () => {
         setPage(1);
     }, [tab]);
 
-    // ---------- queue ----------
+
     const queue: QueueItem[] = useMemo(() => {
         const artItems: QueueItem[] = arts.map((a) => ({
             kind: 'art',
@@ -106,7 +106,7 @@ const ModerationSection = () => {
         if (tab === 'arts') return artItems;
         if (tab === 'authors') return authorItems;
 
-        // всё — объединяем и сортируем по дате (свежие сверху)
+
         return [...artItems, ...authorItems].sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
         );
@@ -119,7 +119,7 @@ const ModerationSection = () => {
         [queue, page],
     );
 
-    // ---------- actions ----------
+
     const handleModerate = async () => {
         if (!moderateTarget || !user) return;
         setBusy(true);
@@ -155,7 +155,7 @@ const ModerationSection = () => {
         }
     };
 
-    // ---------- columns ----------
+
     const columns: Column<QueueItem>[] = [
         {
             key: 'type',
@@ -272,7 +272,7 @@ const ModerationSection = () => {
         },
     ];
 
-    // ---------- tabs ----------
+
     const tabs: { value: Tab; label: string; count: number }[] = [
         { value: 'all', label: t.tabs.all, count: arts.length + authors.length },
         { value: 'arts', label: t.tabs.arts, count: arts.length },
@@ -290,7 +290,7 @@ const ModerationSection = () => {
         <div className="admin-section moderation-section">
             <SectionHeader title={t.title} subtitle={t.subtitle} />
 
-            {/* Summary */}
+
             <div className="moderation-section__summary">
                 <div className="moderation-section__summary-card">
                     <div className="moderation-section__summary-icon">
@@ -335,7 +335,7 @@ const ModerationSection = () => {
                 </div>
             </div>
 
-            {/* Tabs */}
+
             <div className="moderation-section__tabs">
                 {tabs.map((tabItem) => (
                     <button
@@ -358,7 +358,7 @@ const ModerationSection = () => {
 
             {error && <div className="moderation-section__error">{error}</div>}
 
-            {/* Table / Empty */}
+
             {!loading && queue.length === 0 ? (
                 <EmptyState
                     text={emptyText}
@@ -380,7 +380,7 @@ const ModerationSection = () => {
                 />
             )}
 
-            {/* Pagination */}
+
             {!loading && totalPages > 1 && (
                 <div className="moderation-section__pagination">
                     <button
@@ -407,7 +407,7 @@ const ModerationSection = () => {
                 </div>
             )}
 
-            {/* View modal */}
+
             {viewItem && (
                 <ModerationViewModal
                     item={viewItem}
@@ -415,7 +415,7 @@ const ModerationSection = () => {
                 />
             )}
 
-            {/* Moderate modal */}
+
             {moderateTarget && (
                 <div
                     className="moderation-section__modal-overlay"

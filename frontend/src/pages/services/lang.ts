@@ -2,6 +2,13 @@ import artConsulationPhoto from "./images/art-c.png"
 import deliveryPhoto from "./images/delivery.png"
 import orderPhoto from "./images/order.png"
 import rentPhoto from "./images/rent.png"
+
+
+import artConsulationIcon from "./icons/artConsulation.svg"
+import deliveryIcon from "./icons/delivery.svg"
+import orderIcon from "./icons/order.svg"
+import rentIcon from "./icons/rent.svg"
+
 export type Language = 'ru' | 'en' | 'zh';
 
 export const servicesTranslations = {
@@ -14,47 +21,51 @@ export const servicesTranslations = {
             cards: [
                 {
                     id: 1,
-                    icon: artConsulationPhoto,
+                    img: artConsulationPhoto,
                     title: 'Арт-консультация',
                     description: 'Профессиональная консультация художника по подбору и размещению произведений искусства в вашем интерьере',
                     features: [
                         'Подбор работ',
                         'Рекомендации по размеру и размещению',
                         'Полное сопровождение сделки'
-                    ]
+                    ],
+                    icon: artConsulationIcon,
                 },
                 {
                     id: 2,
-                    icon: deliveryPhoto,
+                    img: deliveryPhoto,
                     title: 'Доставка "White Glove"',
                     description: 'Особый способ доставки для произведений, который включает бережное отношение на каждом этапе пути',
                     features: [
                         'Безопасная перевозка',
                         'Доставка до двери',
                         'Контроль сохранности работы'
-                    ]
+                    ],
+                    icon: deliveryIcon,
                 },
                 {
                     id: 3,
-                    icon: orderPhoto,
+                    img: orderPhoto,
                     title: 'Индивидуальный заказ',
                     description: 'Произведение, созданное специально для вас - от первой идеи до финального исполнения',
                     features: [
                         'Портрет',
                         'Декоративное панно',
                         'Индивидуальный сюжет'
-                    ]
+                    ],
+                    icon: orderIcon,
                 },
                 {
                     id: 4,
-                    icon: rentPhoto,
+                    img: rentPhoto,
                     title: 'Прокат',
                     description: 'Выберите произведение из коллекции галереи для дома, офиса, съёмки или особого события',
                     features: [
                         'Подбор произведения',
                         'Согласование срока проката',
                         'Бережная доставка'
-                    ]
+                    ],
+                    icon: rentIcon,
                 }
             ]
         }
@@ -68,47 +79,51 @@ export const servicesTranslations = {
             cards: [
                 {
                     id: 1,
-                    icon: artConsulationPhoto,
+                    img: artConsulationPhoto,
                     title: 'Art Consultation',
                     description: 'Professional consultation with an author on the selection and placement of artworks in your interior',
                     features: [
                         'Selection of works',
                         'Recommendations on size and placement',
                         'Full transaction support'
-                    ]
+                    ],
+                    icon: artConsulationIcon,
                 },
                 {
                     id: 2,
-                    icon: deliveryPhoto,
+                    img: deliveryPhoto,
                     title: '"White Glove" Delivery',
                     description: 'A special delivery method for artworks that includes careful handling at every stage of the journey',
                     features: [
                         'Safe transportation',
                         'Door-to-door delivery',
                         'Work integrity control'
-                    ]
+                    ],
+                    icon: deliveryIcon,
                 },
                 {
                     id: 3,
-                    icon: orderPhoto,
+                    img: orderPhoto,
                     title: 'Custom Order',
                     description: 'A piece created specifically for you - from the first idea to the final execution',
                     features: [
                         'Portrait',
                         'Decorative panel',
                         'Individual subject'
-                    ]
+                    ],
+                    icon: orderIcon,
                 },
                 {
                     id: 4,
-                    icon: rentPhoto,
+                    img: rentPhoto,
                     title: 'Rental',
                     description: 'Choose a piece from the gallery collection for your home, office, shoot or special event',
                     features: [
                         'Selection of artwork',
                         'Rental term agreement',
                         'Careful delivery'
-                    ]
+                    ],
+                    icon: rentIcon,
                 }
             ]
         }
@@ -122,47 +137,51 @@ export const servicesTranslations = {
             cards: [
                 {
                     id: 1,
-                    icon: artConsulationPhoto,
+                    img: artConsulationPhoto,
                     title: '艺术咨询',
                     description: '专业艺术家咨询服务，帮您挑选和布置室内艺术作品',
                     features: [
                         '作品挑选',
                         '尺寸和摆放建议',
                         '全程交易陪同'
-                    ]
+                    ],
+                    icon: artConsulationIcon,
                 },
                 {
                     id: 2,
-                    icon: deliveryPhoto,
+                    img: deliveryPhoto,
                     title: '"白手套"配送',
                     description: '专为艺术作品设计的特殊配送方式，在运输的每个环节都细心呵护',
                     features: [
                         '安全运输',
                         '送货上门',
                         '作品完整性监控'
-                    ]
+                    ],
+                    icon: deliveryIcon,
                 },
                 {
                     id: 3,
-                    icon: orderPhoto,
+                    img: orderPhoto,
                     title: '定制订单',
                     description: '专为您创作的作品 —— 从最初的创意到最终的呈现',
                     features: [
                         '肖像画',
                         '装饰画板',
                         '个性化主题'
-                    ]
+                    ],
+                    icon: orderIcon,
                 },
                 {
                     id: 4,
-                    icon: rentPhoto,
+                    img: rentPhoto,
                     title: '租赁',
                     description: '从画廊收藏中挑选作品，用于家居、办公室、拍摄或特别活动',
                     features: [
                         '作品挑选',
                         '租赁期限协商',
                         '细心配送'
-                    ]
+                    ],
+                    icon: rentIcon,
                 }
             ]
         }

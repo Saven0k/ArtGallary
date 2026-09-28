@@ -1,4 +1,4 @@
-/* src/components/TariffPlan/TariffPlan.css */
+
 
 .tariff-plan {
     max-width: 1200px;
@@ -16,7 +16,7 @@
     letter-spacing: -0.02em;
 }
 
-/* ==== Сетка ==== */
+
 .tariff-plan__grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -24,7 +24,7 @@
     align-items: stretch;
 }
 
-/* ==== Карточка ==== */
+
 .tariff-card {
     position: relative;
     display: flex;
@@ -48,7 +48,7 @@
     border-color: #ece3cc;
 }
 
-/* ==== Бейдж «Выгодно» ==== */
+
 .tariff-card__badge {
     position: absolute;
     top: 14px;
@@ -62,7 +62,7 @@
     letter-spacing: 0.02em;
 }
 
-/* ==== Шапка ==== */
+
 .tariff-card__header {
     margin-bottom: 18px;
 }
@@ -82,7 +82,7 @@
     line-height: 1.4;
 }
 
-/* ==== Цена ==== */
+
 .tariff-card__price {
     display: flex;
     align-items: baseline;
@@ -109,7 +109,7 @@
     margin-left: 2px;
 }
 
-/* ==== Список возможностей ==== */
+
 .tariff-card__features {
     list-style: none;
     padding: 0;
@@ -150,7 +150,7 @@
     min-width: 0;
 }
 
-/* ==== Кнопка ==== */
+
 .tariff-card__btn {
     width: 100%;
     background: #1a1a1a;
@@ -182,7 +182,7 @@
     background: #f0f0f0;
 }
 
-/* ==== Адаптив ==== */
+
 @media (max-width: 1024px) {
     .tariff-plan__grid {
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

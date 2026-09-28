@@ -22,7 +22,7 @@ export interface PurchaseSubscriptionDto {
     durationDays?: number;
 }
 
-// Получение информации о подписке
+
 export const getSubscriptionInfo = async (): Promise<SubscriptionInfo | null> => {
     try {
         const res = await fetch(`${BASE_URL}/info`, {
@@ -36,7 +36,7 @@ export const getSubscriptionInfo = async (): Promise<SubscriptionInfo | null> =>
     }
 };
 
-// Покупка подписки
+
 export const purchaseSubscription = async (data: PurchaseSubscriptionDto): Promise<SubscriptionInfo | null> => {
     try {
         const res = await fetch(`${BASE_URL}/purchase`, {
@@ -55,7 +55,7 @@ export const purchaseSubscription = async (data: PurchaseSubscriptionDto): Promi
     }
 };
 
-// Отмена подписки
+
 export const cancelSubscription = async (): Promise<{ success: boolean; message: string } | null> => {
     try {
         const res = await fetch(`${BASE_URL}/cancel`, {
@@ -70,7 +70,7 @@ export const cancelSubscription = async (): Promise<{ success: boolean; message:
     }
 };
 
-// Получение доступных планов
+
 export const getAvailablePlans = async (): Promise<{ plans: SubscriptionPlan[]; durations: any[] } | null> => {
     try {
         const res = await fetch(`${BASE_URL}/plans`, {

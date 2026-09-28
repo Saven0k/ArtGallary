@@ -1,17 +1,22 @@
-// src/components/ProfileSideBar/ProfileSideBar.tsx
-import { memo, useState, useEffect } from "react";
-import { useAuth } from "../../../hooks/useAuth";
-import { useLanguage } from "../../../hooks/useLanguage";
-import { MenuSection } from "./components/MenuSection";
-import { Meta } from "./components/Meta";
-import { GuestHeader } from "./components/GuestHeader";
-import { UserHeader } from "./components/UserHeader";
-import { ModerationBanner } from "./components/ModerationBanner";
-import { menuSectionsAdmin, menuSectionsAuthor, menuSectionsModerator, menuSectionsUser } from "./sections";
-import { sidebarTranslations } from "./lang";
-import "./ProfileSideBar.scss";
 
-// Тип для данных пользователя, которые принимает ProfileSidebar
+import { memo, useState, useEffect } from 'react';
+import { useSidebarTranslation } from './lang';
+import { MenuSection } from './components/MenuSection';
+import { Meta } from './components/Meta';
+import { GuestHeader } from './components/GuestHeader';
+import { UserHeader } from './components/UserHeader';
+import { ModerationBanner } from './components/ModerationBanner';
+import {
+    menuSectionsAdmin,
+    menuSectionsAuthor,
+    menuSectionsModerator,
+    menuSectionsUser,
+    type MenuSection as MenuSectionType,
+} from './sections';
+import './ProfileSideBar.scss';
+import { useAuth } from '../../../hooks/useAuth';
+import { useLanguage } from '../../../hooks/useLanguage';
+
 export interface UserDataForSidebar {
     name: string;
     surname: string;
@@ -36,12 +41,12 @@ const ProfileSideBar = memo(({
     onTransitionEnd,
     userRole = 'user',
     userData,
-    isAuthenticated = false
+    isAuthenticated = false,
 }: ProfileSideBarProps) => {
     const [isEntered, setIsEntered] = useState(false);
     const { logout } = useAuth();
     const { language } = useLanguage();
-    const t = sidebarTranslations[language];
+    const { t } = useSidebarTranslation(language);
 
     useEffect(() => {
         const id = requestAnimationFrame(() => setIsEntered(true));
@@ -60,10 +65,10 @@ const ProfileSideBar = memo(({
 
     const handleSettings = () => {
         onClose();
-        onNavigate('/settings');
+        onNavigate('/profile?section=settings');
     };
 
-    const getMenuSections = () => {
+    const getMenuSections = (): MenuSectionType[] => {
         switch (userRole) {
             case 'author':
                 return menuSectionsAuthor;
@@ -76,31 +81,18 @@ const ProfileSideBar = memo(({
         }
     };
 
-    const getMenuItemLabel = (labelKey: string): string => {
-        const parts = labelKey.split('.');
-        if (parts.length === 2) {
-            const [category, key] = parts;
-            if (category === 'common') {
-                return t.common[key as keyof typeof t.common] || labelKey;
-            }
-            const categoryObj = t[category as keyof typeof t];
-            if (categoryObj && typeof categoryObj === 'object') {
-                return (categoryObj as any)[key] || labelKey;
-            }
-        }
-        return labelKey;
-    };
-
     const renderMenu = () => {
         const sections = getMenuSections();
+
         return (
             <nav className="sidebarProfile__nav" role="navigation">
                 {sections.map((section, index) => (
                     <MenuSection
-                        key={index}
+                        key={`${section.titleKey}-${index}`}
                         section={section}
                         onItemClick={handleLinkClick}
-                        getLabel={getMenuItemLabel}
+                        getLabel={(key) => t(key)}
+                        getTitle={(key) => t(key)}
                         onClose={onClose}
                     />
                 ))}
@@ -112,7 +104,9 @@ const ProfileSideBar = memo(({
         <div className="sidebarProfile-box">
             <div
                 className={`sidebarProfile__overlay ${
-                    isClosing ? "sidebarProfile__overlay--closing" : "sidebarProfile__overlay--visible"
+                    isClosing
+                        ? 'sidebarProfile__overlay--closing'
+                        : 'sidebarProfile__overlay--visible'
                 }`}
                 onClick={onClose}
                 aria-hidden="true"
@@ -120,23 +114,25 @@ const ProfileSideBar = memo(({
             <aside
                 id="sidebarProfile"
                 className={`sidebarProfile ${
-                    isEntered ? "sidebarProfile--open" : ""
-                } ${isClosing ? "sidebarProfile--closing" : ""}`}
+                    isEntered ? 'sidebarProfile--open' : ''
+                } ${isClosing ? 'sidebarProfile--closing' : ''}`}
                 role="dialog"
                 aria-modal="true"
                 onTransitionEnd={(e) =>
-                    e.propertyName === "transform" && isClosing && onTransitionEnd?.()
+                    e.propertyName === 'transform' &&
+                    isClosing &&
+                    onTransitionEnd?.()
                 }
             >
                 <div className="sidebarProfile__header">
                     {isAuthenticated && userData ? (
-                        <UserHeader 
-                            userData={userData} 
-                            onEdit={() => onNavigate("/profile/edit")}
+                        <UserHeader
+                            userData={userData}
+                            onEdit={() => onNavigate('/profile?section=personal')}
                             onClose={onClose}
                         />
                     ) : (
-                        <GuestHeader 
+                        <GuestHeader
                             onNavigate={onNavigate}
                             onClose={onClose}
                         />
@@ -152,9 +148,7 @@ const ProfileSideBar = memo(({
 
                 {isAuthenticated && (
                     <>
-                        {userRole === 'author' && (
-                            <ModerationBanner />
-                        )}
+                        {userRole === 'author' && <ModerationBanner />}
                         {renderMenu()}
                     </>
                 )}
@@ -164,7 +158,7 @@ const ProfileSideBar = memo(({
                         <button
                             className="sidebarProfile__action-btn sidebarProfile__action-btn--secondary"
                             onClick={handleSettings}
-                            aria-label="Настройки"
+                            aria-label={t('common.notifications')  }
                         >
                             ⚙️
                         </button>
@@ -172,7 +166,7 @@ const ProfileSideBar = memo(({
                             <button
                                 className="sidebarProfile__action-btn sidebarProfile__action-btn--danger"
                                 onClick={handleLogout}
-                                aria-label="Выйти"
+                                aria-label="Logout"
                             >
                                 🚪
                             </button>

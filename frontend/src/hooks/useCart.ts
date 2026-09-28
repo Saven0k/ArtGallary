@@ -24,11 +24,11 @@ export const useCart = () => {
         if (isAuthenticated) {
             // TODO: API запрос на добавление в корзину на сервере
             console.log("Authenticated - add to cart API:", artId);
-            // Здесь будет запрос на сервер
+
             return;
         }
 
-        // Не авторизован - сохраняем в localStorage
+
         const updated = [...cartItems, artId];
         setCartItems(updated);
         localStorage.setItem(CART_KEY, JSON.stringify(updated));

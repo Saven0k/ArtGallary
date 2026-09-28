@@ -1,4 +1,4 @@
-// src/api/genres/main.api.ts
+
 import { BASE_URL_API } from "../main.api";
 
 const BASE_URL = `${BASE_URL_API}/genres`;

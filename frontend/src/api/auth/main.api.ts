@@ -1,4 +1,4 @@
-// src/api/auth/main.api.ts
+
 import { BASE_URL_API, contentType } from "../main.api";
 import type { UserRole } from "../users/main.api";
 
@@ -34,7 +34,7 @@ export interface RegisterData {
     name: string;
     surname: string;
     second_name?: string;
-    date_birthday: string; // формат YYYY-MM-DD
+    date_birthday: string;
     gender: Gender;
     country_id?: number;
     city_id?: number;
