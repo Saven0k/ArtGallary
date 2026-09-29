@@ -1,75 +1,85 @@
 .faq-tabs {
     display: flex;
     gap: 24px;
+
+    @media (max-width: 768px) {
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        gap: 8px;
+    }
 }
 
 .faq-tab {
     height: 48px;
     padding: 9px 20px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     background: #ffffff;
-
     border: 2px solid var(--neutral-grey-800);
     border-radius: 16px;
-
-    color:  var(--neutral-grey-600);
-
-    font-size: var(----font-label);
-
+    color: var(--neutral-grey-600);
+    font-size: var(--font-label);
     cursor: pointer;
-
     transition:
-        background .2s ease,
-        color .2s ease,
-        border-color .2s ease,
-        transform .2s ease,
-        box-shadow .2s ease;
-}
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 
-.faq-tab:hover {
-    background: var(--neutral-grey);
-    color: #fff;;
-}
-
-.faq-tab.active {
-    color: var(--neutral-black-800);
-    border: 1px solid var(--neutral-black-900);
-    background: var(--profile-icon-default);
-}
-
-.faq-tab:active {
-    transform: scale(.97);
-}
-
-.faq-tab:focus-visible {
-    outline: 2px solid var(--brand-primary-gold);
-    outline-offset: 2px;
-}
-
-@media (max-width: 768px) {
-    .faq-tabs {
-        gap: 10px;
-        overflow-x: auto;
-        padding-bottom: 6px;
-
-        scrollbar-width: none;
+    &:hover {
+        background: var(--neutral-grey);
+        color: #fff;
     }
 
-    .faq-tabs::-webkit-scrollbar {
-        display: none;
+    &.active {
+        color: var(--neutral-black-800);
+        border: 1px solid var(--neutral-black-900);
+        background: var(--profile-icon-default);
     }
 
-    .faq-tab {
+    &:active {
+        transform: scale(0.97);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--brand-primary-gold);
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 992px) {
+        height: 44px;
+        padding: 8px 18px;
+        font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
         flex-shrink: 0;
-
         height: 42px;
-
         padding: 0 18px;
+        font-size: 14px;
+        border-radius: 12px;
+    }
 
-        font-size: 16px;
+    @media (max-width: 480px) {
+        height: 38px;
+        padding: 0 14px;
+        font-size: 13px;
+    }
+
+    @media (max-width: 360px) {
+        height: 34px;
+        padding: 0 12px;
+        font-size: 12px;
     }
 }

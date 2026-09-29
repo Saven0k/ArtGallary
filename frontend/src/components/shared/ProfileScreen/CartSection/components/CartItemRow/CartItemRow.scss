@@ -1,0 +1,114 @@
+// src/pages/Profile/components/ProfileContent/Cart/components/CartItemRow/CartItemRow.scss
+.cart-item {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    gap: 20px;
+    padding: 16px;
+    border: 1px solid #ececec;
+    border-radius: 12px;
+    background: #fff;
+    align-items: center;
+
+    &__image {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    &__title {
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--neutral-grey-800, #222);
+        margin: 0;
+    }
+
+    &__author,
+    &__meta {
+        font-size: 13px;
+        color: var(--neutral-grey-600, #727272);
+        margin: 0;
+    }
+
+    &__controls {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    &__quantity {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #e5e5e5;
+        border-radius: 999px;
+        padding: 2px 10px;
+
+        button {
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #222;
+            width: 20px;
+            height: 20px;
+
+            &:disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
+            }
+        }
+
+        span {
+            min-width: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+    }
+
+    &__price {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--neutral-grey-800, #222);
+        min-width: 100px;
+        text-align: right;
+    }
+
+    &__remove {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        opacity: 0.6;
+
+        &:hover { opacity: 1; }
+        &:disabled { cursor: not-allowed; }
+    }
+
+    @media (max-width: 600px) {
+        grid-template-columns: 88px 1fr;
+        grid-template-areas:
+            'image info'
+            'controls controls';
+
+        &__image {
+            width: 88px;
+            height: 88px;
+            grid-area: image;
+        }
+
+        &__info { grid-area: info; }
+
+        &__controls {
+            grid-area: controls;
+            justify-content: space-between;
+        }
+    }
+}

@@ -1,0 +1,64 @@
+// src/pages/Profile/components/ProfileContent/Cart/components/PromoBlock/PromoBlock.scss
+.cart-promo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+
+    &__input {
+        flex: 1;
+        max-width: 280px;
+        height: 40px;
+        padding: 0 14px;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        outline: none;
+
+        &:focus { border-color: var(--brand-primary-gold, #bc9547); }
+        &:disabled { opacity: 0.6; cursor: not-allowed; }
+    }
+
+    &__apply {
+        height: 40px;
+        padding: 0 20px;
+        border: none;
+        border-radius: 8px;
+        background: var(--brand-primary-gold, #bc9547);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+
+        &:disabled { opacity: 0.5; cursor: not-allowed; }
+    }
+
+    &__applied {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        background: #f6eedd;
+        color: var(--brand-primary-gold, #bc9547);
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+
+        button {
+            background: transparent;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            padding: 0;
+        }
+    }
+
+    &__error {
+        flex: 0 0 100%;
+        color: #c0392b;
+        font-size: 13px;
+    }
+}

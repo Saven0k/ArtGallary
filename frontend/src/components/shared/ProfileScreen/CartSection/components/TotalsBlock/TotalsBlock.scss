@@ -1,0 +1,37 @@
+// src/pages/Profile/components/ProfileContent/Cart/components/TotalsBlock/TotalsBlock.scss
+.cart-totals {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 2px solid var(--brand-primary-gold, #bc9547);
+    padding-top: 16px;
+
+    &__row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--neutral-grey-700, #444);
+
+        &--discount {
+            color: #16a34a;
+        }
+
+        &--final {
+            margin-top: 6px;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--neutral-grey-900, #111);
+        }
+    }
+
+    &__final-value {
+        font-size: 22px;
+    }
+
+    &__note {
+        margin: 6px 0 0;
+        font-size: 13px;
+        color: var(--neutral-grey-600, #727272);
+    }
+}

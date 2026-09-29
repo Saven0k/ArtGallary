@@ -3,7 +3,7 @@
     top: 0;
     left: 0;
     z-index: 1000;
-    padding: 12px 0px 20px 0px;
+    padding: 12px 0 20px;
     background: var(--neutral-black-900);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     display: flex;
@@ -11,20 +11,22 @@
 
     &__container {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: space-between;
-        margin: 0;
-        padding: 0 80px;
-        flex-direction: column;
         gap: 4px;
-        width: 1000%;
+        width: 100%;
+        max-width: 1760px;
+        margin: 0 auto;
+        padding: 0 80px;
     }
 
     &__top {
         width: 100%;
         display: flex;
-        justify-content: normal;
         align-items: center;
+        justify-content: space-between;
+        gap: 16px;
     }
 
     &__icons {
@@ -32,6 +34,24 @@
         align-items: center;
         gap: 23px;
         margin-left: auto;
+    }
+
+    &__icon-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+
+        &:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+        }
+    }
+
+    &__icon {
+        width: 24px;
+        height: 24px;
+        display: block;
     }
 
     &__burger {
@@ -72,12 +92,13 @@
     &__logo-img {
         width: 346px;
         height: 98px;
+        object-fit: contain;
     }
 
     &__bottom {
         width: 100%;
-        justify-content: start;
         display: flex;
+        justify-content: flex-start;
     }
 
     &__nav {
@@ -119,6 +140,9 @@
     }
 
     &__lang-btn {
+        display: flex;
+        align-items: center;
+        gap: 4px;
         margin-right: auto;
         height: 28px;
         width: 79px;
@@ -131,9 +155,6 @@
         font-weight: 500;
         cursor: pointer;
         transition: all 0.3s ease;
-        gap: 4px;
-        display: flex;
-        align-items: center;
 
         &:hover {
             background: rgba(255, 255, 255, 0.12);
@@ -182,6 +203,17 @@
         height: 52px;
     }
 
+    @media (max-width: 1440px) {
+        &__container {
+            padding: 0 60px;
+        }
+
+        &__logo-img {
+            width: 300px;
+            height: 84px;
+        }
+    }
+
     @media (max-width: 1100px) {
         &__container {
             padding: 14px 40px;
@@ -189,6 +221,17 @@
 
         &__burger {
             display: flex;
+        }
+
+        &__logo {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        &__logo-img {
+            width: 220px;
+            height: 62px;
         }
 
         &__nav {
@@ -201,6 +244,7 @@
             padding: 80px 24px 24px;
             transition: left 0.3s ease;
             overflow-y: auto;
+            z-index: 1100;
 
             &--open {
                 left: 0;
@@ -220,65 +264,181 @@
         &__nav-item--services {
             display: none;
         }
+
+        &__icons {
+            gap: 16px;
+        }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
         &__container {
-            padding: 12px 20px;
+            padding: 12px 32px;
         }
 
-        &__logo-title {
-            font-size: 16px;
+        &__logo-img {
+            width: 180px;
+            height: 50px;
         }
 
-        &__logo-subtitle {
-            font-size: 8px;
-        }
-
-        &__lang-btn {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
+        &__icon-link,
         &__profile-btn {
             width: 36px;
             height: 36px;
+        }
+
+        &__icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        &__icons {
+            gap: 12px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        padding: 10px 0 14px;
+
+        &__container {
+            padding: 0 20px;
+            gap: 0;
+        }
+
+        &__top {
+            gap: 12px;
+        }
+
+        &__logo {
+            position: static;
+            transform: none;
+            margin-inline: 0;
+            flex: 1;
+            justify-content: center;
+        }
+
+        &__logo-img {
+            width: 150px;
+            height: 42px;
+        }
+
+        &__icons {
+            gap: 10px;
+        }
+
+        &__icon-link,
+        &__profile-btn {
+            width: 34px;
+            height: 34px;
+        }
+
+        &__icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        &__lang-btn {
+            height: 26px;
+            width: auto;
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        &__lang-text {
+            font-size: 13px;
+        }
+
+        &__nav {
+            width: 300px;
+        }
+
+        &__bottom {
+            display: none;
         }
     }
 
     @media (max-width: 480px) {
         &__container {
-            padding: 10px 16px;
+            padding: 0 16px;
         }
 
-        &__logo-title {
-            font-size: 14px;
+        &__logo-img {
+            width: 120px;
+            height: 34px;
+        }
+
+        &__icons {
+            gap: 8px;
+        }
+
+        &__icon-link,
+        &__profile-btn {
+            width: 30px;
+            height: 30px;
+        }
+
+        &__icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        &__lang-btn {
+            padding: 3px 8px;
+            font-size: 11px;
+            gap: 2px;
+        }
+
+        &__lang-img {
+            width: 16px;
+            height: 16px;
+        }
+
+        &__lang-text {
+            font-size: 12px;
         }
 
         &__nav {
-            width: 280px;
+            width: 260px;
+            padding: 64px 16px 16px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        &__logo-img {
+            width: 100px;
+            height: 28px;
+        }
+
+        &__icon-link,
+        &__profile-btn {
+            width: 28px;
+            height: 28px;
+        }
+
+        &__icon {
+            width: 14px;
+            height: 14px;
+        }
+
+        &__lang-text {
+            display: none;
+        }
+
+        &__lang-btn {
+            padding: 3px 6px;
         }
     }
 }
 
 .header--home {
     position: absolute;
-    background: rgba(0, 0, 0, 0.52);
-
     top: 0;
     left: 0;
     width: 100%;
     height: 177px;
+    background: rgba(0, 0, 0, 0.52);
 
-}
-
-
-@keyframes slideIn {
-    from {
-        transform: translateX(-100%);
-    }
-
-    to {
-        transform: translateX(0);
+    @media (max-width: 1100px) {
+        height: auto;
+        padding-bottom: 20px;
     }
 }

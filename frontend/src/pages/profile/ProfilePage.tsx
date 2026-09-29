@@ -2,10 +2,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { ProfileSection } from "../../components/shared/ProfileScreen/ProfileSidebar/ProfileSidebar";
-import Notifications from "../../components/shared/ProfileScreen/Sections/Notifications/Notifications";
-import Statistics from "../../components/shared/ProfileScreen/Sections/Statistics/Statistics";
-import Settings from "../../components/shared/ProfileScreen/Sections/Settings/Settings";
-import PersonalInfo from "../../components/shared/ProfileScreen/Sections/PersonalInfo/PersonalInfo";
+import Settings from "../../components/shared/ProfileScreen/SettingsSection/SettingsSection";
+import PersonalInfo from "../../components/shared/ProfileScreen/PersonalInfoSection/PersonalInfoSection";
 import ProfileHeader from "../../components/shared/ProfileScreen/ProfileHeader/ProfileHeader";
 import ProfileSidebar from "../../components/shared/ProfileScreen/ProfileSidebar/ProfileSidebar";
 import { useAuth } from "../../hooks/useAuth";
@@ -14,11 +12,13 @@ import {
     type AuthorProfileResponse,
 } from "../../api/authors/main.api";
 import { getUserById, type User } from "../../api/users/main.api";
-import Likes from "../../components/shared/ProfileScreen/Sections/Likes/Likes";
-import Follows from "../../components/shared/ProfileScreen/Sections/Follows/Follows";
-import Cart from "../../components/shared/ProfileScreen/Sections/Cart/Cart";
 import "./ProfilePage.scss";
-import TariffPlan from "../../components/shared/ProfileScreen/Sections/TariffPlan/TariffPlan";
+import TariffPlan from "../../components/shared/ProfileScreen/TariffPlanSection/TariffPlanSection";
+import Notifications from "../../components/shared/ProfileScreen/NotificationSection/NotificationSection";
+import Statistics from "../../components/shared/ProfileScreen/StatisticsSection/StatisticsSection";
+import Likes from "../../components/shared/ProfileScreen/LikesSection/LikesSection";
+import Follows from "../../components/shared/ProfileScreen/FollowsSection/FollowsSection";
+import Cart from "../../components/shared/ProfileScreen/CartSection/CartSection";
 
 const sectionIds: Record<ProfileSection, string> = {
     personal: "personal",

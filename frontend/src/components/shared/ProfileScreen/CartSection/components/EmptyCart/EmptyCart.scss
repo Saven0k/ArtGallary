@@ -1,0 +1,60 @@
+// src/pages/Profile/components/ProfileContent/Cart/components/EmptyCart/EmptyCart.scss
+.empty-cart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    min-height: 320px;
+    padding: 40px 24px;
+    background: #fff;
+    border-radius: var(--radius-l, 12px);
+    text-align: center;
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        background: rgba(188, 149, 71, 0.12);
+        color: var(--brand-primary-gold, #bc9547);
+        margin-bottom: 8px;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--neutral-grey-800, #222);
+    }
+
+    &__text {
+        margin: 0;
+        font-size: 15px;
+        color: var(--neutral-grey-600, #727272);
+    }
+
+    &__btn {
+        margin-top: 8px;
+        padding: 12px 28px;
+        border: none;
+        border-radius: var(--radius-full, 999px);
+        background: var(--brand-primary-gold, #bc9547);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.15s ease;
+
+        &:hover {
+            background: #a87d3a;
+            transform: translateY(-1px);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+}

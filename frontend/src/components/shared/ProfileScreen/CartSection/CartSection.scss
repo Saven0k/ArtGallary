@@ -1,0 +1,71 @@
+// src/pages/Profile/components/ProfileContent/Cart/Cart.scss
+.profile-cart {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 960px;
+
+    &__title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #222;
+        margin: 0;
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__clear {
+        background: transparent;
+        border: none;
+        color: #727272;
+        font-size: 13px;
+        cursor: pointer;
+
+        &:hover { color: #c0392b; }
+        &:disabled { opacity: 0.5; cursor: not-allowed; }
+    }
+
+    &__items {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    &__error {
+        color: #c0392b;
+        font-size: 13px;
+    }
+
+    &__checkout {
+        align-self: flex-start;
+        min-width: 260px;
+        height: 48px;
+        padding: 0 28px;
+        border: none;
+        border-radius: 8px;
+        background: #222;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+
+        &:hover:not(:disabled) { background: #000; }
+        &:disabled { opacity: 0.5; cursor: not-allowed; }
+    }
+
+    &--empty,
+    &--loading {
+        align-items: center;
+        justify-content: center;
+        min-height: 240px;
+        color: #727272;
+    }
+
+    &__empty-text {
+        font-size: 15px;
+    }
+}

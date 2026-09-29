@@ -6,38 +6,116 @@
     width: 100%;
     background: var(--brand-gold-light);
     border-radius: var(--radius-xl);
-    padding: 44px;
-    padding-bottom: 76px;
+    padding: 44px 44px 76px;
     min-height: 1235px;
-}
 
-.faq__title {
-    font-weight: var(--font-weight-medium);
-    color: var(--neutral-black-900);
-    margin-bottom: 28px;
-}
+    &__title {
+        font-weight: var(--font-weight-medium);
+        color: var(--neutral-black-900);
+        margin-bottom: 28px;
+    }
 
-.faq__subtitle {
-    font-size: var(--font-label);
-    color: var(--neutral-grey-600);
-}
+    &__subtitle {
+        font-size: var(--font-label);
+        color: var(--neutral-grey-600);
+    }
 
-.faq__list {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
+    &__list {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
 
-@media (max-width: 768px) {
-    .faq {
+    @media (max-width: 1200px) {
+        min-height: 1000px;
+        padding: 40px 40px 64px;
+
+        .faq__title {
+            font-size: 28px;
+            margin-bottom: 24px;
+        }
+
+        .faq__list {
+            gap: 20px;
+        }
+    }
+
+    @media (max-width: 992px) {
+        min-height: auto;
+        padding: 36px 32px 52px;
+
+        .faq__title {
+            font-size: 26px;
+            margin-bottom: 20px;
+        }
+
+        .faq__list {
+            gap: 18px;
+        }
+    }
+
+    @media (max-width: 768px) {
         gap: 20px;
+        padding: 28px 24px 40px;
+
+        .faq__title {
+            font-size: 22px;
+            margin-bottom: 16px;
+        }
+
+        .faq__subtitle {
+            font-size: 14px;
+        }
+
+        .faq__list {
+            gap: 14px;
+        }
     }
 
-    .faq__title {
-        font-size: 24px;
+    @media (max-width: 600px) {
+        padding: 24px 20px 32px;
+
+        .faq__title {
+            font-size: 20px;
+            margin-bottom: 14px;
+        }
+
+        .faq__subtitle {
+            font-size: 13px;
+        }
+
+        .faq__list {
+            gap: 12px;
+        }
     }
 
-    .faq__subtitle {
-        font-size: 14px;
+    @media (max-width: 480px) {
+        gap: 16px;
+        padding: 20px 16px 28px;
+
+        .faq__title {
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .faq__subtitle {
+            font-size: 12px;
+        }
+
+        .faq__list {
+            gap: 10px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        padding: 18px 14px 24px;
+
+        .faq__title {
+            font-size: 16px;
+        }
+
+        .faq__subtitle {
+            font-size: 11px;
+        }
     }
 }

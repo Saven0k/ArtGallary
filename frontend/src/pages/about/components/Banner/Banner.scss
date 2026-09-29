@@ -1,15 +1,17 @@
 .about-banner {
-    height: 200px;
+    height: auto;
+    min-height: 200px;
     background-color: rgb(206, 166, 86, 0.16);
 
     &__container {
         padding: 44px 228px 32px;
         margin: 0 auto;
+        max-width: 1760px;
     }
 
     &__content {
         display: flex;
-        align-items: start;
+        align-items: flex-start;
         gap: 104px;
     }
 
@@ -17,15 +19,13 @@
         font-size: var(--font-body-medium, 20px);
         font-weight: var(--font-weight-medium);
         color: #000;
-        margin: 0 0 28px 0;
+        margin: 0 0 28px;
         letter-spacing: 0.03em;
         display: flex;
         flex-direction: column;
-        align-items: start;
-        justify-content: start;
+        align-items: flex-start;
         max-width: 788px;
         width: 100%;
-
         position: relative;
 
         &::before {
@@ -35,7 +35,7 @@
             top: -8px;
             width: 2px;
             height: 80px;
-            background: var(--brand-primary-gold, #BC9547);
+            background: var(--brand-primary-gold, #bc9547);
             border-radius: 2px;
         }
     }
@@ -44,12 +44,8 @@
         font-size: var(--font-body-medium, 20px);
         font-weight: var(--font-weight-medium);
         color: #000;
-        margin: 0 0 32px 0;
+        margin: 0 0 32px;
         letter-spacing: 0.03em;
-        display: flex;
-        flex-direction: column;
-        align-items: start;
-        justify-content: start;
         max-width: 788px;
         width: 100%;
     }
@@ -57,7 +53,7 @@
     &__button {
         display: inline-block;
         padding: 10px;
-        color: #000000;
+        color: #000;
         font-size: var(--font-body-large);
         font-weight: var(--font-weight-medium, 500);
         letter-spacing: 0.03em;
@@ -70,116 +66,270 @@
         font-size: var(--font-body-medium, 20px);
         font-weight: var(--font-weight-medium);
         color: #000;
-        margin: 0 0 32px 0;
+        margin: 0 0 32px;
         letter-spacing: 0.03em;
-        display: flex;
-        flex-direction: column;
-        align-items: start;
-        justify-content: start;
         width: 570px;
     }
 
+    /* ---------------- 1600 ---------------- */
+    @media (max-width: 1600px) {
+        &__container {
+            padding: 40px 140px 30px;
+        }
 
-    @media (max-width: 1024px) {
-        padding: 60px 0;
+        &__content {
+            gap: 80px;
+        }
 
         &__text {
-            font-size: var(--font-body-medium, 20px);
+            font-size: 18px;
+            margin-bottom: 24px;
+
+            &::before {
+                right: -40px;
+                height: 70px;
+            }
+        }
+
+        &__subtitle {
+            font-size: 18px;
+            margin-bottom: 26px;
         }
 
         &__button {
-            padding: 12px 40px;
-            font-size: var(--font-label, 16px);
+            font-size: 17px;
         }
 
         &__quote {
-            font-size: var(--font-label, 16px);
-
-            &::before {
-                font-size: 48px;
-                top: -24px;
-                left: -12px;
-            }
-
-            &::after {
-                font-size: 48px;
-                bottom: -32px;
-                right: -12px;
-            }
+            font-size: 18px;
+            width: 480px;
+            margin-bottom: 26px;
         }
     }
 
+    /* ---------------- 1440 ---------------- */
+    @media (max-width: 1440px) {
+        &__container {
+            padding: 36px 100px 28px;
+        }
 
-    @media (max-width: 768px) {
-        padding: 48px 0;
+        &__content {
+            gap: 60px;
+        }
+
+        &__text {
+            font-size: 17px;
+            margin-bottom: 22px;
+
+            &::before {
+                right: -30px;
+                height: 60px;
+            }
+        }
+
+        &__subtitle {
+            font-size: 17px;
+            margin-bottom: 24px;
+        }
+
+        &__button {
+            font-size: 16px;
+            padding: 8px;
+        }
+
+        &__quote {
+            font-size: 17px;
+            width: 400px;
+            margin-bottom: 24px;
+        }
+    }
+
+    /* ---------------- 1200 ---------------- */
+    @media (max-width: 1200px) {
+        min-height: 180px;
 
         &__container {
-            padding: 0 16px;
+            padding: 32px 60px 26px;
+        }
+
+        &__content {
+            gap: 40px;
         }
 
         &__text {
-            font-size: var(--font-label, 16px);
-            line-height: 1.7;
-            padding-top: 24px;
+            font-size: 16px;
+            margin-bottom: 20px;
 
             &::before {
-                width: 40px;
+                right: -22px;
+                top: -6px;
+                height: 50px;
             }
+        }
+
+        &__subtitle {
+            font-size: 16px;
+            margin-bottom: 22px;
         }
 
         &__button {
-            padding: 12px 32px;
-            font-size: 14px;
-            width: 100%;
-            max-width: 280px;
+            font-size: 15px;
         }
 
         &__quote {
-            font-size: 15px;
-            line-height: 1.7;
-
-            &::before {
-                font-size: 36px;
-                top: -18px;
-                left: -8px;
-            }
-
-            &::after {
-                font-size: 36px;
-                bottom: -24px;
-                right: -8px;
-            }
+            font-size: 16px;
+            width: 340px;
+            margin-bottom: 20px;
         }
     }
 
-    @media (max-width: 480px) {
-        padding: 32px 0;
+    /* ---------------- 992 ---------------- */
+    @media (max-width: 992px) {
+        min-height: 160px;
+
+        &__container {
+            padding: 28px 40px 24px;
+        }
+
+        &__content {
+            flex-direction: column;
+            gap: 20px;
+        }
 
         &__text {
             font-size: 15px;
-            padding-top: 20px;
+            margin-bottom: 18px;
+            max-width: 100%;
+
+            &::before {
+                display: none;
+            }
+        }
+
+        &__subtitle {
+            font-size: 15px;
+            margin-bottom: 18px;
+            max-width: 100%;
         }
 
         &__button {
-            padding: 10px 24px;
+            font-size: 14px;
+            padding: 6px;
+        }
+
+        &__quote {
+            font-size: 15px;
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 0;
+            padding-left: 20px;
+            border-left: 2px solid var(--brand-primary-gold, #bc9547);
+        }
+    }
+
+    /* ---------------- 768 ---------------- */
+    @media (max-width: 768px) {
+        min-height: 140px;
+
+        &__container {
+            padding: 24px 24px 20px;
+        }
+
+        &__content {
+            gap: 16px;
+        }
+
+        &__text {
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        &__subtitle {
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        &__button {
             font-size: 13px;
-            max-width: 240px;
+            padding: 6px 0;
         }
 
         &__quote {
             font-size: 14px;
+            padding-left: 16px;
+        }
+    }
 
-            &::before {
-                font-size: 28px;
-                top: -14px;
-                left: -4px;
-            }
+    /* ---------------- 600 ---------------- */
+    @media (max-width: 600px) {
+        &__container {
+            padding: 20px 20px 18px;
+        }
 
-            &::after {
-                font-size: 28px;
-                bottom: -18px;
-                right: -4px;
-            }
+        &__text,
+        &__subtitle {
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        &__button {
+            font-size: 12px;
+        }
+
+        &__quote {
+            font-size: 13px;
+            padding-left: 14px;
+        }
+    }
+
+    /* ---------------- 480 ---------------- */
+    @media (max-width: 480px) {
+        min-height: 120px;
+
+        &__container {
+            padding: 18px 16px 16px;
+        }
+
+        &__content {
+            gap: 12px;
+        }
+
+        &__text,
+        &__subtitle {
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        &__button {
+            font-size: 12px;
+        }
+
+        &__quote {
+            font-size: 12px;
+            padding-left: 12px;
+            line-height: 1.5;
+        }
+    }
+
+    /* ---------------- 360 ---------------- */
+    @media (max-width: 360px) {
+        &__container {
+            padding: 16px 12px 14px;
+        }
+
+        &__text,
+        &__subtitle {
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        &__button {
+            font-size: 11px;
+        }
+
+        &__quote {
+            font-size: 11px;
+            padding-left: 10px;
         }
     }
 }
