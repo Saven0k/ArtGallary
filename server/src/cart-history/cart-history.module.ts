@@ -1,4 +1,4 @@
-// src/cart-history/cart-history.module.ts
+
 import { Module } from "@nestjs/common";
 import { SequelizeModule } from "@nestjs/sequelize";
 import { CartHistory } from "./cart-history.model";

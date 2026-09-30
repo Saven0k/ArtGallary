@@ -1,4 +1,4 @@
-// src/arts/art-view.model.ts
+
 import { ApiProperty } from "@nestjs/swagger";
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
 import { Art } from "./arts.model";

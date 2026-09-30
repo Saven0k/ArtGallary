@@ -182,7 +182,7 @@ export class AuthorsService {
             await this.userRepository.update(userData, { where: { id: user.id }, transaction });
         }
 
-        // Файл → строка-путь
+
         let avatarPath: string | undefined;
         if (image) {
             avatarPath = await this.fileService.createFile(image);
@@ -297,7 +297,7 @@ export class AuthorsService {
         const planWeight = subscription?.getWeight ? subscription.getWeight() : 0;
         const isSubscriptionActive = subscription?.isActive ? subscription.isActive() : false;
 
-        // Получаем количество подписчиков
+
         const followersCount = await this.authorFollowModel.count({
             where: { author_id: id }
         });
@@ -329,7 +329,7 @@ export class AuthorsService {
         const stats = await this.getAuthorStats(id);
         const moderate = this.parseModerate(author?.moderate);
 
-        // Получаем количество подписчиков
+
         const followersCount = await this.authorFollowModel.count({
             where: { author_id: id }
         });
@@ -412,7 +412,8 @@ export class AuthorsService {
             include: [{
                 model: AuthorProfile,
                 where: {
-                    moderate: { [Op.ne]: null, is_deleted: false }
+                    moderate: { [Op.ne]: null },
+                    is_deleted: false
                 }
             }],
             limit,
@@ -441,7 +442,7 @@ export class AuthorsService {
                 const totalLikes = stats.totalLikes || 0;
                 const artsCount = stats.artsCount || 0;
 
-                const subscription = await this.subscriptionService.getActiveSubscription(author.id);
+                const subscription = await this.subscriptionService.getActiveSubscription(author.user_id);
 
                 const planWeight = subscription ? subscription.getWeight() : 0;
 
@@ -513,7 +514,7 @@ export class AuthorsService {
 
             const [affected] = await this.authorProfileModel.update(
                 { moderate: JSON.stringify(moderateObject) },
-                { where: { user_id: author.id }, transaction }
+                { where: { user_id: authorId }, transaction }
             );
 
             if (!affected) throw new NotFoundException('Профиль автора не найден');

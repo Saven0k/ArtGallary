@@ -1,4 +1,4 @@
-// src/mail/mail.service.ts
+
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
@@ -20,14 +20,14 @@ export class MailService {
         });
     }
 
-    /** Универсальный метод: шлёт код с указанной темой и текстом */
+
     private async sendCode(
         to: string,
         code: string,
         subject: string,
         bodyText: string,
     ): Promise<void> {
-        // На dev не мучаем Gmail — просто пишем код в консоль
+
         if (process.env.NODE_ENV !== 'production') {
             this.logger.log(`[DEV] ${subject} → ${to}: code=${code}`);
             return;
@@ -44,12 +44,12 @@ export class MailService {
         });
     }
 
-    /** Код для смены пароля (используется в password-reset) */
+
     async sendPasswordResetCode(to: string, code: string): Promise<void> {
         await this.sendCode(to, code, 'Смена пароля', 'Ваш код для смены пароля');
     }
 
-    /** Код для смены email (шлём на НОВЫЙ адрес, чтобы подтвердить владение) */
+
     async sendEmailChangeCode(to: string, code: string): Promise<void> {
         await this.sendCode(
             to,

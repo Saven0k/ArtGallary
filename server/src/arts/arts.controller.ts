@@ -1,4 +1,4 @@
-// src/arts/arts.controller.ts
+
 import {
     Body,
     Controller,
@@ -39,11 +39,11 @@ import { JwtAccessGuard } from 'src/auth/guards/jwt.guard';
 @Controller('arts')
 @UseGuards(JwtAccessGuard, RolesGuard)
 export class ArtsController {
-    constructor(private readonly artsService: ArtsService) {}
+    constructor(private readonly artsService: ArtsService) { }
 
-    // ============================================================
-    // 1. СТАТИЧЕСКИЕ GET-РОУТЫ (должны идти ДО /:id)
-    // ============================================================
+
+
+
 
     @ApiOperation({ summary: 'Получение топ-10 картин для главной' })
     @Get('top')
@@ -80,7 +80,7 @@ export class ArtsController {
         );
     }
 
-    // ⚠️ ВАЖНО: 'liked' тоже статический путь, он ДОЛЖЕН быть до /:id
+
     @Get('liked')
     @Roles(Role.User, Role.Author, Role.Admin)
     @ApiOperation({
@@ -114,9 +114,39 @@ export class ArtsController {
         );
     }
 
-    // ============================================================
-    // 2. СТАТИЧЕСКИЕ POST-РОУТЫ (тоже ДО /:id)
-    // ============================================================
+    @ApiOperation({ summary: 'Поиск картин по названию / описанию / автору' })
+    @Get('search')
+    @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
+    searchArts(
+        @Query('q') q: string,
+        @Query('page') page?: number,
+        @Query('limit') limit?: number,
+        @Query('lang') lang: string = 'ru',
+    ) {
+        return this.artsService.searchArts(
+            q,
+            Number(page) || 1,
+            Number(limit) || 20,
+            lang as any,
+        );
+    }
+
+    @ApiOperation({ summary: 'Похожие картины по тегам' })
+    @Get(':id/similar')
+    @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
+    getSimilarArts(
+        @Param('id', ParseIntPipe) id: number,
+        @Query('limit') limit?: number,
+        @Query('lang') lang: string = 'ru',
+    ) {
+        return this.artsService.getSimilarArts(
+            id,
+            Number(limit) || 20,
+            lang as any,
+        );
+    }
+
+
 
     @ApiOperation({ summary: 'Обновить все скоры' })
     @Post('update-scores')
@@ -153,9 +183,9 @@ export class ArtsController {
         return this.artsService.createArt(dto, image, dto.author_id);
     }
 
-    // ============================================================
-    // 3. ПАРАМЕТРИЧЕСКИЕ РОУТЫ (всё, что содержит :id)
-    // ============================================================
+
+
+
 
     @ApiOperation({ summary: 'Получение объекта по Id' })
     @Get(':id')
@@ -219,9 +249,9 @@ export class ArtsController {
         return this.artsService.moderateArt(moderate, id);
     }
 
-    // ------------------------------------------------------------
-    // 3.1. Featured
-    // ------------------------------------------------------------
+
+
+
 
     @ApiOperation({ summary: 'Добавление картины в топ' })
     @Post(':id/featured')
@@ -240,9 +270,9 @@ export class ArtsController {
         return this.artsService.removeFromFeatured(id);
     }
 
-    // ------------------------------------------------------------
-    // 3.2. Views (только один роут на просмотр!)
-    // ------------------------------------------------------------
+
+
+
 
     @ApiOperation({ summary: 'Записать просмотр картины' })
     @Post(':id/view')
@@ -261,9 +291,9 @@ export class ArtsController {
         return this.artsService.getArtViewsCount(artId);
     }
 
-    // ------------------------------------------------------------
-    // 3.3. Shares
-    // ------------------------------------------------------------
+
+
+
 
     @Post(':id/share')
     @Roles(Role.User, Role.Author, Role.Admin)
@@ -278,9 +308,9 @@ export class ArtsController {
         return this.artsService.getArtShares(artId);
     }
 
-    // ------------------------------------------------------------
-    // 3.4. Likes
-    // ------------------------------------------------------------
+
+
+
 
     @Post(':id/like')
     @Roles(Role.User, Role.Author, Role.Admin)

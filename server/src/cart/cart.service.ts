@@ -1,4 +1,4 @@
-// src/cart/cart.service.ts
+
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Cart } from "./cart.model";
@@ -18,7 +18,7 @@ export class CartService {
     async addItem(userId: number, artId: number): Promise<CartResponse> {
         const cart = await this.ensureCart(userId);
 
-        // идемпотентно: повторное добавление не дублирует id
+
         if (!cart.art_ids.includes(artId)) {
             cart.art_ids = [...cart.art_ids, artId];
             await cart.save();
@@ -47,7 +47,7 @@ export class CartService {
         return this.toResponse(cart);
     }
 
-    // ---------- internals ----------
+
 
     private async ensureCart(userId: number): Promise<Cart> {
         const [cart] = await this.cartModel.findOrCreate({

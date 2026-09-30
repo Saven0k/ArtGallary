@@ -41,7 +41,7 @@ export class StylesController {
     @ApiOperation({ summary: 'Удаление стиля' })
     @Delete("/:id")
     @Roles(Role.Admin, Role.Moderator)
-    delete(@Param('id') id: number) { 
+    delete(@Param('id') id: number) {
         return this.stylesService.delete(id);
     }
 

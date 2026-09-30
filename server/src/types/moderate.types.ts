@@ -10,4 +10,4 @@ export interface ModerateResponse {
     message: string;
     data: ModerateObject;
 }
-export type ModerateField = string; 
+export type ModerateField = string;

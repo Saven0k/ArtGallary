@@ -1,4 +1,4 @@
-// src/events/events.controller.ts
+
 import {
     Controller,
     Get,

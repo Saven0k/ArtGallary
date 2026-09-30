@@ -9,9 +9,9 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAccessGuard } from 'src/auth/guards/jwt.guard';
 
 @ApiTags('Виды искусства')
-@ApiBearerAuth() 
+@ApiBearerAuth()
 @Controller('art-types')
-@UseGuards(JwtAccessGuard, RolesGuard) 
+@UseGuards(JwtAccessGuard, RolesGuard)
 export class ArtTypesController {
     constructor(private artTypesService: ArtTypesService) {}
 
@@ -19,7 +19,7 @@ export class ArtTypesController {
     @ApiResponse({ status: 200, description: 'Начальные данные успешно добавлены' })
     @ApiResponse({ status: 403, description: 'Доступ запрещен. Только для администраторов' })
     @Post('seed')
-    @Roles(Role.Admin) 
+    @Roles(Role.Admin)
     async seed() {
         return this.artTypesService.seedArtTypes();
     }
@@ -48,7 +48,7 @@ export class ArtTypesController {
     @ApiResponse({ status: 200, description: 'Вид искусства удален' })
     @ApiResponse({ status: 403, description: 'Доступ запрещен. Только для администраторов и модераторов' })
     @Delete('/:id')
-    @Roles(Role.Admin, Role.Moderator) // 👈 Админ и модератор
+    @Roles(Role.Admin, Role.Moderator)
     delete(@Param('id') id: number) {
         return this.artTypesService.delete(id);
     }

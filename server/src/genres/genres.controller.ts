@@ -56,7 +56,7 @@ export class GenresController {
     getGenresByArtType(@Param('artTypeId') artTypeId: number) {
         return this.genresService.getGenresByArtType(artTypeId);
     }
-    
+
     @ApiOperation({ summary: 'Получение списка жанров' })
     @Get()
     @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)

@@ -1,14 +1,14 @@
-// src/subscriptions/subscription-history.model.ts
+
 import { ApiProperty } from "@nestjs/swagger";
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
 import { Subscription, SubscriptionPlan } from "./subscription.model";
 
 export enum HistoryEventType {
-    PURCHASE = 'purchase',        // Покупка подписки
-    RENEWAL = 'renewal',          // Автопродление
-    CANCELLATION = 'cancellation', // Отмена подписки
-    EXPIRATION = 'expiration',    // Истечение срока
-    PLAN_CHANGE = 'plan_change',   // Смена плана
+    PURCHASE = 'purchase',
+    RENEWAL = 'renewal',
+    CANCELLATION = 'cancellation',
+    EXPIRATION = 'expiration',
+    PLAN_CHANGE = 'plan_change',
 }
 
 export enum PaymentMethod {

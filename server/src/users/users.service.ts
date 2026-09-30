@@ -1,4 +1,4 @@
-// src/users/users.service.ts
+
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './users.model';
@@ -83,7 +83,7 @@ export class UsersService {
         if (dto.surname) updateData.surname = dto.surname;
         if (dto.second_name !== undefined) updateData.second_name = dto.second_name;
         if (dto.gender) updateData.gender = dto.gender;
-        if (dto.date_birthday) updateData.date_birthday = dto.date_birthday; 
+        if (dto.date_birthday) updateData.date_birthday = dto.date_birthday;
         if (dto.city_id !== undefined) updateData.city_id = dto.city_id ?? null;
         if (dto.country_id !== undefined) updateData.country_id = dto.country_id ?? null;
 
@@ -203,7 +203,7 @@ export class UsersService {
                     second_name: process.env.ADMIN_SECOND_NAME || 'Системович',
                     role: 'admin',
                     gender: 'M',
-                    date_birthday: new Date('1990-01-01'), // 👈 ДОБАВЛЯЕМ
+                    date_birthday: new Date('1990-01-01'),
                 });
                 this.logger.log('info', `✅ Администратор создан: ${admin.email}`);
             }

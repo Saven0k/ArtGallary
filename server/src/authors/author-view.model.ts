@@ -63,7 +63,7 @@ export class AuthorView extends Model<AuthorView> {
     @Column({ type: DataType.DATE, defaultValue: DataType.NOW })
     created_at: Date;
 
-    // Индексы
+
     static indexes = [
         { fields: ['author_id', 'created_at'] },
         { fields: ['user_id'] },

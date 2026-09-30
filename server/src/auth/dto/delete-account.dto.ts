@@ -1,4 +1,4 @@
-// src/auth/dto/delete-account.dto.ts
+
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Length } from 'class-validator';
 

@@ -1,4 +1,4 @@
-// src/events/events.module.ts
+
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { EventsController } from './events.controller';

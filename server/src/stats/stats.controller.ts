@@ -1,4 +1,4 @@
-// src/stats/stats.controller.ts
+
 import {
     Controller,
     Get,
@@ -24,7 +24,7 @@ import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 export class StatsController {
     constructor(private readonly statsService: StatsService) {}
 
-    // -------------------- AUTHOR --------------------
+
 
     @Get('author/:id')
     @Roles(Role.Author, Role.Admin)
@@ -46,7 +46,7 @@ export class StatsController {
         return this.statsService.getAuthorStats(id, filter);
     }
 
-    // -------------------- ART --------------------
+
 
     @Get('art/:id')
     @Roles(Role.Author, Role.Admin)

@@ -57,7 +57,7 @@ export class LocationService implements OnModuleInit {
 
     const q = query.trim();
 
-    // Ищем в БД — сначала те, что начинаются с запроса, потом содержат
+
     const [startsWith, contains] = await Promise.all([
       this.countryModel.findAll({
         where: {
@@ -257,7 +257,7 @@ export class LocationService implements OnModuleInit {
       const returnedIso2 =
         item.address?.country_code?.toUpperCase() || iso2.toUpperCase();
 
-      // Сохраняем в БД чтобы в следующий раз брать из кэша
+
       const [country] = await this.countryModel.findOrCreate({
         where: { iso2: returnedIso2 },
         defaults: {

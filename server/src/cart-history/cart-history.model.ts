@@ -1,4 +1,4 @@
-// src/cart-history/cart-history.model.ts
+
 import { ApiProperty } from "@nestjs/swagger";
 import {
     BelongsTo,

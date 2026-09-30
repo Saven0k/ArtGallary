@@ -1,4 +1,4 @@
-// src/genres/genre.model.ts
+
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, DataType, Model, Table, ForeignKey, BelongsTo } from "sequelize-typescript";
 import { ArtType } from "../art-types/art-type.model";
@@ -23,7 +23,7 @@ export class Genre extends Model<Genre, GenreCreationAttrs> {
     @ForeignKey(() => ArtType)
     @Column({ type: DataType.INTEGER, allowNull: false })
     art_type_id: number;
-    
+
     @BelongsTo(() => ArtType, {
         onDelete: 'CASCADE'
     })

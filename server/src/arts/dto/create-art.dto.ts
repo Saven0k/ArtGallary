@@ -34,9 +34,9 @@ export class CreateArtDto {
     @ApiProperty({ required: false, default: false })
     @IsOptional()
     is_adult?: boolean;
-    @ApiProperty({ 
-        example: ['пейзаж', 'природа', 'лето'], 
-        description: 'Ключевые слова/теги картины (от 1 до 20)' 
+    @ApiProperty({
+        example: ['пейзаж', 'природа', 'лето'],
+        description: 'Ключевые слова/теги картины (от 1 до 20)'
     })
     @IsArray()
     @IsOptional()

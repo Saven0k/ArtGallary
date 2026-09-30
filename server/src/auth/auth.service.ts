@@ -202,7 +202,7 @@ export class AuthService {
             await this.mailService.sendPasswordResetCode(user.email, code);
         }
 
-        // Всегда одинаковый ответ — нельзя перебором узнать, зарегистрирован email или нет
+
         return { message: 'Если email зарегистрирован, код отправлен' };
     }
 
@@ -232,7 +232,7 @@ export class AuthService {
             throw new UnauthorizedException('Неверный код');
         }
 
-        // Код верный → выдаём resetToken на 5 минут
+
         const resetToken = await this.jwtService.signAsync(
             { sub: user.id, jti: record.id, purpose: 'password-reset' },
             {
@@ -329,7 +329,7 @@ export class AuthService {
         res.clearCookie('refreshToken', { ...COOKIE_BASE, path: '/' });
     }
 
-    // Добавить в конец класса AuthService
+
 
     async changePassword(
         userId: number,
@@ -423,10 +423,10 @@ export class AuthService {
         user.password = await this.passwordService.hashPassword(dto.newPassword);
         await user.save();
 
-        // Код одноразовый
+
         await record.destroy();
 
-        // Убиваем все refresh-сессии
+
         await this.tokenRepository.destroy({ where: { userId: user.id } });
 
         this.logger.log('info', JSON.stringify({
@@ -460,7 +460,7 @@ export class AuthService {
             throw new ConflictException('Этот email уже зарегистрирован');
         }
 
-        // Удаляем старые коды этого пользователя
+
         await this.emailChangeRepo.destroy({ where: { user_id: user.id } });
 
         const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
@@ -488,7 +488,7 @@ export class AuthService {
         const user = await this.userRepository.findByPk(userId);
         if (!user) throw new UnauthorizedException('Пользователь не найден');
 
-        // 1. Пароль
+
         const match = await this.passwordService.comparePassword(dto.password, user.password);
         if (!match) {
             this.logger.error('error', JSON.stringify({
@@ -498,7 +498,7 @@ export class AuthService {
             throw new UnauthorizedException('Неверный пароль');
         }
 
-        // 2. Код
+
         const record = await this.emailChangeRepo.findOne({
             where: { user_id: user.id, new_email: dto.newEmail },
             order: [['id', 'DESC']],
@@ -521,13 +521,13 @@ export class AuthService {
             throw new UnauthorizedException('Неверный код');
         }
 
-        // 3. На всякий случай: не занят ли email кем-то ещё
+
         const busy = await this.userRepository.findOne({ where: { email: dto.newEmail } });
         if (busy && busy.id !== user.id) {
             throw new ConflictException('Этот email уже зарегистрирован');
         }
 
-        // 4. Меняем email, удаляем код
+
         user.email = dto.newEmail;
         await user.save();
         await record.destroy();
@@ -558,12 +558,12 @@ export class AuthService {
             }));
         }
     }
-    /** Шаг 1: запросить код на почту текущего пользователя */
+
     async requestAccountDeletionCode(userId: number) {
         const user = await this.userRepository.findByPk(userId);
         if (!user) throw new UnauthorizedException('Пользователь не найден');
 
-        // сносим старые коды
+
         await this.deleteCodeRepo.destroy({ where: { user_id: user.id } });
 
         const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
@@ -585,7 +585,7 @@ export class AuthService {
         return { message: 'Код отправлен на почту' };
     }
 
-    /** Шаг 2: проверить код. Если ок — вернуть ok, но НЕ удалять аккаунт. */
+
     async verifyAccountDeletionCode(userId: number, dto: ConfirmDeleteAccountDto) {
         const user = await this.userRepository.findByPk(userId);
         if (!user) throw new UnauthorizedException('Пользователь не найден');
@@ -612,7 +612,7 @@ export class AuthService {
             throw new UnauthorizedException('Неверный код');
         }
 
-        // Код верный — удаляем его, чтобы нельзя было использовать повторно
+
         await record.destroy();
 
         return { ok: true };

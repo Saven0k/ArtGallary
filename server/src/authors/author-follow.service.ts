@@ -1,4 +1,4 @@
-// src/authors/author-follow.service.ts
+
 import { Injectable, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AuthorFollow } from './author-follow.model';
@@ -108,7 +108,7 @@ export class AuthorFollowService {
             pagination: this.buildPagination(count, page, limit),
         };
     }
-    // src/authors/author-follow.service.ts
+
 
     async getUserFollowing(userId: number, page: number = 1, limit: number = 20) {
         this.log('getUserFollowing', { userId, page, limit });

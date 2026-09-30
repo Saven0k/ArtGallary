@@ -45,7 +45,7 @@ export class Subscription extends Model<Subscription, SubscriptionCreationAttrs>
     @HasMany(() => SubscriptionHistory)
     history: SubscriptionHistory[];
 
-    // Хелперы
+
     isActive(): boolean {
         if (!this.is_active) return false;
         if (!this.expires_at) return false;

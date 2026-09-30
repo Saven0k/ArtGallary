@@ -1,4 +1,4 @@
-// src/notifications/notification.service.ts
+
 import { Injectable, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Notification, NotificationType, NotificationStatus } from './notification.model';
@@ -82,6 +82,30 @@ export class NotificationService {
         return await this.notificationModel.count({
             where: { user_id: userId, status: NotificationStatus.UNREAD }
         });
+    }
+
+    async deleteOne(notificationId: number, userId: number) {
+        const notification = await this.notificationModel.findOne({
+            where: { id: notificationId, user_id: userId },
+        });
+
+        if (!notification) {
+            throw new HttpException('Уведомление не найдено', HttpStatus.NOT_FOUND);
+        }
+
+        await notification.destroy();
+        this.log('deleteOne', { notificationId, userId });
+        return { success: true, id: notificationId };
+    }
+
+
+    async deleteAll(userId: number) {
+        const deleted = await this.notificationModel.destroy({
+            where: { user_id: userId },
+        });
+
+        this.log('deleteAll', { userId, deleted });
+        return { success: true, deleted };
     }
 
     private buildPagination(total: number, page: number, limit: number) {

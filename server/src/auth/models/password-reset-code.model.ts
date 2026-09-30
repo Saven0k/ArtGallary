@@ -1,4 +1,4 @@
-// src/auth/models/password-reset-code.model.ts
+
 import { Column, DataType, ForeignKey, Model, Table, BelongsTo } from 'sequelize-typescript';
 import { User } from '../../users/users.model';
 

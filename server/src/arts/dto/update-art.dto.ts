@@ -48,12 +48,12 @@ export class UpdateArtDTO {
 
     @ApiProperty({ example: '{"size": "120x120", "type": "jpg"}', description: 'Характеристики картины в формате json ' })
     readonly specifications?: string;
-    
+
     @ApiProperty({ required: false, default: false })
     is_adult?: boolean;
 
-    @ApiProperty({ 
-        example: ['пейзаж', 'природа', 'лето'], 
+    @ApiProperty({
+        example: ['пейзаж', 'природа', 'лето'],
         description: 'Ключевые слова/теги картины'
     })
     @IsArray()

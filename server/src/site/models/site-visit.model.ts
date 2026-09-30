@@ -1,4 +1,4 @@
-// src/site/models/site-visit.model.ts
+
 import { ApiProperty } from '@nestjs/swagger';
 import {
     BelongsTo,
@@ -19,7 +19,7 @@ export interface SiteVisitCreationAttrs {
 
 @Table({
     tableName: 'site_visits',
-    timestamps: false, // храним только created_at вручную
+    timestamps: false,
     indexes: [
         { fields: ['created_at'] },
         { fields: ['user_id'] },

@@ -1,4 +1,4 @@
-// src/events/dto/update-event.dto.ts
+
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsOptional } from "class-validator";
 

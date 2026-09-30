@@ -314,9 +314,9 @@ export class ArtsService {
     }
 
 
-    /**
-     * Найти арт с локацией через JOIN (без доп. запросов к location service).
-     */
+
+
+
     private async findArtWithLocation(id: number, lang: string = 'ru') {
         const art = await this.artRepository.findByPk(id, {
             include: [
@@ -327,9 +327,9 @@ export class ArtsService {
         return art ? this.formatArtWithLocation(art.toJSON(), lang) : null;
     }
 
-    /**
-     * Includes для страны и города (JOIN).
-     */
+
+
+
     private getLocationIncludes(lang: string = 'ru') {
         const nameField = lang === 'ru' ? 'name_ru' : 'name_en';
         return [
@@ -348,9 +348,9 @@ export class ArtsService {
         ];
     }
 
-    /**
-     * Все includes с локацией — для списков.
-     */
+
+
+
     private getDefaultIncludesWithLocation(lang: string = 'ru') {
         return [
             ...this.getDefaultIncludes(),
@@ -372,20 +372,20 @@ export class ArtsService {
         ];
     }
 
-    /**
-     * Форматирует объект арта: парсит moderate JSON,
-     * нормализует поля country/city для фронта.
-     */
+
+
+
+
     private formatArtWithLocation(art: any, lang: string = 'ru') {
         const nameField = lang === 'ru' ? 'name_ru' : 'name_en';
 
-        // Парсим moderate
+
         if (art.moderate && typeof art.moderate === 'string') {
             try { art.moderate = JSON.parse(art.moderate); }
             catch { art.moderate = null; }
         }
 
-        // ✅ Нормализуем country: { id, iso2, name }
+
         if (art.country) {
             art.country = {
                 id: art.country.id,
@@ -395,7 +395,7 @@ export class ArtsService {
             };
         }
 
-        // ✅ Нормализуем city: { id, country_code, name }
+
         if (art.city) {
             art.city = {
                 id: art.city.id,
@@ -487,7 +487,7 @@ export class ArtsService {
         };
     }
 
-    // src/arts/arts.service.ts
+
 
     async getLikedArts(
         userId: number,
@@ -596,6 +596,115 @@ export class ArtsService {
             where: { art_id: artId }
         });
         return { count };
+    }
+
+    async searchArts(
+        query: string,
+        page: number = 1,
+        limit: number = 20,
+        lang: Lang = 'ru',
+    ) {
+        if (!query || query.trim().length < 2) {
+            return { arts: [], pagination: this.buildPagination(0, page, limit) };
+        }
+
+        const q = `%${query.trim().toLowerCase()}%`;
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await this.artRepository.findAndCountAll({
+            where: {
+                [Op.or]: [
+                    { title: { [Op.iLike]: q } },
+                    { description: { [Op.iLike]: q } },
+                    // поиск по имени/фамилии автора — через include
+                    { '$author.user.name$': { [Op.iLike]: q } },
+                    { '$author.user.surname$': { [Op.iLike]: q } },
+                ],
+            },
+            include: [
+                ...this.getDefaultIncludesWithLocation(lang),
+                {
+                    model: AuthorProfile,
+                    as: 'author',
+                    required: false,
+                    attributes: ['user_id', 'avatar_path'],
+                    include: [
+                        {
+                            model: User,
+                            as: 'user',
+                            attributes: ['id', 'name', 'surname'],
+                        },
+                    ],
+                },
+            ],
+            order: [['score', 'DESC'], ['likes', 'DESC'], ['views', 'DESC']],
+            limit,
+            offset,
+            distinct: true,
+            subQuery: false, // важно для поиска по вложенным полям
+        });
+
+        const formatted = rows.map(art => this.formatArtWithLocation(art.toJSON(), lang));
+
+        return {
+            arts: formatted,
+            pagination: this.buildPagination(count, page, limit),
+        };
+    }
+
+    async getSimilarArts(
+        artId: number,
+        limit: number = 20,
+        lang: Lang = 'ru',
+    ) {
+        // 1. Получаем теги текущей картины
+        const art = await this.artRepository.findByPk(artId, {
+            include: [{ model: Tag, as: 'tags', attributes: ['id', 'name'] }],
+        });
+
+        if (!art || !art.tags?.length) return [];
+
+        const tagIds = art.tags.map(t => t.id);
+
+        // 2. Ищем картины с этими тегами, кроме самой себя
+        const similar = await this.artRepository.findAll({
+            attributes: {
+                include: [
+                    [
+                        // кол-во совпавших тегов
+                        this.sequelize.literal(`(
+                        SELECT COUNT(*)
+                        FROM art_tags AS at
+                        WHERE at.art_id = "Art"."id"
+                          AND at.tag_id IN (${tagIds.join(',')})
+                    )`),
+                        'matched_tags',
+                    ],
+                ],
+            },
+            include: [
+                ...this.getDefaultIncludesWithLocation(lang),
+                {
+                    model: Tag,
+                    as: 'tags',
+                    where: { id: { [Op.in]: tagIds } },
+                    through: { attributes: [] },
+                    required: true,
+                },
+            ],
+            where: { id: { [Op.ne]: artId } },
+            order: [
+                [this.sequelize.literal('matched_tags'), 'DESC'],
+                ['score', 'DESC'],
+            ],
+            limit,
+            subQuery: false,
+            group: ['Art.id', 'author.user_id', 'author.user.id',
+                'genre.id', 'style.id', 'tags.id',
+                'country.id', 'city.id'],
+        });
+
+        return similar.map(a => this.formatArtWithLocation(a.toJSON(), lang));
     }
 
     private buildArtData(dto: CreateArtDto, artistId: number) {

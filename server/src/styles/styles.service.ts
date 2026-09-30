@@ -14,9 +14,9 @@ export class StylesService {
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
     ) { }
 
-    /**
-     * Заполнение стилей начальными данными
-     */
+
+
+
     async seedStyles() {
         this.log('🌱 Начало заполнения стилей...');
 
@@ -43,8 +43,8 @@ export class StylesService {
             }
 
             this.log(`✅ Стили успешно заполнены! Создано: ${created}, пропущено: ${skipped}`);
-            return { 
-                success: true, 
+            return {
+                success: true,
                 message: `Стили заполнены: создано ${created}, пропущено ${skipped}`,
                 created,
                 skipped

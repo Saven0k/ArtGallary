@@ -29,7 +29,7 @@ export class AuthController {
     constructor(private authService: AuthService) { }
 
     @Post("/login")
-    // @UsePipes(ValidationPipe)
+
     login(@Body() userDto: AuthUserDto, @Req() req: any, @Res({ passthrough: true }) res: Response) {
         return this.authService.login(userDto, req, res)
     }
@@ -65,7 +65,6 @@ export class AuthController {
     @UseGuards(JwtAccessGuard, RolesGuard)
     @Roles(Role.Admin, Role.User, Role.Author, Role.Moderator)
     getMe(@CurrentUser() user: { id: number; email: string, role: Role }) {
-        console.log("-----------------------------------------------------------------------------", user)
         return user;
     }
 

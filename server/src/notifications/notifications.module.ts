@@ -1,4 +1,4 @@
-// src/notifications/notification.module.ts
+
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Notification } from './notification.model';

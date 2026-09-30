@@ -35,7 +35,7 @@ import { ArtLike } from './art-like.model';
       Tag,
       City,
       Country
-    ]), 
+    ]),
     FilesModule,
     LocationModule,
     TagsModule,

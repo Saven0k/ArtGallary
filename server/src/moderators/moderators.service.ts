@@ -1,4 +1,4 @@
-// src/moderators/moderators.service.ts
+
 import {
     Injectable, HttpException, HttpStatus,
     NotFoundException, ConflictException, Inject,
@@ -17,18 +17,17 @@ import { PasswordService } from '../password/password.service';
 @Injectable()
 export class ModeratorsService {
 
-    // Атрибуты пользователя которые возвращаем (без пароля)
+
     private readonly USER_ATTRS = [
-        'id', 'email', 'name', 'surname', 'second_name',
-        'phone_number', 'avatar_path', 'role', 'gender',
+        'id', 'email', 'name', 'surname', 'second_name', 'role', 'gender',
         'is_deleted', 'country_id', 'city_id', 'createdAt', 'updatedAt',
     ];
 
-    // include для всех запросов — только User
-    // ✅ Country и City НЕ включаем через Sequelize include —
-    // их таблицы созданы через raw SQL (сидер), и Sequelize не может делать JOIN с ними.
-    // Локация (country_id, city_id) приходит в user как числа — фронт запрашивает
-    // названия отдельно через /location/countries/by-code/:code и /location/cities/:id
+
+
+
+
+
     private get userInclude() {
         return {
             model: User,
@@ -46,34 +45,33 @@ export class ModeratorsService {
         private readonly passwordService: PasswordService,
     ) {}
 
-    // ── CREATE ───────────────────────────────────────────────────────────────
+
 
     async createModerator(dto: CreateModeratorDto, image: any, adminId: number) {
         this.log('createModerator', { email: dto.email, adminId });
 
         const transaction = await this.sequelize.transaction();
         try {
-            // Проверка уникальности email
+
             const existing = await this.userRepository.findOne({
                 where: { email: dto.email },
                 transaction,
             });
             if (existing) throw new ConflictException('Пользователь с таким email уже существует');
 
-            const avatarPath = image ? await this.fileService.createFile(image) : '';
 
-            // ✅ Создаём пользователя — передаём ВСЕ поля включая gender
+
             const user = await this.userRepository.create({
                 email:        dto.email,
                 password:     await this.passwordService.hashPassword(dto.password),
                 name:         dto.name,
                 surname:      dto.surname,
                 second_name:  dto.second_name || '',
-                gender:       dto.gender,  
+                gender:       dto.gender,
                 role:         'moderator',
             }, { transaction });
 
-            // Создаём запись модератора
+
             const moderator = await this.moderatorRepository.create({
                 user_id:     user.id,
                 assigned_by: adminId ?? null,
@@ -89,7 +87,7 @@ export class ModeratorsService {
         }
     }
 
-    // ── READ ─────────────────────────────────────────────────────────────────
+
 
     async getModeratorById(id: number) {
         const moderator = await this.moderatorRepository.findOne({
@@ -135,12 +133,12 @@ export class ModeratorsService {
         };
     }
 
-    // ── UPDATE ───────────────────────────────────────────────────────────────
 
-    /**
-     * Обновляет данные пользователя-модератора и/или assigned_by.
-     * Пароль обновляется отдельно через хэширование.
-     */
+
+
+
+
+
     async updateModerator(id: number, dto: UpdateModeratorDto, image?: any) {
         this.log('updateModerator', { moderatorId: id });
 
@@ -149,23 +147,17 @@ export class ModeratorsService {
 
         const transaction = await this.sequelize.transaction();
         try {
-            // Обновляем данные пользователя
+
             const userUpdate: any = {};
             if (dto.email        !== undefined) userUpdate.email        = dto.email;
             if (dto.name         !== undefined) userUpdate.name         = dto.name;
             if (dto.surname      !== undefined) userUpdate.surname      = dto.surname;
             if (dto.second_name  !== undefined) userUpdate.second_name  = dto.second_name;
-            if (dto.phone_number !== undefined) userUpdate.phone_number = dto.phone_number;
             if (dto.gender       !== undefined) userUpdate.gender       = dto.gender;
             if (dto.password) {
                 userUpdate.password = await this.passwordService.hashPassword(dto.password);
             }
 
-            // Обновляем аватар если передан
-            if (image) {
-                const user = await this.userRepository.findByPk(moderator.user_id);
-                userUpdate.avatar_path = await this.fileService.createFile(image);
-            }
 
             if (Object.keys(userUpdate).length > 0) {
                 await this.userRepository.update(userUpdate, {
@@ -174,7 +166,7 @@ export class ModeratorsService {
                 });
             }
 
-            // Обновляем assigned_by если передан
+
             if (dto.assigned_by !== undefined) {
                 await this.moderatorRepository.update(
                     { assigned_by: dto.assigned_by },
@@ -192,12 +184,12 @@ export class ModeratorsService {
         }
     }
 
-    // ── DELETE ───────────────────────────────────────────────────────────────
 
-    /**
-     * Мягкое понижение — убирает запись модератора, меняет роль юзера на 'user'.
-     * Пользователь НЕ удаляется, его данные сохраняются.
-     */
+
+
+
+
+
     async deleteModerator(id: number) {
         this.log('deleteModerator', { moderatorId: id });
 
@@ -209,13 +201,13 @@ export class ModeratorsService {
             });
             if (!moderator) throw new NotFoundException('Модератор не найден');
 
-            // ✅ Меняем роль обратно на 'user' — данные сохраняются
+
             await this.userRepository.update(
                 { role: 'user' },
                 { where: { id: moderator.user_id }, transaction },
             );
 
-            // Удаляем только запись модератора
+
             await this.moderatorRepository.destroy({ where: { id }, transaction });
 
             await transaction.commit();
@@ -228,10 +220,10 @@ export class ModeratorsService {
         }
     }
 
-    /**
-     * Жёсткое удаление — удаляет и модератора, и пользователя полностью.
-     * Используй только если нужно полностью убрать аккаунт.
-     */
+
+
+
+
     async hardDeleteModerator(id: number) {
         this.log('hardDeleteModerator', { moderatorId: id });
 
@@ -258,7 +250,7 @@ export class ModeratorsService {
         }
     }
 
-    // ── PRIVATE ───────────────────────────────────────────────────────────────
+
 
     private log(method: string, data?: any) {
         this.logger.log('info', JSON.stringify({

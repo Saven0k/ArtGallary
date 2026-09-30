@@ -1,10 +1,10 @@
-// src/subscriptions/dto/subscription.dto.ts
+
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum, IsOptional, IsNumber, Min, IsString, IsIn } from "class-validator";
 import { SubscriptionPlan } from "../subscription.model";
 import { PaymentMethod, HistoryEventType, PaymentStatus } from "../subscription-history.model";
 
-// DTO для покупки
+
 export class PurchaseSubscriptionDto {
     @ApiProperty({ enum: SubscriptionPlan, example: SubscriptionPlan.PRO })
     @IsEnum(SubscriptionPlan)
@@ -21,7 +21,7 @@ export class PurchaseSubscriptionDto {
     paymentMethod: PaymentMethod;
 }
 
-// DTO для подтверждения оплаты (получаем от фронта)
+
 export class ConfirmPaymentDto {
     @ApiProperty({ example: 'pay_123456', description: 'ID платежа' })
     @IsString()
@@ -49,7 +49,7 @@ export class ConfirmPaymentDto {
     metadata?: any;
 }
 
-// История подписки
+
 export class SubscriptionHistoryResponseDto {
     @ApiProperty({ example: 1 })
     id: number;
@@ -81,7 +81,7 @@ export class SubscriptionHistoryResponseDto {
     @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
     createdAt: Date;
 }
-// Ответ с информацией о подписке
+
 export class SubscriptionResponseDto {
     @ApiProperty({ enum: SubscriptionPlan })
     plan: SubscriptionPlan;
@@ -104,7 +104,7 @@ export class SubscriptionResponseDto {
     @ApiProperty({ type: [SubscriptionHistoryResponseDto] })
     history: SubscriptionHistoryResponseDto[];
 }
-// Инициирование оплаты
+
 export class PaymentInitResponseDto {
     @ApiProperty({ example: 'pay_123456', description: 'ID платежа' })
     paymentId: string;

@@ -1,4 +1,4 @@
-// src/stats/stats.service.ts
+
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
@@ -27,7 +27,7 @@ export class StatsService {
         @InjectModel(Art) private artModel: typeof Art,
     ) {}
 
-    // -------------------- AUTHOR --------------------
+
 
     async getAuthorStats(
         authorId: number,
@@ -85,7 +85,7 @@ export class StatsService {
         };
     }
 
-    // -------------------- ART --------------------
+
 
     async getArtStats(
         artId: number,
@@ -127,14 +127,14 @@ export class StatsService {
         };
     }
 
-    /** Для проверки прав в контроллере */
+
     async getArt(artId: number): Promise<Art | null> {
         return this.artModel.findByPk(artId, {
             attributes: ['id', 'author_id', 'title'],
         });
     }
 
-    // -------------------- helpers --------------------
+
 
     private buildFilter(filter: StatsFilterDto): any {
         const where: any = {};

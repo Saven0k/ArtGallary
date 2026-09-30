@@ -1,4 +1,4 @@
-// src/stats/interfaces/stats.interface.ts
+
 export interface GenderStats {
     male: number;
     female: number;

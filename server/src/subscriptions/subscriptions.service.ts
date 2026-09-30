@@ -37,9 +37,9 @@ export class SubscriptionService {
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
     ) { }
 
-    // ==================== ПУБЛИЧНЫЕ МЕТОДЫ ====================
 
-    // 1. Инициировать покупку (создаем платеж)
+
+
     async initiatePurchase(
         userId: number,
         dto: PurchaseSubscriptionDto
@@ -52,7 +52,7 @@ export class SubscriptionService {
             throw new HttpException('Профиль артиста не найден', HttpStatus.NOT_FOUND);
         }
 
-        // Проверяем активную платную подписку
+
         const currentSubscription = await this.getActiveSubscription(profile.id);
         if (currentSubscription && currentSubscription.plan !== SubscriptionPlan.FREE) {
             throw new HttpException(
@@ -64,10 +64,10 @@ export class SubscriptionService {
         const duration = dto.durationDays || this.PLAN_DURATIONS.monthly;
         const amount = this.calculatePrice(dto.plan, duration);
 
-        // Генерируем ID платежа
+
         const paymentId = `pay_${uuidv4().replace(/-/g, '').slice(0, 16)}`;
 
-        // Сохраняем в историю как PENDING
+
         const history = await this.historyModel.create({
             subscription_id: currentSubscription?.id || 0,
             event_type: HistoryEventType.PURCHASE,
@@ -87,7 +87,7 @@ export class SubscriptionService {
             }
         });
 
-        // Генерируем данные для оплаты
+
         const paymentData = this.generatePaymentData(paymentId, amount, dto.paymentMethod);
 
         this.logger.log('info', JSON.stringify({
@@ -109,9 +109,9 @@ export class SubscriptionService {
         };
     }
 
-    // 2. Подтвердить оплату (получаем результат от фронта)
+
     async confirmPayment(confirmDto: ConfirmPaymentDto): Promise<{ success: boolean; message: string }> {
-        // Находим запись в истории по paymentId
+
         const history = await this.historyModel.findOne({
             where: {
                 metadata: { paymentId: confirmDto.paymentId }
@@ -123,7 +123,7 @@ export class SubscriptionService {
             throw new HttpException('Платеж не найден', HttpStatus.NOT_FOUND);
         }
 
-        // Проверяем, не обработана ли уже транзакция
+
         if (history.payment_status === PaymentStatus.SUCCESS) {
             return {
                 success: true,
@@ -132,10 +132,10 @@ export class SubscriptionService {
         }
 
         if (confirmDto.status === 'success') {
-            // Успешная оплата
+
             return this.processSuccessfulPayment(history, confirmDto);
         } else {
-            // Неудачная оплата
+
             await history.update({
                 payment_status: PaymentStatus.FAILED,
                 description: `Оплата не прошла: ${confirmDto.metadata?.error || 'неизвестная ошибка'}`
@@ -148,7 +148,7 @@ export class SubscriptionService {
         }
     }
 
-    // 3. Получить информацию о подписке
+
     async getSubscriptionInfo(userId: number): Promise<SubscriptionResponseDto> {
         const profile = await this.authorProfileModel.findOne({
             where: { user_id: userId }
@@ -158,7 +158,7 @@ export class SubscriptionService {
             throw new HttpException('Профиль артиста не найден', HttpStatus.NOT_FOUND);
         }
 
-        // Проверяем и обновляем истекшие подписки
+
         await this.updateExpiredSubscriptions(profile.id);
 
         let subscription = await this.subscriptionModel.findOne({
@@ -185,7 +185,7 @@ export class SubscriptionService {
         }));
 
         if (!subscription) {
-            // Создаем бесплатную подписку
+
             subscription = await this.subscriptionModel.create({
                 author_id: profile.id,
                 plan: SubscriptionPlan.FREE,
@@ -216,7 +216,7 @@ export class SubscriptionService {
         };
     }
 
-    // 4. Отменить подписку
+
     async cancelSubscription(userId: number): Promise<{ success: boolean; message: string }> {
         const profile = await this.authorProfileModel.findOne({
             where: { user_id: userId }
@@ -231,15 +231,15 @@ export class SubscriptionService {
             throw new HttpException('Нет активной платной подписки', HttpStatus.BAD_REQUEST);
         }
 
-        // Сохраняем старые данные для истории
+
         const oldPlan = subscription.plan;
         const oldExpiresAt = subscription.expires_at;
 
-        // Отменяем подписку
+
         subscription.is_active = false;
         await subscription.save();
 
-        // Записываем в историю
+
         await this.historyModel.create({
             subscription_id: subscription.id,
             event_type: HistoryEventType.CANCELLATION,
@@ -254,7 +254,7 @@ export class SubscriptionService {
             }
         });
 
-        // Создаем бесплатную подписку
+
         const freeSubscription = await this.subscriptionModel.create({
             author_id: profile.id,
             plan: SubscriptionPlan.FREE,
@@ -284,7 +284,7 @@ export class SubscriptionService {
         };
     }
 
-    // 5. Получить активную подписку (используется в ArtistsService)
+
     async getActiveSubscription(authorId: number): Promise<Subscription | null> {
         await this.updateExpiredSubscriptions(authorId);
 
@@ -298,7 +298,7 @@ export class SubscriptionService {
         });
     }
 
-    // 6. Получить доступные планы
+
     getAvailablePlans() {
         return {
             plans: Object.values(SubscriptionPlan).map(plan => ({
@@ -320,14 +320,14 @@ export class SubscriptionService {
         };
     }
 
-    // src/subscriptions/subscriptions.service.ts
+
 
     async purchaseSubscription(
         userId: number,
         dto: PurchaseSubscriptionDto
     ): Promise<SubscriptionResponseDto> {
         try {
-            // 1. Проверяем профиль
+
             const profile = await this.authorProfileModel.findOne({
                 where: { user_id: userId }
             });
@@ -336,7 +336,7 @@ export class SubscriptionService {
                 throw new HttpException('Профиль артиста не найден', HttpStatus.NOT_FOUND);
             }
 
-            // 2. Проверяем активную подписку
+
             const currentSubscription = await this.getActiveSubscription(profile.id);
             if (currentSubscription && currentSubscription.plan !== SubscriptionPlan.FREE) {
                 throw new HttpException(
@@ -345,14 +345,14 @@ export class SubscriptionService {
                 );
             }
 
-            // 3. Рассчитываем стоимость и длительность
+
             const duration = dto.durationDays || this.PLAN_DURATIONS.monthly;
             const amount = this.calculatePrice(dto.plan, duration);
 
-            // 4. Генерируем ID платежа
+
             const paymentId = `pay_${uuidv4().replace(/-/g, '').slice(0, 16)}`;
 
-            // 5. Создаем запись в истории (pending)
+
             const history = await this.historyModel.create({
                 subscription_id: currentSubscription?.id || 0,
                 event_type: HistoryEventType.PURCHASE,
@@ -372,7 +372,7 @@ export class SubscriptionService {
                 }
             });
 
-            // 6. Генерируем данные для оплаты
+
             const paymentData = this.generatePaymentData(paymentId, amount, dto.paymentMethod);
 
             this.logger.log('info', JSON.stringify({
@@ -384,11 +384,11 @@ export class SubscriptionService {
                 paymentId,
             }));
 
-            // 7. В реальном проекте здесь вы ждете webhook от платежной системы
-            // Для демонстрации создаем имитацию успешной оплаты
-            // В продакшене это должно быть через webhook или подтверждение от пользователя
 
-            // Имитация успешной оплаты
+
+
+
+
             const confirmDto: ConfirmPaymentDto = {
                 paymentId: paymentId,
                 status: 'success',
@@ -401,10 +401,10 @@ export class SubscriptionService {
                 }
             };
 
-            // Подтверждаем платеж
+
             await this.confirmPayment(confirmDto);
 
-            // Возвращаем информацию о подписке
+
             return this.getSubscriptionInfo(userId);
 
         } catch (error: any) {
@@ -418,9 +418,9 @@ export class SubscriptionService {
         }
     }
 
-    // ==================== ПРИВАТНЫЕ МЕТОДЫ ====================
 
-    // Обработка успешного платежа
+
+
     private async processSuccessfulPayment(
         history: SubscriptionHistory,
         confirmDto: ConfirmPaymentDto
@@ -430,7 +430,7 @@ export class SubscriptionService {
         const newPlan = history.new_plan as SubscriptionPlan;
         const duration = metadata.duration || 30;
 
-        // Обновляем запись в истории
+
         await history.update({
             payment_status: PaymentStatus.SUCCESS,
             amount: confirmDto.amount,
@@ -444,13 +444,13 @@ export class SubscriptionService {
             }
         });
 
-        // Отключаем старую подписку (если была)
+
         await this.subscriptionModel.update(
             { is_active: false },
             { where: { author_id: authorId, is_active: true } }
         );
 
-        // Создаем или обновляем подписку
+
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + duration);
 
@@ -472,13 +472,13 @@ export class SubscriptionService {
             });
         }
 
-        // Обновляем связь с историей
+
         await history.update({
             subscription_id: subscription.id,
             new_expires_at: expiryDate
         });
 
-        // Создаем запись об активации
+
         await this.historyModel.create({
             subscription_id: subscription.id,
             event_type: HistoryEventType.PURCHASE,
@@ -510,7 +510,7 @@ export class SubscriptionService {
         };
     }
 
-    // Проверка и обновление истекших подписок
+
     private async updateExpiredSubscriptions(authorId?: number): Promise<void> {
         const where: any = {
             is_active: true,
@@ -524,11 +524,11 @@ export class SubscriptionService {
         const expired = await this.subscriptionModel.findAll({ where });
 
         for (const subscription of expired) {
-            // Отключаем истекшую подписку
+
             subscription.is_active = false;
             await subscription.save();
 
-            // Записываем в историю
+
             await this.historyModel.create({
                 subscription_id: subscription.id,
                 event_type: HistoryEventType.EXPIRATION,
@@ -538,7 +538,7 @@ export class SubscriptionService {
                 description: `Подписка ${subscription.plan} истекла`
             });
 
-            // Создаем бесплатную подписку
+
             const freeSubscription = await this.subscriptionModel.create({
                 author_id: subscription.author_id,
                 plan: SubscriptionPlan.FREE,
@@ -564,13 +564,13 @@ export class SubscriptionService {
         }
     }
 
-    // Генерация данных для оплаты
+
     private generatePaymentData(paymentId: string, amount: number, method: PaymentMethod): {
         paymentUrl?: string;
         qrCodeData?: string;
     } {
-        // Здесь должна быть интеграция с платежной системой
-        // Для примера возвращаем заглушки
+
+
 
         const baseUrl = 'https://payment.example.com';
 
@@ -586,14 +586,14 @@ export class SubscriptionService {
         }
     }
 
-    // Расчет цены
+
     private calculatePrice(plan: SubscriptionPlan, days: number): number {
         const basePrice = this.PLAN_PRICES[plan];
         const monthPrice = (days / this.PLAN_DURATIONS.monthly) * basePrice;
         return Math.round(monthPrice * 100) / 100;
     }
 
-    // Получение фич плана
+
     private getPlanFeatures(plan: SubscriptionPlan): string[] {
         const features = {
             [SubscriptionPlan.FREE]: ['🔓 Базовый профиль', '🖼️ Добавление работ', '📊 Базовая статистика'],
@@ -603,7 +603,7 @@ export class SubscriptionService {
         return features[plan] || features[SubscriptionPlan.FREE];
     }
 
-    // Вес плана
+
     private getPlanWeight(plan: SubscriptionPlan): number {
         const weights = {
             [SubscriptionPlan.FREE]: 0,

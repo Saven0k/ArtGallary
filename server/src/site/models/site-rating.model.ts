@@ -1,4 +1,4 @@
-// src/site/models/site-rating.model.ts
+
 import { ApiProperty } from '@nestjs/swagger';
 import {
     BelongsTo,
@@ -17,7 +17,7 @@ export interface SiteRatingCreationAttrs {
 
 @Table({
     tableName: 'site_ratings',
-    timestamps: true, // createdAt/updatedAt пригодятся
+    timestamps: true,
     indexes: [{ fields: ['user_id'], unique: true }],
 })
 export class SiteRating extends Model<SiteRating, SiteRatingCreationAttrs> {

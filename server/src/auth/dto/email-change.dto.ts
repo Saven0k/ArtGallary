@@ -1,4 +1,4 @@
-// src/auth/dto/email-change.dto.ts
+
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString, Length, MinLength } from 'class-validator';
 

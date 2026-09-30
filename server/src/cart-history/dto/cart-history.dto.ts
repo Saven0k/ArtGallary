@@ -1,4 +1,4 @@
-// src/cart-history/dto/cart-history.dto.ts
+
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEnum, IsOptional } from "class-validator";
 import { OrderStatus } from "../cart-history.model";

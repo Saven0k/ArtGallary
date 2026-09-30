@@ -99,7 +99,7 @@ type Gender = 'male' | 'female';
 ### Роли
 
 ```ts
-type rolesTypes = 'user' | 'author' | 'moderator' | 'admin';
+type rolesTypes = 'user' | 'artist' | 'moderator' | 'admin';
 ```
 
 ### Валюта

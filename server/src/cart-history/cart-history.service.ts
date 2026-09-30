@@ -1,4 +1,4 @@
-// src/cart-history/cart-history.service.ts
+
 import {
     BadRequestException,
     Injectable,
@@ -19,10 +19,10 @@ export class CartHistoryService {
         @InjectModel(Cart) private cartModel: typeof Cart,
     ) {}
 
-    /**
-     * Возвращает историю заказов пользователя.
-     * Если передан status — фильтрует по нему.
-     */
+
+
+
+
     async getHistory(
         userId: number,
         status?: OrderStatus,
@@ -41,10 +41,10 @@ export class CartHistoryService {
         };
     }
 
-    /**
-     * «Оформить заказ»: переносит текущую корзину в историю
-     * и очищает её. Статус нового заказа — in_transit.
-     */
+
+
+
+
     async checkout(userId: number): Promise<OrderHistoryItem> {
         const cart = await this.cartModel.findByPk(userId);
         if (!cart || !cart.art_ids || cart.art_ids.length === 0) {
@@ -57,17 +57,17 @@ export class CartHistoryService {
             status: "in_transit",
         });
 
-        // Очищаем корзину после успешного оформления
+
         cart.art_ids = [];
         await cart.save();
 
         return this.toItem(order);
     }
 
-    /**
-     * Обновление статуса — только для админа/модератора
-     * (проверка роли — на уровне контроллера).
-     */
+
+
+
+
     async updateStatus(
         historyId: number,
         status: OrderStatus,
@@ -81,7 +81,7 @@ export class CartHistoryService {
         return this.toItem(order);
     }
 
-    // ---------- internals ----------
+
 
     private toItem(row: CartHistory): OrderHistoryItem {
         return {

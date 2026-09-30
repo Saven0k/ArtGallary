@@ -1,4 +1,4 @@
-// src/site/site-visit.service.ts
+
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op, Sequelize } from 'sequelize';
@@ -26,7 +26,7 @@ export class SiteVisitService {
         const now = new Date();
         const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const startOfWeek = new Date(startOfDay);
-        startOfWeek.setDate(startOfWeek.getDate() - 6); // последние 7 дней включая сегодня
+        startOfWeek.setDate(startOfWeek.getDate() - 6);
         const startOfMonth = new Date(startOfDay);
         startOfMonth.setDate(startOfMonth.getDate() - 29);
 

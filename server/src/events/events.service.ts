@@ -1,4 +1,4 @@
-// src/events/events.service.ts
+
 import { Injectable, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Event } from './event.model';

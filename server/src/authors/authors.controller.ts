@@ -1,4 +1,4 @@
-// src/authors/authors.controller.ts
+
 import {
     Body,
     Controller,
@@ -52,9 +52,9 @@ export class AuthorsController {
         private readonly followService: AuthorFollowService,
     ) { }
 
-    // =====================================================================
-    // 1. СТАТИЧЕСКИЕ GET-РОУТЫ (должны идти ДО /:id)
-    // =====================================================================
+
+
+
 
     @ApiOperation({ summary: 'Получение своего профиля автора' })
     @ApiResponse({ status: 200, type: AuthorProfile })
@@ -151,9 +151,9 @@ export class AuthorsController {
         );
     }
 
-    // =====================================================================
-    // 2. СТАТИЧЕСКИЕ POST/DELETE-РОУТЫ (тоже ДО /:id)
-    // =====================================================================
+
+
+
 
     @ApiOperation({ summary: 'Создание нового автора' })
     @ApiResponse({ status: 201, type: AuthorProfile })
@@ -187,9 +187,9 @@ export class AuthorsController {
         return this.subscriptionService.cancelSubscription(user.id);
     }
 
-    // =====================================================================
-    // 3. ПАРАМЕТРИЧЕСКИЕ РОУТЫ (всё, что содержит :id) — В САМОМ НИЗУ
-    // =====================================================================
+
+
+
 
     @ApiOperation({ summary: 'Получение автора по Id' })
     @ApiResponse({ status: 200, type: AuthorProfile })

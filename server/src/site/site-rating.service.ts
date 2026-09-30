@@ -1,4 +1,4 @@
-// src/site/site-rating.service.ts
+
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { SiteRating } from './models/site-rating.model';
@@ -9,7 +9,7 @@ export class SiteRatingService {
         @InjectModel(SiteRating) private ratingModel: typeof SiteRating,
     ) {}
 
-    /** Upsert: одна оценка на пользователя, повторный клик обновляет */
+
     async rate(userId: number, value: number): Promise<{ value: number }> {
         const existing = await this.ratingModel.findOne({ where: { user_id: userId } });
 

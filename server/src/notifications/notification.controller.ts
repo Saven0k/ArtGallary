@@ -1,5 +1,14 @@
-// src/notifications/notification.controller.ts
-import { Controller, Get, Patch, Param, Query, UseGuards } from '@nestjs/common';
+
+import {
+    Controller,
+    Get,
+    Patch,
+    Delete,
+    Param,
+    ParseIntPipe,
+    Query,
+    UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { NotificationService } from './notification.service';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -33,20 +42,38 @@ export class NotificationController {
         return { count: await this.notificationService.getUnreadCount(user.id) };
     }
 
-    @Patch(':id/read')
-    @Roles(Role.User, Role.Author, Role.Admin)
-    @ApiOperation({ summary: 'Отметить уведомление как прочитанное' })
-    async markAsRead(
-        @Param('id') notificationId: number,
-        @CurrentUser() user: any,
-    ) {
-        return this.notificationService.markAsRead(notificationId, user.id);
-    }
 
     @Patch('read/all')
     @Roles(Role.User, Role.Author, Role.Admin)
     @ApiOperation({ summary: 'Отметить все уведомления как прочитанные' })
     async markAllAsRead(@CurrentUser() user: any) {
         return this.notificationService.markAllAsRead(user.id);
+    }
+
+    @Delete('delete/all')
+    @Roles(Role.User, Role.Author, Role.Admin)
+    @ApiOperation({ summary: 'Удалить все уведомления пользователя' })
+    async deleteAll(@CurrentUser() user: any) {
+        return this.notificationService.deleteAll(user.id);
+    }
+
+    @Patch(':id/read')
+    @Roles(Role.User, Role.Author, Role.Admin)
+    @ApiOperation({ summary: 'Отметить уведомление как прочитанное' })
+    async markAsRead(
+        @Param('id', ParseIntPipe) notificationId: number,
+        @CurrentUser() user: any,
+    ) {
+        return this.notificationService.markAsRead(notificationId, user.id);
+    }
+
+    @Delete(':id')
+    @Roles(Role.User, Role.Author, Role.Admin)
+    @ApiOperation({ summary: 'Удалить одно уведомление' })
+    async deleteOne(
+        @Param('id', ParseIntPipe) notificationId: number,
+        @CurrentUser() user: any,
+    ) {
+        return this.notificationService.deleteOne(notificationId, user.id);
     }
 }

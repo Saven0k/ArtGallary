@@ -1,4 +1,4 @@
-// src/auth/models/account-deletion-code.model.ts
+
 import { Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
 import { User } from '../../users/users.model';
 

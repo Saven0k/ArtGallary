@@ -1,4 +1,4 @@
-// src/site/interfaces/site.interface.ts
+
 export interface SiteStatsResponse {
     totalVisits: number;
     todayVisits: number;

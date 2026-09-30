@@ -1,4 +1,4 @@
-// src/cart/cart.model.ts
+
 import { ApiProperty } from "@nestjs/swagger";
 import {
     BelongsTo,

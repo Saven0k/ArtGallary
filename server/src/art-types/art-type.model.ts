@@ -1,4 +1,4 @@
-// src/art-types/art-type.model.ts
+
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, DataType, HasMany, Model, Table } from "sequelize-typescript";
 import { Genre } from "../genres/genre.model";
