@@ -1,4 +1,5 @@
 
+import type { ArtsResponse } from "../arts/main.api";
 import { BASE_URL_API } from "../main.api";
 import type { UserRole } from "../users/main.api";
 
@@ -164,7 +165,7 @@ export const getAuthors = async (page = 1, limit = 12, lang = 'ru'): Promise<Aut
 
 export const getAuthorById = async (id: number, lang = 'ru'): Promise<AuthorProfileResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}?lang=${lang}`, {
+        const res = await fetch(`${BASE_URL}/${id}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -325,7 +326,7 @@ export const getModeratedAuthors = async (page = 1, limit = 12, lang = 'ru'): Pr
     }
 };
 
-export const getArtsByAuthor = async (id: number): Promise<any[] | null> => {
+export const getArtsByAuthor = async (id: number): Promise<ArtsResponse | null> => {
     try {
         const res = await fetch(`${BASE_URL}/${id}/arts`, {
             credentials: "include",

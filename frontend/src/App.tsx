@@ -14,6 +14,7 @@ import AdminPage from './pages/admin/AdminPage';
 import AboutPage from './pages/about/AboutPage';
 import ArtConsultationPage from './pages/art-consultation/ArtConsultationPage';
 import ServicesPage from './pages/services/ServicesPage';
+import EventsPage from './pages/events/EventsPage/EventsPage';
 
 const LazyForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const LazyLoginPage = lazy(() => import('./pages/auth/LoginPage'))
@@ -46,11 +47,14 @@ function App() {
                       <Route path="register" element={<  LazyRegisterPage />} />
                       <Route path="forgot-password" element={<LazyForgotPasswordPage />} />
 
-                      {                                                      }
                       <Route path="arts/:id" element={<LazyArtPage />} />
+
 
                       <Route path='authors' element={<LazyAuthorsPage />} />
                       <Route path='authors/:id' element={<LazyAuthorPage />} />
+                      
+                      <Route path='events' element={<EventsPage />} />
+                      <Route path='events/:id' element={<EventsPage />} />
 
                       <Route path="/settings" element={<SettingsPage />} />
                       <Route path="/help" element={<HelpPage />} />
@@ -59,8 +63,8 @@ function App() {
                       <Route path="/services" element={<ServicesPage />} />
 
                       <Route element={<ProtectedRoute allowedRoles={['admin', 'author']} />}>
-                        {                                                            }
-                        {                                                                   }
+                        { }
+                        { }
                         <Route path="/arts/my/edit/:id" element={<LazyArtEditPage />} />
                       </Route>
 

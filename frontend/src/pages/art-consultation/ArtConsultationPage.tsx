@@ -7,10 +7,16 @@ import ConsultationProcess from './components/ConsultationProcess';
 import ConsultationRequest from './components/ConsultationRequest';
 import { artConsultationTranslations } from './lang';
 import './ArtConsultationPage.scss';
+import { useEffect } from 'react';
 
 const ArtConsultationPage = () => {
     const { language } = useLanguage();
     const content = artConsultationTranslations[language];
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
 
     return (
         <main className="art-consultation">

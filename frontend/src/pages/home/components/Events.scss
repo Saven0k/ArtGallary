@@ -431,3 +431,15 @@
         }
     }
 }
+
+
+.events__state {
+    text-align: center;
+    padding: 24px 0;
+    opacity: .7;
+
+    &--error {
+        color: #d33;
+        opacity: 1;
+    }
+}

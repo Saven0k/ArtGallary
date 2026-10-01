@@ -3,9 +3,8 @@ import { useParams } from "react-router-dom";
 import ArtsList from "../../../components/shared/Arts/ArtsList/ArtsList";
 import AuthorHeader from "../../../components/shared/Authors/AuthorDetail/AuthorHeader/AuthorHeader";
 import { useEffect, useState } from "react";
-import { getAuthorById, type AuthorProfileResponse } from "../../../api/authors/main.api";
-import { getArtsByAuthor, type ArtsResponse } from "../../../api/arts/main.api";
-import "./AuthorPage.scss";
+import { getArtsByAuthor, getAuthorById, type AuthorProfileResponse } from "../../../api/authors/main.api";
+import { type ArtsResponse } from "../../../api/arts/main.api";
 import Navigation from "../../../components/layout/Navigation/Navigation";
 import AuthorProfile from "../../../components/shared/Authors/AuthorDetail/AuthorProfile/AuthorProfile";
 

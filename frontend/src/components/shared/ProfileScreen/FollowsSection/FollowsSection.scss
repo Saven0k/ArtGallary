@@ -1,11 +1,39 @@
-
-
 .follows {
     max-width: 1100px;
     margin: 0 auto;
     padding: 32px 24px 64px;
     background: #fff;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    @media (max-width: 1280px) {
+        max-width: 1000px;
+        padding: 28px 22px 56px;
+    }
+
+    @media (max-width: 1200px) {
+        max-width: 100%;
+        padding: 26px 20px 52px;
+    }
+
+    @media (max-width: 992px) {
+        padding: 24px 18px 48px;
+    }
+
+    @media (max-width: 768px) {
+        padding: 22px 16px 44px;
+    }
+
+    @media (max-width: 640px) {
+        padding: 20px 16px 48px;
+    }
+
+    @media (max-width: 480px) {
+        padding: 18px 14px 40px;
+    }
+
+    @media (max-width: 360px) {
+        padding: 16px 12px 36px;
+    }
 }
 
 .follows__title {
@@ -14,8 +42,37 @@
     color: #1a1a1a;
     margin: 0 0 28px;
     letter-spacing: -0.02em;
-}
 
+    @media (max-width: 1280px) {
+        font-size: 30px;
+        margin-bottom: 26px;
+    }
+
+    @media (max-width: 992px) {
+        font-size: 28px;
+        margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+        font-size: 26px;
+        margin-bottom: 22px;
+    }
+
+    @media (max-width: 640px) {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 22px;
+        margin-bottom: 18px;
+    }
+
+    @media (max-width: 360px) {
+        font-size: 20px;
+        margin-bottom: 16px;
+    }
+}
 
 .follows__list {
     list-style: none;
@@ -31,12 +88,41 @@
     gap: 20px;
     padding: 18px 0;
     border-bottom: 1px solid #ececec;
+
+    @media (max-width: 1280px) {
+        gap: 18px;
+        padding: 16px 0;
+    }
+
+    @media (max-width: 992px) {
+        gap: 16px;
+        padding: 15px 0;
+    }
+
+    @media (max-width: 768px) {
+        gap: 14px;
+        padding: 14px 0;
+    }
+
+    @media (max-width: 640px) {
+        gap: 12px;
+        padding: 14px 0;
+    }
+
+    @media (max-width: 480px) {
+        gap: 12px;
+        padding: 12px 0;
+    }
+
+    @media (max-width: 360px) {
+        gap: 10px;
+        padding: 11px 0;
+    }
 }
 
 .follows__item:first-child {
     border-top: 1px solid #ececec;
 }
-
 
 .follows__avatar {
     width: 72px;
@@ -45,8 +131,37 @@
     object-fit: cover;
     flex-shrink: 0;
     background: #eee;
-}
 
+    @media (max-width: 1280px) {
+        width: 68px;
+        height: 68px;
+    }
+
+    @media (max-width: 992px) {
+        width: 64px;
+        height: 64px;
+    }
+
+    @media (max-width: 768px) {
+        width: 60px;
+        height: 60px;
+    }
+
+    @media (max-width: 640px) {
+        width: 56px;
+        height: 56px;
+    }
+
+    @media (max-width: 480px) {
+        width: 52px;
+        height: 52px;
+    }
+
+    @media (max-width: 360px) {
+        width: 48px;
+        height: 48px;
+    }
+}
 
 .follows__info {
     display: flex;
@@ -54,6 +169,10 @@
     gap: 6px;
     flex: 1;
     min-width: 0;
+
+    @media (max-width: 480px) {
+        gap: 4px;
+    }
 }
 
 .follows__name {
@@ -65,6 +184,26 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    @media (max-width: 992px) {
+        font-size: 17px;
+    }
+
+    @media (max-width: 768px) {
+        font-size: 16px;
+    }
+
+    @media (max-width: 640px) {
+        font-size: 15px;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 15px;
+    }
+
+    @media (max-width: 360px) {
+        font-size: 14px;
+    }
 }
 
 .follows__subtitle {
@@ -75,13 +214,33 @@
     color: #666;
     margin: 0;
     line-height: 1.3;
+
+    @media (max-width: 768px) {
+        font-size: 12px;
+    }
+
+    @media (max-width: 640px) {
+        font-size: 12px;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 12px;
+        gap: 4px;
+    }
+
+    @media (max-width: 360px) {
+        font-size: 11px;
+    }
 }
 
 .follows__leaf {
     font-size: 12px;
     line-height: 1;
-}
 
+    @media (max-width: 360px) {
+        font-size: 11px;
+    }
+}
 
 .follows__btn {
     background: #ead9b8;
@@ -95,6 +254,31 @@
     white-space: nowrap;
     flex-shrink: 0;
     transition: background 0.2s ease, transform 0.15s ease;
+
+    @media (max-width: 992px) {
+        padding: 11px 22px;
+        font-size: 13px;
+    }
+
+    @media (max-width: 768px) {
+        padding: 11px 20px;
+        font-size: 13px;
+    }
+
+    @media (max-width: 640px) {
+        padding: 10px 16px;
+        font-size: 12px;
+    }
+
+    @media (max-width: 480px) {
+        padding: 9px 14px;
+        font-size: 12px;
+    }
+
+    @media (max-width: 360px) {
+        padding: 8px 12px;
+        font-size: 11px;
+    }
 }
 
 .follows__btn:hover {
@@ -105,14 +289,27 @@
     transform: scale(0.97);
 }
 
-
 .follows__empty {
     font-size: 15px;
     color: #888;
     text-align: center;
     padding: 60px 20px;
-}
 
+    @media (max-width: 768px) {
+        font-size: 14px;
+        padding: 48px 20px;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 14px;
+        padding: 40px 16px;
+    }
+
+    @media (max-width: 360px) {
+        font-size: 13px;
+        padding: 32px 12px;
+    }
+}
 
 .follows__item--skeleton {
     pointer-events: none;
@@ -125,6 +322,36 @@
     background: #ececec;
     flex-shrink: 0;
     animation: follows-pulse 1.4s infinite;
+
+    @media (max-width: 1280px) {
+        width: 68px;
+        height: 68px;
+    }
+
+    @media (max-width: 992px) {
+        width: 64px;
+        height: 64px;
+    }
+
+    @media (max-width: 768px) {
+        width: 60px;
+        height: 60px;
+    }
+
+    @media (max-width: 640px) {
+        width: 56px;
+        height: 56px;
+    }
+
+    @media (max-width: 480px) {
+        width: 52px;
+        height: 52px;
+    }
+
+    @media (max-width: 360px) {
+        width: 48px;
+        height: 48px;
+    }
 }
 
 .follows__line {
@@ -136,11 +363,37 @@
 .follows__line--lg {
     width: 220px;
     height: 16px;
+
+    @media (max-width: 768px) {
+        width: 180px;
+        height: 14px;
+    }
+
+    @media (max-width: 640px) {
+        width: 140px;
+    }
+
+    @media (max-width: 360px) {
+        width: 110px;
+    }
 }
 
 .follows__line--sm {
     width: 140px;
     height: 12px;
+
+    @media (max-width: 768px) {
+        width: 120px;
+        height: 11px;
+    }
+
+    @media (max-width: 640px) {
+        width: 100px;
+    }
+
+    @media (max-width: 360px) {
+        width: 80px;
+    }
 }
 
 .follows__btn-skeleton {
@@ -150,6 +403,26 @@
     background: #ececec;
     flex-shrink: 0;
     animation: follows-pulse 1.4s infinite;
+
+    @media (max-width: 768px) {
+        width: 150px;
+        height: 40px;
+    }
+
+    @media (max-width: 640px) {
+        width: 130px;
+        height: 38px;
+    }
+
+    @media (max-width: 480px) {
+        width: 110px;
+        height: 36px;
+    }
+
+    @media (max-width: 360px) {
+        width: 96px;
+        height: 34px;
+    }
 }
 
 @keyframes follows-pulse {
@@ -157,13 +430,27 @@
     50%      { opacity: 0.55; }
 }
 
-
 .follows__pagination {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 16px;
     margin-top: 40px;
+
+    @media (max-width: 768px) {
+        gap: 14px;
+        margin-top: 32px;
+    }
+
+    @media (max-width: 480px) {
+        gap: 10px;
+        margin-top: 28px;
+    }
+
+    @media (max-width: 360px) {
+        gap: 8px;
+        margin-top: 24px;
+    }
 }
 
 .follows__page-btn {
@@ -176,6 +463,22 @@
     font-weight: 500;
     cursor: pointer;
     transition: background 0.2s ease, opacity 0.2s ease;
+
+    @media (max-width: 768px) {
+        padding: 9px 16px;
+        font-size: 13px;
+    }
+
+    @media (max-width: 480px) {
+        padding: 8px 14px;
+        font-size: 12px;
+        border-radius: 8px;
+    }
+
+    @media (max-width: 360px) {
+        padding: 7px 12px;
+        font-size: 12px;
+    }
 }
 
 .follows__page-btn:hover:not(:disabled) {
@@ -191,48 +494,16 @@
     font-size: 14px;
     color: #555;
     font-weight: 500;
-}
 
-
-@media (max-width: 640px) {
-    .follows {
-        padding: 20px 16px 48px;
+    @media (max-width: 768px) {
+        font-size: 13px;
     }
 
-    .follows__title {
-        font-size: 24px;
-        margin-bottom: 20px;
-    }
-
-    .follows__item {
-        gap: 12px;
-        padding: 14px 0;
-    }
-
-    .follows__avatar,
-    .follows__avatar-skeleton {
-        width: 56px;
-        height: 56px;
-    }
-
-    .follows__name {
-        font-size: 15px;
-    }
-
-    .follows__subtitle {
+    @media (max-width: 480px) {
         font-size: 12px;
     }
 
-    .follows__btn {
-        padding: 10px 16px;
-        font-size: 12px;
+    @media (max-width: 360px) {
+        font-size: 11px;
     }
-
-    .follows__btn-skeleton {
-        width: 130px;
-        height: 38px;
-    }
-
-    .follows__line--lg { width: 140px; }
-    .follows__line--sm { width: 100px; }
 }

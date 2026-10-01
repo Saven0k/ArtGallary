@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./AuthorsPage.scss";
 import { useLanguage } from "../../../hooks/useLanguage";
 import type { Profession } from "../../../api/professions/main.api";
@@ -11,6 +11,9 @@ const AuthorsPage = () => {
     const { language } = useLanguage();
     const t = authorsTranslations[language].page;
     const [activeProfession, setActiveProfession] = useState<Profession | null>(null);
+    useEffect(() => {
+        console.log(activeProfession)
+    }, [activeProfession])
 
     return (
         <main className="authors-page">
@@ -29,7 +32,7 @@ const AuthorsPage = () => {
                     </aside>
 
                     <section className="authors-page__list">
-                        <AuthorList filter={activeProfession?.name || ""} />
+                        <AuthorList filter={activeProfession?.id || null} />
                     </section>
                 </div>
             </div>

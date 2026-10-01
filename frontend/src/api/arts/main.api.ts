@@ -141,13 +141,6 @@ export const getArtById = async (id: number, lang = 'ru'): Promise<Art | null> =
     } catch (e) { console.error("getArtById error:", e); return null; }
 };
 
-export const getArtsByAuthor = async (authorId: number, page = 1, limit = 10, lang = 'ru'): Promise<ArtsResponse | null> => {
-    try {
-        const res = await fetch(`${BASE_URL}/author/${authorId}?page=${page}&limit=${limit}&lang=${lang}`, { credentials: "include" });
-        if (!res.ok) throw new Error();
-        return await res.json();
-    } catch (e) { console.error("getArtsByAuthor error:", e); return null; }
-};
 
 export const createArt = async (data: CreateArtData): Promise<Art | null> => {
     try {
@@ -343,4 +336,41 @@ export const getArtViewsCount = async (id: number): Promise<{ count: number } | 
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) { console.error("getArtViewsCount error:", e); return null; }
+};
+
+export const searchArts = async (
+    q: string,
+    page = 1,
+    limit = 20,
+    lang = 'ru',
+): Promise<ArtsResponse | null> => {
+    try {
+        const res = await fetch(
+            `${BASE_URL}/search?q=${encodeURIComponent(q)}&page=${page}&limit=${limit}&lang=${lang}`,
+            { credentials: 'include' },
+        );
+        if (!res.ok) throw new Error();
+        return await res.json();
+    } catch (e) {
+        console.error('searchArts error:', e);
+        return null;
+    }
+};
+
+export const getSimilarArts = async (
+    artId: number,
+    limit = 20,
+    lang = 'ru',
+): Promise<Art[] | null> => {
+    try {
+        const res = await fetch(
+            `${BASE_URL}/${artId}/similar?limit=${limit}&lang=${lang}`,
+            { credentials: 'include' },
+        );
+        if (!res.ok) throw new Error();
+        return await res.json();
+    } catch (e) {
+        console.error('getSimilarArts error:', e);
+        return null;
+    }
 };

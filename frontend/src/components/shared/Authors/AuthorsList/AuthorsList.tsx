@@ -3,14 +3,14 @@ import { useEffect, useState } from "react";
 import "./AuthorsList.scss";
 import { useLanguage } from "../../../../hooks/useLanguage";
 import { authorsTranslations } from "./lang";
-import { getAuthors, type AuthorProfileResponse } from "../../../../api/authors/main.api";
+import { getModeratedAuthors, type AuthorProfileResponse } from "../../../../api/authors/main.api";
 import AuthorCard from "./components/AuthorCard/AuthorCard";
 
 interface AuthorListProps {
-    filter?: string;
+    filter?: number | null;
 }
 
-const AuthorList = ({ filter = "" }: AuthorListProps) => {
+const AuthorList = ({ filter = null }: AuthorListProps) => {
     const { language } = useLanguage();
     const t = authorsTranslations[language].authorList;
 
@@ -24,7 +24,7 @@ const AuthorList = ({ filter = "" }: AuthorListProps) => {
         const getAuthorList = async () => {
             setLoading(true);
             try {
-                const data = await getAuthors(1, 100);
+                const data = await getModeratedAuthors(1, 100);
                 if (data) {
                     setAllAuthors(data.data || []);
                 }
@@ -39,13 +39,13 @@ const AuthorList = ({ filter = "" }: AuthorListProps) => {
     }, []);
 
     useEffect(() => {
-        if (!filter || filter === "Все") {
+        if (!filter || filter === null) {
             setAuthors(allAuthors);
             return;
         }
 
         const filtered = allAuthors.filter(
-            (author) => author.authorProfile?.profession?.name === filter
+            (author) => author.authorProfile?.profession_id === filter
         );
         setAuthors(filtered);
         setCurrentPage(1);

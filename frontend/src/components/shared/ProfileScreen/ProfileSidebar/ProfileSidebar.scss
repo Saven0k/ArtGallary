@@ -3,42 +3,84 @@
     flex-direction: column;
     gap: 12px;
     width: 280px;
-}
 
-.profile-sidebar {
-    &__icon-wrap {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
+    @media (max-width: 1280px) {
+        width: 260px;
     }
 
-    &__badge {
-        position: absolute;
-        top: -4px;
-        right: -6px;
+    @media (max-width: 1200px) {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
 
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+    @media (max-width: 768px) {
+        gap: 8px;
+    }
 
-        min-width: 18px;
-        height: 18px;
-        padding: 0 5px;
+    @media (max-width: 480px) {
+        gap: 8px;
+    }
 
-        background: #dc2626;
-        color: #fff;
-        font-size: 11px;
-        font-weight: 600;
-        line-height: 1;
+    @media (max-width: 360px) {
+        gap: 6px;
+    }
+}
 
-        border-radius: 999px;
-        border: 2px solid #fff; // чтобы кружок «отклеивался» от иконки
-        box-sizing: content-box;
+.profile-sidebar__icon-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
 
-        pointer-events: none;
-        user-select: none;
+.profile-sidebar__badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: #dc2626;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    border-radius: 999px;
+    border: 2px solid #fff;
+    box-sizing: content-box;
+    pointer-events: none;
+    user-select: none;
+
+    @media (max-width: 768px) {
+        min-width: 16px;
+        height: 16px;
+        font-size: 10px;
+        padding: 0 4px;
+    }
+
+    @media (max-width: 480px) {
+        min-width: 15px;
+        height: 15px;
+        font-size: 10px;
+        padding: 0 4px;
+        top: -3px;
+        right: -5px;
+    }
+
+    @media (max-width: 360px) {
+        min-width: 14px;
+        height: 14px;
+        font-size: 9px;
+        padding: 0 3px;
+        border-width: 1.5px;
     }
 }
 
@@ -54,6 +96,45 @@
     cursor: pointer;
     text-align: left;
     color: var(--neutral-grey-800);
+    transition: background .2s ease, transform .15s ease;
+
+    @media (max-width: 1280px) {
+        padding: 16px 18px;
+        gap: 14px;
+    }
+
+    @media (max-width: 1200px) {
+        flex: 1 1 auto;
+        min-width: 160px;
+        padding: 14px 16px;
+        gap: 12px;
+        border-radius: var(--radius-m);
+    }
+
+    @media (max-width: 992px) {
+        padding: 16px 18px;
+        min-width: 150px;
+    }
+
+    @media (max-width: 768px) {
+        padding: 14px 16px;
+        gap: 12px;
+        border-radius: var(--radius-m);
+        min-width: 140px;
+    }
+
+    @media (max-width: 480px) {
+        padding: 12px 14px;
+        gap: 10px;
+        border-radius: var(--radius-s);
+        min-width: 130px;
+    }
+
+    @media (max-width: 360px) {
+        padding: 10px 12px;
+        gap: 8px;
+        min-width: 120px;
+    }
 }
 
 .profile-sidebar__item--active {
@@ -68,33 +149,61 @@
     color: rgb(0, 0, 0, 52%);
 }
 
-
-
 .profile-sidebar__icon {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 42px;
     height: 42px;
-
     color: var(--brand-primary-gold);
+
+    @media (max-width: 1280px) {
+        width: 40px;
+        height: 40px;
+    }
+
+    @media (max-width: 1200px) {
+        width: 36px;
+        height: 36px;
+    }
+
+    @media (max-width: 768px) {
+        width: 34px;
+        height: 34px;
+    }
+
+    @media (max-width: 480px) {
+        width: 32px;
+        height: 32px;
+    }
+
+    @media (max-width: 360px) {
+        width: 28px;
+        height: 28px;
+    }
 }
 
 .profile-sidebar__text {
     font-size: 16px;
     font-weight: 500;
-}
 
-
-
-@media (max-width: 992px) {
-
-    .profile-sidebar {
-        width: 100%;
+    @media (max-width: 1280px) {
+        font-size: 15px;
     }
 
-    .profile-sidebar__item {
-        padding: 16px 18px;
+    @media (max-width: 1200px) {
+        font-size: 14px;
     }
 
+    @media (max-width: 768px) {
+        font-size: 14px;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 13px;
+    }
+
+    @media (max-width: 360px) {
+        font-size: 12px;
+    }
 }

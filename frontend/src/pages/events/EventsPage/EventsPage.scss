@@ -1,0 +1,64 @@
+// src/pages/Events/EventsPage.scss
+.events-page {
+    width: 100%;
+    min-height: 100vh;
+    padding: 60px 0 100px;
+    background: var(--bg-default, #fdf5f3);
+
+    @media (max-width: 1600px) { padding: 56px 0 88px; }
+    @media (max-width: 1280px) { padding: 52px 0 80px; }
+    @media (max-width: 1200px) { padding: 48px 0 72px; }
+    @media (max-width: 992px)  { padding: 44px 0 64px; }
+    @media (max-width: 768px)  { padding: 36px 0 52px; }
+    @media (max-width: 480px)  { padding: 28px 0 40px; }
+    @media (max-width: 360px)  { padding: 24px 0 32px; }
+
+    &__container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 24px;
+
+        @media (max-width: 1600px) { max-width: 1280px; }
+        @media (max-width: 1280px) { max-width: 1140px; padding: 0 22px; }
+        @media (max-width: 1200px) { max-width: 100%; padding: 0 20px; }
+        @media (max-width: 768px)  { padding: 0 16px; }
+        @media (max-width: 480px)  { padding: 0 14px; }
+        @media (max-width: 360px)  { padding: 0 12px; }
+    }
+
+    &__header {
+        margin-bottom: 40px;
+
+        @media (max-width: 992px) { margin-bottom: 32px; }
+        @media (max-width: 768px) { margin-bottom: 26px; }
+        @media (max-width: 480px) { margin-bottom: 20px; }
+        @media (max-width: 360px) { margin-bottom: 16px; }
+    }
+
+    &__title {
+        margin: 0 0 8px;
+        font-size: 40px;
+        font-weight: 700;
+        color: var(--neutral-black-900, #1a1a1a);
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+
+        @media (max-width: 1280px) { font-size: 36px; }
+        @media (max-width: 992px)  { font-size: 32px; }
+        @media (max-width: 768px)  { font-size: 28px; }
+        @media (max-width: 480px)  { font-size: 24px; }
+        @media (max-width: 360px)  { font-size: 22px; }
+    }
+
+    &__subtitle {
+        margin: 0;
+        max-width: 720px;
+        font-size: 16px;
+        line-height: 1.55;
+        color: var(--neutral-grey-600, #727272);
+
+        @media (max-width: 768px) { font-size: 15px; }
+        @media (max-width: 480px) { font-size: 14px; }
+        @media (max-width: 360px) { font-size: 13px; }
+    }
+}

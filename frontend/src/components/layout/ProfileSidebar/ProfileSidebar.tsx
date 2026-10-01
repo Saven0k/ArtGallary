@@ -65,7 +65,7 @@ const ProfileSideBar = memo(({
 
     const handleSettings = () => {
         onClose();
-        onNavigate('/profile?section=settings');
+        onNavigate('/settings');
     };
 
     const getMenuSections = (): MenuSectionType[] => {
