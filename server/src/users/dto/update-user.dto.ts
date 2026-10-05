@@ -30,10 +30,6 @@ export class UpdateuserDto {
     @IsOptional()
     readonly second_name?: string;
 
-    @ApiProperty({ example: 'F', description: 'Женский пол' })
-    @IsOptional()
-    readonly gender?: string;
-
     @ApiProperty({ example: '1990-01-01', description: 'Дата рождения' })
     @IsDateString()
     @IsOptional()

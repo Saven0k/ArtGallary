@@ -1,10 +1,8 @@
-
 import {
     Injectable, HttpException, HttpStatus,
     NotFoundException, ConflictException, Inject,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { InjectConnection } from '@nestjs/sequelize';
+import { InjectModel, InjectConnection } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Moderator } from './moderator.model';
 import { User } from '../users/users.model';
@@ -16,17 +14,19 @@ import { PasswordService } from '../password/password.service';
 
 @Injectable()
 export class ModeratorsService {
-
-
     private readonly USER_ATTRS = [
         'id', 'email', 'name', 'surname', 'second_name', 'role', 'gender',
         'is_deleted', 'country_id', 'city_id', 'createdAt', 'updatedAt',
     ];
 
-
-
-
-
+    constructor(
+        @InjectModel(Moderator) private moderatorRepository: typeof Moderator,
+        @InjectModel(User) private userRepository: typeof User,
+        @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
+        @InjectConnection() private readonly sequelize: Sequelize,
+        private readonly fileService: FilesService,
+        private readonly passwordService: PasswordService,
+    ) {}
 
     private get userInclude() {
         return {
@@ -36,44 +36,29 @@ export class ModeratorsService {
         };
     }
 
-    constructor(
-        @InjectModel(Moderator) private moderatorRepository: typeof Moderator,
-        @InjectModel(User)      private userRepository: typeof User,
-        @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-        @InjectConnection() private readonly sequelize: Sequelize,
-        private readonly fileService: FilesService,
-        private readonly passwordService: PasswordService,
-    ) {}
-
-
-
     async createModerator(dto: CreateModeratorDto, image: any, adminId: number) {
         this.log('createModerator', { email: dto.email, adminId });
 
         const transaction = await this.sequelize.transaction();
         try {
-
             const existing = await this.userRepository.findOne({
                 where: { email: dto.email },
                 transaction,
             });
             if (existing) throw new ConflictException('Пользователь с таким email уже существует');
 
-
-
             const user = await this.userRepository.create({
-                email:        dto.email,
-                password:     await this.passwordService.hashPassword(dto.password),
-                name:         dto.name,
-                surname:      dto.surname,
-                second_name:  dto.second_name || '',
-                gender:       dto.gender,
-                role:         'moderator',
+                email: dto.email,
+                password: await this.passwordService.hashPassword(dto.password),
+                name: dto.name,
+                surname: dto.surname,
+                second_name: dto.second_name || '',
+                gender: dto.gender,
+                role: 'moderator',
             }, { transaction });
 
-
             const moderator = await this.moderatorRepository.create({
-                user_id:     user.id,
+                user_id: user.id,
                 assigned_by: adminId ?? null,
             }, { transaction });
 
@@ -87,25 +72,32 @@ export class ModeratorsService {
         }
     }
 
-
-
     async getModeratorById(id: number) {
-        const moderator = await this.moderatorRepository.findOne({
-            where: { id },
-            include: [this.userInclude]
+        const user = await this.userRepository.findByPk(id, {
+            attributes: this.USER_ATTRS,
         });
 
-        if (!moderator) throw new NotFoundException('Модератор не найден');
-        return moderator.toJSON();
+        if (!user) throw new NotFoundException('Модератор не найден');
+
+        return user.toJSON();
     }
 
     async getModeratorByUserId(userId: number) {
-        const moderator = await this.moderatorRepository.findOne({
-            where: { user_id: userId },
-            include: [this.userInclude],
+        const user = await this.userRepository.findByPk(userId, {
+            attributes: this.USER_ATTRS,
         });
-        if (!moderator) throw new NotFoundException('Модератор не найден');
-        return moderator.toJSON();
+
+        if (!user) throw new NotFoundException('Модератор не найден');
+
+        return user.toJSON();
+    }
+
+    async getUserOrModerator(id: number) {
+        const user = await this.userRepository.findByPk(id, {
+            attributes: this.USER_ATTRS,
+        });
+        if (!user) throw new NotFoundException('Пользователь не найден');
+        return user.toJSON();
     }
 
     async getModerators(page: number = 1, limit: number = 10) {
@@ -121,7 +113,7 @@ export class ModeratorsService {
         });
 
         return {
-            data: rows.map(r => r.toJSON()),
+            data: rows.map((r) => r.toJSON()),
             pagination: {
                 total: count,
                 page,
@@ -133,12 +125,6 @@ export class ModeratorsService {
         };
     }
 
-
-
-
-
-
-
     async updateModerator(id: number, dto: UpdateModeratorDto, image?: any) {
         this.log('updateModerator', { moderatorId: id });
 
@@ -147,17 +133,15 @@ export class ModeratorsService {
 
         const transaction = await this.sequelize.transaction();
         try {
-
             const userUpdate: any = {};
-            if (dto.email        !== undefined) userUpdate.email        = dto.email;
-            if (dto.name         !== undefined) userUpdate.name         = dto.name;
-            if (dto.surname      !== undefined) userUpdate.surname      = dto.surname;
-            if (dto.second_name  !== undefined) userUpdate.second_name  = dto.second_name;
-            if (dto.gender       !== undefined) userUpdate.gender       = dto.gender;
+            if (dto.email !== undefined) userUpdate.email = dto.email;
+            if (dto.name !== undefined) userUpdate.name = dto.name;
+            if (dto.surname !== undefined) userUpdate.surname = dto.surname;
+            if (dto.second_name !== undefined) userUpdate.second_name = dto.second_name;
+            if (dto.gender !== undefined) userUpdate.gender = dto.gender;
             if (dto.password) {
                 userUpdate.password = await this.passwordService.hashPassword(dto.password);
             }
-
 
             if (Object.keys(userUpdate).length > 0) {
                 await this.userRepository.update(userUpdate, {
@@ -165,7 +149,6 @@ export class ModeratorsService {
                     transaction,
                 });
             }
-
 
             if (dto.assigned_by !== undefined) {
                 await this.moderatorRepository.update(
@@ -177,18 +160,12 @@ export class ModeratorsService {
             await transaction.commit();
             this.log('updateModerator:done', { moderatorId: id });
 
-            return this.getModeratorById(id);
+            return this.getModeratorById(moderator.user_id);
         } catch (e) {
             await transaction.rollback();
             this.handleError('updateModerator', e);
         }
     }
-
-
-
-
-
-
 
     async deleteModerator(id: number) {
         this.log('deleteModerator', { moderatorId: id });
@@ -201,12 +178,10 @@ export class ModeratorsService {
             });
             if (!moderator) throw new NotFoundException('Модератор не найден');
 
-
             await this.userRepository.update(
                 { role: 'user' },
                 { where: { id: moderator.user_id }, transaction },
             );
-
 
             await this.moderatorRepository.destroy({ where: { id }, transaction });
 
@@ -220,10 +195,6 @@ export class ModeratorsService {
         }
     }
 
-
-
-
-
     async hardDeleteModerator(id: number) {
         this.log('hardDeleteModerator', { moderatorId: id });
 
@@ -234,8 +205,6 @@ export class ModeratorsService {
                 transaction,
             });
             if (!moderator) throw new NotFoundException('Модератор не найден');
-
-            const user = await this.userRepository.findByPk(moderator.user_id);
 
             await this.moderatorRepository.destroy({ where: { id }, transaction });
             await this.userRepository.destroy({ where: { id: moderator.user_id }, transaction });
@@ -249,8 +218,6 @@ export class ModeratorsService {
             this.handleError('hardDeleteModerator', e);
         }
     }
-
-
 
     private log(method: string, data?: any) {
         this.logger.log('info', JSON.stringify({

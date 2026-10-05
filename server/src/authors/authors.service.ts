@@ -1,29 +1,38 @@
-import { ConflictException, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+    ConflictException,
+    HttpException,
+    HttpStatus,
+    Inject,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
+import { InjectConnection, InjectModel } from '@nestjs/sequelize';
+import { Op, Sequelize, Transaction } from 'sequelize';
+import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
+
 import { User } from '../users/users.model';
 import { AuthorProfile } from './author.model';
-import { Op, Sequelize, Transaction } from 'sequelize';
-import { InjectConnection, InjectModel } from '@nestjs/sequelize';
+import { AuthorView } from './author-view.model';
+import { AuthorFollow } from './author-follow.model';
 import { FilesService } from '../files/files.service';
 import { PasswordService } from '../password/password.service';
-import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { Art } from '../arts/arts.model';
 import { Genre } from '../genres/genre.model';
 import { Style } from '../styles/styles.model';
-import { ModerateObject, ModerateResponse } from 'src/types/moderate.types';
 import { Profession } from 'src/professions/profession.model';
 import { City } from 'src/location/models/city.model';
 import { Country } from 'src/location/models/country.model';
 import { SubscriptionService } from 'src/subscriptions/subscriptions.service';
 import { Subscription } from 'src/subscriptions/subscription.model';
+import { NotificationService } from 'src/notifications/notification.service';
+import { NotificationType } from 'src/notifications/notification.model';
+import { ModerateObject, ModerateResponse } from 'src/types/moderate.types';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
 import { ModerateAuthorDto } from './dto/moderate-author.dto';
-import { AuthorView } from './author-view.model';
-import { NotificationService } from 'src/notifications/notification.service';
-import { NotificationType } from 'src/notifications/notification.model';
-import { AuthorFollow } from './author-follow.model';
 
-export type Gender = "M" | "F";
+export type Gender = 'M' | 'F';
+
 export interface AuthorUserResponse {
     id: number;
     email: string;
@@ -53,7 +62,6 @@ export interface AuthorProfileResponse {
     totalLikes?: number;
     score?: number;
     arts?: any[];
-
     plan: string;
     planExpiresAt: Date | null;
     planStatus: boolean;
@@ -63,10 +71,31 @@ export interface AuthorProfileResponse {
     created_at?: Date;
 }
 
-export interface AuthorListItemResponse extends AuthorUserResponse {
-    authorProfile?: AuthorProfileResponse & {
-        arts?: any[];
-    };
+export interface AuthorListItemResponse {
+    id: number;
+    name: string;
+    surname: string;
+    second_name?: string;
+    role: string;
+    gender: Gender;
+    avatar_path?: string;
+    city?: { id: number; name: string } | null;
+    country?: { id: number; name: string; iso2?: string } | null;
+    authorProfile: {
+        user_id: number;
+        biography?: string;
+        profession_id?: number;
+        profession?: { id: number; name: string } | null;
+        avatar_path?: string | null;
+        followers_count: number;
+        moderate: ModerateObject | null;
+        artsCount?: number;
+        totalLikes?: number;
+        score?: number;
+        planWeight?: number;
+        isSubscriptionActive?: boolean;
+        created_at?: Date;
+    } | null;
 }
 
 export interface AuthorListResponse {
@@ -96,18 +125,24 @@ export interface RestoreAuthorResponse {
     message: string;
 }
 
-export interface ScoredAuthorResponse extends AuthorUserResponse {
-    author: AuthorProfileResponse & {
-        score: number;
-        totalLikes: number;
-        artsCount: number;
-        planWeight: number;
-        isSubscriptionActive: boolean;
-    };
-}
+const USER_EXCLUDE = ['password', 'createdAt', 'updatedAt'];
+const CITY_ATTRS = ['id', 'name_en', 'name_ru', 'country_id', 'country_code'];
+const COUNTRY_ATTRS = ['id', 'name_en', 'name_ru', 'iso2', 'iso3'];
+const AUTHOR_PROFILE_ATTRS = [
+    'user_id',
+    'biography',
+    'profession_id',
+    'moderate',
+    'avatar_path',
+    'is_deleted',
+    'createdAt',
+    'updatedAt',
+];
 
 @Injectable()
 export class AuthorsService {
+    private readonly VIEW_WINDOW_MS = 30 * 60 * 1000;
+
     constructor(
         @InjectModel(User) private userRepository: typeof User,
         @InjectModel(AuthorProfile) private authorProfileModel: typeof AuthorProfile,
@@ -118,16 +153,15 @@ export class AuthorsService {
         @InjectConnection() private sequelize: Sequelize,
         private fileService: FilesService,
         private passwordService: PasswordService,
-        @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
         private subscriptionService: SubscriptionService,
         private notificationService: NotificationService,
+        @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
     ) { }
 
     async createAuthor(dto: CreateAuthorDto, image: any): Promise<AuthorUserResponse> {
         this.log('createAuthor', { email: dto.email });
 
         const transaction = await this.sequelize.transaction();
-
         try {
             if (dto.profession_id) {
                 const profession = await this.professionModel.findByPk(dto.profession_id, { transaction });
@@ -137,29 +171,38 @@ export class AuthorsService {
             }
 
             await this.checkEmailExists(dto.email, transaction);
-            const hashedPassword = await this.passwordService.hashPassword(dto.password);
-            const avatarPath = image ? await this.fileService.createFile(image) : "";
 
-            const user = await this.userRepository.create({
-                email: dto.email,
-                password: hashedPassword,
-                name: dto.name,
-                surname: dto.surname,
-                second_name: dto.second_name || '',
-                date_birthday: dto.date_birthday,
-                gender: dto.gender as 'M' | 'F',
-                role: 'author',
-                city_id: dto.city_id || null,
-                country_id: dto.country_id || null,
-            }, { transaction });
+            const [hashedPassword, avatarPath] = await Promise.all([
+                this.passwordService.hashPassword(dto.password),
+                image ? this.fileService.createFile(image) : Promise.resolve(''),
+            ]);
 
-            await this.authorProfileModel.create({
-                user_id: user.id,
-                biography: dto.biography,
-                profession_id: dto.profession_id,
-                moderate: JSON.stringify({ moderate: false, moderator_id: null, errors: {} }),
-                avatar_path: avatarPath,
-            }, { transaction });
+            const user = await this.userRepository.create(
+                {
+                    email: dto.email,
+                    password: hashedPassword,
+                    name: dto.name,
+                    surname: dto.surname,
+                    second_name: dto.second_name || '',
+                    date_birthday: dto.date_birthday,
+                    gender: dto.gender as Gender,
+                    role: 'author',
+                    city_id: dto.city_id || null,
+                    country_id: dto.country_id || null,
+                },
+                { transaction },
+            );
+
+            await this.authorProfileModel.create(
+                {
+                    user_id: user.id,
+                    biography: dto.biography,
+                    profession_id: dto.profession_id,
+                    moderate: JSON.stringify({ moderate: false, moderator_id: null, errors: {} }),
+                    avatar_path: avatarPath,
+                },
+                { transaction },
+            );
 
             await transaction.commit();
             return this.toAuthorUserResponse(user);
@@ -170,36 +213,35 @@ export class AuthorsService {
     }
 
     async updateAuthor(id: number, dto: UpdateAuthorDto, image: any): Promise<AuthorUserResponse> {
-    const transaction = await this.sequelize.transaction();
-    try {
-        const user = await this.getUser(id, transaction);
-        if (dto.email && dto.email !== user.email) {
-            await this.checkEmailExists(dto.email, transaction);
+        const transaction = await this.sequelize.transaction();
+        try {
+            const user = await this.getUser(id, transaction);
+
+            if (dto.email && dto.email !== user.email) {
+                await this.checkEmailExists(dto.email, transaction);
+            }
+
+            const [userData, avatarPath] = await Promise.all([
+                this.buildUserUpdateData(dto),
+                image ? this.fileService.createFile(image) : Promise.resolve(undefined),
+            ]);
+
+            if (Object.keys(userData).length) {
+                await this.userRepository.update(userData, { where: { id: user.id }, transaction });
+            }
+
+            const profileData = this.buildProfileUpdateData(dto, avatarPath);
+            if (Object.keys(profileData).length) {
+                await this.authorProfileModel.update(profileData, { where: { user_id: user.id }, transaction });
+            }
+
+            await transaction.commit();
+            return this.getAuthorWithProfile(user.id);
+        } catch (e) {
+            await transaction.rollback();
+            this.handleError('updateAuthor', e);
         }
-
-        const userData = await this.buildUserUpdateData(dto, user);
-        if (Object.keys(userData).length) {
-            await this.userRepository.update(userData, { where: { id: user.id }, transaction });
-        }
-
-
-        let avatarPath: string | undefined;
-        if (image) {
-            avatarPath = await this.fileService.createFile(image);
-        }
-
-        const profileData = this.buildProfileUpdateData(dto, avatarPath);
-        if (Object.keys(profileData).length) {
-            await this.authorProfileModel.update(profileData, { where: { user_id: user.id }, transaction });
-        }
-
-        await transaction.commit();
-        return this.getAuthorWithProfile(user.id);
-    } catch (e) {
-        await transaction.rollback();
-        this.handleError('updateAuthor', e);
     }
-}
 
     async deleteAuthor(id: number): Promise<DeleteAuthorResponse> {
         const transaction = await this.sequelize.transaction();
@@ -207,32 +249,17 @@ export class AuthorsService {
             const user = await this.getUser(id, transaction);
             const author = await this.getAuthorProfile(user.id, transaction);
 
-            if (author.is_deleted) {
-                throw new HttpException('Автор уже удален', 400);
-            }
+            if (author.is_deleted) throw new HttpException('Автор уже удален', 400);
 
-            await author.update({
-                is_deleted: true,
-                deleted_at: new Date(),
-            }, { transaction });
-
-            await user.update({
-                is_deleted: true,
-                deleted_at: new Date(),
-            }, { transaction });
+            const now = new Date();
+            await author.update({ is_deleted: true, deleted_at: now }, { transaction });
+            await user.update({ is_deleted: true, deleted_at: now }, { transaction });
 
             await transaction.commit();
 
-            this.logger.log('info', JSON.stringify({
-                message: '✅ Автор скрыт (мягкое удаление)',
-                context: 'AuthorsService.deleteAuthor',
-                userId: id
-            }));
+            this.log('deleteAuthor', { userId: id, message: 'Автор скрыт (мягкое удаление)' });
 
-            return {
-                success: true,
-                message: 'Автор скрыт. Восстановление возможно в течение 5 лет.'
-            };
+            return { success: true, message: 'Автор скрыт. Восстановление возможно в течение 5 лет.' };
         } catch (e) {
             await transaction.rollback();
             this.handleError('deleteAuthor', e);
@@ -245,35 +272,21 @@ export class AuthorsService {
             const user = await this.getUser(id, transaction);
             const author = await this.getAuthorProfile(user.id, transaction);
 
-            if (!author.is_deleted) {
-                throw new HttpException('Автор не был удален', 400);
-            }
+            if (!author.is_deleted) throw new HttpException('Автор не был удален', 400);
 
             if (author.deleted_at) {
                 const oneYearAgo = new Date();
                 oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
                 if (author.deleted_at < oneYearAgo) {
                     throw new HttpException('Срок восстановления истек (более года)', 410);
                 }
             }
 
-            await author.update({
-                is_deleted: false,
-                deleted_at: null,
-            }, { transaction });
-
-            await user.update({
-                is_deleted: false,
-                deleted_at: null,
-            }, { transaction });
+            await author.update({ is_deleted: false, deleted_at: null }, { transaction });
+            await user.update({ is_deleted: false, deleted_at: null }, { transaction });
 
             await transaction.commit();
-
-            return {
-                success: true,
-                message: 'Автор успешно восстановлен'
-            };
+            return { success: true, message: 'Автор успешно восстановлен' };
         } catch (e) {
             await transaction.rollback();
             this.handleError('restoreAuthor', e);
@@ -286,36 +299,30 @@ export class AuthorsService {
         const user = await this.getUser(id);
         if (!user) return null;
 
-        const author = await this.getAuthorProfile(id);
-        const stats = await this.getAuthorStats(id);
-        const moderate = this.parseModerate(author?.moderate);
+        const [author, stats, followersCount] = await Promise.all([
+            this.getAuthorProfile(id),
+            this.getAuthorStats(id),
+            this.authorFollowModel.count({ where: { author_id: id } }),
+        ]);
 
         const subscription = author?.subscription;
-        const plan = subscription?.plan || 'free';
-        const planExpiresAt = subscription?.expires_at || null;
-        const planStatus = subscription?.is_active || false;
-        const planWeight = subscription?.getWeight ? subscription.getWeight() : 0;
-        const isSubscriptionActive = subscription?.isActive ? subscription.isActive() : false;
-
-
-        const followersCount = await this.authorFollowModel.count({
-            where: { author_id: id }
-        });
 
         return {
             ...this.toPlainUser(user),
-            authorProfile: author ? {
-                ...this.toPlainProfile(author),
-                ...stats,
-                moderate,
-                plan: plan,
-                planExpiresAt: planExpiresAt,
-                planStatus: planStatus,
-                planWeight: planWeight,
-                isSubscriptionActive: isSubscriptionActive,
-                followers_count: followersCount,
-                created_at: user.createdAt,
-            } : null,
+            authorProfile: author
+                ? {
+                    ...this.toPlainProfile(author),
+                    ...stats,
+                    moderate: this.parseModerate(author.moderate),
+                    plan: subscription?.plan || 'free',
+                    planExpiresAt: subscription?.expires_at || null,
+                    planStatus: subscription?.is_active || false,
+                    planWeight: subscription?.getWeight ? subscription.getWeight() : 0,
+                    isSubscriptionActive: subscription?.isActive ? subscription.isActive() : false,
+                    followers_count: followersCount,
+                    created_at: user.createdAt,
+                }
+                : null,
         };
     }
 
@@ -325,24 +332,23 @@ export class AuthorsService {
         const user = await this.getUser(id);
         if (!user) return null;
 
-        const author = await this.getAuthorProfile(id);
-        const stats = await this.getAuthorStats(id);
-        const moderate = this.parseModerate(author?.moderate);
-
-
-        const followersCount = await this.authorFollowModel.count({
-            where: { author_id: id }
-        });
+        const [author, stats, followersCount] = await Promise.all([
+            this.getAuthorProfile(id),
+            this.getAuthorStats(id),
+            this.authorFollowModel.count({ where: { author_id: id } }),
+        ]);
 
         return {
             ...this.toPlainUser(user),
-            authorProfile: author ? {
-                ...this.toPlainProfile(author),
-                ...stats,
-                moderate,
-                followers_count: followersCount,
-                created_at: user.createdAt,
-            } : null,
+            authorProfile: author
+                ? {
+                    ...this.toPlainProfile(author),
+                    ...stats,
+                    moderate: this.parseModerate(author.moderate),
+                    followers_count: followersCount,
+                    created_at: user.createdAt,
+                }
+                : null,
         };
     }
 
@@ -352,126 +358,81 @@ export class AuthorsService {
         const offset = (page - 1) * limit;
         const { count, rows } = await this.userRepository.findAndCountAll({
             where: { role: 'author', is_deleted: false },
-            attributes: { exclude: ['password', 'createdAt', 'updatedAt', 'city_id', 'country_id'] },
+            attributes: ['id', 'name', 'surname', 'second_name', 'role', 'gender', 'city_id', 'country_id'],
             limit,
             offset,
             order: [['createdAt', 'DESC']],
             distinct: true,
             include: [
-                { model: City, required: true, attributes: ['id', 'name_en', 'name_ru', 'country_id', 'country_code'] },
-                { model: Country, required: true, attributes: ['id', 'name_en', 'name_ru', 'iso2', 'iso3'] }
-            ]
+                { model: City, required: false, attributes: CITY_ATTRS },
+                { model: Country, required: false, attributes: COUNTRY_ATTRS },
+            ],
         });
 
         if (!rows.length) {
-            return {
-                data: [],
-                pagination: this.buildPagination(0, page, limit)
-            };
+            return { data: [], pagination: this.buildPagination(0, page, limit) };
         }
 
-        const authors = await this.getAuthorProfiles(rows.map(u => u.id));
-        const artsMap = await this.getArtsMap(rows.map(u => u.id));
+        const userIds = rows.map((u) => u.id);
+        const [authors, followersRaw] = await Promise.all([
+            this.getAuthorProfiles(userIds),
+            this.authorFollowModel.findAll({
+                where: { author_id: userIds },
+                attributes: ['author_id'],
+            }),
+        ]);
 
-        const data: AuthorListItemResponse[] = await Promise.all(
-            rows.map(async (user) => {
-                const author = authors.get(user.id);
-                const followersCount = await this.authorFollowModel.count({
-                    where: { author_id: user.id }
-                });
+        const followersMap = followersRaw.reduce((map, row) => {
+            map.set(row.author_id, (map.get(row.author_id) || 0) + 1);
+            return map;
+        }, new Map<number, number>());
 
-                return {
-                    ...this.toPlainUser(user),
-                    authorProfile: author ? {
-                        ...this.toPlainProfile(author),
-                        arts: artsMap.get(user.id) || [],
-                        followers_count: followersCount,
-                        created_at: user.createdAt,
-                    } : null,
-                };
-            })
+        const data: AuthorListItemResponse[] = rows.map((user) =>
+            this.formatAuthorListItem(user, authors.get(user.id), followersMap.get(user.id) || 0, lang),
         );
 
-        return {
-            data,
-            pagination: this.buildPagination(count, page, limit)
-        };
+        return { data, pagination: this.buildPagination(count, page, limit) };
     }
 
-
-    async getUnmoderatedAuthors(page: number = 1, limit: number = 12, lang: string = 'ru'): Promise<AuthorListResponse> {
+    getUnmoderatedAuthors(page: number = 1, limit: number = 12, lang: string = 'ru') {
         return this.getAuthorsByModerationStatus(false, page, limit, lang);
     }
 
     async getModeratedAuthors(page: number = 1, limit: number = 12, lang: string = 'ru'): Promise<AuthorListResponse> {
         this.log('getModeratedAuthors', { page, limit, lang });
+
         const offset = (page - 1) * limit;
 
-        const { count, rows } = await this.userRepository.findAndCountAll({
+        const { rows } = await this.userRepository.findAndCountAll({
             where: { role: 'author', is_deleted: false },
-            include: [{
-                model: AuthorProfile,
-                where: {
-                    moderate: { [Op.ne]: null },
-                    is_deleted: false
-                }
-            }],
+            attributes: ['id', 'name', 'surname', 'second_name', 'role', 'gender', 'city_id', 'country_id'],
+            include: [
+                {
+                    model: AuthorProfile,
+                    required: true,
+                    attributes: AUTHOR_PROFILE_ATTRS,
+                    where: { moderate: { [Op.ne]: null }, is_deleted: false },
+                    include: [{ model: Profession, attributes: ['id', 'name'] }],
+                },
+                { model: City, required: false, attributes: CITY_ATTRS },
+                { model: Country, required: false, attributes: COUNTRY_ATTRS },
+            ],
             limit,
             offset,
             distinct: true,
         });
 
-        const scoredAuthors = await Promise.all(
-            rows.map(async (user): Promise<ScoredAuthorResponse | null> => {
-                const author = user.authorProfile;
-                if (!author) return null;
+        const scored = (
+            await Promise.all(
+                rows
+                    .map((user) => this.buildScoredAuthor(user, user.authorProfile))
+                    .filter(Boolean),
+            )
+        ).filter((a): a is AuthorListItemResponse => a !== null);
 
-                let isModerated = false;
-                if (author.moderate) {
-                    try {
-                        const moderateObj = JSON.parse(author.moderate);
-                        isModerated = moderateObj.moderate === true;
-                    } catch {
-                        isModerated = false;
-                    }
-                }
+        scored.sort((a, b) => (b.authorProfile?.score || 0) - (a.authorProfile?.score || 0));
 
-                if (!isModerated) return null;
-
-                const stats = await this.getAuthorStats(user.id);
-                const totalLikes = stats.totalLikes || 0;
-                const artsCount = stats.artsCount || 0;
-
-                const subscription = await this.subscriptionService.getActiveSubscription(author.user_id);
-
-                const planWeight = subscription ? subscription.getWeight() : 0;
-
-                const score =
-                    totalLikes * 2 +
-                    artsCount * 10 +
-                    planWeight;
-
-                return {
-                    ...this.toPlainUser(user),
-                    author: {
-                        ...this.toPlainProfile(author),
-                        score: Math.round(score * 100) / 100,
-                        totalLikes,
-                        artsCount,
-                        planWeight
-                    }
-                };
-            })
-        );
-
-        const sorted = scoredAuthors
-            .filter((a): a is ScoredAuthorResponse => a !== null)
-            .sort((a, b) => (b.author.score || 0) - (a.author.score || 0));
-
-        return {
-            data: sorted,
-            pagination: this.buildPagination(sorted.length, page, limit)
-        };
+        return { data: scored, pagination: this.buildPagination(scored.length, page, limit) };
     }
 
     async getArtsByAuthor(authorId: number, lang: string = 'ru'): Promise<Art[]> {
@@ -480,7 +441,7 @@ export class AuthorsService {
         const author = await this.authorProfileModel.findOne({ where: { user_id: authorId } });
         if (!author) return [];
 
-        let arts = await this.artRepository.findAll({
+        return this.artRepository.findAll({
             where: { author_id: author.user_id },
             include: [
                 { model: Genre, attributes: ['id', 'title'] },
@@ -488,8 +449,6 @@ export class AuthorsService {
             ],
             order: [['createdAt', 'DESC']],
         });
-
-        return arts;
     }
 
     async moderateAuthor(moderateDto: ModerateAuthorDto, authorId: number): Promise<ModerateResponse> {
@@ -501,7 +460,6 @@ export class AuthorsService {
                 where: { user_id: authorId },
                 transaction,
             });
-
             if (!author) throw new NotFoundException('Профиль автора не найден');
 
             const moderateObject: ModerateObject = {
@@ -514,9 +472,8 @@ export class AuthorsService {
 
             const [affected] = await this.authorProfileModel.update(
                 { moderate: JSON.stringify(moderateObject) },
-                { where: { user_id: authorId }, transaction }
+                { where: { user_id: authorId }, transaction },
             );
-
             if (!affected) throw new NotFoundException('Профиль автора не найден');
 
             await transaction.commit();
@@ -531,117 +488,40 @@ export class AuthorsService {
         }
     }
 
-    async getTopAuthors(limit: number = 10, lang: string = 'ru'): Promise<ScoredAuthorResponse[]> {
+    async getTopAuthors(limit: number = 10, lang: string = 'ru'): Promise<AuthorListItemResponse[]> {
         this.log('getTopAuthors', { limit, lang });
 
         const users = await this.userRepository.findAll({
             where: { role: 'author', is_deleted: false },
-            attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-            include: [{
-                model: AuthorProfile,
-                required: true,
-                where: {
-                    moderate: { [Op.ne]: null, is_deleted: false }
-                }
-            }]
+            attributes: ['id', 'name', 'surname', 'second_name', 'role', 'gender', 'city_id', 'country_id'],
+            include: [
+                {
+                    model: AuthorProfile,
+                    required: true,
+                    attributes: AUTHOR_PROFILE_ATTRS,
+                    where: { moderate: { [Op.ne]: null }, is_deleted: false },
+                    include: [{ model: Profession, attributes: ['id', 'name'] }],
+                },
+                { model: City, required: false, attributes: CITY_ATTRS },
+                { model: Country, required: false, attributes: COUNTRY_ATTRS },
+            ],
         });
 
-        const scoredAuthors = await Promise.all(
-            users.map(async (user): Promise<ScoredAuthorResponse | null> => {
-                const author = user.authorProfile;
-                if (!author) return null;
+        const scored = (
+            await Promise.all(
+                users.map((user) => this.buildScoredAuthor(user, user.authorProfile)),
+            )
+        ).filter((a): a is AuthorListItemResponse => a !== null);
 
-                let isModerated = false;
-                if (author.moderate) {
-                    try {
-                        const moderateObj = JSON.parse(author.moderate);
-                        isModerated = moderateObj.moderate === true;
-                    } catch {
-                        isModerated = false;
-                    }
-                }
-
-                if (!isModerated) return null;
-
-                const stats = await this.getAuthorStats(user.id);
-                const totalLikes = stats.totalLikes || 0;
-                const artsCount = stats.artsCount || 0;
-
-                const subscription = await this.subscriptionService.getActiveSubscription(author.id);
-
-                const planWeight = subscription ? subscription.getWeight() : 0;
-
-                const score =
-                    totalLikes * 2 +
-                    artsCount * 10 +
-                    planWeight;
-
-                return {
-                    ...this.toPlainUser(user),
-                    author: {
-                        ...this.toPlainProfile(author),
-                        score: Math.round(score * 100) / 100,
-                        totalLikes,
-                        artsCount,
-                        planWeight
-                    }
-                };
-            })
-        );
-
-        const sortedAuthors = scoredAuthors
-            .filter((a): a is ScoredAuthorResponse => a !== null)
-            .sort((a, b) => (b.author.score || 0) - (a.author.score || 0))
+        return scored
+            .sort((a, b) => (b.authorProfile?.score || 0) - (a.authorProfile?.score || 0))
             .slice(0, limit);
-
-        return sortedAuthors;
-    }
-
-    private async getAuthorsByModerationStatus(
-        moderated: boolean,
-        page: number,
-        limit: number,
-        lang: string
-    ): Promise<AuthorListResponse> {
-        this.log('getAuthorsByModerationStatus', { moderated, page, limit, lang });
-
-        const offset = (page - 1) * limit;
-        const { rows } = await this.userRepository.findAndCountAll({
-            where: { role: 'author' },
-            attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-            include: [{ model: AuthorProfile, required: true }],
-            limit,
-            offset,
-            order: [['createdAt', 'DESC']],
-            distinct: true,
-        });
-
-        const filtered = rows.filter(user => {
-            const moderate = user.authorProfile?.moderate;
-            if (!moderate) return !moderated;
-            try {
-                return JSON.parse(moderate).moderate === moderated;
-            } catch {
-                return !moderated;
-            }
-        });
-
-        const data = filtered.map(user => ({
-            ...this.toPlainUser(user),
-            authorProfile: user.authorProfile ? this.toPlainProfile(user.authorProfile) : null,
-        }));
-
-        return {
-            data,
-            pagination: this.buildPagination(filtered.length, page, limit)
-        };
     }
 
     async incrementAuthorShares(authorId: number): Promise<{ success: boolean; shares: number }> {
         const author = await this.authorProfileModel.findByPk(authorId);
-        if (!author) {
-            throw new HttpException('Автор не найден', HttpStatus.NOT_FOUND);
-        }
+        if (!author) throw new HttpException('Автор не найден', HttpStatus.NOT_FOUND);
+
         await author.increment('shares', { by: 1 });
         await author.reload();
         this.log('incrementAuthorShares', { authorId, shares: author.shares });
@@ -649,45 +529,193 @@ export class AuthorsService {
     }
 
     async getAuthorShares(authorId: number): Promise<{ shares: number }> {
-        const author = await this.authorProfileModel.findByPk(authorId, {
-            attributes: ['shares']
-        });
-        if (!author) {
-            throw new HttpException('Автор не найден', HttpStatus.NOT_FOUND);
-        }
+        const author = await this.authorProfileModel.findByPk(authorId, { attributes: ['shares'] });
+        if (!author) throw new HttpException('Автор не найден', HttpStatus.NOT_FOUND);
         return { shares: author.shares };
+    }
+
+    async getAuthorFollowersCount(authorId: number): Promise<{ count: number }> {
+        const author = await this.authorProfileModel.findByPk(authorId);
+        if (!author) throw new HttpException('Автор не найден', HttpStatus.NOT_FOUND);
+
+        const count = await this.authorFollowModel.count({ where: { author_id: authorId } });
+        return { count };
+    }
+
+    async viewAuthor(userId: number | null, authorId: number, req: any) {
+        const author = await this.authorProfileModel.findByPk(authorId);
+        if (!author) throw new HttpException('Автор не найден', HttpStatus.NOT_FOUND);
+
+        const user = userId ? await this.userRepository.findByPk(userId) : null;
+
+        if (userId) {
+            const existing = await this.authorViewModel.findOne({
+                where: {
+                    author_id: authorId,
+                    user_id: userId,
+                    created_at: { [Op.gte]: new Date(Date.now() - this.VIEW_WINDOW_MS) },
+                },
+            });
+            if (existing) return;
+        }
+
+        await this.authorViewModel.create({
+            author_id: authorId,
+            user_id: userId || undefined,
+            user_gender: user?.gender || null,
+            user_age: user?.date_birthday ? this.calculateAge(user.date_birthday) : null,
+            city_id: user?.city_id || null,
+            country_id: user?.country_id || null,
+            ip_address: req.ip || req.connection?.remoteAddress || req.headers['x-forwarded-for'],
+        });
+
+        await author.increment('views', { by: 1 });
+    }
+
+    async getAuthorViewsCount(authorId: number) {
+        const count = await this.authorViewModel.count({ where: { author_id: authorId } });
+        return { count };
+    }
+
+    private async buildScoredAuthor(
+        user: User,
+        author: AuthorProfile | undefined,
+    ): Promise<AuthorListItemResponse | null> {
+        if (!author) return null;
+
+        const moderate = this.parseModerate(author.moderate);
+        if (!moderate?.moderate) return null;
+
+        const [stats, subscription] = await Promise.all([
+            this.getAuthorStats(user.id),
+            this.subscriptionService.getActiveSubscription(author.user_id),
+        ]);
+
+        const totalLikes = stats.totalLikes || 0;
+        const artsCount = stats.artsCount || 0;
+        const planWeight = subscription ? subscription.getWeight() : 0;
+        const score = totalLikes * 2 + artsCount * 10 + planWeight;
+
+        return this.formatAuthorListItem(user, author, 0, 'ru', {
+            score: Math.round(score * 100) / 100,
+            totalLikes,
+            artsCount,
+            planWeight,
+            isSubscriptionActive: subscription?.isActive ? subscription.isActive() : false,
+        });
+    }
+
+    private formatAuthorListItem(
+        user: User,
+        author: AuthorProfile | undefined,
+        followersCount: number,
+        lang: string,
+        extras?: {
+            score?: number;
+            totalLikes?: number;
+            artsCount?: number;
+            planWeight?: number;
+            isSubscriptionActive?: boolean;
+        },
+    ): AuthorListItemResponse {
+        const plainUser = this.toPlainUser(user) as any;
+        const plainAuthor = author ? this.toPlainProfile(author) : null;
+        const nameField = lang === 'ru' ? 'name_ru' : 'name_en';
+
+        return {
+            id: plainUser.id,
+            name: plainUser.name,
+            surname: plainUser.surname,
+            second_name: plainUser.second_name,
+            role: plainUser.role,
+            gender: plainUser.gender,
+            city: plainUser.city
+                ? { id: plainUser.city.id, name: plainUser.city[nameField] || plainUser.city.name_en }
+                : null,
+            country: plainUser.country
+                ? {
+                    id: plainUser.country.id,
+                    name: plainUser.country[nameField] || plainUser.country.name_en,
+                    iso2: plainUser.country.iso2,
+                }
+                : null,
+            authorProfile: plainAuthor
+                ? {
+                    user_id: plainAuthor.user_id,
+                    biography: plainAuthor.biography,
+                    profession_id: plainAuthor.profession_id,
+                    profession: plainAuthor.profession
+                        ? { id: plainAuthor.profession.id, name: plainAuthor.profession.name }
+                        : null,
+                    avatar_path: plainAuthor.avatar_path,
+                    moderate: this.parseModerate(plainAuthor.moderate),
+                    followers_count: followersCount,
+                    created_at: plainAuthor.createdAt,
+                    ...extras,
+                }
+                : null,
+        };
+    }
+
+    private async getAuthorsByModerationStatus(
+        moderated: boolean,
+        page: number,
+        limit: number,
+        lang: string,
+    ): Promise<AuthorListResponse> {
+        this.log('getAuthorsByModerationStatus', { moderated, page, limit, lang });
+
+        const offset = (page - 1) * limit;
+        const { rows } = await this.userRepository.findAndCountAll({
+            where: { role: 'author' },
+            attributes: ['id', 'name', 'surname', 'second_name', 'role', 'gender', 'city_id', 'country_id'],
+            include: [
+                {
+                    model: AuthorProfile,
+                    required: true,
+                    attributes: AUTHOR_PROFILE_ATTRS,
+                    include: [{ model: Profession, attributes: ['id', 'name'] }],
+                },
+                { model: City, required: false, attributes: CITY_ATTRS },
+                { model: Country, required: false, attributes: COUNTRY_ATTRS },
+            ],
+            limit,
+            offset,
+            order: [['createdAt', 'DESC']],
+            distinct: true,
+        });
+
+        const filtered = rows.filter((user) => {
+            const parsed = this.parseModerate(user.authorProfile?.moderate);
+            return (parsed?.moderate ?? false) === moderated;
+        });
+
+        const data = filtered.map((user) =>
+            this.formatAuthorListItem(user, user.authorProfile, 0, lang),
+        );
+
+        return { data, pagination: this.buildPagination(filtered.length, page, limit) };
     }
 
     private async getUser(id: number, transaction?: Transaction): Promise<User> {
         const user = await this.userRepository.findOne({
             where: { id, role: 'author', is_deleted: false },
-            attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-            include: [{ model: City, required: true, attributes: ['id', 'name_en', 'name_ru', 'country_id', 'country_code'] },
-            { model: Country, required: true, attributes: ['id', 'name_en', 'name_ru', 'iso2', 'iso3'] },
-            {
-                model: AuthorProfile, include: [
-                    {
-                        model: Subscription
-                    }
-                ]
-            }],
-            transaction
+            attributes: { exclude: USER_EXCLUDE },
+            include: [
+                { model: City, required: false, attributes: CITY_ATTRS },
+                { model: Country, required: false, attributes: COUNTRY_ATTRS },
+                { model: AuthorProfile, include: [{ model: Subscription }] },
+            ],
+            transaction,
         });
         if (!user) throw new HttpException('Автор не найден', 404);
         return user;
     }
 
-    private async getAuthorProfile(userId: number, transaction?: Transaction): Promise<AuthorProfile | null> {
+    private getAuthorProfile(userId: number, transaction?: Transaction): Promise<AuthorProfile | null> {
         return this.authorProfileModel.findOne({
             where: { user_id: userId },
-            include: [
-                {
-                    model: Subscription,
-                },
-                {
-                    model: Profession,
-                }
-            ],
+            include: [{ model: Subscription }, { model: Profession }],
             transaction,
         });
     }
@@ -695,8 +723,10 @@ export class AuthorsService {
     private async getAuthorWithProfile(id: number): Promise<AuthorUserResponse> {
         const user = await this.getUser(id);
         if (!user) return null;
+
         const author = await this.getAuthorProfile(id);
         const subscription = author?.subscription;
+
         return {
             ...this.toPlainUser(user),
             authorProfile: author ? this.toPlainProfile(author) : null,
@@ -714,126 +744,43 @@ export class AuthorsService {
     }
 
     private async getAuthorStats(authorId: number): Promise<AuthorStatsResponse> {
-        const artsCount = await this.artRepository.count({ where: { author_id: authorId } });
         const arts = await this.artRepository.findAll({
             where: { author_id: authorId },
-            attributes: ['likes']
+            attributes: ['likes'],
         });
         const totalLikes = arts.reduce((sum, a) => sum + (a.likes || 0), 0);
-
-        return { artsCount, totalLikes };
+        return { artsCount: arts.length, totalLikes };
     }
 
     private async getAuthorProfiles(userIds: number[]): Promise<Map<number, AuthorProfile>> {
         const profiles = await this.authorProfileModel.findAll({
             where: { user_id: userIds },
-            attributes: { exclude: ['createdAt', 'updatedAt'] }
+            attributes: AUTHOR_PROFILE_ATTRS,
+            include: [{ model: Profession, attributes: ['id', 'name'] }],
         });
-        return new Map(profiles.map(p => [p.user_id, p]));
+        return new Map(profiles.map((p) => [p.user_id, p]));
     }
 
-    private async getArtsMap(userIds: number[]): Promise<Map<number, any[]>> {
-        const arts = await this.artRepository.findAll({
-            where: { author_id: userIds },
-            attributes: ['id', 'title', 'image_path', 'likes', 'date_published', 'author_id'],
-            limit: 5,
-        });
-
-        const map = new Map<number, any[]>();
-        arts.forEach(art => {
-            const list = map.get(art.author_id) || [];
-            list.push(art);
-            map.set(art.author_id, list);
-        });
-        return map;
+    private async buildUserUpdateData(dto: UpdateAuthorDto): Promise<Partial<User>> {
+        const data: any = this.pick(dto, ['email', 'name', 'surname', 'second_name', 'date_birthday', 'city_id', 'country_id']);
+        if (dto.password) data.password = await this.passwordService.hashPassword(dto.password);
+        return data;
     }
 
-
-    async getAuthorFollowersCount(authorId: number): Promise<{ count: number }> {
-        const author = await this.authorProfileModel.findByPk(authorId);
-        if (!author) {
-            throw new HttpException('Автор не найден', HttpStatus.NOT_FOUND);
-        }
-
-        const count = await this.authorFollowModel.count({
-            where: { author_id: authorId }
-        });
-
-        return { count };
-    }
-
-
-    async viewAuthor(userId: number | null, authorId: number, req: any) {
-        const author = await this.authorProfileModel.findByPk(authorId);
-        if (!author) {
-            throw new HttpException('Автор не найден', HttpStatus.NOT_FOUND);
-        }
-
-        let user = null;
-        if (userId) {
-            user = await this.userRepository.findByPk(userId);
-        }
-
-        const ip = req.ip || req.connection?.remoteAddress || req.headers['x-forwarded-for'];
-
-        if (userId) {
-            const existing = await this.authorViewModel.findOne({
-                where: {
-                    author_id: authorId,
-                    user_id: userId,
-                    created_at: { [Op.gte]: new Date(Date.now() - 30 * 60 * 1000) }
-                }
-            });
-            if (existing) return;
-        }
-
-        await this.authorViewModel.create({
-            author_id: authorId,
-            user_id: userId || undefined,
-            user_gender: user?.gender || null,
-            user_age: user?.date_birthday ? this.calculateAge(user.date_birthday) : null,
-            city_id: user?.city_id || null,
-            country_id: user?.country_id || null,
-            ip_address: ip,
-        });
-
-        await author.increment('views', { by: 1 });
+    private buildProfileUpdateData(dto: UpdateAuthorDto, avatarPath?: string): Partial<AuthorProfile> {
+        const data: Partial<AuthorProfile> = this.pick(dto, ['biography', 'profession_id']);
+        if (avatarPath) data.avatar_path = avatarPath;
+        return data;
     }
 
     private calculateAge(birthday: Date): number {
         const today = new Date();
         let age = today.getFullYear() - birthday.getFullYear();
         const m = today.getMonth() - birthday.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthday.getDate())) {
-            age--;
-        }
+        if (m < 0 || (m === 0 && today.getDate() < birthday.getDate())) age--;
         return age;
     }
 
-    async getAuthorViewsCount(authorId: number) {
-        const count = await this.authorViewModel.count({
-            where: { author_id: authorId }
-        });
-        return { count };
-    }
-
-    private async buildUserUpdateData(
-        dto: UpdateAuthorDto,
-        user: any
-    ): Promise<Partial<User>> {
-        const data: any = this.pick(dto, ['email', 'name', 'surname', 'second_name', 'date_birthday', 'city_id', 'country_id']);
-        if (dto.password) data.password = await this.passwordService.hashPassword(dto.password);
-        return data;
-    }
-
-    private buildProfileUpdateData(
-        dto: UpdateAuthorDto,
-        avatarPath?: string,
-    ): Partial<AuthorProfile> {
-        const data: Partial<AuthorProfile> = this.pick(dto, ['biography', 'profession_id']);
-        if (avatarPath) data.avatar_path = avatarPath;
-        return data;
-    }
     private parseModerate(moderate: string): ModerateObject | null {
         if (!moderate) return null;
         try {
@@ -857,9 +804,7 @@ export class AuthorsService {
 
     private pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
         return keys.reduce((acc, key) => {
-            if (obj[key] !== undefined && obj[key] !== null) {
-                acc[key] = obj[key];
-            }
+            if (obj[key] !== undefined && obj[key] !== null) acc[key] = obj[key];
             return acc;
         }, {} as Pick<T, K>);
     }
@@ -877,28 +822,25 @@ export class AuthorsService {
     }
 
     private log(method: string, data: any): void {
-        this.logger.log('info', JSON.stringify({
-            message: `📋 ${method}`,
-            context: 'AuthorsService',
-            ...data,
-        }));
+        this.logger.log(
+            'info',
+            JSON.stringify({ message: `📋 ${method}`, context: 'AuthorsService', ...data }),
+        );
     }
 
     private handleError(method: string, error: any): never {
-        this.logger.log('error', JSON.stringify({
-            message: `❌ Ошибка в ${method}`,
-            context: 'AuthorsService',
-            error: error.message,
-            stack: error.stack,
-        }));
-
-        if (error instanceof HttpException || error instanceof ConflictException) {
-            throw error;
-        }
-
-        throw new HttpException(
-            `Ошибка в ${method}: ${error.message}`,
-            400
+        this.logger.log(
+            'error',
+            JSON.stringify({
+                message: `❌ Ошибка в ${method}`,
+                context: 'AuthorsService',
+                error: error.message,
+                stack: error.stack,
+            }),
         );
+
+        if (error instanceof HttpException || error instanceof ConflictException) throw error;
+
+        throw new HttpException(`Ошибка в ${method}: ${error.message}`, 400);
     }
 }

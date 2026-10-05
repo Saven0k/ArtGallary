@@ -1,33 +1,45 @@
-
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Art } from './arts.model';
-import { CreateArtDto } from './dto/create-art.dto';
+import {
+    HttpException,
+    HttpStatus,
+    Injectable,
+    Inject,
+} from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/sequelize';
-import { FilesService } from '../files/files.service';
-import { UpdateArtDTO } from './dto/update-art.dto';
-import { User } from '../users/users.model';
+import { Sequelize, Op } from 'sequelize';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
-import { Inject } from '@nestjs/common';
+
+import { Art } from './arts.model';
+import { ArtLike } from './art-like.model';
+import { ArtView } from './art-view.model';
+import { CreateArtDto } from './dto/create-art.dto';
+import { UpdateArtDTO } from './dto/update-art.dto';
+import { ModerateArtDto } from './dto/moderate-art.dto';
+import { FilesService } from '../files/files.service';
+import { User } from '../users/users.model';
 import { Genre } from '../genres/genre.model';
 import { Style } from '../styles/styles.model';
-import { ModerateArtDto } from './dto/moderate-art.dto';
-import { Sequelize, Op } from 'sequelize';
-import { ArtView } from './art-view.model';
-import { LocationService } from '../location/location.service';
-import { TagsService } from 'src/tags/tags.service';
 import { Tag } from 'src/tags/tag.model';
+import { TagsService } from 'src/tags/tags.service';
 import { Country } from '../location/models/country.model';
 import { City } from '../location/models/city.model';
 import { Subscription } from 'src/subscriptions/subscription.model';
 import { AuthorProfile } from 'src/authors/author.model';
-import { NotificationType } from 'src/notifications/notification.model';
 import { AuthorFollow } from 'src/authors/author-follow.model';
+import { NotificationType } from 'src/notifications/notification.model';
 import { NotificationService } from 'src/notifications/notification.service';
-import { ArtLike } from './art-like.model';
+import { LocationService } from '../location/location.service';
+
 type Lang = 'ru' | 'en';
+type FilterType = 'all' | 'moderated' | 'unmoderated';
 
 @Injectable()
 export class ArtsService {
+    private readonly PLAN_WEIGHT = { free: 0, pro: 50, vip: 100 };
+    private readonly FRESHNESS_DAYS = 30;
+    private readonly FEATURED_BONUS = 200;
+    private readonly FEATURED_DAYS = 7;
+    private readonly VIEW_WINDOW_MS = 30 * 60 * 1000;
+
     constructor(
         @InjectModel(Art) private artRepository: typeof Art,
         @InjectModel(AuthorFollow) private followModel: typeof AuthorFollow,
@@ -35,51 +47,42 @@ export class ArtsService {
         @InjectModel(ArtView) private artViewModel: typeof ArtView,
         @InjectModel(AuthorProfile) private authorProfileModel: typeof AuthorProfile,
         @InjectModel(User) private userRepository: typeof User,
-        private fileService: FilesService,
         @InjectConnection() private sequelize: Sequelize,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
+        private fileService: FilesService,
         private locationService: LocationService,
         private tagsService: TagsService,
         private notificationService: NotificationService,
-    ) { }
-    private readonly PLAN_WEIGHT = { free: 0, pro: 50, vip: 100 };
-    private readonly FRESHNESS_DAYS = 30;
-    private readonly FEATURED_BONUS = 200;
-    private readonly FEATURED_DAYS = 7;
+    ) {}
 
     async createArt(dto: CreateArtDto, imagePath: any, artistId: number) {
-        if (dto.country_id) {
-            const country = await this.locationService.getCountryById(dto.country_id);
-            if (!country) {
-                throw new HttpException('Страна не найдена', HttpStatus.BAD_REQUEST);
-            }
+        if (dto.country_id && !(await this.locationService.getCountryById(dto.country_id))) {
+            throw new HttpException('Страна не найдена', HttpStatus.BAD_REQUEST);
         }
-
-        if (dto.city_id) {
-            const city = await this.locationService.getCityById(dto.city_id);
-            if (!city) {
-                throw new HttpException('Город не найден', HttpStatus.BAD_REQUEST);
-            }
+        if (dto.city_id && !(await this.locationService.getCityById(dto.city_id))) {
+            throw new HttpException('Город не найден', HttpStatus.BAD_REQUEST);
         }
 
         const transaction = await this.sequelize.transaction();
         try {
             const fileName = await this.fileService.createFile(imagePath);
+            const art = await this.artRepository.create(
+                {
+                    ...this.buildArtData(dto, artistId),
+                    image_path: fileName,
+                    score: 0,
+                    moderate: JSON.stringify({
+                        moderate: false,
+                        moderator_id: null,
+                        errors: {},
+                        moderated_at: null,
+                        comment: null,
+                    }),
+                },
+                { transaction },
+            );
 
-            const art = await this.artRepository.create({
-                ...this.buildArtData(dto, artistId),
-                image_path: fileName,
-                score: 0,
-                moderate: JSON.stringify({
-                    moderate: false,
-                    moderator_id: null,
-                    errors: {},
-                    moderated_at: null,
-                    comment: null,
-                }),
-            }, { transaction });
-
-            if (dto.tags && dto.tags.length > 0) {
+            if (dto.tags?.length) {
                 const tags = await this.tagsService.findOrCreateTags(dto.tags);
                 await art.$set('tags', tags);
             }
@@ -87,25 +90,7 @@ export class ArtsService {
             await this.updateScore(art.id);
             await transaction.commit();
 
-            const followers = await this.followModel.findAll({
-                where: { author_id: artistId },
-                include: [{ model: User, attributes: ['id'] }]
-            });
-
-            const author = await this.authorProfileModel.findByPk(artistId, {
-                include: [{ model: User, attributes: ['name', 'surname'] }]
-            });
-
-            for (const follow of followers) {
-                await this.notificationService.createNotification(
-                    follow.user_id,
-                    NotificationType.NEW_ART,
-                    `${author.user.name} ${author.user.surname} опубликовал новую работу "${dto.title}"`,
-                    `/arts/${art.id}`,
-                    art.id,
-                    { author_id: artistId, art_id: art.id }
-                );
-            }
+            await this.notifyFollowers(artistId, art.id, dto.title);
 
             return this.findArtWithLocation(art.id);
         } catch (e: any) {
@@ -114,42 +99,18 @@ export class ArtsService {
         }
     }
 
-
     async getArtById(id: number, lang: string = 'ru') {
         const art = await this.artRepository.findByPk(id, {
-            include: [
-                ...this.getDefaultIncludes(),
-                {
-                    model: Country,
-                    as: 'country',
-                    attributes: [
-                        'id', 'iso2', 'iso3',
-                        lang === 'ru' ? 'name_ru' : 'name_en',
-                    ],
-                    required: false,
-                },
-                {
-                    model: City,
-                    as: 'city',
-                    attributes: [
-                        'id', 'country_code',
-                        lang === 'ru' ? 'name_ru' : 'name_en',
-                    ],
-                    required: false,
-                },
-            ],
+            include: this.getDefaultIncludesWithLocation(lang),
         });
-
-        if (!art) return null;
-
-        return this.formatArtWithLocation(art.toJSON(), lang);
+        return art ? this.formatArtWithLocation(art.toJSON(), lang) : null;
     }
 
-    async getAllArts(page: number = 1, limit: number = 12, lang: Lang = 'ru') {
+    getAllArts(page: number = 1, limit: number = 12, lang: Lang = 'ru') {
         return this.getArtsWithFilters(page, limit, lang, 'all');
     }
 
-    async getUnmoderatedArts(page: number = 1, limit: number = 12, lang: Lang = 'ru') {
+    getUnmoderatedArts(page: number = 1, limit: number = 12, lang: Lang = 'ru') {
         return this.getArtsWithFilters(page, limit, lang, 'unmoderated');
     }
 
@@ -165,17 +126,11 @@ export class ArtsService {
             distinct: true,
         });
 
-        const filteredArts = rows
-            .filter(art => {
-                try { return JSON.parse(art.moderate)?.moderate === true; }
-                catch { return false; }
-            })
-            .map(art => this.formatArtWithLocation(art.toJSON(), lang));
+        const arts = rows
+            .filter((art) => this.parseModerate(art.moderate)?.moderate === true)
+            .map((art) => this.formatArtWithLocation(art.toJSON(), lang));
 
-        return {
-            arts: filteredArts,
-            pagination: this.buildPagination(count, page, limit),
-        };
+        return { arts, pagination: this.buildPagination(count, page, limit) };
     }
 
     async getTopArts(limit: number = 10, lang: string = 'ru') {
@@ -186,18 +141,15 @@ export class ArtsService {
             limit: limit * 3,
         });
 
-        const now = new Date();
+        const now = Date.now();
         const validArts = arts.filter(
-            art => !art.featured_until || new Date(art.featured_until) > now
+            (art) => !art.featured_until || new Date(art.featured_until).getTime() > now,
         );
 
-        return this.getWeightedRandomSelection(validArts, limit)
-            .map(art => this.formatArtWithLocation(
-                art.toJSON ? art.toJSON() : art,
-                lang,
-            ));
+        return this.getWeightedRandomSelection(validArts, limit).map((art) =>
+            this.formatArtWithLocation(art.toJSON ? art.toJSON() : art, lang),
+        );
     }
-
 
     async updateArt(id: number, dto: UpdateArtDTO) {
         const art = await this.artRepository.findByPk(id, {
@@ -207,12 +159,11 @@ export class ArtsService {
 
         try {
             const { tags, ...updateData } = dto;
-            if (Object.keys(updateData).length > 0) {
+            if (Object.keys(updateData).length) {
                 await this.artRepository.update(updateData, { where: { id } });
             }
             if (tags !== undefined) await this.tagsService.updateTagsForArt(art, tags);
             await this.updateScore(id);
-
             return this.findArtWithLocation(id);
         } catch (e: any) {
             this.handleError('updateArt', e, `Art update not success: ${e.message}`);
@@ -255,14 +206,13 @@ export class ArtsService {
         }
     }
 
-
     async incrementView(artId: number, userId?: number): Promise<Art> {
         const art = await this.artRepository.findByPk(artId);
         if (!art) throw new HttpException('Произведение не найдено', HttpStatus.NOT_FOUND);
 
         if (!userId) {
             await art.increment('views', { by: 1 });
-        } else if (!await this.hasUserViewedToday(artId, userId)) {
+        } else if (!(await this.hasUserViewedToday(artId, userId))) {
             await art.increment('views', { by: 1 });
             await this.recordView(artId, userId);
         }
@@ -275,8 +225,10 @@ export class ArtsService {
     async addToFeatured(artId: number, days: number = this.FEATURED_DAYS): Promise<void> {
         const art = await this.artRepository.findByPk(artId);
         if (!art) return;
+
         const featuredUntil = new Date();
         featuredUntil.setDate(featuredUntil.getDate() + days);
+
         await art.update({ is_featured: true, featured_until: featuredUntil });
         await this.updateScore(artId);
     }
@@ -284,6 +236,7 @@ export class ArtsService {
     async removeFromFeatured(artId: number): Promise<void> {
         const art = await this.artRepository.findByPk(artId);
         if (!art) return;
+
         await art.update({ is_featured: false, featured_until: null });
         await this.updateScore(artId);
     }
@@ -307,55 +260,312 @@ export class ArtsService {
     async updateAllScores(): Promise<void> {
         const arts = await this.artRepository.findAll();
         for (const art of arts) {
-            const score = await this.calculateScore(art);
-            await art.update({ score });
+            await art.update({ score: await this.calculateScore(art) });
         }
         this.logger.log('info', `✅ Обновлены скоры для ${arts.length} картин`);
     }
 
+    async likeArt(userId: number, artId: number, req: any) {
+        const art = await this.artRepository.findByPk(artId, {
+            include: [{ model: AuthorProfile, attributes: ['user_id'] }],
+        });
+        if (!art) throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
 
+        const user = await this.userRepository.findByPk(userId);
+        if (!user) throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
 
+        const existing = await this.artLikeModel.findOne({
+            where: { art_id: artId, user_id: userId },
+        });
 
+        if (existing) {
+            await existing.destroy();
+            await art.decrement('likes', { by: 1 });
+            return { success: true, message: 'Лайк удален' };
+        }
+
+        const ip = req.ip || req.connection?.remoteAddress || req.headers['x-forwarded-for'];
+
+        await this.artLikeModel.create({
+            art_id: artId,
+            user_id: userId,
+            user_gender: user.gender,
+            user_birthday: user.date_birthday,
+            city_id: user.city_id,
+            country_id: user.country_id,
+            ip_address: ip,
+            user_agent: req.headers['user-agent'] || '',
+        });
+
+        await art.increment('likes', { by: 1 });
+
+        const author = await this.authorProfileModel.findByPk(art.author_id);
+        if (author) {
+            await this.notificationService.createNotification(
+                author.user_id,
+                NotificationType.ART_LIKE,
+                `${user.name} ${user.surname} оценил вашу картину "${art.title}"`,
+                `/arts/${artId}`,
+                artId,
+                { user_id: userId, art_id: artId, author_id: art.author_id },
+            );
+        }
+
+        return { success: true, message: 'Лайк добавлен' };
+    }
+
+    async getArtLikes(artId: number, page: number = 1, limit: number = 20) {
+        if (!(await this.artRepository.findByPk(artId))) {
+            throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
+        }
+
+        const offset = (page - 1) * limit;
+        const { count, rows } = await this.artLikeModel.findAndCountAll({
+            where: { art_id: artId },
+            include: [
+                { model: User, attributes: ['id', 'name', 'surname', 'gender', 'date_birthday'] },
+                { model: City, attributes: ['id', 'name_ru', 'name_en'] },
+                { model: Country, attributes: ['id', 'name_ru', 'name_en'] },
+            ],
+            order: [['created_at', 'DESC']],
+            limit,
+            offset,
+        });
+
+        return {
+            data: rows.map((row) => row.toJSON()),
+            total: count,
+            pagination: this.buildPagination(count, page, limit),
+        };
+    }
+
+    async getLikedArts(userId: number, page: number = 1, limit: number = 12, lang: string = 'ru') {
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await this.artLikeModel.findAndCountAll({
+            where: { user_id: userId },
+            include: [
+                {
+                    model: Art,
+                    required: true,
+                    include: [
+                        { model: AuthorProfile, include: [{ model: User, attributes: ['id', 'name', 'surname'] }] },
+                        { model: City, attributes: ['id', 'name_ru', 'name_en'] },
+                        { model: Country, attributes: ['id', 'name_ru', 'name_en', 'iso2'] },
+                        { model: Genre },
+                        { model: Style },
+                    ],
+                },
+            ],
+            order: [['created_at', 'DESC']],
+            limit,
+            offset,
+        });
+
+        const arts = rows.map((row) => row.art).filter((art): art is Art => Boolean(art));
+
+        return { arts, pagination: this.buildPagination(count, page, limit) };
+    }
+
+    async getArtLikesCount(artId: number) {
+        const count = await this.artLikeModel.count({ where: { art_id: artId } });
+        return { count };
+    }
+
+    async viewArt(userId: number | null, artId: number, req: any) {
+        const art = await this.artRepository.findByPk(artId);
+        if (!art) throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
+
+        const user = userId ? await this.userRepository.findByPk(userId) : null;
+
+        if (userId) {
+            const existing = await this.artViewModel.findOne({
+                where: {
+                    art_id: artId,
+                    user_id: userId,
+                    created_at: { [Op.gte]: new Date(Date.now() - this.VIEW_WINDOW_MS) },
+                },
+            });
+            if (existing) return;
+        }
+
+        const ip = req.ip || req.connection?.remoteAddress || req.headers['x-forwarded-for'];
+
+        await this.artViewModel.create({
+            art_id: artId,
+            user_id: userId || undefined,
+            user_gender: user?.gender || null,
+            user_age: user?.date_birthday ? this.calculateAge(user.date_birthday) : null,
+            city_id: user?.city_id || null,
+            country_id: user?.country_id || null,
+            ip_address: ip,
+            user_agent: req.headers['user-agent'] || '',
+        });
+
+        await art.increment('views', { by: 1 });
+    }
+
+    async getArtViewsCount(artId: number) {
+        const count = await this.artViewModel.count({ where: { art_id: artId } });
+        return { count };
+    }
+
+    async searchArts(query: string, page: number = 1, limit: number = 20, lang: Lang = 'ru') {
+        if (!query || query.trim().length < 2) {
+            return { arts: [], pagination: this.buildPagination(0, page, limit) };
+        }
+
+        const q = `%${query.trim().toLowerCase()}%`;
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await this.artRepository.findAndCountAll({
+            where: {
+                [Op.or]: [
+                    { title: { [Op.iLike]: q } },
+                    { description: { [Op.iLike]: q } },
+                    { '$author.user.name$': { [Op.iLike]: q } },
+                    { '$author.user.surname$': { [Op.iLike]: q } },
+                ],
+            },
+            include: [
+                ...this.getDefaultIncludesWithLocation(lang),
+                {
+                    model: AuthorProfile,
+                    as: 'author',
+                    required: false,
+                    attributes: ['user_id', 'avatar_path'],
+                    include: [{ model: User, as: 'user', attributes: ['id', 'name', 'surname'] }],
+                },
+            ],
+            order: [['score', 'DESC'], ['likes', 'DESC'], ['views', 'DESC']],
+            limit,
+            offset,
+            distinct: true,
+            subQuery: false,
+        });
+
+        return {
+            arts: rows.map((art) => this.formatArtWithLocation(art.toJSON(), lang)),
+            pagination: this.buildPagination(count, page, limit),
+        };
+    }
+
+    async getSimilarArts(artId: number, limit: number = 20, lang: Lang = 'ru') {
+        const art = await this.artRepository.findByPk(artId, {
+            include: [{ model: Tag, as: 'tags', attributes: ['id', 'name'] }],
+        });
+
+        if (!art?.tags?.length) return [];
+
+        const tagIds = art.tags.map((t) => t.id);
+
+        const similar = await this.artRepository.findAll({
+            attributes: {
+                include: [
+                    [
+                        this.sequelize.literal(`(
+                            SELECT COUNT(*)
+                            FROM art_tags AS at
+                            WHERE at.art_id = "Art"."id"
+                              AND at.tag_id IN (${tagIds.join(',')})
+                        )`),
+                        'matched_tags',
+                    ],
+                ],
+            },
+            include: [
+                ...this.getDefaultIncludesWithLocation(lang),
+                {
+                    model: Tag,
+                    as: 'tags',
+                    where: { id: { [Op.in]: tagIds } },
+                    through: { attributes: [] },
+                    required: true,
+                },
+            ],
+            where: { id: { [Op.ne]: artId } },
+            order: [[this.sequelize.literal('matched_tags'), 'DESC'], ['score', 'DESC']],
+            limit,
+            subQuery: false,
+            group: [
+                'Art.id',
+                'author.user_id',
+                'author.user.id',
+                'genre.id',
+                'style.id',
+                'tags.id',
+                'country.id',
+                'city.id',
+            ],
+        });
+
+        return similar.map((a) => this.formatArtWithLocation(a.toJSON(), lang));
+    }
+
+    async incrementArtShares(artId: number): Promise<{ success: boolean; shares: number }> {
+        const art = await this.artRepository.findByPk(artId);
+        if (!art) throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
+
+        await art.increment('shares', { by: 1 });
+        await art.reload();
+
+        this.logger.log(
+            'info',
+            JSON.stringify({
+                message: '🔄 Увеличено количество поделившихся',
+                context: 'ArtsService.incrementArtShares',
+                artId,
+                shares: art.shares,
+            }),
+        );
+
+        return { success: true, shares: art.shares };
+    }
+
+    async getArtShares(artId: number): Promise<{ shares: number }> {
+        const art = await this.artRepository.findByPk(artId, { attributes: ['shares'] });
+        if (!art) throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
+        return { shares: art.shares };
+    }
+
+    private async notifyFollowers(artistId: number, artId: number, title: string) {
+        const [followers, author] = await Promise.all([
+            this.followModel.findAll({
+                where: { author_id: artistId },
+                include: [{ model: User, attributes: ['id'] }],
+            }),
+            this.authorProfileModel.findByPk(artistId, {
+                include: [{ model: User, attributes: ['name', 'surname'] }],
+            }),
+        ]);
+
+        if (!author) return;
+
+        const message = `${author.user.name} ${author.user.surname} опубликовал новую работу "${title}"`;
+
+        await Promise.all(
+            followers.map((follow) =>
+                this.notificationService.createNotification(
+                    follow.user_id,
+                    NotificationType.NEW_ART,
+                    message,
+                    `/arts/${artId}`,
+                    artId,
+                    { author_id: artistId, art_id: artId },
+                ),
+            ),
+        );
+    }
 
     private async findArtWithLocation(id: number, lang: string = 'ru') {
         const art = await this.artRepository.findByPk(id, {
-            include: [
-                ...this.getDefaultIncludes(),
-                ...this.getLocationIncludes(lang),
-            ],
+            include: this.getDefaultIncludesWithLocation(lang),
         });
         return art ? this.formatArtWithLocation(art.toJSON(), lang) : null;
     }
 
-
-
-
-    private getLocationIncludes(lang: string = 'ru') {
-        const nameField = lang === 'ru' ? 'name_ru' : 'name_en';
-        return [
-            {
-                model: Country,
-                as: 'country',
-                attributes: ['id', 'iso2', 'iso3', nameField],
-                required: false,
-            },
-            {
-                model: City,
-                as: 'city',
-                attributes: ['id', 'country_code', nameField],
-                required: false,
-            },
-        ];
-    }
-
-
-
-
     private getDefaultIncludesWithLocation(lang: string = 'ru') {
-        return [
-            ...this.getDefaultIncludes(),
-            ...this.getLocationIncludes(lang),
-        ];
+        return [...this.getDefaultIncludes(), ...this.getLocationIncludes(lang)];
     }
 
     private getDefaultIncludes() {
@@ -372,19 +582,20 @@ export class ArtsService {
         ];
     }
 
-
-
-
+    private getLocationIncludes(lang: string = 'ru') {
+        const nameField = lang === 'ru' ? 'name_ru' : 'name_en';
+        return [
+            { model: Country, as: 'country', attributes: ['id', 'iso2', 'iso3', nameField], required: false },
+            { model: City, as: 'city', attributes: ['id', 'country_code', nameField], required: false },
+        ];
+    }
 
     private formatArtWithLocation(art: any, lang: string = 'ru') {
         const nameField = lang === 'ru' ? 'name_ru' : 'name_en';
 
-
         if (art.moderate && typeof art.moderate === 'string') {
-            try { art.moderate = JSON.parse(art.moderate); }
-            catch { art.moderate = null; }
+            art.moderate = this.parseModerate(art.moderate);
         }
-
 
         if (art.country) {
             art.country = {
@@ -395,7 +606,6 @@ export class ArtsService {
             };
         }
 
-
         if (art.city) {
             art.city = {
                 id: art.city.id,
@@ -405,306 +615,6 @@ export class ArtsService {
         }
 
         return art;
-    }
-
-    async likeArt(userId: number, artId: number, req: any) {
-        const art = await this.artRepository.findByPk(artId, {
-            include: [{ model: AuthorProfile, attributes: ['user_id'] }]
-        });
-        if (!art) {
-            throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
-        }
-
-        const user = await this.userRepository.findByPk(userId);
-        if (!user) {
-            throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
-        }
-
-        const existing = await this.artLikeModel.findOne({
-            where: { art_id: artId, user_id: userId }
-        });
-
-        if (existing) {
-            await existing.destroy();
-            await art.decrement('likes', { by: 1 });
-            return { success: true, message: 'Лайк удален' };
-        }
-
-        const ip = req.ip || req.connection?.remoteAddress || req.headers['x-forwarded-for'];
-        const userAgent = req.headers['user-agent'] || '';
-
-        await this.artLikeModel.create({
-            art_id: artId,
-            user_id: userId,
-            user_gender: user.gender,
-            user_birthday: user.date_birthday,
-            city_id: user.city_id,
-            country_id: user.country_id,
-            ip_address: ip,
-            user_agent: userAgent,
-        });
-
-        await art.increment('likes', { by: 1 });
-
-        const author = await this.authorProfileModel.findByPk(art.author_id);
-        if (author) {
-            await this.notificationService.createNotification(
-                author.user_id,
-                NotificationType.ART_LIKE,
-                `${user.name} ${user.surname} оценил вашу картину "${art.title}"`,
-                `/arts/${artId}`,
-                artId,
-                { user_id: userId, art_id: artId, author_id: art.author_id }
-            );
-        }
-
-        return { success: true, message: 'Лайк добавлен' };
-    }
-
-    async getArtLikes(artId: number, page: number = 1, limit: number = 20) {
-        const art = await this.artRepository.findByPk(artId);
-        if (!art) {
-            throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
-        }
-
-        const offset = (page - 1) * limit;
-        const { count, rows } = await this.artLikeModel.findAndCountAll({
-            where: { art_id: artId },
-            include: [
-                { model: User, attributes: ['id', 'name', 'surname', 'gender', 'date_birthday'] },
-                { model: City, attributes: ['id', 'name_ru', 'name_en'] },
-                { model: Country, attributes: ['id', 'name_ru', 'name_en'] }
-            ],
-            order: [['created_at', 'DESC']],
-            limit,
-            offset,
-        });
-
-        return {
-            data: rows.map(row => row.toJSON()),
-            total: count,
-            pagination: this.buildPagination(count, page, limit)
-        };
-    }
-
-
-
-    async getLikedArts(
-        userId: number,
-        page: number = 1,
-        limit: number = 12,
-        lang: string = 'ru',
-    ) {
-        const offset = (page - 1) * limit;
-
-        const { count, rows } = await this.artLikeModel.findAndCountAll({
-            where: { user_id: userId },
-            include: [
-                {
-                    model: Art,
-                    required: true,
-                    include: [
-                        {
-                            model: AuthorProfile,
-                            include: [
-                                {
-                                    model: User,
-                                    attributes: ['id', 'name', 'surname'],
-                                },
-                            ],
-                        },
-                        { model: City, attributes: ['id', 'name_ru', 'name_en'] },
-                        { model: Country, attributes: ['id', 'name_ru', 'name_en', 'iso2'] },
-                        { model: Genre },
-                        { model: Style },
-                    ],
-                },
-            ],
-            order: [['created_at', 'DESC']],
-            limit,
-            offset,
-        });
-
-        const arts = rows
-            .map(row => row.art)
-            .filter((art): art is Art => Boolean(art));
-
-        return {
-            arts,
-            pagination: this.buildPagination(count, page, limit),
-        };
-    }
-
-    async getArtLikesCount(artId: number) {
-        const count = await this.artLikeModel.count({
-            where: { art_id: artId }
-        });
-        return { count };
-    }
-
-    async viewArt(userId: number | null, artId: number, req: any) {
-        const art = await this.artRepository.findByPk(artId);
-        if (!art) {
-            throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
-        }
-
-        let user = null;
-        if (userId) {
-            user = await this.userRepository.findByPk(userId);
-        }
-
-        const ip = req.ip || req.connection?.remoteAddress || req.headers['x-forwarded-for'];
-        const userAgent = req.headers['user-agent'] || '';
-
-        if (userId) {
-            const existing = await this.artViewModel.findOne({
-                where: {
-                    art_id: artId,
-                    user_id: userId,
-                    created_at: { [Op.gte]: new Date(Date.now() - 30 * 60 * 1000) }
-                }
-            });
-            if (existing) return;
-        }
-
-        await this.artViewModel.create({
-            art_id: artId,
-            user_id: userId || undefined,
-            user_gender: user?.gender || null,
-            user_age: user?.date_birthday ? this.calculateAge(user.date_birthday) : null,
-            city_id: user?.city_id || null,
-            country_id: user?.country_id || null,
-            ip_address: ip,
-            user_agent: userAgent,
-        });
-
-        await art.increment('views', { by: 1 });
-    }
-
-    private calculateAge(birthday: Date): number {
-        const today = new Date();
-        let age = today.getFullYear() - birthday.getFullYear();
-        const m = today.getMonth() - birthday.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthday.getDate())) {
-            age--;
-        }
-        return age;
-    }
-
-    async getArtViewsCount(artId: number) {
-        const count = await this.artViewModel.count({
-            where: { art_id: artId }
-        });
-        return { count };
-    }
-
-    async searchArts(
-        query: string,
-        page: number = 1,
-        limit: number = 20,
-        lang: Lang = 'ru',
-    ) {
-        if (!query || query.trim().length < 2) {
-            return { arts: [], pagination: this.buildPagination(0, page, limit) };
-        }
-
-        const q = `%${query.trim().toLowerCase()}%`;
-        const offset = (page - 1) * limit;
-
-        const { count, rows } = await this.artRepository.findAndCountAll({
-            where: {
-                [Op.or]: [
-                    { title: { [Op.iLike]: q } },
-                    { description: { [Op.iLike]: q } },
-                    // поиск по имени/фамилии автора — через include
-                    { '$author.user.name$': { [Op.iLike]: q } },
-                    { '$author.user.surname$': { [Op.iLike]: q } },
-                ],
-            },
-            include: [
-                ...this.getDefaultIncludesWithLocation(lang),
-                {
-                    model: AuthorProfile,
-                    as: 'author',
-                    required: false,
-                    attributes: ['user_id', 'avatar_path'],
-                    include: [
-                        {
-                            model: User,
-                            as: 'user',
-                            attributes: ['id', 'name', 'surname'],
-                        },
-                    ],
-                },
-            ],
-            order: [['score', 'DESC'], ['likes', 'DESC'], ['views', 'DESC']],
-            limit,
-            offset,
-            distinct: true,
-            subQuery: false, // важно для поиска по вложенным полям
-        });
-
-        const formatted = rows.map(art => this.formatArtWithLocation(art.toJSON(), lang));
-
-        return {
-            arts: formatted,
-            pagination: this.buildPagination(count, page, limit),
-        };
-    }
-
-    async getSimilarArts(
-        artId: number,
-        limit: number = 20,
-        lang: Lang = 'ru',
-    ) {
-        // 1. Получаем теги текущей картины
-        const art = await this.artRepository.findByPk(artId, {
-            include: [{ model: Tag, as: 'tags', attributes: ['id', 'name'] }],
-        });
-
-        if (!art || !art.tags?.length) return [];
-
-        const tagIds = art.tags.map(t => t.id);
-
-        // 2. Ищем картины с этими тегами, кроме самой себя
-        const similar = await this.artRepository.findAll({
-            attributes: {
-                include: [
-                    [
-                        // кол-во совпавших тегов
-                        this.sequelize.literal(`(
-                        SELECT COUNT(*)
-                        FROM art_tags AS at
-                        WHERE at.art_id = "Art"."id"
-                          AND at.tag_id IN (${tagIds.join(',')})
-                    )`),
-                        'matched_tags',
-                    ],
-                ],
-            },
-            include: [
-                ...this.getDefaultIncludesWithLocation(lang),
-                {
-                    model: Tag,
-                    as: 'tags',
-                    where: { id: { [Op.in]: tagIds } },
-                    through: { attributes: [] },
-                    required: true,
-                },
-            ],
-            where: { id: { [Op.ne]: artId } },
-            order: [
-                [this.sequelize.literal('matched_tags'), 'DESC'],
-                ['score', 'DESC'],
-            ],
-            limit,
-            subQuery: false,
-            group: ['Art.id', 'author.user_id', 'author.user.id',
-                'genre.id', 'style.id', 'tags.id',
-                'country.id', 'city.id'],
-        });
-
-        return similar.map(a => this.formatArtWithLocation(a.toJSON(), lang));
     }
 
     private buildArtData(dto: CreateArtDto, artistId: number) {
@@ -728,8 +638,11 @@ export class ArtsService {
 
     private parseModerate(moderate: string) {
         if (!moderate) return {};
-        try { return JSON.parse(moderate); }
-        catch { return {}; }
+        try {
+            return JSON.parse(moderate);
+        } catch {
+            return {};
+        }
     }
 
     private async hasUserViewedToday(artId: number, userId: number): Promise<boolean> {
@@ -737,72 +650,40 @@ export class ArtsService {
             where: {
                 art_id: artId,
                 user_id: userId,
-                created_at: {
-                    [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0))
-                },
+                created_at: { [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)) },
             },
         });
         return !!view;
     }
 
     private async recordView(artId: number, userId: number): Promise<void> {
-        await this.artViewModel.create({
-            art_id: artId,
-            user_id: userId,
-        });
+        await this.artViewModel.create({ art_id: artId, user_id: userId });
     }
 
-    async incrementArtShares(artId: number): Promise<{ success: boolean; shares: number }> {
-        const art = await this.artRepository.findByPk(artId);
-        if (!art) {
-            throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
-        }
-        await art.increment('shares', { by: 1 });
-        await art.reload();
-        this.logger.log('info', JSON.stringify({
-            message: '🔄 Увеличено количество поделившихся',
-            context: 'ArtsService.incrementArtShares',
-            artId,
-            shares: art.shares
-        }));
-        return { success: true, shares: art.shares };
-    }
-
-    async getArtShares(artId: number): Promise<{ shares: number }> {
-        const art = await this.artRepository.findByPk(artId, {
-            attributes: ['shares']
-        });
-        if (!art) {
-            throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
-        }
-        return { shares: art.shares };
+    private calculateAge(birthday: Date): number {
+        const today = new Date();
+        let age = today.getFullYear() - birthday.getFullYear();
+        const m = today.getMonth() - birthday.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthday.getDate())) age--;
+        return age;
     }
 
     private async calculateScore(art: Art): Promise<number> {
         const author = await this.authorProfileModel.findOne({
             where: { user_id: art.author_id },
-            include: [{
-                model: Subscription,
-                limit: 1,
-                order: [['expires_at', 'DESC']]
-            }]
+            include: [{ model: Subscription, limit: 1, order: [['expires_at', 'DESC']] }],
         });
-        const subscription = author?.subscription;
-        let planWeight = 0;
-        if (subscription) {
-            const weights = {
-                'free': 0,
-                'pro': 50,
-                'vip': 100,
-            };
-            planWeight = weights[subscription.plan as keyof typeof weights] || 0;
-        }
 
-        const ageInDays = this.getAgeInDays(art.date_published);
-        const freshnessWeight = Math.max(this.FRESHNESS_DAYS - ageInDays, 0);
+        const plan = author?.subscription?.plan as keyof typeof this.PLAN_WEIGHT | undefined;
+        const planWeight = plan ? this.PLAN_WEIGHT[plan] : 0;
+        const freshnessWeight = Math.max(this.FRESHNESS_DAYS - this.getAgeInDays(art.date_published), 0);
         const featuredBonus = art.is_featured ? this.FEATURED_BONUS : 0;
 
-        return Math.round(((art.likes || 0) * 5 + (art.views || 0) * 0.1 + planWeight + freshnessWeight + featuredBonus) * 100) / 100;
+        return (
+            Math.round(
+                ((art.likes || 0) * 5 + (art.views || 0) * 0.1 + planWeight + freshnessWeight + featuredBonus) * 100,
+            ) / 100
+        );
     }
 
     private async updateScore(artId: number): Promise<void> {
@@ -814,7 +695,9 @@ export class ArtsService {
     private getWeightedRandomSelection(arts: any[], limit: number): any[] {
         if (arts.length <= limit) return arts;
         const seed = new Date().toDateString();
-        return this.shuffleArray(arts, seed).sort((a, b) => b.score - a.score).slice(0, limit);
+        return this.shuffleArray(arts, seed)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, limit);
     }
 
     private shuffleArray(array: any[], seed: string): any[] {
@@ -830,7 +713,7 @@ export class ArtsService {
     private seededRandom(seed: string): () => number {
         let hash = 0;
         for (let i = 0; i < seed.length; i++) {
-            hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+            hash = (hash << 5) - hash + seed.charCodeAt(i);
             hash = hash & hash;
         }
         return () => {
@@ -841,7 +724,14 @@ export class ArtsService {
 
     private buildPagination(total: number, page: number, limit: number) {
         const totalPages = Math.ceil(total / limit);
-        return { page, limit, total, totalPages, hasNextPage: page < totalPages, hasPreviousPage: page > 1 };
+        return {
+            page,
+            limit,
+            total,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1,
+        };
     }
 
     private getAgeInDays(date: Date): number {
@@ -853,16 +743,12 @@ export class ArtsService {
         throw new HttpException(message, HttpStatus.BAD_REQUEST);
     }
 
-    private async getArtsWithFilters(page: number, limit: number, lang: Lang, type: 'all' | 'moderated' | 'unmoderated') {
+    private async getArtsWithFilters(page: number, limit: number, lang: Lang, type: FilterType) {
         const offset = (page - 1) * limit;
-
         const where: any = {};
 
-        if (type === 'moderated') {
-            where.moderate = { [Op.ne]: null };
-        } else if (type === 'unmoderated') {
-            where.moderate = null;
-        }
+        if (type === 'moderated') where.moderate = { [Op.ne]: null };
+        else if (type === 'unmoderated') where.moderate = null;
 
         const { count, rows } = await this.artRepository.findAndCountAll({
             where,
@@ -875,15 +761,13 @@ export class ArtsService {
             nest: true,
         });
 
-        const formattedArts = await this.enrichWithLocationBatch(rows, lang);
+        const arts = await this.enrichWithLocationBatch(rows, lang);
 
-        return {
-            arts: formattedArts,
-            pagination: this.buildPagination(count, page, limit)
-        };
+        return { arts, pagination: this.buildPagination(count, page, limit) };
     }
+
     private async enrichWithLocationBatch(arts: any[], lang: Lang) {
-        const countryIds = [...new Set(arts.map(a => a.country_id).filter(Boolean))];
+        const countryIds = [...new Set(arts.map((a) => a.country_id).filter(Boolean))];
         const countriesMap = new Map();
         const citiesMap = new Map();
 
@@ -891,28 +775,24 @@ export class ArtsService {
             for (const id of countryIds) {
                 const country = await this.locationService.getCountryByCode(String(id), lang);
                 if (country) {
-                    countriesMap.set(id, {
-                        id: country.id,
-                        name: country.name,
-                        iso2: country.iso2
-                    });
+                    countriesMap.set(id, { id: country.id, name: country.name, iso2: country.iso2 });
                 }
 
                 const cities = await this.locationService.getCitiesByCountryCode(String(id), lang);
-                cities.forEach(city => {
+                cities.forEach((city) => {
                     citiesMap.set(city.id, {
                         id: city.id,
                         name: city.name,
-                        country_id: city.country_code
+                        country_id: city.country_code,
                     });
                 });
             }
         }
 
-        return arts.map(art => ({
+        return arts.map((art) => ({
             ...art,
             city: art.city_id ? citiesMap.get(art.city_id) || null : null,
-            country: art.country_id ? countriesMap.get(art.country_id) || null : null
+            country: art.country_id ? countriesMap.get(art.country_id) || null : null,
         }));
     }
 }

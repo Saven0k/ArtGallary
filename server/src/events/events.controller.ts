@@ -27,7 +27,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 @ApiBearerAuth()
 @Controller('events')
 export class EventsController {
-    constructor(private eventsService: EventsService) {}
+    constructor(private eventsService: EventsService) { }
 
     @Post()
     @Roles(Role.Admin)
@@ -64,6 +64,12 @@ export class EventsController {
         return this.eventsService.delete(id);
     }
 
+    @Get('latest')
+    @ApiOperation({ summary: 'Получить последние события для главной страницы' })
+    async getLatest(@Query('limit') limit: number = 4) {
+        return this.eventsService.getLatest(limit);
+    }
+
     @Get(':id')
     @ApiOperation({ summary: 'Получить событие по ID' })
     async getById(@Param('id', ParseIntPipe) id: number) {
@@ -79,9 +85,5 @@ export class EventsController {
         return this.eventsService.getAll(page, limit);
     }
 
-    @Get('latest')
-    @ApiOperation({ summary: 'Получить последние события для главной страницы' })
-    async getLatest(@Query('limit') limit: number = 4) {
-        return this.eventsService.getLatest(limit);
-    }
+
 }

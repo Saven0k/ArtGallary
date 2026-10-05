@@ -82,7 +82,6 @@ export class UsersService {
         if (dto.name) updateData.name = dto.name;
         if (dto.surname) updateData.surname = dto.surname;
         if (dto.second_name !== undefined) updateData.second_name = dto.second_name;
-        if (dto.gender) updateData.gender = dto.gender;
         if (dto.date_birthday) updateData.date_birthday = dto.date_birthday;
         if (dto.city_id !== undefined) updateData.city_id = dto.city_id ?? null;
         if (dto.country_id !== undefined) updateData.country_id = dto.country_id ?? null;

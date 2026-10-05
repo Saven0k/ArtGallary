@@ -16,6 +16,14 @@ import { JwtAccessGuard } from 'src/auth/guards/jwt.guard';
 export class ModeratorsController {
     constructor(private moderatorsService: ModeratorsService) { }
 
+
+    @ApiOperation({ summary: 'Получение модератора по ID' })
+    @Get(':id')
+    @Roles(Role.Admin)
+    getModeratorById(@Param('id') id: string) {
+        return this.moderatorsService.getModeratorById(parseInt(id));
+    }
+
     @ApiOperation({ summary: 'Создание модератора' })
     @ApiConsumes('multipart/form-data')
     @Post()
@@ -34,13 +42,6 @@ export class ModeratorsController {
     @Roles(Role.Admin)
     deleteModerator(@Param('id') id: string) {
         return this.moderatorsService.deleteModerator(parseInt(id));
-    }
-
-    @ApiOperation({ summary: 'Получение модератора по ID' })
-    @Get(':id')
-    @Roles(Role.Admin)
-    getModeratorById(@Param('id') id: string) {
-        return this.moderatorsService.getModeratorById(parseInt(id));
     }
 
     @ApiOperation({ summary: 'Получение списка модераторов' })
