@@ -1,14 +1,27 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Column, DataType, Model, Table, ForeignKey, BelongsTo, BelongsToMany } from "sequelize-typescript";
-import { Genre } from "../genres/genre.model";
-import { Style } from "../styles/styles.model";
-import { Tag } from "src/tags/tag.model";
-import { ArtTag } from "src/tags/art-tag.model";
-import { Country } from "src/location/models/country.model";
-import { City } from "src/location/models/city.model";
-import { AuthorProfile } from "src/authors/author.model";
+// arts.model.ts
+import { ApiProperty } from '@nestjs/swagger';
+import {
+    Column, DataType, Model, Table, ForeignKey, BelongsTo, BelongsToMany,
+} from 'sequelize-typescript';
+import { Genre } from '../genres/genre.model';
+import { Style } from '../styles/styles.model';
+import { Tag } from 'src/tags/tag.model';
+import { ArtTag } from 'src/tags/art-tag.model';
+import { Country } from 'src/location/models/country.model';
+import { City } from 'src/location/models/city.model';
+import { AuthorProfile } from 'src/authors/author.model';
 
-export type CurrencyType = "USD" | "EUR" | "RUB" | "UAH" | null;
+export type CurrencyType = 'USD' | 'EUR' | 'RUB' | 'UAH' | null;
+
+export const ART_STATUS = {
+    ON_SALE: 'on_sale',
+    SOLD: 'sold',
+    FOR_RENT: 'for_rent',
+    ARCHIVED: 'archived',
+} as const;
+
+export type ArtStatus = typeof ART_STATUS[keyof typeof ART_STATUS];
+
 export interface ArtCreationAttrs {
     title: string;
     description: string;
@@ -29,11 +42,11 @@ export interface ArtCreationAttrs {
     score?: number;
     is_featured?: boolean;
     featured_until?: Date;
+    status?: ArtStatus;
 }
 
 @Table({ tableName: 'arts' })
 export class Art extends Model<Art, ArtCreationAttrs> {
-
     @ApiProperty({ example: 'Мишки в лесу', description: 'Название объекта' })
     @Column({ type: DataType.STRING, allowNull: false })
     title: string;
@@ -67,12 +80,24 @@ export class Art extends Model<Art, ArtCreationAttrs> {
     specifications: string;
 
     @ApiProperty({ example: '12.15.1941', description: 'Дата создания объекта' })
-    @Column({ type: DataType.DATE, defaultValue: "2020-01-01" })
+    @Column({ type: DataType.DATE, defaultValue: '2020-01-01' })
     date_published: Date;
 
     @ApiProperty({ example: '{}', description: 'Прошел ли объект модерацию' })
     @Column({ type: DataType.TEXT, allowNull: true })
     moderate: string;
+
+    @ApiProperty({
+        example: ART_STATUS.ON_SALE,
+        enum: Object.values(ART_STATUS),
+        description: 'Статус объекта',
+    })
+    @Column({
+        type: DataType.STRING,
+        allowNull: false,
+        defaultValue: ART_STATUS.ON_SALE,
+    })
+    status: ArtStatus;
 
     @ApiProperty({ example: '2', description: 'ID автора' })
     @ForeignKey(() => AuthorProfile)
@@ -113,6 +138,7 @@ export class Art extends Model<Art, ArtCreationAttrs> {
 
     @BelongsTo(() => City)
     city: City;
+
     @ApiProperty({ example: '1', description: 'ID жанра' })
     @ForeignKey(() => Genre)
     @Column({ type: DataType.INTEGER, allowNull: true })

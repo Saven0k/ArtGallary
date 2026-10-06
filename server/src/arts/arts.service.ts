@@ -1,14 +1,12 @@
+// arts.service.ts
 import {
-    HttpException,
-    HttpStatus,
-    Injectable,
-    Inject,
+    HttpException, HttpStatus, Injectable, Inject,
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/sequelize';
 import { Sequelize, Op } from 'sequelize';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 
-import { Art } from './arts.model';
+import { Art, ART_STATUS, type ArtStatus } from './arts.model';
 import { ArtLike } from './art-like.model';
 import { ArtView } from './art-view.model';
 import { CreateArtDto } from './dto/create-art.dto';
@@ -71,6 +69,7 @@ export class ArtsService {
                     ...this.buildArtData(dto, artistId),
                     image_path: fileName,
                     score: 0,
+                    status: ART_STATUS.ON_SALE,
                     moderate: JSON.stringify({
                         moderate: false,
                         moderator_id: null,
@@ -99,6 +98,16 @@ export class ArtsService {
         }
     }
 
+    async updateArtStatus(id: number, status: ArtStatus) {
+        const art = await this.artRepository.findByPk(id);
+        if (!art) throw new HttpException('Art not found', HttpStatus.NOT_FOUND);
+
+        if (art.status === status) return this.findArtWithLocation(id);
+
+        await art.update({ status });
+        return this.findArtWithLocation(id);
+    }
+
     async getArtById(id: number, lang: string = 'ru') {
         const art = await this.artRepository.findByPk(id, {
             include: this.getDefaultIncludesWithLocation(lang),
@@ -106,15 +115,15 @@ export class ArtsService {
         return art ? this.formatArtWithLocation(art.toJSON(), lang) : null;
     }
 
-    getAllArts(page: number = 1, limit: number = 12, lang: Lang = 'ru') {
+    getAllArts(page = 1, limit = 12, lang: Lang = 'ru') {
         return this.getArtsWithFilters(page, limit, lang, 'all');
     }
 
-    getUnmoderatedArts(page: number = 1, limit: number = 12, lang: Lang = 'ru') {
+    getUnmoderatedArts(page = 1, limit = 12, lang: Lang = 'ru') {
         return this.getArtsWithFilters(page, limit, lang, 'unmoderated');
     }
 
-    async getModeratedArts(page: number = 1, limit: number = 12, lang: string = 'ru') {
+    async getModeratedArts(page = 1, limit = 12, lang: string = 'ru') {
         const offset = (page - 1) * limit;
 
         const { count, rows } = await this.artRepository.findAndCountAll({
@@ -133,9 +142,12 @@ export class ArtsService {
         return { arts, pagination: this.buildPagination(count, page, limit) };
     }
 
-    async getTopArts(limit: number = 10, lang: string = 'ru') {
+    async getTopArts(limit = 10, lang = 'ru') {
         const arts = await this.artRepository.findAll({
-            where: { moderate: { [Op.ne]: null } },
+            where: {
+                moderate: { [Op.ne]: null },
+                status: { [Op.ne]: ART_STATUS.ARCHIVED },
+            },
             include: this.getDefaultIncludesWithLocation(lang),
             order: [['is_featured', 'DESC'], ['score', 'DESC'], ['likes', 'DESC']],
             limit: limit * 3,
@@ -222,7 +234,7 @@ export class ArtsService {
         return art;
     }
 
-    async addToFeatured(artId: number, days: number = this.FEATURED_DAYS): Promise<void> {
+    async addToFeatured(artId: number, days = this.FEATURED_DAYS): Promise<void> {
         const art = await this.artRepository.findByPk(artId);
         if (!art) return;
 
@@ -248,7 +260,11 @@ export class ArtsService {
         );
 
         const candidates = await this.artRepository.findAll({
-            where: { is_featured: false, moderate: { [Op.ne]: null } },
+            where: {
+                is_featured: false,
+                moderate: { [Op.ne]: null },
+                status: { [Op.ne]: ART_STATUS.ARCHIVED },
+            },
             order: [['score', 'DESC'], ['likes', 'DESC']],
             limit: 10,
         });
@@ -314,7 +330,7 @@ export class ArtsService {
         return { success: true, message: 'Лайк добавлен' };
     }
 
-    async getArtLikes(artId: number, page: number = 1, limit: number = 20) {
+    async getArtLikes(artId: number, page = 1, limit = 20) {
         if (!(await this.artRepository.findByPk(artId))) {
             throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
         }
@@ -339,7 +355,7 @@ export class ArtsService {
         };
     }
 
-    async getLikedArts(userId: number, page: number = 1, limit: number = 12, lang: string = 'ru') {
+    async getLikedArts(userId: number, page = 1, limit = 12, lang = 'ru') {
         const offset = (page - 1) * limit;
 
         const { count, rows } = await this.artLikeModel.findAndCountAll({
@@ -410,7 +426,7 @@ export class ArtsService {
         return { count };
     }
 
-    async searchArts(query: string, page: number = 1, limit: number = 20, lang: Lang = 'ru') {
+    async searchArts(query: string, page = 1, limit = 20, lang: Lang = 'ru') {
         if (!query || query.trim().length < 2) {
             return { arts: [], pagination: this.buildPagination(0, page, limit) };
         }
@@ -450,7 +466,7 @@ export class ArtsService {
         };
     }
 
-    async getSimilarArts(artId: number, limit: number = 20, lang: Lang = 'ru') {
+    async getSimilarArts(artId: number, limit = 20, lang: Lang = 'ru') {
         const art = await this.artRepository.findByPk(artId, {
             include: [{ model: Tag, as: 'tags', attributes: ['id', 'name'] }],
         });
@@ -483,7 +499,10 @@ export class ArtsService {
                     required: true,
                 },
             ],
-            where: { id: { [Op.ne]: artId } },
+            where: {
+                id: { [Op.ne]: artId },
+                status: { [Op.ne]: ART_STATUS.ARCHIVED },
+            },
             order: [[this.sequelize.literal('matched_tags'), 'DESC'], ['score', 'DESC']],
             limit,
             subQuery: false,
@@ -557,14 +576,14 @@ export class ArtsService {
         );
     }
 
-    private async findArtWithLocation(id: number, lang: string = 'ru') {
+    private async findArtWithLocation(id: number, lang = 'ru') {
         const art = await this.artRepository.findByPk(id, {
             include: this.getDefaultIncludesWithLocation(lang),
         });
         return art ? this.formatArtWithLocation(art.toJSON(), lang) : null;
     }
 
-    private getDefaultIncludesWithLocation(lang: string = 'ru') {
+    private getDefaultIncludesWithLocation(lang = 'ru') {
         return [...this.getDefaultIncludes(), ...this.getLocationIncludes(lang)];
     }
 
@@ -582,7 +601,7 @@ export class ArtsService {
         ];
     }
 
-    private getLocationIncludes(lang: string = 'ru') {
+    private getLocationIncludes(lang = 'ru') {
         const nameField = lang === 'ru' ? 'name_ru' : 'name_en';
         return [
             { model: Country, as: 'country', attributes: ['id', 'iso2', 'iso3', nameField], required: false },
@@ -590,7 +609,7 @@ export class ArtsService {
         ];
     }
 
-    private formatArtWithLocation(art: any, lang: string = 'ru') {
+    private formatArtWithLocation(art: any, lang = 'ru') {
         const nameField = lang === 'ru' ? 'name_ru' : 'name_en';
 
         if (art.moderate && typeof art.moderate === 'string') {
@@ -632,6 +651,7 @@ export class ArtsService {
             style_id: dto.style_id || null,
             specifications: dto.specifications || null,
             is_adult: dto.is_adult || false,
+            status: ART_STATUS.ON_SALE,
             tags: dto.tags || null,
         };
     }
