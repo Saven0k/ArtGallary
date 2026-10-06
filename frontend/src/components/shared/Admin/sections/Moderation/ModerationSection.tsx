@@ -1,41 +1,96 @@
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-    Eye,
-    Check,
-    X,
-    Image as ImageIcon,
-    User as UserIcon,
-    ShieldCheck,
+    Check, X, Image as ImageIcon, User as UserIcon, ShieldCheck, Mail, Calendar,
 } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { useAuth } from '../../../../../hooks/useAuth';
 import { adminTranslations } from '../../../../../pages/admin/lang';
+import { getUnmoderatedArts, moderateArt, type Art } from '../../../../../api/arts/main.api';
 import {
-    getUnmoderatedArts,
-    moderateArt,
-    type Art,
-} from '../../../../../api/arts/main.api';
-import {
-    getUnmoderatedAuthors,
-    moderateAuthor,
-    type AuthorProfileResponse,
+    getUnmoderatedAuthors, moderateAuthor, type AuthorProfileResponse,
 } from '../../../../../api/authors/main.api';
+import { getModeratorById } from '../../../../../api/moderators/main.api';
 import SectionHeader from '../../SectionHeader/SectionHeader';
-import DataTable, { type Column } from '../../DataTable/DataTable';
 import EmptyState from '../../EmptyState/EmptyState';
-import ModerationViewModal from './ModerationViewModal';
 import { moderationTranslations } from './lang';
 import './ModerationSection.scss';
 
 type Tab = 'all' | 'arts' | 'authors';
 
-
 type QueueItem =
     | { kind: 'art'; data: Art; date: string }
     | { kind: 'author'; data: AuthorProfileResponse; date: string };
 
-const PAGE_SIZE = 10;
+type ModerateObject = {
+    moderate?: boolean;
+    moderator_id?: number | null;
+    moderated_at?: string | null;
+    comment?: string | null;
+};
+
+const fmtDateTime = (raw: string | null | undefined, language: string) => {
+    if (!raw) return null;
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return null;
+    const date = d.toLocaleDateString(
+        language === 'ru' ? 'ru-RU' : language === 'zh' ? 'zh-CN' : 'en-US',
+    );
+    const time = d.toLocaleTimeString(
+        language === 'ru' ? 'ru-RU' : language === 'zh' ? 'zh-CN' : 'en-US',
+        { hour: '2-digit', minute: '2-digit' },
+    );
+    return `${date} ${time}`;
+};
+
+const fullName = (a: any) =>
+    [a?.surname, a?.name].filter(Boolean).join(' ').trim();
+
+const readModerate = (raw: any): ModerateObject | null => {
+    if (!raw) return null;
+    if (typeof raw === 'string') {
+        try {
+            return JSON.parse(raw);
+        } catch {
+            return null;
+        }
+    }
+    return raw as ModerateObject;
+};
+
+const ModeratorLine = ({
+    moderatorId,
+    language,
+    label,
+    prefix,
+}: {
+    moderatorId: number;
+    language: string;
+    label: string;
+    prefix?: string;
+}) => {
+    const [name, setName] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        let alive = true;
+        setLoading(true);
+        getModeratorById(moderatorId).then((res) => {
+            if (!alive) return;
+            const u = (res as any)?.user ?? res;
+            setName(u ? fullName(u) || null : null);
+            setLoading(false);
+        });
+        return () => { alive = false; };
+    }, [moderatorId]);
+
+    const display = loading ? '…' : name ? `${name} (#${moderatorId})` : `#${moderatorId}`;
+
+    return (
+        <span>
+            {label}: {prefix ? `${prefix} ` : ''}{display}
+        </span>
+    );
+};
 
 const ModerationSection = () => {
     const { language } = useLanguage();
@@ -50,27 +105,17 @@ const ModerationSection = () => {
     const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
 
-    const [page, setPage] = useState(1);
-
-
-    const [viewItem, setViewItem] = useState<QueueItem | null>(null);
-    const [moderateTarget, setModerateTarget] = useState<{
-        item: QueueItem;
-        approve: boolean;
-    } | null>(null);
+    const [moderateTarget, setModerateTarget] = useState<{ item: QueueItem; approve: boolean } | null>(null);
     const [moderateComment, setModerateComment] = useState('');
-
 
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-
             const [artsRes, authorsRes] = await Promise.all([
                 getUnmoderatedArts(1, 100, language),
                 getUnmoderatedAuthors(1, 100, language),
             ]);
-
             setArts(artsRes?.arts ?? []);
             setAuthors(authorsRes?.data ?? []);
         } catch (e) {
@@ -81,69 +126,30 @@ const ModerationSection = () => {
         }
     }, [language, t.errors.loadFailed]);
 
-    useEffect(() => {
-        load();
-    }, [load]);
-
-    useEffect(() => {
-        setPage(1);
-    }, [tab]);
-
+    useEffect(() => { load(); }, [load]);
 
     const queue: QueueItem[] = useMemo(() => {
-        const artItems: QueueItem[] = arts.map((a) => ({
-            kind: 'art',
-            data: a,
-            date: a.date_published ?? '',
-        }));
-
+        const artItems: QueueItem[] = arts.map((a) => ({ kind: 'art', data: a, date: a.date_published ?? '' }));
         const authorItems: QueueItem[] = authors.map((a) => ({
             kind: 'author',
             data: a,
-            date: a.authorProfile?.createdAt ?? '',
+            date: (a.authorProfile as any)?.created_at ?? (a.authorProfile as any)?.createdAt ?? '',
         }));
-
         if (tab === 'arts') return artItems;
         if (tab === 'authors') return authorItems;
-
-
         return [...artItems, ...authorItems].sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
         );
     }, [arts, authors, tab]);
-
-    const totalPages = Math.max(1, Math.ceil(queue.length / PAGE_SIZE));
-    const paginated = useMemo(
-        () =>
-            queue.slice((page - 1) * PAGE_SIZE, (page - 1) * PAGE_SIZE + PAGE_SIZE),
-        [queue, page],
-    );
-
 
     const handleModerate = async () => {
         if (!moderateTarget || !user) return;
         setBusy(true);
         try {
             const { item, approve } = moderateTarget;
-
-            if (item.kind === 'art') {
-                const res = await moderateArt(item.data.id, {
-                    moderate: approve,
-                    moderator_id: user.id,
-                    comment: moderateComment.trim() || null,
-                    errors: {},
-                });
-                if (!res) throw new Error();
-            } else {
-                const res = await moderateAuthor(item.data.id, {
-                    moderate: approve,
-                    moderator_id: user.id,
-                    comment: moderateComment.trim() || null,
-                    errors: {},
-                });
-                if (!res) throw new Error();
-            }
-
+            const payload = { moderate: approve, moderator_id: user.id, comment: moderateComment.trim() || null, errors: {} };
+            if (item.kind === 'art') await moderateArt(item.data.id, payload);
+            else await moderateAuthor(item.data.id, payload);
             setModerateTarget(null);
             setModerateComment('');
             await load();
@@ -155,317 +161,249 @@ const ModerationSection = () => {
         }
     };
 
-
-    const columns: Column<QueueItem>[] = [
-        {
-            key: 'type',
-            title: t.table.type,
-            width: '120px',
-            render: (item) => (
-                <span
-                    className={`moderation-section__type moderation-section__type--${item.kind}`}
-                >
-                    {item.kind === 'art' ? t.type.art : t.type.author}
-                </span>
-            ),
-        },
-        {
-            key: 'preview',
-            title: t.table.preview,
-            width: '72px',
-            render: (item) => {
-                const src =
-                    item.kind === 'art'
-                        ? item.data.image_path
-                        : item.data.authorProfile?.avatar_path;
-
-                return src ? (
-                    <img
-                        src={src}
-                        alt=""
-                        className="moderation-section__thumb"
-                    />
-                ) : (
-                    <div className="moderation-section__thumb moderation-section__thumb--empty">
-                        {item.kind === 'art' ? (
-                            <ImageIcon size={18} />
-                        ) : (
-                            <UserIcon size={18} />
-                        )}
-                    </div>
-                );
-            },
-        },
-        {
-            key: 'title',
-            title: t.table.title,
-            render: (item) =>
-                item.kind === 'art'
-                    ? item.data.title
-                    : `${item.data.name ?? ''} ${item.data.surname ?? ''}`.trim(),
-        },
-        {
-            key: 'author',
-            title: t.table.author,
-            render: (item) => {
-                if (item.kind === 'art') {
-                    const u = item.data.author?.user;
-                    return u
-                        ? `${u.name ?? ''} ${u.surname ?? ''}`.trim() || '—'
-                        : '—';
-                }
-                return item.data.authorProfile?.profession?.name ?? '—';
-            },
-        },
-        {
-            key: 'date',
-            title: t.table.date,
-            width: '140px',
-            render: (item) =>
-                item.date
-                    ? new Date(item.date).toLocaleDateString(
-                          language === 'ru'
-                              ? 'ru-RU'
-                              : language === 'zh'
-                              ? 'zh-CN'
-                              : 'en-US',
-                      )
-                    : '—',
-        },
-        {
-            key: 'actions',
-            title: t.table.actions,
-            align: 'right',
-            width: '180px',
-            render: (item) => (
-                <div className="moderation-section__actions">
-                    <button
-                        type="button"
-                        className="moderation-section__action"
-                        title={t.actions.view}
-                        onClick={() => setViewItem(item)}
-                    >
-                        <Eye size={16} />
-                    </button>
-                    <button
-                        type="button"
-                        className="moderation-section__action moderation-section__action--approve"
-                        title={t.actions.approve}
-                        onClick={() =>
-                            setModerateTarget({ item, approve: true })
-                        }
-                    >
-                        <Check size={16} />
-                    </button>
-                    <button
-                        type="button"
-                        className="moderation-section__action moderation-section__action--reject"
-                        title={t.actions.reject}
-                        onClick={() =>
-                            setModerateTarget({ item, approve: false })
-                        }
-                    >
-                        <X size={16} />
-                    </button>
-                </div>
-            ),
-        },
-    ];
-
-
     const tabs: { value: Tab; label: string; count: number }[] = [
         { value: 'all', label: t.tabs.all, count: arts.length + authors.length },
         { value: 'arts', label: t.tabs.arts, count: arts.length },
         { value: 'authors', label: t.tabs.authors, count: authors.length },
     ];
 
-    const emptyText =
-        tab === 'arts'
-            ? t.empty.arts
-            : tab === 'authors'
-            ? t.empty.authors
-            : t.empty.all;
+    const emptyText = tab === 'arts' ? t.empty.arts : tab === 'authors' ? t.empty.authors : t.empty.all;
+
+    const renderAuthorCard = (a: AuthorProfileResponse) => {
+        const p: any = a.authorProfile ?? {};
+        const userAny = a as any;
+
+        const name = fullName(a) || '—';
+        const location = [userAny?.city?.name, userAny?.country?.name].filter(Boolean).join(', ');
+        const profession = p.profession?.name;
+        const email = userAny?.email;
+        const created = fmtDateTime(p.created_at ?? p.createdAt, language);
+        const bio = p.biography;
+
+        const moderate = readModerate(p.moderate);
+        const moderatedAt = moderate?.moderated_at ? fmtDateTime(moderate.moderated_at, language) : null;
+        const moderatorId = moderate?.moderator_id;
+        const moderateStatusText =
+            moderate?.moderate === true
+                ? t.moderateModal.confirmApprove
+                : moderate?.moderate === false
+                ? t.moderateModal.confirmReject
+                : null;
+
+        return (
+            <article className="moderation-author-card">
+                <div className="moderation-author-card__avatar">
+                    {p.avatar_path ? (
+                        <img src={p.avatar_path} alt={name} />
+                    ) : (
+                        <UserIcon size={48} />
+                    )}
+                </div>
+
+                <div className="moderation-author-card__body">
+                    <h4 className="moderation-author-card__name">{name}</h4>
+
+                    {location && <div className="moderation-author-card__line">{location}</div>}
+                    {profession && <div className="moderation-author-card__line">{profession}</div>}
+                    {bio && <p className="moderation-author-card__bio">{bio}</p>}
+
+                    {email && (
+                        <span className="moderation-author-card__email">
+                            <Mail size={14} /> {email}
+                        </span>
+                    )}
+
+                    <div className="moderation-author-card__footer">
+                        {created && (
+                            <span className="moderation-author-card__footer-item">
+                                <Calendar size={13} /> {t.viewModal.dateCreated || 'Добавление'}: {created}
+                            </span>
+                        )}
+                        {moderatorId != null && moderatedAt && (
+                            <span className="moderation-author-card__footer-item moderation-author-card__moderator">
+                                <ModeratorLine
+                                    moderatorId={moderatorId}
+                                    language={language}
+                                    label={t.viewModal.moderatedBy}
+                                    prefix={`${moderateStatusText ?? ''} —`}
+                                />
+                                <span> · {moderatedAt}</span>
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="moderation-author-card__actions">
+                        <button
+                            type="button"
+                            className="moderation-author-card__btn moderation-author-card__btn--approve"
+                            onClick={() => setModerateTarget({ item: { kind: 'author', data: a, date: '' }, approve: true })}
+                        >
+                            <Check size={14} /> {t.actions.approve}
+                        </button>
+                        <button
+                            type="button"
+                            className="moderation-author-card__btn moderation-author-card__btn--reject"
+                            onClick={() => setModerateTarget({ item: { kind: 'author', data: a, date: '' }, approve: false })}
+                        >
+                            <X size={14} /> {t.actions.reject}
+                        </button>
+                    </div>
+                </div>
+            </article>
+        );
+    };
+
+    const renderArtCard = (a: Art) => {
+        const author = a.author?.user ? fullName(a.author.user) : null;
+        const created = fmtDateTime(a.date_published, language);
+        const moderate = readModerate((a as any).moderate);
+        const moderatedAt = moderate?.moderated_at ? fmtDateTime(moderate.moderated_at, language) : null;
+        const moderatorId = moderate?.moderator_id;
+        const moderateStatusText =
+            moderate?.moderate === true
+                ? t.moderateModal.confirmApprove
+                : moderate?.moderate === false
+                ? t.moderateModal.confirmReject
+                : null;
+
+        return (
+            <article className="moderation-art-card">
+                <div className="moderation-art-card__image">
+                    {a.image_path ? (
+                        <img src={a.image_path} alt={a.title} />
+                    ) : (
+                        <ImageIcon size={48} />
+                    )}
+                </div>
+
+                <div className="moderation-art-card__body">
+                    <h4 className="moderation-art-card__title">{a.title}</h4>
+
+                    {author && <div className="moderation-art-card__line">{author}</div>}
+                    {a.description && <p className="moderation-art-card__bio">{a.description}</p>}
+
+                    <div className="moderation-art-card__footer">
+                        {created && (
+                            <span className="moderation-art-card__footer-item">
+                                <Calendar size={13} /> {t.viewModal.dateCreated || 'Добавление'}: {created}
+                            </span>
+                        )}
+                        {moderatorId != null && moderatedAt && (
+                            <span className="moderation-art-card__footer-item">
+                                <ModeratorLine
+                                    moderatorId={moderatorId}
+                                    language={language}
+                                    label={t.viewModal.moderatedBy}
+                                    prefix={`${moderateStatusText ?? ''} —`}
+                                />
+                                <span> · {moderatedAt}</span>
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="moderation-art-card__actions">
+                        <button
+                            type="button"
+                            className="moderation-art-card__btn moderation-art-card__btn--approve"
+                            onClick={() => setModerateTarget({ item: { kind: 'art', data: a, date: '' }, approve: true })}
+                        >
+                            <Check size={14} /> {t.actions.approve}
+                        </button>
+                        <button
+                            type="button"
+                            className="moderation-art-card__btn moderation-art-card__btn--reject"
+                            onClick={() => setModerateTarget({ item: { kind: 'art', data: a, date: '' }, approve: false })}
+                        >
+                            <X size={14} /> {t.actions.reject}
+                        </button>
+                    </div>
+                </div>
+            </article>
+        );
+    };
 
     return (
         <div className="admin-section moderation-section">
             <SectionHeader title={t.title} subtitle={t.subtitle} />
 
-
             <div className="moderation-section__summary">
                 <div className="moderation-section__summary-card">
-                    <div className="moderation-section__summary-icon">
-                        <ImageIcon size={20} />
-                    </div>
+                    <div className="moderation-section__summary-icon"><ImageIcon size={20} /></div>
                     <div>
-                        <span className="moderation-section__summary-label">
-                            {t.summary.arts}
-                        </span>
-                        <span className="moderation-section__summary-value">
-                            {arts.length}
-                        </span>
+                        <span className="moderation-section__summary-label">{t.summary.arts}</span>
+                        <span className="moderation-section__summary-value">{arts.length}</span>
                     </div>
                 </div>
-
                 <div className="moderation-section__summary-card">
-                    <div className="moderation-section__summary-icon">
-                        <UserIcon size={20} />
-                    </div>
+                    <div className="moderation-section__summary-icon"><UserIcon size={20} /></div>
                     <div>
-                        <span className="moderation-section__summary-label">
-                            {t.summary.authors}
-                        </span>
-                        <span className="moderation-section__summary-value">
-                            {authors.length}
-                        </span>
+                        <span className="moderation-section__summary-label">{t.summary.authors}</span>
+                        <span className="moderation-section__summary-value">{authors.length}</span>
                     </div>
                 </div>
-
                 <div className="moderation-section__summary-card">
-                    <div className="moderation-section__summary-icon">
-                        <ShieldCheck size={20} />
-                    </div>
+                    <div className="moderation-section__summary-icon"><ShieldCheck size={20} /></div>
                     <div>
-                        <span className="moderation-section__summary-label">
-                            {t.summary.total}
-                        </span>
-                        <span className="moderation-section__summary-value">
-                            {arts.length + authors.length}
-                        </span>
+                        <span className="moderation-section__summary-label">{t.summary.total}</span>
+                        <span className="moderation-section__summary-value">{arts.length + authors.length}</span>
                     </div>
                 </div>
             </div>
 
-
             <div className="moderation-section__tabs">
-                {tabs.map((tabItem) => (
-                    <button
-                        key={tabItem.value}
-                        type="button"
-                        className={`moderation-section__tab ${
-                            tab === tabItem.value ? 'is-active' : ''
-                        }`}
-                        onClick={() => setTab(tabItem.value)}
-                    >
-                        {tabItem.label}
-                        {tabItem.count > 0 && (
-                            <span className="moderation-section__tab-count">
-                                {tabItem.count}
-                            </span>
-                        )}
+                {tabs.map((x) => (
+                    <button key={x.value} type="button" className={`moderation-section__tab ${tab === x.value ? 'is-active' : ''}`} onClick={() => setTab(x.value)}>
+                        {x.label}
+                        {x.count > 0 && <span className="moderation-section__tab-count">{x.count}</span>}
                     </button>
                 ))}
             </div>
 
             {error && <div className="moderation-section__error">{error}</div>}
 
-
             {!loading && queue.length === 0 ? (
-                <EmptyState
-                    text={emptyText}
-                    icon={<ShieldCheck size={24} />}
-                />
+                <EmptyState text={emptyText} icon={<ShieldCheck size={24} />} />
             ) : (
-                <DataTable
-                    columns={columns}
-                    rows={paginated}
-                    loading={loading}
-                    emptyText={common.empty}
-                    rowKey={(item) =>
-                        `${item.kind}-${
-                            item.kind === 'art'
-                                ? item.data.id
-                                : item.data.id
-                        }`
-                    }
-                />
-            )}
-
-
-            {!loading && totalPages > 1 && (
-                <div className="moderation-section__pagination">
-                    <button
-                        type="button"
-                        disabled={page <= 1}
-                        onClick={() => setPage((p) => p - 1)}
-                    >
-                        ←
-                    </button>
-                    <span>
-                        {page} / {totalPages}
-                        <span className="moderation-section__total">
-                            {' '}
-                            ({queue.length})
-                        </span>
-                    </span>
-                    <button
-                        type="button"
-                        disabled={page >= totalPages}
-                        onClick={() => setPage((p) => p + 1)}
-                    >
-                        →
-                    </button>
+                <div className="moderation-section__list">
+                    {loading
+                        ? Array.from({ length: 4 }).map((_, i) => (
+                              <div key={i} className="moderation-section__skeleton" />
+                          ))
+                        : queue.map((item) =>
+                              item.kind === 'author'
+                                  ? <div key={`author-${item.data.id}`}>{renderAuthorCard(item.data as AuthorProfileResponse)}</div>
+                                  : <div key={`art-${item.data.id}`}>{renderArtCard(item.data as Art)}</div>,
+                          )}
                 </div>
             )}
 
-
-            {viewItem && (
-                <ModerationViewModal
-                    item={viewItem}
-                    onClose={() => setViewItem(null)}
-                />
-            )}
-
-
             {moderateTarget && (
-                <div
-                    className="moderation-section__modal-overlay"
-                    onClick={() => !busy && setModerateTarget(null)}
-                >
-                    <div
-                        className="moderation-section__modal"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h3>
-                            {moderateTarget.approve
-                                ? t.moderateModal.approveTitle
-                                : t.moderateModal.rejectTitle}
-                        </h3>
+                <div className="moderation-section__modal-overlay" onClick={() => !busy && setModerateTarget(null)}>
+                    <div className="moderation-section__modal" onClick={(e) => e.stopPropagation()}>
+                        <h3>{moderateTarget.approve ? t.moderateModal.approveTitle : t.moderateModal.rejectTitle}</h3>
 
                         <label className="moderation-section__label">
                             {t.moderateModal.commentLabel}
                             <textarea
                                 rows={3}
                                 value={moderateComment}
-                                onChange={(e) =>
-                                    setModerateComment(e.target.value)
-                                }
+                                onChange={(e) => setModerateComment(e.target.value)}
                                 placeholder={t.moderateModal.commentPlaceholder}
                                 disabled={busy}
                             />
                         </label>
 
                         <div className="moderation-section__modal-actions">
-                            <button
-                                type="button"
-                                className="moderation-section__btn moderation-section__btn--secondary"
-                                onClick={() => setModerateTarget(null)}
-                                disabled={busy}
-                            >
+                            <button type="button" className="moderation-section__btn moderation-section__btn--secondary" onClick={() => setModerateTarget(null)} disabled={busy}>
                                 {common.cancel}
                             </button>
                             <button
                                 type="button"
-                                className={`moderation-section__btn ${
-                                    moderateTarget.approve
-                                        ? 'moderation-section__btn--primary'
-                                        : 'moderation-section__btn--danger'
-                                }`}
+                                className={`moderation-section__btn ${moderateTarget.approve ? 'moderation-section__btn--primary' : 'moderation-section__btn--danger'}`}
                                 onClick={handleModerate}
                                 disabled={busy}
                             >
-                                {moderateTarget.approve
-                                    ? t.moderateModal.confirmApprove
-                                    : t.moderateModal.confirmReject}
+                                {moderateTarget.approve ? t.moderateModal.confirmApprove : t.moderateModal.confirmReject}
                             </button>
                         </div>
                     </div>

@@ -9,6 +9,7 @@ import {
     type CountrySuggestion,
     type CitySuggestion,
 } from '../../../../../api/location/main.api';
+import "./AuthorFormModal.scss"
 import {
     getAllProfessions,
     type Profession,

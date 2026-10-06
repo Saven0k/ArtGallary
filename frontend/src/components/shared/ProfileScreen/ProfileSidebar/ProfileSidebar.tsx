@@ -95,7 +95,7 @@ const ProfileSidebar = ({
         },
         {
             id: "likes",
-            title: "Мои лайки",
+            title: "Избранное",
             icon: LikeIcon,
         },
         {

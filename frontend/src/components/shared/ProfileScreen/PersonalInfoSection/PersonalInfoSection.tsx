@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useLanguage } from "../../../../hooks/useLanguage";
 import { useAuth } from "../../../../hooks/useAuth";
@@ -23,10 +22,9 @@ import {
     type Profession,
 } from "../../../../api/professions/main.api";
 import AvatarCropModal from "../../../layout/AvatarCropModal/AvatarCropModal";
+import { usePersonalInfoTranslation } from "./lang";
+import { useNavigate } from "react-router-dom";
 import "./PersonalInfoSection.scss";
-import { usePersonalInfoTranslation } from './lang';
-import { useNavigate } from 'react-router-dom';
-
 
 interface PersonalInfoProps {
     id: number;
@@ -38,7 +36,6 @@ interface FormData {
     surname: string;
     secondName: string;
     birthday: string;
-    gender: "M" | "F" | "";
     countryId: number | "";
     cityId: number | "";
     professionId: number | "";
@@ -53,9 +50,6 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
     const { language } = useLanguage();
     const navigate = useNavigate();
     const t = usePersonalInfoTranslation(language);
-    const f = t.fields;
-    const p = t.placeholders;
-    const av = t.avatar;
     const { refetch } = useAuth();
     const isAuthor = role === "author";
 
@@ -64,7 +58,6 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         surname: "",
         secondName: "",
         birthday: "",
-        gender: "",
         countryId: "",
         cityId: "",
         professionId: "",
@@ -77,7 +70,6 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-
     const [countries, setCountries] = useState<CountrySuggestion[]>([]);
     const [cities, setCities] = useState<CitySuggestion[]>([]);
     const [professions, setProfessions] = useState<Profession[]>([]);
@@ -85,13 +77,11 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
     const [loadingCities, setLoadingCities] = useState(false);
     const [loadingProfessions, setLoadingProfessions] = useState(false);
 
-
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [cropSrc, setCropSrc] = useState<string | null>(null);
     const [avatarError, setAvatarError] = useState<string | null>(null);
-
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -110,17 +100,13 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                             birthday: author.date_birthday
                                 ? author.date_birthday.split("T")[0]
                                 : "",
-                            gender: author.gender || "",
                             countryId: author.country?.id || "",
                             cityId: author.city?.id || "",
-                            professionId:
-                                author.authorProfile?.profession_id || "",
+                            professionId: author.authorProfile?.profession_id || "",
                             email: author.email || "",
                             about: author.authorProfile?.biography || "",
                         });
-                        setAvatarPreview(
-                            author.authorProfile?.avatar_path || null,
-                        );
+                        setAvatarPreview(author.authorProfile?.avatar_path || null);
                     }
                 } else {
                     const user = await getUserById(id);
@@ -132,7 +118,6 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                             birthday: user.date_birthday
                                 ? user.date_birthday.split("T")[0]
                                 : "",
-                            gender: user.gender || "",
                             countryId: user.country_id || "",
                             cityId: user.city_id || "",
                             professionId: "",
@@ -143,23 +128,20 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                 }
             } catch (e) {
                 console.error("Error loading profile:", e);
-                setError("Ошибка при загрузке профиля");
+                setError(t.common.errorLoading);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchProfile();
-    }, [id, role, language, isAuthor]);
-
+    }, [id, role, language, isAuthor, t.common.errorLoading]);
 
     useEffect(() => {
         const fetchCountries = async () => {
             setLoadingCountries(true);
             try {
-                const data = await getAllCountries(
-                    language === "ru" ? "ru" : "en",
-                );
+                const data = await getAllCountries(language === "ru" ? "ru" : "en");
                 setCountries(data || []);
             } catch (e) {
                 console.error("Error loading countries:", e);
@@ -167,14 +149,11 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                 setLoadingCountries(false);
             }
         };
-
         fetchCountries();
     }, [language]);
 
-
     useEffect(() => {
         if (!isAuthor) return;
-
         const fetchProfessions = async () => {
             setLoadingProfessions(true);
             try {
@@ -186,10 +165,8 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                 setLoadingProfessions(false);
             }
         };
-
         fetchProfessions();
     }, [isAuthor]);
-
 
     useEffect(() => {
         const fetchCities = async () => {
@@ -197,12 +174,9 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                 setCities([]);
                 return;
             }
-
             setLoadingCities(true);
             try {
-                const country = countries.find(
-                    (c) => c.id === formData.countryId,
-                );
+                const country = countries.find((c) => c.id === formData.countryId);
                 if (country) {
                     const data = await getCitiesByCountryCode(
                         country.iso2,
@@ -217,28 +191,25 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                 setLoadingCities(false);
             }
         };
-
         fetchCities();
     }, [formData.countryId, countries, language]);
 
-
     const handleChange = (
-        e: React.ChangeEvent<
-            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-        >,
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
     ) => {
         const { name, value } = e.target;
 
         if (name === "countryId") {
-            const newValue = value === "" ? "" : Number(value);
             setFormData((prev) => ({
                 ...prev,
-                countryId: newValue,
+                countryId: value === "" ? "" : Number(value),
                 cityId: "",
             }));
         } else if (name === "cityId" || name === "professionId") {
-            const newValue = value === "" ? "" : Number(value);
-            setFormData((prev) => ({ ...prev, [name]: newValue }));
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value === "" ? "" : Number(value),
+            }));
         } else {
             setFormData((prev) => ({ ...prev, [name]: value }));
         }
@@ -247,30 +218,22 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         setSuccess(null);
     };
 
-    const handleGenderChange = (value: "M" | "F") => {
-        setFormData((prev) => ({ ...prev, gender: value }));
-    };
-
-
     const handleAvatarPick = () => fileInputRef.current?.click();
 
-    const handleAvatarInputChange = (
-        e: React.ChangeEvent<HTMLInputElement>,
-    ) => {
+    const handleAvatarInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         setAvatarError(null);
 
         if (!/^image\/(png|jpe?g)$/.test(file.type)) {
-            setAvatarError(av.errors?.format ?? "Только PNG или JPG");
+            setAvatarError(t.avatar.errors.format);
             e.target.value = "";
             return;
         }
         if (file.size > MAX_AVATAR_BYTES) {
             setAvatarError(
-                av.errors?.size?.replace("{max}", String(MAX_AVATAR_SIZE_MB)) ??
-                `Файл больше ${MAX_AVATAR_SIZE_MB} МБ`,
+                t.avatar.errors.size.replace("{max}", String(MAX_AVATAR_SIZE_MB)),
             );
             e.target.value = "";
             return;
@@ -278,7 +241,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
 
         const reader = new FileReader();
         reader.onload = () => setCropSrc(reader.result as string);
-        reader.onerror = () => setAvatarError(av.errors?.read ?? "Ошибка чтения файла");
+        reader.onerror = () => setAvatarError(t.avatar.errors.read);
         reader.readAsDataURL(file);
 
         e.target.value = "";
@@ -304,7 +267,6 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         setAvatarError(null);
     };
 
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
@@ -318,30 +280,25 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                     surname: formData.surname,
                     second_name: formData.secondName || undefined,
                     date_birthday: formData.birthday,
-                    gender: formData.gender as "M" | "F",
                     biography: formData.about || undefined,
                     profession_id: formData.professionId
                         ? Number(formData.professionId)
                         : undefined,
-                    country_id: formData.countryId
-                        ? Number(formData.countryId)
-                        : null,
-                    city_id: formData.cityId
-                        ? Number(formData.cityId)
-                        : null,
+                    country_id: formData.countryId ? Number(formData.countryId) : null,
+                    city_id: formData.cityId ? Number(formData.cityId) : null,
                     avatar_path: avatarFile ?? undefined,
                 };
 
                 const result = await updateAuthor(id, data);
                 if (result) {
-                    setSuccess(av.saved ?? "Данные успешно сохранены");
+                    setSuccess(t.avatar.saved);
                     setAvatarFile(null);
                     if (result.authorProfile?.avatar_path) {
                         setAvatarPreview(result.authorProfile.avatar_path);
                     }
                     await refetch();
                 } else {
-                    setError(av.saveError ?? "Ошибка при сохранении");
+                    setError(t.avatar.saveError);
                 }
             } else {
                 const data: UpdateUserData = {
@@ -349,26 +306,21 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                     surname: formData.surname,
                     second_name: formData.secondName || undefined,
                     date_birthday: formData.birthday,
-                    gender: formData.gender as "M" | "F",
-                    country_id: formData.countryId
-                        ? Number(formData.countryId)
-                        : null,
-                    city_id: formData.cityId
-                        ? Number(formData.cityId)
-                        : null,
+                    country_id: formData.countryId ? Number(formData.countryId) : null,
+                    city_id: formData.cityId ? Number(formData.cityId) : null,
                 };
 
                 const result = await updateUser(id, data);
                 if (result) {
-                    setSuccess(av.saved ?? "Данные успешно сохранены");
+                    setSuccess(t.avatar.saved);
                     await refetch();
                 } else {
-                    setError(av.saveError ?? "Ошибка при сохранении");
+                    setError(t.avatar.saveError);
                 }
             }
         } catch (e) {
             console.error("Error saving profile:", e);
-            setError("Произошла ошибка при сохранении");
+            setError(t.common.errorSaving);
         } finally {
             setSaving(false);
         }
@@ -377,7 +329,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
     if (loading) {
         return (
             <section className="personal-info">
-                <div className="personal-info__loading">Загрузка...</div>
+                <div className="personal-info__loading">{t.common.loading}</div>
             </section>
         );
     }
@@ -389,48 +341,114 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                 <p className="personal-info__subtitle">{t.subtitle}</p>
             </header>
 
+            {isAuthor && (
+                <div className="personal-info__avatar-block">
+                    <div className="personal-info__avatar-row">
+                        <div className="personal-info__avatar-preview">
+                            {avatarPreview ? (
+                                <img src={avatarPreview} alt="avatar" />
+                            ) : (
+                                <div className="personal-info__avatar-placeholder">
+                                    {(formData.name?.[0] ||
+                                        formData.surname?.[0] ||
+                                        "?")?.toUpperCase()}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="personal-info__avatar-actions">
+                            <span className="personal-info__avatar-label">
+                                {t.avatar.label}
+                            </span>
+                            <div className="personal-info__avatar-buttons">
+                                <button
+                                    type="button"
+                                    className="personal-info__avatar-btn"
+                                    onClick={handleAvatarPick}
+                                >
+                                    {avatarPreview ? t.avatar.change : t.avatar.upload}
+                                </button>
+                                {avatarPreview && (
+                                    <button
+                                        type="button"
+                                        className="personal-info__avatar-btn personal-info__avatar-btn--danger"
+                                        onClick={handleAvatarRemove}
+                                    >
+                                        {t.avatar.remove}
+                                    </button>
+                                )}
+                            </div>
+                            <span className="personal-info__avatar-hint">
+                                {t.avatar.hint}
+                            </span>
+                        </div>
+                    </div>
+
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg"
+                        hidden
+                        onChange={handleAvatarInputChange}
+                    />
+
+                    {avatarError && (
+                        <div className="personal-info__avatar-error">{avatarError}</div>
+                    )}
+
+                    {cropSrc && (
+                        <AvatarCropModal
+                            src={cropSrc}
+                            title={t.avatar.cropTitle}
+                            confirmLabel={t.avatar.cropConfirm}
+                            cancelLabel={t.avatar.cropCancel}
+                            onCancel={handleCropCancel}
+                            onConfirm={handleCropConfirm}
+                        />
+                    )}
+                </div>
+            )}
+
             <form className="personal-info__form" onSubmit={handleSubmit}>
                 {error && <div className="personal-info__error">{error}</div>}
-                {success && (
-                    <div className="personal-info__success">{success}</div>
-                )}
+                {success && <div className="personal-info__success">{success}</div>}
 
                 <div className="personal-info__grid">
                     <div className="personal-info__field">
-                        <label>{f.name}</label>
-                        <input
-                            type="text"
-                            name="name"
-                            placeholder={p.name}
-                            value={formData.name}
-                            onChange={handleChange}
-                        />
-                    </div>
-
-                    <div className="personal-info__field">
-                        <label>{f.surname}</label>
+                        <label>{t.fields.surname}</label>
                         <input
                             type="text"
                             name="surname"
-                            placeholder={p.surname}
+                            placeholder={t.placeholders.surname}
                             value={formData.surname}
                             onChange={handleChange}
                         />
                     </div>
 
                     <div className="personal-info__field">
-                        <label>{f.secondName}</label>
+                        <label>{t.fields.name}</label>
+                        <input
+                            type="text"
+                            name="name"
+                            placeholder={t.placeholders.name}
+                            value={formData.name}
+                            onChange={handleChange}
+                        />
+                    </div>
+
+                    <div className="personal-info__field">
+                        <label>{t.fields.secondName}</label>
                         <input
                             type="text"
                             name="secondName"
-                            placeholder={p.secondName}
+                            placeholder={t.placeholders.secondName}
                             value={formData.secondName}
                             onChange={handleChange}
                         />
                     </div>
 
                     <div className="personal-info__field">
-                        <label>{f.birthday}</label>
+                        <label>{t.fields.birthday}</label>
                         <input
                             type="date"
                             name="birthday"
@@ -440,33 +458,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                     </div>
 
                     <div className="personal-info__field">
-                        <label>{f.gender || "Пол"}</label>
-                        <div className="personal-info__gender-group">
-                            <button
-                                type="button"
-                                className={`personal-info__gender-btn ${formData.gender === "M"
-                                    ? "personal-info__gender-btn--active"
-                                    : ""
-                                    }`}
-                                onClick={() => handleGenderChange("M")}
-                            >
-                                {t.gender?.male ?? "Мужской"}
-                            </button>
-                            <button
-                                type="button"
-                                className={`personal-info__gender-btn ${formData.gender === "F"
-                                    ? "personal-info__gender-btn--active"
-                                    : ""
-                                    }`}
-                                onClick={() => handleGenderChange("F")}
-                            >
-                                {t.gender?.female ?? "Женский"}
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="personal-info__field">
-                        <label>{f.country}</label>
+                        <label>{t.fields.country}</label>
                         <select
                             name="countryId"
                             value={formData.countryId}
@@ -474,9 +466,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                             disabled={loadingCountries}
                         >
                             <option value="">
-                                {loadingCountries
-                                    ? t.common?.loading ?? "Загрузка..."
-                                    : f.country}
+                                {loadingCountries ? t.common.loading : t.fields.country}
                             </option>
                             {countries.map((country) => (
                                 <option key={country.id} value={country.id}>
@@ -487,7 +477,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                     </div>
 
                     <div className="personal-info__field">
-                        <label>{f.city}</label>
+                        <label>{t.fields.city}</label>
                         <select
                             name="cityId"
                             value={formData.cityId}
@@ -496,11 +486,10 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                         >
                             <option value="">
                                 {!formData.countryId
-                                    ? t.common?.selectCountryFirst ??
-                                    "Сначала выберите страну"
+                                    ? t.common.selectCountryFirst
                                     : loadingCities
-                                        ? t.common?.loading ?? "Загрузка..."
-                                        : f.city}
+                                        ? t.common.loading
+                                        : t.fields.city}
                             </option>
                             {cities.map((city) => (
                                 <option key={city.id} value={city.id}>
@@ -511,26 +500,25 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                     </div>
 
                     <div className="personal-info__field">
-                        <label>{f.email}</label>
+                        <label>{t.fields.email}</label>
                         <button
                             type="button"
                             className="personal-info__readonly-btn"
-                            onClick={() => navigate('/profile?section=settings', { replace: true })}
+                            onClick={() =>
+                                navigate("/profile?section=settings", { replace: true })
+                            }
                             title={t.emailHint}
                             aria-label={t.emailHint}
                         >
                             <span className="personal-info__readonly-value">
-                                {formData.email || p.email}
-                            </span>
-                            <span className="personal-info__readonly-hint">
-                                {t.emailHint}
+                                {formData.email || t.placeholders.email}
                             </span>
                         </button>
                     </div>
 
                     {isAuthor && (
                         <div className="personal-info__field">
-                            <label>{f.profession || "Профессия"}</label>
+                            <label>{t.fields.profession}</label>
                             <select
                                 name="professionId"
                                 value={formData.professionId}
@@ -539,14 +527,11 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                             >
                                 <option value="">
                                     {loadingProfessions
-                                        ? t.common?.loading ?? "Загрузка..."
-                                        : f.profession || "Профессия"}
+                                        ? t.common.loading
+                                        : t.fields.profession}
                                 </option>
                                 {professions.map((profession) => (
-                                    <option
-                                        key={profession.id}
-                                        value={profession.id}
-                                    >
+                                    <option key={profession.id} value={profession.id}>
                                         {profession.name}
                                     </option>
                                 ))}
@@ -556,90 +541,15 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                 </div>
 
                 {isAuthor && (
-                    <div className="personal-info__field">
-                        <label>{f.about}</label>
+                    <div className="personal-info__field personal-info__field--wide">
+                        <label>{t.fields.about}</label>
                         <textarea
                             name="about"
                             rows={6}
-                            placeholder={p.about}
+                            placeholder={t.placeholders.about}
                             value={formData.about}
                             onChange={handleChange}
                         />
-                    </div>
-                )}
-
-
-                {isAuthor && (
-                    <div className="personal-info__avatar-block">
-                        <label className="personal-info__avatar-label">
-                            {av.label ?? "Фото профиля"}
-                        </label>
-
-                        <div className="personal-info__avatar-row">
-                            <div className="personal-info__avatar-preview">
-                                {avatarPreview ? (
-                                    <img src={avatarPreview} alt="avatar" />
-                                ) : (
-                                    <div className="personal-info__avatar-placeholder">
-                                        {(formData.name?.[0] ||
-                                            formData.surname?.[0] ||
-                                            "?")?.toUpperCase()}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="personal-info__avatar-actions">
-                                <button
-                                    type="button"
-                                    className="personal-info__avatar-btn"
-                                    onClick={handleAvatarPick}
-                                >
-                                    {avatarPreview
-                                        ? av.change ?? "Изменить фото"
-                                        : av.upload ?? "Загрузить фото"}
-                                </button>
-
-                                {avatarPreview && (
-                                    <button
-                                        type="button"
-                                        className="personal-info__avatar-btn personal-info__avatar-btn--danger"
-                                        onClick={handleAvatarRemove}
-                                    >
-                                        {av.remove ?? "Удалить"}
-                                    </button>
-                                )}
-
-                                <span className="personal-info__avatar-hint">
-                                    {av.hint ??
-                                        "JPG, PNG, до 5 МБ. Можно обрезать перед загрузкой."}
-                                </span>
-                            </div>
-                        </div>
-
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/png,image/jpeg"
-                            hidden
-                            onChange={handleAvatarInputChange}
-                        />
-
-                        {avatarError && (
-                            <div className="personal-info__avatar-error">
-                                {avatarError}
-                            </div>
-                        )}
-
-                        {cropSrc && (
-                            <AvatarCropModal
-                                src={cropSrc}
-                                title={av.cropTitle ?? "Обрезать фото"}
-                                confirmLabel={av.cropConfirm ?? "Сохранить"}
-                                cancelLabel={av.cropCancel ?? "Отмена"}
-                                onCancel={handleCropCancel}
-                                onConfirm={handleCropConfirm}
-                            />
-                        )}
                     </div>
                 )}
 
@@ -648,9 +558,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                     type="submit"
                     disabled={saving}
                 >
-                    {saving
-                        ? t.common?.saving ?? "Сохранение..."
-                        : t.button}
+                    {saving ? t.common.saving : t.button}
                 </button>
             </form>
         </section>

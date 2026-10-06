@@ -15,6 +15,7 @@ import AboutPage from './pages/about/AboutPage';
 import ArtConsultationPage from './pages/art-consultation/ArtConsultationPage';
 import ServicesPage from './pages/services/ServicesPage';
 import EventsPage from './pages/events/EventsPage/EventsPage';
+import EventPage from "./pages/events/EventPage/EventPage"
 
 const LazyForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const LazyLoginPage = lazy(() => import('./pages/auth/LoginPage'))
@@ -54,7 +55,7 @@ function App() {
                       <Route path='authors/:id' element={<LazyAuthorPage />} />
                       
                       <Route path='events' element={<EventsPage />} />
-                      <Route path='events/:id' element={<EventsPage />} />
+                      <Route path='events/:id' element={<EventPage />} />
 
                       <Route path="/settings" element={<SettingsPage />} />
                       <Route path="/help" element={<HelpPage />} />

@@ -1,4 +1,4 @@
-
+// src/api/arts/main.api.ts
 import { BASE_URL_API } from "../main.api";
 import type { Genre } from "../genres/main.api";
 import type { Style } from "../styles/main.api";
@@ -6,6 +6,23 @@ import type { Style } from "../styles/main.api";
 const BASE_URL = `${BASE_URL_API}/arts`;
 
 export type CurrencyType = "USD" | "EUR" | "RUB" | "UAH";
+
+export const ART_STATUS = {
+    ON_SALE: "on_sale",
+    SOLD: "sold",
+    FOR_RENT: "for_rent",
+    ARCHIVED: "archived",
+} as const;
+
+export type ArtStatus = typeof ART_STATUS[keyof typeof ART_STATUS];
+
+export const ART_STATUS_LABEL_KEY: Record<ArtStatus, string> = {
+    [ART_STATUS.ON_SALE]: "onSale",
+    [ART_STATUS.SOLD]: "sold",
+    [ART_STATUS.FOR_RENT]: "forRent",
+    [ART_STATUS.ARCHIVED]: "archived",
+};
+
 export interface Art {
     id: number;
     title: string;
@@ -18,6 +35,7 @@ export interface Art {
     specifications: string;
     date_published: string;
     moderate?: string;
+    status: ArtStatus;
     is_adult?: boolean;
     score?: number;
     is_featured?: boolean;
@@ -97,6 +115,10 @@ export type UpdateArtData = Partial<{
     tags: string[];
 }>;
 
+export interface UpdateArtStatusData {
+    status: ArtStatus;
+}
+
 export interface ArtsResponse {
     arts: Art[];
     pagination: {
@@ -141,7 +163,6 @@ export const getArtById = async (id: number, lang = 'ru'): Promise<Art | null> =
     } catch (e) { console.error("getArtById error:", e); return null; }
 };
 
-
 export const createArt = async (data: CreateArtData): Promise<Art | null> => {
     try {
         const formData = new FormData();
@@ -177,6 +198,22 @@ export const updateArt = async (id: number, data: UpdateArtData): Promise<Art | 
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) { console.error("updateArt error:", e); return null; }
+};
+
+export const updateArtStatus = async (
+    id: number,
+    data: UpdateArtStatusData,
+): Promise<Art | null> => {
+    try {
+        const res = await fetch(`${BASE_URL}/${id}/status`, {
+            method: "PATCH",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error();
+        return await res.json();
+    } catch (e) { console.error("updateArtStatus error:", e); return null; }
 };
 
 export const deleteArt = async (id: number): Promise<boolean> => {

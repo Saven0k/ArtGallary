@@ -53,6 +53,10 @@ export interface ModerationTranslations {
         profession: string;
         notSpecified: string;
         close: string;
+        email: string;
+        age: string;
+        moderatedBy: string;
+        dateCreated: string,
     };
 
     moderateModal: {
@@ -116,6 +120,10 @@ export const moderationTranslations: Record<Language, ModerationTranslations> = 
             profession: 'Профессия',
             notSpecified: 'Не указано',
             close: 'Закрыть',
+            email: 'Email',
+            age: 'Возраст',
+            moderatedBy: 'Уже проверял модератор',
+            dateCreated: 'Добавление',
         },
         moderateModal: {
             approveTitle: 'Одобрить объект?',
@@ -175,6 +183,10 @@ export const moderationTranslations: Record<Language, ModerationTranslations> = 
             profession: 'Profession',
             notSpecified: 'Not specified',
             close: 'Close',
+            email: 'Email',
+            age: 'Age',
+            moderatedBy: 'Already reviewed by moderator',
+            dateCreated: 'Created at',
         },
         moderateModal: {
             approveTitle: 'Approve this item?',
@@ -234,6 +246,10 @@ export const moderationTranslations: Record<Language, ModerationTranslations> = 
             profession: '职业',
             notSpecified: '未指定',
             close: '关闭',
+            email: '邮箱',
+            age: '年龄',
+            moderatedBy: '已有审核人',
+            dateCreated: '创建时间',
         },
         moderateModal: {
             approveTitle: '通过此项？',

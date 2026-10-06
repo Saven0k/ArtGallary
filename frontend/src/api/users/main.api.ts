@@ -66,7 +66,6 @@ export interface UpdateUserData {
     name?: string;
     surname?: string;
     second_name?: string;
-    gender?: Gender;
     date_birthday?: string;
     city_id?: number | null;
     country_id?: number | null;
@@ -189,7 +188,6 @@ export const updateUser = async (id: number, data: UpdateUserData): Promise<User
         if (data.name) formData.append("name", data.name);
         if (data.surname) formData.append("surname", data.surname);
         if (data.second_name) formData.append("second_name", data.second_name);
-        if (data.gender) formData.append("gender", data.gender);
         if (data.date_birthday) formData.append("date_birthday", data.date_birthday);
         if (data.city_id != null) formData.append("city_id", String(data.city_id));
         if (data.country_id != null) formData.append("country_id", String(data.country_id));

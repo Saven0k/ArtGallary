@@ -87,7 +87,6 @@ export interface UpdateAuthorData {
     date_birthday?: string;
     biography?: string;
     avatar_path?: File | string | null;
-    gender?: Gender;
     profession_id?: number;
     country_id?: number | null;
     city_id?: number | null;
@@ -230,7 +229,6 @@ export const updateAuthor = async (id: number, data: UpdateAuthorData): Promise<
         if (data.second_name) formData.append("second_name", data.second_name);
         if (data.date_birthday) formData.append("date_birthday", data.date_birthday);
         if (data.biography) formData.append("biography", data.biography);
-        if (data.gender) formData.append("gender", data.gender);
         if (data.profession_id) formData.append("profession_id", String(data.profession_id));
         if (data.country_id !== undefined && data.country_id !== null) {
             formData.append("country_id", String(data.country_id));

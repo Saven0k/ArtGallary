@@ -11,7 +11,6 @@ import "./Header.scss";
 import Logo from "./logo.svg";
 import Like from "./like.svg";
 import Cart from "./cart.svg";
-import Search from "./search.svg";
 import ProfileIcon from "./profile.svg";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
 
