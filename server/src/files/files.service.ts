@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as uuid from 'uuid';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { Inject } from '@nestjs/common';
+import { STATIC_DIR } from '../shared/helpers/static-dir.helper';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -27,7 +28,7 @@ export class FilesService {
 
         const fileExtension = file.originalname?.split('.').pop()?.toLowerCase() || 'jpg';
         const fileName = `${uuid.v4()}.${fileExtension}`;
-        const staticDir = path.resolve(process.cwd(), 'src', 'static');
+        const staticDir = STATIC_DIR;
         const resolvedPath = path.resolve(staticDir, fileName);
 
         if (!resolvedPath.startsWith(path.resolve(staticDir))) {
@@ -52,7 +53,7 @@ export class FilesService {
             throw new HttpException('Invalid file URL', HttpStatus.BAD_REQUEST);
         }
 
-        const staticDir = path.resolve(process.cwd(), 'src', 'static');
+        const staticDir = STATIC_DIR;
         const resolvedPath = path.resolve(staticDir, fileName);
 
         if (!resolvedPath.startsWith(path.resolve(staticDir))) {

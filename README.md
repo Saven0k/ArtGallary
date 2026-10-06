@@ -2,6 +2,10 @@
 
 Веб-приложение для управления художественной галереей: каталог картин, художники, выставки и гости.
 
+> **Деплой** (Windows-ПК / ВМ с Docker, статический IP, reverse proxy): см. [deploy/README.md](deploy/README.md).
+> Актуальный стек: `server/` — NestJS + Sequelize + PostgreSQL, `frontend/` — React + Vite.
+> Список изменений конфигурации под деплой: [Changes.md](Changes.md).
+
 ---
 
 ## Структура проекта

@@ -1,0 +1,12 @@
+node_modules
+dist
+logs
+.geonames_tmp
+src/static
+.env
+.*.env
+.agnes
+*.md
+check-issues.js
+debug-app.js
+fix-all.js

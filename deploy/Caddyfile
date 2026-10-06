@@ -1,0 +1,43 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Caddy — reverse proxy + раздача SPA. Один exe, без зависимостей.
+# Запуск:  caddy run --config C:\gallery\ArtGallary\deploy\Caddyfile
+#
+# Схема: браузер → :80 → Caddy
+#   /api/*  → префикс снимается → http://127.0.0.1:5000/*  (Nest)
+#   /*      → frontend/dist (SPA, любой неизвестный путь → index.html)
+#
+# Когда появится домен: замените ":80" на "gallery.example.com" — Caddy сам
+# получит сертификат Let's Encrypt (нужны открытые 80 и 443). После этого
+# в server/.production.env поставьте COOKIE_SECURE=true и BASE_URL=https://gallery.example.com/api
+# ──────────────────────────────────────────────────────────────────────────────
+
+:80 {
+	encode gzip zstd
+
+	# Размер загружаемых файлов (Nest сам ограничивает 10 МБ)
+	request_body {
+		max_size 20MB
+	}
+
+	# API: /api/arts → /arts
+	handle_path /api/* {
+		reverse_proxy 127.0.0.1:5000 {
+			header_up X-Forwarded-Proto {scheme}
+		}
+	}
+
+	# SPA
+	handle {
+		# ← путь к собранному фронту (npm run build в frontend/)
+		root * C:/gallery/ArtGallary/frontend/dist
+		try_files {path} /index.html
+		file_server
+	}
+
+	log {
+		output file C:/gallery/logs/caddy-access.log {
+			roll_size 10MB
+			roll_keep 5
+		}
+	}
+}

@@ -1,0 +1,57 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Вариант для ВМ (Linux + Docker). Запуск из корня репозитория:
+#   cp server/.env.example server/.production.env   # заполнить секреты
+#   docker compose -f deploy/docker-compose.yml up -d --build
+#
+# Наружу открыт только :80 (web). API и БД доступны только внутри сети compose.
+# ──────────────────────────────────────────────────────────────────────────────
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
+      POSTGRES_DB: ${POSTGRES_DB:-gallery}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Пробросить на хост ТОЛЬКО для запуска сидера geonames с хоста (см. README). Иначе закомментируйте.
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-gallery}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  server:
+    build: ../server
+    restart: unless-stopped
+    env_file:
+      - ../server/.production.env
+    environment:
+      NODE_ENV: production
+      PORT: "5000"
+      POSTGRES_HOST: db                 # перекрывает значение из .production.env
+      POSTGRES_PORT: "5432"
+      STATIC_DIR: /data/uploads
+      TRUST_PROXY: "true"
+    volumes:
+      - uploads:/data/uploads
+      - server-logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build: ../frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+
+volumes:
+  pgdata:
+  uploads:
+  server-logs:

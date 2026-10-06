@@ -10,7 +10,7 @@ import { Genre } from "./genres/genre.model";
 import { Art } from "./arts/arts.model";
 import { FilesModule } from './files/files.module';
 import { ServeStaticModule } from "@nestjs/serve-static";
-import { resolve } from "path";
+import { STATIC_DIR } from "./shared/helpers/static-dir.helper";
 import { StylesModule } from './styles/styles.module';
 import { PasswordModule } from './password/password.module';
 
@@ -55,6 +55,7 @@ import { MailModule } from './mail/mail.module';
 import { PasswordResetCode } from "./auth/models/password-reset-code.model";
 import { EmailChangeCode } from "./auth/models/email-change-code.model";
 import { AccountDeletionCode } from "./auth/models/account-deletion-code.model";
+import { HealthController } from "./health.controller";
 
 @Module({
     imports: [
@@ -88,10 +89,12 @@ import { AccountDeletionCode } from "./auth/models/account-deletion-code.model";
             ],
         }),
         ServeStaticModule.forRoot({
-            rootPath: resolve(__dirname, "../src", 'static'),
+            rootPath: STATIC_DIR,
         }),
         ConfigModule.forRoot({
-            envFilePath: `.${process.env.NODE_ENV}.env`,
+            // .production.env / .development.env (по NODE_ENV), затем .env как общий fallback.
+            // Переменные, уже заданные в окружении процесса (pm2, docker), имеют приоритет.
+            envFilePath: [`.${process.env.NODE_ENV || 'development'}.env`, '.env'],
             isGlobal: true,
         }),
         SequelizeModule.forRoot({
@@ -103,7 +106,13 @@ import { AccountDeletionCode } from "./auth/models/account-deletion-code.model";
             database: process.env.POSTGRES_DB,
             models: [User, Art, Genre,  AuthorProfile, RefreshToken, PasswordResetCode, AccountDeletionCode, EmailChangeCode, Cart, CartHistory, ArtView, Moderator, ArtType, Profession, Style, SiteVisit, SiteRating, Tag,ArtTag, Country,City, Event, Subscription, ArtLike, AuthorView, SubscriptionHistory, Notification, AuthorFollow],
             logging: process.env.NODE_ENV === 'development' ? console.log : false,
-            sync: { alter: true },
+            // DB_SYNC=alter  — ALTER TABLE под модели (по умолчанию; удобно, пока нет миграций)
+            // DB_SYNC=create — только CREATE TABLE IF NOT EXISTS, без ALTER
+            // DB_SYNC=false  — не трогать схему (когда перейдёте на миграции)
+            sync: process.env.DB_SYNC === 'false'
+                ? undefined
+                : { alter: (process.env.DB_SYNC || 'alter') === 'alter' },
+            synchronize: process.env.DB_SYNC !== 'false',
             autoLoadModels: true,
         }),
         UsersModule,
@@ -128,5 +137,6 @@ import { AccountDeletionCode } from "./auth/models/account-deletion-code.model";
         SiteModule,
         MailModule,
     ],
+    controllers: [HealthController],
 })
 export class AppModule {}

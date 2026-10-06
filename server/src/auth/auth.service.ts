@@ -28,9 +28,16 @@ import { ConfirmEmailChangeDto, RequestEmailChangeCodeDto, VerifyCurrentEmailDto
 import { ConfirmDeleteAccountDto } from './dto/delete-account.dto';
 import { AccountDeletionCode } from './models/account-deletion-code.model';
 
+// Secure-cookie ставится только если сайт отдаётся по HTTPS.
+// COOKIE_SECURE=false нужен, когда production работает по голому http://<ip> (без TLS):
+// иначе браузер не сохранит cookie и логин не будет работать.
+const COOKIE_SECURE = process.env.COOKIE_SECURE
+    ? process.env.COOKIE_SECURE === 'true'
+    : process.env.NODE_ENV === 'production';
+
 const COOKIE_BASE = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: COOKIE_SECURE,
     sameSite: 'lax' as const,
     path: '/'
 }
@@ -286,9 +293,6 @@ export class AuthService {
         res.cookie('accessToken', accessToken, {
             ...COOKIE_BASE,
             maxAge: ACCESS_TOKEN_TTL_MS,
-            httpOnly: true,
-            sameSite: "lax",
-            secure: process.env.NODE_ENV === 'production'
         })
 
         res.cookie('refreshToken', refreshToken, {

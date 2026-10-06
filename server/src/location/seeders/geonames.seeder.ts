@@ -9,6 +9,8 @@ import { Client } from 'pg';
 import AdmZip from 'adm-zip';
 import * as dotenv from 'dotenv';
 
+// Тот же порядок, что и у ConfigModule в app.module.ts: .<NODE_ENV>.env, затем .env
+dotenv.config({ path: path.resolve(process.cwd(), `.${process.env.NODE_ENV || 'development'}.env`) });
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 const client = new Client({
