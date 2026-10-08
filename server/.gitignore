@@ -35,6 +35,7 @@ Thumbs.db
 .env.*.local
 .development.env
 .production.env
+dev.env
 !.env.example
 
 

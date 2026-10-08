@@ -1,7 +1,13 @@
 // arts.model.ts
 import { ApiProperty } from '@nestjs/swagger';
 import {
-    Column, DataType, Model, Table, ForeignKey, BelongsTo, BelongsToMany,
+  Column,
+  DataType,
+  Model,
+  Table,
+  ForeignKey,
+  BelongsTo,
+  BelongsToMany,
 } from 'sequelize-typescript';
 import { Genre } from '../genres/genre.model';
 import { Style } from '../styles/styles.model';
@@ -14,151 +20,166 @@ import { AuthorProfile } from 'src/authors/author.model';
 export type CurrencyType = 'USD' | 'EUR' | 'RUB' | 'UAH' | null;
 
 export const ART_STATUS = {
-    ON_SALE: 'on_sale',
-    SOLD: 'sold',
-    FOR_RENT: 'for_rent',
-    ARCHIVED: 'archived',
+  ON_SALE: 'on_sale',
+  SOLD: 'sold',
+  FOR_RENT: 'for_rent',
+  ARCHIVED: 'archived',
 } as const;
 
-export type ArtStatus = typeof ART_STATUS[keyof typeof ART_STATUS];
+export type ArtStatus = (typeof ART_STATUS)[keyof typeof ART_STATUS];
 
 export interface ArtCreationAttrs {
-    title: string;
-    description: string;
-    cost?: number | null;
-    currency?: CurrencyType;
-    image_path: string;
-    likes?: number;
-    views?: number;
-    date_published: Date;
-    author_id?: number;
-    moderate: string;
-    genre_id?: number;
-    specifications: string;
-    city_id?: number | null;
-    country_id?: number | null;
-    style_id?: number;
-    is_adult?: boolean;
-    score?: number;
-    is_featured?: boolean;
-    featured_until?: Date;
-    status?: ArtStatus;
+  title: string;
+  description: string;
+  cost?: number | null;
+  currency?: CurrencyType;
+  image_path: string;
+  likes?: number;
+  views?: number;
+  date_published: Date;
+  author_id?: number;
+  moderate: string;
+  genre_id?: number;
+  specifications: string;
+  city_id?: number | null;
+  country_id?: number | null;
+  style_id?: number;
+  is_adult?: boolean;
+  score?: number;
+  is_featured?: boolean;
+  featured_until?: Date;
+  status?: ArtStatus;
 }
 
 @Table({ tableName: 'arts' })
 export class Art extends Model<Art, ArtCreationAttrs> {
-    @ApiProperty({ example: 'Мишки в лесу', description: 'Название объекта' })
-    @Column({ type: DataType.STRING, allowNull: false })
-    title: string;
+  declare createdAt: Date;
+  declare updatedAt: Date;
+  declare id: number;
+  @ApiProperty({ example: 'Мишки в лесу', description: 'Название объекта' })
+  @Column({ type: DataType.STRING, allowNull: false })
+  title: string;
 
-    @ApiProperty({ example: 'Картина была нарисована в 1804 году', description: 'Описание картины' })
-    @Column({ type: DataType.TEXT, allowNull: false })
-    description: string;
+  @ApiProperty({
+    example: 'Картина была нарисована в 1804 году',
+    description: 'Описание картины',
+  })
+  @Column({ type: DataType.TEXT, allowNull: false })
+  description: string;
 
-    @ApiProperty({ example: '4500$', description: 'цена' })
-    @Column({ type: DataType.FLOAT, allowNull: true })
-    cost: number;
+  @ApiProperty({ example: '4500$', description: 'цена' })
+  @Column({ type: DataType.FLOAT, allowNull: true })
+  cost: number;
 
-    @ApiProperty({ example: '$', description: 'Валюта' })
-    @Column({ type: DataType.STRING, allowNull: true })
-    currency: string | null;
+  @ApiProperty({ example: '$', description: 'Валюта' })
+  @Column({ type: DataType.STRING, allowNull: true })
+  currency: string | null;
 
-    @ApiProperty({ example: '/backend/images/1.jpg', description: 'Путь к картинке на сервере' })
-    @Column({ type: DataType.STRING })
-    image_path: string;
+  @ApiProperty({
+    example: '/backend/images/1.jpg',
+    description: 'Путь к картинке на сервере',
+  })
+  @Column({ type: DataType.STRING })
+  image_path: string;
 
-    @ApiProperty({ example: '0', description: 'Количество лайков' })
-    @Column({ type: DataType.INTEGER, defaultValue: 0 })
-    likes: number;
+  @ApiProperty({ example: '0', description: 'Количество лайков' })
+  @Column({ type: DataType.INTEGER, defaultValue: 0 })
+  likes: number;
 
-    @ApiProperty({ example: '0', description: 'Количество просмотров' })
-    @Column({ type: DataType.INTEGER, defaultValue: 0 })
-    views: number;
+  @ApiProperty({ example: '0', description: 'Количество просмотров' })
+  @Column({ type: DataType.INTEGER, defaultValue: 0 })
+  views: number;
 
-    @ApiProperty({ example: '{"size": "120x120", "type": "jpg"}', description: 'MetaData values' })
-    @Column({ type: DataType.TEXT })
-    specifications: string;
+  @ApiProperty({
+    example: '{"size": "120x120", "type": "jpg"}',
+    description: 'MetaData values',
+  })
+  @Column({ type: DataType.TEXT })
+  specifications: string;
 
-    @ApiProperty({ example: '12.15.1941', description: 'Дата создания объекта' })
-    @Column({ type: DataType.DATE, defaultValue: '2020-01-01' })
-    date_published: Date;
+  @ApiProperty({ example: '12.15.1941', description: 'Дата создания объекта' })
+  @Column({ type: DataType.DATE, defaultValue: '2020-01-01' })
+  date_published: Date;
 
-    @ApiProperty({ example: '{}', description: 'Прошел ли объект модерацию' })
-    @Column({ type: DataType.TEXT, allowNull: true })
-    moderate: string;
+  @ApiProperty({ example: '{}', description: 'Прошел ли объект модерацию' })
+  @Column({ type: DataType.TEXT, allowNull: true })
+  moderate: string;
 
-    @ApiProperty({
-        example: ART_STATUS.ON_SALE,
-        enum: Object.values(ART_STATUS),
-        description: 'Статус объекта',
-    })
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-        defaultValue: ART_STATUS.ON_SALE,
-    })
-    status: ArtStatus;
+  @ApiProperty({
+    example: ART_STATUS.ON_SALE,
+    enum: Object.values(ART_STATUS),
+    description: 'Статус объекта',
+  })
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    defaultValue: ART_STATUS.ON_SALE,
+  })
+  status: ArtStatus;
 
-    @ApiProperty({ example: '2', description: 'ID автора' })
-    @ForeignKey(() => AuthorProfile)
-    @Column({ type: DataType.INTEGER, allowNull: true })
-    author_id: number;
+  @ApiProperty({ example: '2', description: 'ID автора' })
+  @ForeignKey(() => AuthorProfile)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  author_id: number;
 
-    @BelongsTo(() => AuthorProfile)
-    author: AuthorProfile;
+  @BelongsTo(() => AuthorProfile)
+  author: AuthorProfile;
 
-    @ApiProperty({ example: false, description: 'Контент 18+' })
-    @Column({ type: DataType.BOOLEAN, defaultValue: false })
-    is_adult: boolean;
+  @ApiProperty({ example: false, description: 'Контент 18+' })
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  is_adult: boolean;
 
-    @ApiProperty({ example: 0, description: 'Score для ранжирования' })
-    @Column({ type: DataType.FLOAT, defaultValue: 0 })
-    score: number;
+  @ApiProperty({ example: 0, description: 'Score для ранжирования' })
+  @Column({ type: DataType.FLOAT, defaultValue: 0 })
+  score: number;
 
-    @ApiProperty({ example: false, description: 'В топе' })
-    @Column({ type: DataType.BOOLEAN, defaultValue: false })
-    is_featured: boolean;
+  @ApiProperty({ example: false, description: 'В топе' })
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  is_featured: boolean;
 
-    @ApiProperty({ example: '2026-07-01T00:00:00.000Z', description: 'До какого времени в топе' })
-    @Column({ type: DataType.DATE, allowNull: true })
-    featured_until: Date;
+  @ApiProperty({
+    example: '2026-07-01T00:00:00.000Z',
+    description: 'До какого времени в топе',
+  })
+  @Column({ type: DataType.DATE, allowNull: true })
+  featured_until: Date;
 
-    @ApiProperty({ example: 1, description: 'ID страны из таблицы countries' })
-    @ForeignKey(() => Country)
-    @Column({ type: DataType.INTEGER, allowNull: true })
-    country_id: number | null;
+  @ApiProperty({ example: 1, description: 'ID страны из таблицы countries' })
+  @ForeignKey(() => Country)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  country_id: number | null;
 
-    @BelongsTo(() => Country)
-    country: Country;
+  @BelongsTo(() => Country)
+  country: Country;
 
-    @ApiProperty({ example: 42, description: 'ID города из таблицы cities' })
-    @ForeignKey(() => City)
-    @Column({ type: DataType.INTEGER, allowNull: true })
-    city_id: number | null;
+  @ApiProperty({ example: 42, description: 'ID города из таблицы cities' })
+  @ForeignKey(() => City)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  city_id: number | null;
 
-    @BelongsTo(() => City)
-    city: City;
+  @BelongsTo(() => City)
+  city: City;
 
-    @ApiProperty({ example: '1', description: 'ID жанра' })
-    @ForeignKey(() => Genre)
-    @Column({ type: DataType.INTEGER, allowNull: true })
-    genre_id: number;
+  @ApiProperty({ example: '1', description: 'ID жанра' })
+  @ForeignKey(() => Genre)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  genre_id: number;
 
-    @BelongsTo(() => Genre)
-    genre: Genre;
+  @BelongsTo(() => Genre)
+  genre: Genre;
 
-    @ApiProperty({ example: '1', description: 'ID стиля' })
-    @ForeignKey(() => Style)
-    @Column({ type: DataType.INTEGER, allowNull: true })
-    style_id: number;
+  @ApiProperty({ example: '1', description: 'ID стиля' })
+  @ForeignKey(() => Style)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  style_id: number;
 
-    @BelongsTo(() => Style)
-    style: Style;
+  @BelongsTo(() => Style)
+  style: Style;
 
-    @BelongsToMany(() => Tag, () => ArtTag)
-    tags: Tag[];
+  @BelongsToMany(() => Tag, () => ArtTag)
+  tags: Tag[];
 
-    @ApiProperty({ example: 0, description: 'Количество поделившихся' })
-    @Column({ type: DataType.INTEGER, defaultValue: 0 })
-    shares: number;
+  @ApiProperty({ example: 0, description: 'Количество поделившихся' })
+  @Column({ type: DataType.INTEGER, defaultValue: 0 })
+  shares: number;
 }

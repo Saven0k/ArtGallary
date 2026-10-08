@@ -1,3 +1,4 @@
+import { translatedValue } from '../../../utils/translations';
 
 export type Language = 'ru' | 'en' | 'zh';
 
@@ -63,18 +64,7 @@ export const headerTranslations = {
 
 
 export const getTranslation = (lang: Language, path: string): string => {
-    const keys = path.split('.');
-    let result: any = headerTranslations[lang];
-
-    for (const key of keys) {
-        if (result && result[key] !== undefined) {
-            result = result[key];
-        } else {
-            return path;
-        }
-    }
-
-    return typeof result === 'string' ? result : path;
+    return translatedValue(headerTranslations[lang], path);
 };
 
 export const useHeaderTranslation = (lang: Language) => {

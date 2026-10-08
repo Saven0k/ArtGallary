@@ -16,6 +16,8 @@ import { AuthorFollowService } from './author-follow.service';
 import { AuthorFollow } from './author-follow.model';
 import { NotificationModule } from 'src/notifications/notifications.module';
 import { AuthorView } from './author-view.model';
+import { RefreshToken } from '../auth/models/refresh-token.model';
+import { AccountDeletionCode } from '../auth/models/account-deletion-code.model';
 
 @Module({
   imports: [
@@ -27,11 +29,18 @@ import { AuthorView } from './author-view.model';
       Genre,
       Profession,
       Subscription,
-      AuthorFollow
-    ]), FilesModule, PasswordModule, LocationModule,SubscriptionModule, NotificationModule
+      AuthorFollow,
+      RefreshToken,
+      AccountDeletionCode,
+    ]),
+    FilesModule,
+    PasswordModule,
+    LocationModule,
+    SubscriptionModule,
+    NotificationModule,
   ],
   controllers: [AuthorsController],
   providers: [AuthorFollowService, AuthorsService],
-  exports: [AuthorFollowService]
+  exports: [AuthorFollowService],
 })
-export class AuthorsModule { }
+export class AuthorsModule {}

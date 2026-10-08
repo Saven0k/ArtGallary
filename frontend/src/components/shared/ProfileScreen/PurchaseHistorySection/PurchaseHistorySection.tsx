@@ -4,13 +4,13 @@ import {
     getCartHistory,
     type OrderHistoryItem,
     type OrderStatus,
-} from "../../../../../api/cart-history/main.api";
-import { getArtById } from "../../../../../api/arts/main.api";
+} from "../../../../api/cart-history/main.api";
+import { getArtById } from "../../../../api/arts/main.api";
 import {
     usePurchaseHistoryTranslation,
     type Language,
 } from "./lang";
-import "./PurchaseHistory.scss";
+import "./PurchaseHistorySection.scss";
 
 
 
@@ -28,7 +28,6 @@ interface ArtPreview {
 
 interface PurchaseHistoryProps {
     lang?: Language;
-    userId?: number;
 }
 
 
@@ -47,7 +46,7 @@ const LOCALES: Record<Language, string> = {
 
 
 
-const PurchaseHistory = ({ lang = "ru", userId }: PurchaseHistoryProps) => {
+const PurchaseHistory = ({ lang = "ru" }: PurchaseHistoryProps) => {
     const { t } = usePurchaseHistoryTranslation(lang);
 
     const [tab, setTab] = useState<TabValue>("all");
@@ -108,7 +107,7 @@ const PurchaseHistory = ({ lang = "ru", userId }: PurchaseHistoryProps) => {
 
         setOrders(res.items);
 
-        const ids = Array.from(new Set(res.items.flatMap((o) => o.artIds)));
+        const ids = Array.from(new Set(res.items.filter((order) => !order.items?.length).flatMap((o) => o.artIds)));
         const missing = ids.filter((id) => !artsRef.current[id]);
 
         const fetched = await Promise.all(missing.map((id) => getArtById(id)));
@@ -134,7 +133,7 @@ const PurchaseHistory = ({ lang = "ru", userId }: PurchaseHistoryProps) => {
 
         setLoading(false);
 
-    }, [tab, lang, userId]);
+    }, [tab, t]);
 
     useEffect(() => {
         load();
@@ -186,7 +185,8 @@ const PurchaseHistory = ({ lang = "ru", userId }: PurchaseHistoryProps) => {
                     {orders.map((order) => (
                         <div className="purchase-history__order" key={order.id}>
                             {order.artIds.map((artId) => {
-                                const art = arts[artId];
+                                const snapshot = order.items?.find((item) => item.artId === artId);
+                                const art = snapshot ? { id: snapshot.artId, title: snapshot.title, imagePath: snapshot.imagePath, price: snapshot.total, currency: snapshot.currency, authorName: "", specs: snapshot.quantity > 1 ? `× ${snapshot.quantity}` : "" } : arts[artId];
                                 if (!art) return null;
 
                                 return (

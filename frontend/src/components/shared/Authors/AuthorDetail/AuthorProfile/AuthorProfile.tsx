@@ -1,3 +1,4 @@
+import { parseModeration } from '../../../../../utils/moderation';
 import type { AuthorProfileResponse } from "../../../../../api/authors/main.api";
 import { useLanguage } from "../../../../../hooks/useLanguage";
 import { authorTranslations } from "../lang";
@@ -13,14 +14,11 @@ export interface AuthorProfileProps {
 const AuthorProfile = ({ author }: AuthorProfileProps) => {
     const { language } = useLanguage();
     const t = authorTranslations[language].profile;
-    const [isExpanded, setIsExpanded] = useState<boolean>(false);
+    const moderate = parseModeration(author.authorProfile?.moderate);
     const [activeTab, setActiveTab] = useState<'about' | 'system'>('about');
 
-    const toggleReadMore = () => {
-        setIsExpanded(!isExpanded);
-    };
 
-    const formatDate = (dateString: string | undefined) => {
+    const formatDate = (dateString: string | null | undefined) => {
         if (!dateString) return '—';
         const date = new Date(dateString);
         return date.toLocaleDateString(language === 'ru' ? 'ru-RU' : language === 'en' ? 'en-US' : 'zh-CN', {
@@ -84,8 +82,8 @@ const AuthorProfile = ({ author }: AuthorProfileProps) => {
                             <div className="author-profile__system-info">
                                 <div className="author-profile__system-item">
                                     <span className="author-profile__system-label">{t.moderationStatus}</span>
-                                    <span className={`author-profile__system-value author-profile__system-value--${author.authorProfile?.moderate?.moderate ? 'approved' : 'pending'}`}>
-                                        {author.authorProfile?.moderate?.moderate ? t.moderationApproved : t.moderationPending}
+                                    <span className={`author-profile__system-value author-profile__system-value--${moderate?.moderate ? 'approved' : 'pending'}`}>
+                                        {moderate?.moderate ? t.moderationApproved : t.moderationPending}
                                     </span>
                                 </div>
                                 <div className="author-profile__system-item">
@@ -94,11 +92,11 @@ const AuthorProfile = ({ author }: AuthorProfileProps) => {
                                         {formatDate(author.authorProfile.createdAt || author.authorProfile?.createdAt)}
                                     </span>
                                 </div>
-                                {author.authorProfile?.moderate?.moderated_at && (
+                                {moderate?.moderated_at && (
                                     <div className="author-profile__system-item">
                                         <span className="author-profile__system-label">{t.moderationDate}</span>
                                         <span className="author-profile__system-value">
-                                            {formatDate(author.authorProfile.moderate.moderated_at)}
+                                            {formatDate(moderate?.moderated_at)}
                                         </span>
                                     </div>
                                 )}

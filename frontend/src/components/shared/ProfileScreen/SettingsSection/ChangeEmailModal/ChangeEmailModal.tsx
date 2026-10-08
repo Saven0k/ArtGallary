@@ -1,3 +1,4 @@
+import { errorMessage } from '../../../../../utils/errors';
 // src/pages/Profile/components/ChangeEmailModal/ChangeEmailModal.tsx
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
@@ -55,8 +56,8 @@ const ChangeEmailModal = ({ onClose, onSuccess, onError }: ChangeEmailModalProps
         try {
             await requestEmailChangeCode({ newEmail: newEmail.trim() });
             setStep('code');
-        } catch (err: any) {
-            setError(err?.message || t.errors.generic);
+        } catch (err: unknown) {
+            setError(errorMessage(err, t.errors.generic));
         } finally {
             setLoading(false);
         }
@@ -86,8 +87,8 @@ const ChangeEmailModal = ({ onClose, onSuccess, onError }: ChangeEmailModalProps
             });
             onSuccess?.();
             onClose();
-        } catch (err: any) {
-            setError(err?.message || t.errors.generic);
+        } catch (err: unknown) {
+            setError(errorMessage(err, t.errors.generic));
             onError?.();
         } finally {
             setLoading(false);

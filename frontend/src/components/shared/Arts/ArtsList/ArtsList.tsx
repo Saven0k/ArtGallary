@@ -1,10 +1,10 @@
 
-import type { ArtsResponse } from "../../../../api/arts/main.api";
+import type { Art } from "../../../../api/arts/main.api";
 import ArtCard from "../ArtCard/ArtCard";
 import "./ArtsList.scss";
 
 export interface ArtsListProps {
-    data: ArtsResponse | { arts: [] };
+    data: { arts: Art[] };
 }
 
 const ArtsList = ({ data }: ArtsListProps) => {

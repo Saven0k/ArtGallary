@@ -8,6 +8,7 @@ import { getAuthorById, type AuthorProfileResponse } from "../../../api/authors/
 import { getUserById, type User } from "../../../api/users/main.api";
 import { headerTranslations } from "./lang";
 import "./Header.scss";
+import { useCart } from "../../../hooks/useCart";
 import Logo from "./logo.svg";
 import Like from "./like.svg";
 import Cart from "./cart.svg";
@@ -32,6 +33,7 @@ const Header = memo(() => {
 
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { getCartCount } = useCart();
 
     const [profile, setProfile] = useState<UserDataForSidebar | null>(null);
 
@@ -164,6 +166,7 @@ const Header = memo(() => {
                             </Link>
                             <Link to="/cart" className="header__icon-link" aria-label={lang.cart}>
                                 <img src={Cart} alt={lang.cart} className="header__icon" />
+                                {getCartCount() > 0 && <span>{getCartCount()}</span>}
                             </Link>
                             <button
                                 className="header__profile-btn"

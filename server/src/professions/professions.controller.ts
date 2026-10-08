@@ -1,5 +1,24 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  UsePipes,
+  ValidationPipe,
+  ParseIntPipe,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { ProfessionsService } from './professions.service';
 import { CreateProfessionDto } from './dto/create-profession.dto';
 import { UpdateProfessionDto } from './dto/update-profession.dto';
@@ -12,57 +31,64 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 @ApiTags('professions')
 @ApiBearerAuth()
 @Controller('professions')
-@UseGuards(RolesGuard)
+@UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 export class ProfessionsController {
-    constructor(private professionsService: ProfessionsService) { }
+  constructor(private professionsService: ProfessionsService) {}
 
-    @ApiOperation({ summary: 'Создание новой профессии' })
-    @ApiResponse({ status: 201, type: Profession })
-    @Post()
-    @Roles(Role.Admin, Role.Moderator)
-    create(@Body() dto: CreateProfessionDto): Promise<Profession> {
-        return this.professionsService.create(dto);
-    }
+  @ApiOperation({ summary: 'Создание новой профессии' })
+  @ApiResponse({ status: 201, type: Profession })
+  @Post()
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Moderator)
+  create(@Body() dto: CreateProfessionDto): Promise<Profession> {
+    return this.professionsService.create(dto);
+  }
 
-    @ApiOperation({ summary: 'Обновление профессии' })
-    @ApiResponse({ status: 200, type: Profession })
-    @Put(':id')
-    @Roles(Role.Admin, Role.Moderator)
-    update(
-        @Param('id') id: number,
-        @Body() dto: UpdateProfessionDto
-    ): Promise<Profession> {
-        return this.professionsService.update(id, dto);
-    }
+  @ApiOperation({ summary: 'Обновление профессии' })
+  @ApiResponse({ status: 200, type: Profession })
+  @Put(':id')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Moderator)
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateProfessionDto,
+  ): Promise<Profession> {
+    return this.professionsService.update(id, dto);
+  }
 
-    @ApiOperation({ summary: 'Удаление профессии' })
-    @ApiResponse({ status: 200 })
-    @Delete(':id')
-    @Roles(Role.Admin, Role.Moderator)
-    @HttpCode(HttpStatus.OK)
-    delete(@Param('id') id: number): Promise<{ success: boolean; message: string }> {
-        return this.professionsService.delete(id);
-    }
+  @ApiOperation({ summary: 'Удаление профессии' })
+  @ApiResponse({ status: 200 })
+  @Delete(':id')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Moderator)
+  @HttpCode(HttpStatus.OK)
+  delete(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.professionsService.delete(id);
+  }
 
-    @ApiOperation({ summary: 'Получение всех профессий' })
-    @ApiResponse({ status: 200, type: [Profession] })
-    @Get()
-    getAll(): Promise<Profession[]> {
-        return this.professionsService.getAll();
-    }
+  @ApiOperation({ summary: 'Получение всех профессий' })
+  @ApiResponse({ status: 200, type: [Profession] })
+  @Get()
+  getAll(): Promise<Profession[]> {
+    return this.professionsService.getAll();
+  }
 
-    @ApiOperation({ summary: 'Получение профессии по ID' })
-    @ApiResponse({ status: 200, type: Profession })
-    @Get(':id')
-    getById(@Param('id') id: number): Promise<Profession> {
-        return this.professionsService.getById(id);
-    }
+  @ApiOperation({ summary: 'Получение профессии по ID' })
+  @ApiResponse({ status: 200, type: Profession })
+  @Get(':id')
+  getById(@Param('id', ParseIntPipe) id: number): Promise<Profession> {
+    return this.professionsService.getById(id);
+  }
 
-    @Post('seed')
-    @ApiOperation({ summary: 'Заполнить базу данных начальными профессиями' })
-    @ApiResponse({ status: 200, description: 'Профессии успешно добавлены' })
-    @ApiResponse({ status: 409, description: 'Конфликт при добавлении' })
-    async seedProfessions() {
-        return this.professionsService.seedProfessions();
-    }
+  @Post('seed')
+  @Roles(Role.Admin)
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @ApiOperation({ summary: 'Заполнить базу данных начальными профессиями' })
+  @ApiResponse({ status: 200, description: 'Профессии успешно добавлены' })
+  @ApiResponse({ status: 409, description: 'Конфликт при добавлении' })
+  async seedProfessions() {
+    return this.professionsService.seedProfessions();
+  }
 }

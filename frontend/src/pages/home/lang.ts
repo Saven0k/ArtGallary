@@ -1,3 +1,4 @@
+import { translatedValue } from '../../utils/translations';
 export type Language = 'ru' | 'en' | 'zh';
 import CarIcon from "./icons/car.svg";
 import LockIcon from "./icons/lock.svg";
@@ -239,18 +240,7 @@ export const translations = {
 };
 
 export const getTranslation = (lang: Language, path: string): string => {
-    const keys = path.split('.');
-    let result: any = translations[lang];
-
-    for (const key of keys) {
-        if (result && result[key] !== undefined) {
-            result = result[key];
-        } else {
-            return path;
-        }
-    }
-
-    return typeof result === 'string' ? result : path;
+    return translatedValue(translations[lang], path);
 };
 
 export const useTranslation = (lang: Language) => {

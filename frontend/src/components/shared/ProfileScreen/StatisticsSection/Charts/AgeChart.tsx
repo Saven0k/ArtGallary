@@ -1,3 +1,4 @@
+import type { TooltipItem } from "chart.js";
 
 import { useMemo } from "react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
@@ -57,7 +58,7 @@ const AgeChart = ({ data }: AgeChartProps) => {
                 tooltip: {
                     ...tooltipStyle,
                     callbacks: {
-                        label: (ctx: any) => `${ctx.parsed}%`,
+                        label: (ctx: TooltipItem<"doughnut">) => `${ctx.parsed}%`,
                     },
                 },
             },

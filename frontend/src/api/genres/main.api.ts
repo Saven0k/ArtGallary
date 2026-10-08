@@ -1,3 +1,4 @@
+import { apiFetch } from '../request';
 
 import { BASE_URL_API } from "../main.api";
 
@@ -33,7 +34,7 @@ export const getAllGenres = async (lang: string = 'ru', artTypeId?: number): Pro
             url += `&artTypeId=${artTypeId}`;
         }
 
-        const res = await fetch(url, {
+        const res = await apiFetch(url, {
             method: "GET",
             credentials: "include",
         });
@@ -48,7 +49,7 @@ export const getAllGenres = async (lang: string = 'ru', artTypeId?: number): Pro
 
 export const getGenresByArtType = async (artTypeId: number, lang: string = 'ru'): Promise<Genre[]> => {
     try {
-        const res = await fetch(`${BASE_URL}/by-art-type/${artTypeId}?lang=${lang}`, {
+        const res = await apiFetch(`${BASE_URL}/by-art-type/${artTypeId}?lang=${lang}`, {
             method: "GET",
             credentials: "include",
         });
@@ -63,7 +64,7 @@ export const getGenresByArtType = async (artTypeId: number, lang: string = 'ru')
 
 export const getGenreById = async (id: number, lang: string = 'ru'): Promise<Genre> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}?lang=${lang}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}?lang=${lang}`, {
             method: "GET",
             credentials: "include",
         });
@@ -78,7 +79,7 @@ export const getGenreById = async (id: number, lang: string = 'ru'): Promise<Gen
 
 export const createGenre = async (data: CreateGenreData): Promise<Genre> => {
     try {
-        const res = await fetch(BASE_URL, {
+        const res = await apiFetch(BASE_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -95,7 +96,7 @@ export const createGenre = async (data: CreateGenreData): Promise<Genre> => {
 
 export const updateGenre = async (id: number, data: UpdateGenreData): Promise<Genre> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -112,7 +113,7 @@ export const updateGenre = async (id: number, data: UpdateGenreData): Promise<Ge
 
 export const deleteGenre = async (id: number): Promise<{ success: boolean; message: string }> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "DELETE",
             credentials: "include",
         });
@@ -127,7 +128,7 @@ export const deleteGenre = async (id: number): Promise<{ success: boolean; messa
 
 export const deleteAllGenres = async (): Promise<{ success: boolean; message: string }> => {
     try {
-        const res = await fetch(`${BASE_URL}/all`, {
+        const res = await apiFetch(`${BASE_URL}/all`, {
             method: "DELETE",
             credentials: "include",
         });
@@ -142,7 +143,7 @@ export const deleteAllGenres = async (): Promise<{ success: boolean; message: st
 
 export const seedGenres = async (): Promise<Genre[]> => {
     try {
-        const res = await fetch(`${BASE_URL}/seed`, {
+        const res = await apiFetch(`${BASE_URL}/seed`, {
             method: "POST",
             credentials: "include",
         });

@@ -16,10 +16,6 @@ import { notificationsTranslations } from './lang';
 import NotificationCard from './NotificationCard/NotificationCard';
 import './NotificationSection.scss';
 
-interface NotificationsProps {
-    id: number;
-    role: string;
-}
 
 const ICONS: Record<NotificationType, JSX.Element> = {
     art_like: <Heart size={22} />,
@@ -40,7 +36,7 @@ const formatTime = (iso: string, lang: string) => {
     });
 };
 
-const Notifications = ({ id, role }: NotificationsProps) => {
+const Notifications = () => {
     const { language } = useLanguage();
     const t = notificationsTranslations[language];
     const navigate = useNavigate();

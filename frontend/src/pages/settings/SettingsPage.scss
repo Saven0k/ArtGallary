@@ -168,3 +168,71 @@
 .settings-page__reset:active {
     transform: scale(.97);
 }
+
+.notification-settings__intro, .notification-settings__hint {
+    margin: 0;
+    color: #706c63;
+    font-size: 14px;
+    line-height: 1.65;
+}
+.notification-settings__notice {
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: #faf5e9;
+    color: #6b5834;
+    font-size: 14px;
+    line-height: 1.6;
+    a { color: #6b5834; font-weight: 600; text-decoration: underline; }
+}
+.notification-settings__channel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+.notification-settings__status {
+    color: #706c63;
+    font-size: 12px;
+    line-height: 1.5;
+    &.is-active { color: #427253; }
+}
+.notification-settings__test {
+    flex-shrink: 0;
+    border: 1px solid #ded4be;
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #75613c;
+    background: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    &:hover:enabled { background: #faf5e9; }
+}
+.settings-page button:disabled { opacity: .45; cursor: default; }
+.notification-settings__feedback {
+    min-height: 22px;
+    font-size: 13px;
+    color: #427253;
+    &.is-error { color: #a24439; }
+}
+.notification-settings__previews {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 4px;
+    @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+.notification-settings__preview {
+    padding: 18px;
+    border: 1px solid #e9e4d9;
+    border-radius: 14px;
+    background: #faf9f6;
+    strong { display: block; font-size: 14px; line-height: 1.4; color: #38362e; }
+    p { margin: 8px 0 0; font-size: 12px; line-height: 1.6; color: #777369; }
+}
+.notification-settings__preview-label { display: block; margin-bottom: 16px; font-size: 10px; letter-spacing: 1px; color: #857c69; }
+.notification-settings__brand { margin: -2px -2px 16px; padding: 14px; background: #28271f; color: #e4d3a3; font-size: 12px; letter-spacing: 2px; border-radius: 8px; }
+.notification-settings__preview-link { display: inline-block; margin-top: 16px; padding: 9px 14px; border-radius: 7px; background: #a88b4d; color: #fff; font-size: 11px; }
+.notification-settings__push-content { display: flex; align-items: flex-start; gap: 12px; padding: 16px 12px; border-radius: 12px; background: #fff; box-shadow: 0 6px 24px #28271f0d; }
+.notification-settings__monogram { flex-shrink: 0; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; color: #e4d3a3; background: #28271f; font-size: 12px; }
+.notification-settings__push-brand { display: block; margin-bottom: 8px; color: #8c815f; font-size: 11px; }

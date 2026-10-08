@@ -171,3 +171,9 @@ cd server && npm ci && POSTGRES_HOST=127.0.0.1 NODE_ENV=production npm run seed:
 | 502 на `/api/*` | Nest не запущен: `pm2 logs gallery-api`. |
 | `ADMIN_PASSWORD must be set` | Не найден `.production.env` или pm2 запущен не из `server/` (cwd задаёт `ecosystem.config.cjs`). |
 | Сервер стартует, но «Таблица стран пуста» | Запустить `npm run seed:geonames:prod`. |
+
+## Оплата подписок через ЮKassa
+
+В `server/.production.env` задайте `YOOKASSA_SHOP_ID`, `YOOKASSA_SECRET_KEY` и `YOOKASSA_RETURN_URL=https://ваш-домен/profile?section=tariff`. Секретный ключ используется только сервером. Платёж подтверждается после проверки статуса, суммы, валюты и принадлежности через API провайдера. Без настроек оплата вернёт понятную ошибку; подписки не активируются автоматически.
+
+Используйте тестовый магазин ЮKassa для проверки интеграции. Документация: [сценарий оплаты](https://yookassa.ru/developers/payment-acceptance/getting-started/payment-process), [аутентификация и идемпотентность](https://yookassa.ru/developers/using-api/interaction-format).

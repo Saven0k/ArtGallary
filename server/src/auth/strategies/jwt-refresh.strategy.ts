@@ -5,28 +5,37 @@ import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 
 export interface JwtRefreshPayload {
-    sub: number;
-    email: string;
-    role: string;
-    jti: string;
+  sub: number;
+  email: string;
+  role: string;
+  jti: string;
 }
 
 @Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
-    constructor(private config: ConfigService) {
-        super({
-            jwtFromRequest: ExtractJwt.fromExtractors([
-                (req: Request) => req?.cookies?.refreshToken ?? null,
-            ]),
-            secretOrKey: config.get<string>('JWT_REFRESH_SECRET'),
-            passReqToCallback: true,
-            ignoreExpiration: false,
-        } as any);
-    }
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
+  constructor(private config: ConfigService) {
+    super({
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req: Request) => {
+          const token = (req.cookies as Record<string, unknown> | undefined)
+            ?.refreshToken;
+          return typeof token === 'string' ? token : null;
+        },
+      ]),
+      secretOrKey: config.get<string>('JWT_REFRESH_SECRET'),
+      passReqToCallback: true,
+      ignoreExpiration: false,
+    });
+  }
 
-    async validate(req: Request, payload: JwtRefreshPayload) {
-        const rawToken = req.cookies?.refreshToken;
-        if (!rawToken) throw new UnauthorizedException();
-        return { ...payload, rawToken };
-    }
+  validate(req: Request, payload: JwtRefreshPayload) {
+    const rawToken = (req.cookies as Record<string, unknown> | undefined)
+      ?.refreshToken;
+    if (typeof rawToken !== 'string' || !payload.jti || !payload.sub)
+      throw new UnauthorizedException();
+    return { ...payload, rawToken };
+  }
 }

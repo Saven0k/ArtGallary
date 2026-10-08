@@ -1,30 +1,23 @@
-import { createContext, useContext, useState } from "react";
+import { useCallback, useRef, useEffect, useState } from "react";
 import { NotificationComponent } from "../components/ui/NotificationComponent/NotificationComponent";
 
 
-type NotificationType = "success" | "error";
-
-type Notification = {
-    message: string;
-    type: NotificationType;
-};
-
-type NotificationContextType = {
-    showNotification: (message: string, type?: NotificationType) => void;
-};
-
-export const NotificationContext = createContext<NotificationContextType | null>(null);
+import { NotificationContext, type NotificationType } from './contexts';
+type Notification = { message: string; type: NotificationType };
 
 export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
     const [notification, setNotification] = useState<Notification | null>(null);
 
-    const showNotification = (message: string, type: NotificationType = "success") => {
+    const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+    const showNotification = useCallback((message: string, type: NotificationType = "success") => {
+        if (timer.current) clearTimeout(timer.current);
         setNotification({ message, type });
 
-        setTimeout(() => {
+        timer.current = setTimeout(() => {
             setNotification(null);
         }, 3000);
-    };
+    }, []);
 
     return (
         <NotificationContext.Provider value={{ showNotification }}>

@@ -1,9 +1,3 @@
-import "./CreateArtForm.scss";
-
-const CreateArtForm = () => {
-    return (
-        <form className="art-form"></form>
-    );
-}
-
+import ArtForm from '../ArtForm';
+const CreateArtForm = () => <ArtForm />;
 export default CreateArtForm;

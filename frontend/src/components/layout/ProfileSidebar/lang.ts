@@ -1,3 +1,4 @@
+import { translatedValue } from '../../../utils/translations';
 
 export type Language = 'ru' | 'en' | 'zh';
 
@@ -225,18 +226,7 @@ export const sidebarTranslations = {
 };
 
 export const getTranslation = (lang: Language, path: string): string => {
-    const keys = path.split('.');
-    let result: any = sidebarTranslations[lang];
-
-    for (const key of keys) {
-        if (result && result[key] !== undefined) {
-            result = result[key];
-        } else {
-            return path;
-        }
-    }
-
-    return typeof result === 'string' ? result : path;
+    return translatedValue(sidebarTranslations[lang], path);
 };
 
 export const useSidebarTranslation = (lang: Language) => {

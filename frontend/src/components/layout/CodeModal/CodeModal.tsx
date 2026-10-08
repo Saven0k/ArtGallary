@@ -1,3 +1,4 @@
+import { errorMessage } from '../../../utils/errors';
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
@@ -31,8 +32,8 @@ const CodeModal = ({ initialEmail = '', onVerified, onClose }: CodeModalProps) =
             await requestResetCode({ email });
             setStep('code');
             setInfo(t.codeSent);
-        } catch (err: any) {
-            setError(err?.message || t.errors.generic);
+        } catch (err: unknown) {
+            setError(errorMessage(err, t.errors.generic));
         } finally {
             setLoading(false);
         }
@@ -45,9 +46,8 @@ const CodeModal = ({ initialEmail = '', onVerified, onClose }: CodeModalProps) =
         try {
             const res = await verifyResetCode({ email, code });
             onVerified({ email, resetToken: res.resetToken });
-            onClose();
-        } catch (err: any) {
-            setError(err?.message || t.errors.generic);
+        } catch (err: unknown) {
+            setError(errorMessage(err, t.errors.generic));
         } finally {
             setLoading(false);
         }

@@ -122,7 +122,7 @@ const AuthorFormModal = ({ busy, onClose, onSubmit }: AuthorFormModalProps) => {
         } else if (name === 'cityId' || name === 'professionId') {
             setField(name, value ? Number(value) : '');
         } else {
-            setField(name as keyof FormState, value as any);
+            setField(name as keyof FormState, value as FormState[keyof FormState]);
         }
     };
 

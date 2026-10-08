@@ -1,3 +1,4 @@
+import { apiFetch } from '../request';
 
 import { BASE_URL_API } from "../main.api";
 
@@ -38,7 +39,7 @@ export interface EventsResponse {
 
 export const getEvents = async (page: number = 1, limit: number = 10): Promise<EventsResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}?page=${page}&limit=${limit}`, {
+        const res = await apiFetch(`${BASE_URL}?page=${page}&limit=${limit}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -51,7 +52,7 @@ export const getEvents = async (page: number = 1, limit: number = 10): Promise<E
 
 export const getLatestEvents = async (limit: number = 4): Promise<Event[] | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/latest?limit=${limit}`, {
+        const res = await apiFetch(`${BASE_URL}/latest?limit=${limit}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -64,7 +65,7 @@ export const getLatestEvents = async (limit: number = 4): Promise<Event[] | null
 
 export const getEventById = async (id: number): Promise<Event | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -84,7 +85,7 @@ export const createEvent = async (data: CreateEventData): Promise<Event | null> 
             formData.append("image", data.image);
         }
 
-        const res = await fetch(BASE_URL, {
+        const res = await apiFetch(BASE_URL, {
             method: "POST",
             credentials: "include",
             body: formData,
@@ -106,7 +107,7 @@ export const updateEvent = async (id: number, data: UpdateEventData): Promise<Ev
             formData.append("image", data.image);
         }
 
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "PUT",
             credentials: "include",
             body: formData,
@@ -121,7 +122,7 @@ export const updateEvent = async (id: number, data: UpdateEventData): Promise<Ev
 
 export const deleteEvent = async (id: number): Promise<{ success: boolean; message: string } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "DELETE",
             credentials: "include",
         });

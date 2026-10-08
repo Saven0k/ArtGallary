@@ -108,7 +108,7 @@ const UserFormModal = ({ mode, user, busy, onClose, onSubmit }: UserFormModalPro
         } else if (name === 'cityId') {
             setField('cityId', value ? Number(value) : '');
         } else {
-            setField(name as keyof FormState, value as any);
+            setField(name as keyof FormState, value as FormState[keyof FormState]);
         }
     };
 

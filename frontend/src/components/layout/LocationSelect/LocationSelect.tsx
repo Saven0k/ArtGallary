@@ -6,6 +6,7 @@ import {
   searchCountries,
   searchCities,
   getCountryByCode,
+  getCountryById,
   getCityById,
   type CountrySuggestion,
   type CitySuggestion,
@@ -53,49 +54,38 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
   const [loading, setLoading] = useState(false);
   const countryRef = useRef<HTMLDivElement>(null);
   const cityRef = useRef<HTMLDivElement>(null);
-  const initialized = useRef(false);
 
 
   useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
-    const init = async () => {
-      if (countryValue && typeof countryValue === 'string') {
-        const country = await getCountryByCode(countryValue, lang);
-        if (country) {
-          setCountryDisplay(country.name_en || country.iso2);
-          setSelectedCountryCode(country.iso2);
-        } else {
-          setCountryDisplay(countryValue);
-          setSelectedCountryCode(countryValue);
-        }
-      }
-      if (cityValue) {
-        const city = await getCityById(cityValue, lang);
-        if (city) {
-          setCityDisplay(city.name_en || city.id.toString());
-          setSelectedCityId(city.id);
-        }
-      }
-    };
-    init();
-  }, []);
-
-
-  useEffect(() => {
-    if (!initialized.current) return;
-    const currentCountryValueStr = String(countryValue || '');
-    if (!currentCountryValueStr || currentCountryValueStr === selectedCountryCode) return;
-    if (typeof countryValue === 'string') {
-      getCountryByCode(countryValue, lang).then(country => {
-        if (country) {
-          setCountryDisplay(country.name_en || country.iso2);
-          setSelectedCountryCode(country.iso2);
-        }
-      });
+    let active = true;
+    if (!countryValue) {
+      setCountryDisplay('');
+      setSelectedCountryCode('');
+      return;
     }
+    const request = typeof countryValue === 'number' ? getCountryById(countryValue, lang) : getCountryByCode(countryValue, lang);
+    request.then(country => {
+      if (!active) return;
+      setCountryDisplay(country?.name || String(countryValue));
+      setSelectedCountryCode(country?.iso2 || '');
+    });
+    return () => { active = false; };
   }, [countryValue, lang]);
 
+  useEffect(() => {
+    let active = true;
+    if (!cityValue) {
+      setCityDisplay('');
+      setSelectedCityId(null);
+      return;
+    }
+    getCityById(cityValue, lang).then(city => {
+      if (!active) return;
+      setCityDisplay(city?.name || '');
+      setSelectedCityId(city?.id ?? null);
+    });
+    return () => { active = false; };
+  }, [cityValue, lang]);
 
   useEffect(() => {
     if (debouncedCountryQuery.length < 2) {
@@ -215,7 +205,6 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
             }}
             onFocus={() => {
               setCountryQuery(countryDisplay);
-              setCountryDisplay('');
             }}
             onBlur={() => {
               setTimeout(() => {
@@ -268,7 +257,6 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
             onFocus={() => {
               if (!selectedCountryCode) return;
               setCityQuery(cityDisplay);
-              setCityDisplay('');
             }}
             onBlur={() => {
               setTimeout(() => {

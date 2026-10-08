@@ -1,13 +1,16 @@
 # ── build ─────────────────────────────────────────────────────────────────────
-FROM node:22-alpine AS build
+FROM node:22-alpine AS development
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+CMD ["npm", "run", "start:dev"]
+
+FROM development AS build
 RUN npm run build
 
 # ── runtime ───────────────────────────────────────────────────────────────────
-FROM node:22-alpine
+FROM node:22-alpine AS production
 ENV NODE_ENV=production
 WORKDIR /app
 COPY package*.json ./

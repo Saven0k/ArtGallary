@@ -1,3 +1,4 @@
+import type { TooltipItem } from "chart.js";
 
 import { useMemo } from "react";
 import {
@@ -73,7 +74,7 @@ const ViewsChart = ({ data, period, onPeriodChange }: ViewsChartProps) => {
                 tooltip: {
                     ...tooltipStyle,
                     callbacks: {
-                        label: (ctx: any) => `${ctx.parsed.y} просмотров`,
+                        label: (ctx: TooltipItem<"line">) => `${ctx.parsed.y} просмотров`,
                     },
                 },
             },

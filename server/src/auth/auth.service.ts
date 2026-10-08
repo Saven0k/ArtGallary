@@ -1,6 +1,10 @@
-import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/users.model';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
@@ -12,11 +16,10 @@ import { RegisterDto } from './dto/auth.dto';
 import { PasswordService } from '../password/password.service';
 import { JwtRefreshPayload } from './strategies/jwt-refresh.strategy';
 import { RefreshToken } from './models/refresh-token.model';
-import { v4 as uuidv4 } from 'uuid';
 import { InjectModel } from '@nestjs/sequelize';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
-import { randomInt } from 'crypto';
+import { createHash, randomBytes, randomInt, randomUUID } from 'crypto';
 import { PasswordResetCode } from './models/password-reset-code.model';
 import { MailService } from '../mail/mail.service';
 import { RequestCodeDto, VerifyCodeDto } from './dto/request-code.dto';
@@ -24,7 +27,12 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { Op } from 'sequelize';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { EmailChangeCode } from './models/email-change-code.model';
-import { ConfirmEmailChangeDto, RequestEmailChangeCodeDto, VerifyCurrentEmailDto, VerifyPasswordDto } from './dto/email-change.dto';
+import {
+  ConfirmEmailChangeDto,
+  RequestEmailChangeCodeDto,
+  VerifyCurrentEmailDto,
+  VerifyPasswordDto,
+} from './dto/email-change.dto';
 import { ConfirmDeleteAccountDto } from './dto/delete-account.dto';
 import { AccountDeletionCode } from './models/account-deletion-code.model';
 
@@ -32,19 +40,18 @@ import { AccountDeletionCode } from './models/account-deletion-code.model';
 // COOKIE_SECURE=false нужен, когда production работает по голому http://<ip> (без TLS):
 // иначе браузер не сохранит cookie и логин не будет работать.
 const COOKIE_SECURE = process.env.COOKIE_SECURE
-    ? process.env.COOKIE_SECURE === 'true'
-    : process.env.NODE_ENV === 'production';
+  ? process.env.COOKIE_SECURE === 'true'
+  : process.env.NODE_ENV === 'production';
 
 const COOKIE_BASE = {
-    httpOnly: true,
-    secure: COOKIE_SECURE,
-    sameSite: 'lax' as const,
-    path: '/'
-}
+  httpOnly: true,
+  secure: COOKIE_SECURE,
+  sameSite: 'lax' as const,
+  path: '/',
+};
 
-const ACCESS_TOKEN_TTL_MS = 24 * 60 * 60 * 1000
-const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000
-
+const ACCESS_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
+const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 const RESET_CODE_TTL_MS = 15 * 60 * 1000;
 const RESET_MAX_ATTEMPTS = 5;
@@ -57,575 +64,708 @@ const DELETE_MAX_ATTEMPTS = 5;
 
 @Injectable()
 export class AuthService {
+  constructor(
+    private jwtService: JwtService,
+    private config: ConfigService,
+    @InjectModel(User) private userRepository: typeof User,
+    private passwordService: PasswordService,
+    @InjectModel(RefreshToken) private tokenRepository: typeof RefreshToken,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
+    @InjectModel(PasswordResetCode)
+    private resetCodeRepo: typeof PasswordResetCode,
+    private mailService: MailService,
+    @InjectModel(EmailChangeCode)
+    private emailChangeRepo: typeof EmailChangeCode,
+    @InjectModel(AccountDeletionCode)
+    private deleteCodeRepo: typeof AccountDeletionCode,
+  ) {}
 
-    constructor(
-        private jwtService: JwtService,
-        private config: ConfigService,
-        @InjectModel(User) private userRepository: typeof User,
-        private passwordService: PasswordService,
-        @InjectModel(RefreshToken) private tokenRepository: typeof RefreshToken,
-        @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-        @InjectModel(PasswordResetCode) private resetCodeRepo: typeof PasswordResetCode,
-        private mailService: MailService,
-        @InjectModel(EmailChangeCode) private emailChangeRepo: typeof EmailChangeCode,
-        @InjectModel(AccountDeletionCode) private deleteCodeRepo: typeof AccountDeletionCode,
-    ) { }
+  async register(dto: RegisterDto, res: Response) {
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: 'Начало регистрации пользователя',
+      }),
+    );
 
-    async register(dto: RegisterDto, res: Response | any) {
-        this.logger.log('info', JSON.stringify({
-            message: "Начало регистрации пользователя"
-        }));
+    const exists = await this.userRepository.findOne({
+      where: { email: dto.email },
+    });
 
-        const exists = await this.userRepository.findOne({
-            where: { email: dto.email }
-        });
-
-        if (exists) {
-            this.logger.error('error', JSON.stringify({
-                message: "Пользователь с такой почтой уже существует",
-            }));
-            throw new ConflictException("Пользователь с такой почтой уже существует");
-        }
-
-        const passwordHash = await this.passwordService.hashPassword(dto.password);
-
-        try {
-            const user = await this.userRepository.create({
-                email: dto.email,
-                password: passwordHash,
-                name: dto.name,
-                surname: dto.surname,
-                second_name: dto.second_name || '',
-                date_birthday: dto.date_birthday,
-                gender: dto.gender,
-                role: 'user'
-            });
-
-            this.logger.log('success', JSON.stringify({
-                message: "Пользователь успешно создан"
-            }));
-
-            return this.issueTokensAndSetCookies(user, res);
-        } catch (error: any) {
-            this.logger.error('error', JSON.stringify({
-                message: "Ошибка при создании пользователя",
-                error: error.message
-            }));
-            throw new InternalServerErrorException('Ошибка при создании пользователя');
-        }
+    if (exists) {
+      this.logger.error(
+        'error',
+        JSON.stringify({
+          message: 'Пользователь с такой почтой уже существует',
+        }),
+      );
+      throw new ConflictException('Пользователь с такой почтой уже существует');
     }
 
-    async login(dto: AuthUserDto, req: Request, res: Response | any) {
-        this.logger.log('info', JSON.stringify({
-            "message": "Начало авторизации пользователя"
-        }))
+    const passwordHash = await this.passwordService.hashPassword(dto.password);
 
-        const user = await this.userRepository.findOne({ where: { email: dto.email } });
+    try {
+      const user = await this.userRepository.create({
+        email: dto.email,
+        password: passwordHash,
+        name: dto.name,
+        surname: dto.surname,
+        second_name: dto.second_name || '',
+        date_birthday: dto.date_birthday,
+        gender: dto.gender,
+        city_id: dto.city_id ?? null,
+        country_id: dto.country_id ?? null,
+        role: 'user',
+      });
 
-        if (!user) {
-            this.logger.error('user', JSON.stringify({
-                "message": "Неверные данные при входе. Ошибка"
-            }))
-            throw new UnauthorizedException("Неверные данные")
-        }
-        const passwordMatch = await this.passwordService.comparePassword(dto.password, user.password);
-        if (!passwordMatch) {
-            this.logger.error('user', JSON.stringify({
-                "message": "Неверные данные при входе. Ошибка"
-            }))
-            throw new UnauthorizedException("Неверные данные")
-        }
-        return this.issueTokensAndSetCookies(user, res, req);
+      this.logger.log(
+        'success',
+        JSON.stringify({
+          message: 'Пользователь успешно создан',
+        }),
+      );
+
+      return this.issueTokensAndSetCookies(user, res);
+    } catch (error: unknown) {
+      this.logger.error(
+        'error',
+        JSON.stringify({
+          message: 'Ошибка при создании пользователя',
+          error:
+            error instanceof Error
+              ? error.message
+              : typeof error === 'string'
+                ? error
+                : 'Unknown error',
+        }),
+      );
+      throw new InternalServerErrorException(
+        'Ошибка при создании пользователя',
+      );
     }
+  }
 
+  async login(dto: AuthUserDto, req: Request, res: Response) {
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: 'Начало авторизации пользователя',
+      }),
+    );
 
-    async refresh(payload: JwtRefreshPayload & { rawToken: string }, res: Response | any, req: Request) {
-        try {
+    const user = await this.userRepository.findOne({
+      where: { email: dto.email },
+    });
 
-            const tokenRecord = await this.tokenRepository.findOne({ where: { id: payload.jti, userId: payload.sub } })
-
-            if (!tokenRecord) {
-                this.logger.error("error", JSON.stringify({
-                    message: "Refresh token not found"
-                }))
-                throw new UnauthorizedException("Refresh token not found");
-            }
-
-
-            if (tokenRecord.expiresAt < new Date()) {
-                this.logger.error("error", JSON.stringify({
-                    "message": "Refresh token expired"
-                }))
-                await tokenRecord.destroy();
-                this.clearCookies(res);
-                throw new UnauthorizedException("Refresh token expired");
-            }
-
-            const tokenMatch = await bcrypt.compare(payload.rawToken, tokenRecord.tokenHash);
-
-            if (!tokenMatch) {
-                await tokenRecord.destroy();
-                this.clearCookies(res);
-                throw new UnauthorizedException('Сессия недействительна, войдите заново');
-            }
-            await this.tokenRepository.destroy({
-                where: { id: tokenRecord.id }
-            });
-
-            const user = await this.userRepository.findByPk(payload.sub);
-            if (!user) {
-                this.logger.error("error", JSON.stringify({
-                    "message": "User not found"
-                }))
-                throw new UnauthorizedException();
-            }
-
-            return this.issueTokensAndSetCookies(user, res, req);
-        } catch (e: any) {
-            this.logger.error("error", JSON.stringify({
-                message: "Error refreshing token",
-                error: e.message,
-                stack: e.stack
-            }));
-            throw e;
-        }
+    if (!user || user.is_deleted) {
+      this.logger.error(
+        'user',
+        JSON.stringify({
+          message: 'Неверные данные при входе. Ошибка',
+        }),
+      );
+      throw new UnauthorizedException('Неверные данные');
     }
-
-    async requestResetCode(dto: RequestCodeDto) {
-        const user = await this.userRepository.findOne({ where: { email: dto.email } });
-
-        if (user) {
-            await this.resetCodeRepo.destroy({ where: { user_id: user.id } });
-
-            const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
-            const codeHash = await bcrypt.hash(code, 10);
-
-            await this.resetCodeRepo.create({
-                user_id: user.id,
-                code_hash: codeHash,
-                expires_at: new Date(Date.now() + RESET_CODE_TTL_MS),
-            });
-
-            await this.mailService.sendPasswordResetCode(user.email, code);
-        }
-
-
-        return { message: 'Если email зарегистрирован, код отправлен' };
+    const passwordMatch = await this.passwordService.comparePassword(
+      dto.password,
+      user.password,
+    );
+    if (!passwordMatch) {
+      this.logger.error(
+        'user',
+        JSON.stringify({
+          message: 'Неверные данные при входе. Ошибка',
+        }),
+      );
+      throw new UnauthorizedException('Неверные данные');
     }
+    return this.issueTokensAndSetCookies(user, res, req);
+  }
 
-    async verifyResetCode(dto: VerifyCodeDto): Promise<{ resetToken: string; message: string }> {
-        const user = await this.userRepository.findOne({ where: { email: dto.email } });
-        if (!user) throw new UnauthorizedException('Неверный код или email');
+  async refresh(
+    payload: JwtRefreshPayload & { rawToken: string },
+    res: Response,
+    req: Request,
+  ) {
+    try {
+      const tokenRecord = await this.tokenRepository.findOne({
+        where: { id: payload.jti, userId: payload.sub },
+      });
 
-        const record = await this.resetCodeRepo.findOne({
-            where: { user_id: user.id },
-            order: [['id', 'DESC']],
-        });
-
-        if (!record) throw new UnauthorizedException('Код не найден, запросите новый');
-        if (record.expires_at < new Date()) {
-            await record.destroy();
-            throw new UnauthorizedException('Код истёк');
-        }
-        if (record.attempts >= RESET_MAX_ATTEMPTS) {
-            await record.destroy();
-            throw new UnauthorizedException('Слишком много попыток');
-        }
-
-        const match = await bcrypt.compare(dto.code, record.code_hash);
-        if (!match) {
-            record.attempts += 1;
-            await record.save();
-            throw new UnauthorizedException('Неверный код');
-        }
-
-
-        const resetToken = await this.jwtService.signAsync(
-            { sub: user.id, jti: record.id, purpose: 'password-reset' },
-            {
-                secret: this.config.getOrThrow('JWT_ACCESS_SECRET'),
-                expiresIn: '5m',
-            } as any,
+      if (!tokenRecord) {
+        this.logger.error(
+          'error',
+          JSON.stringify({
+            message: 'Refresh token not found',
+          }),
         );
+        throw new UnauthorizedException('Refresh token not found');
+      }
 
-        return {
-            resetToken,
-            message: 'Код верный, задайте новый пароль',
-        };
-    }
-
-
-    async logout(userId: number, res: Response | any) {
-        await this.tokenRepository.destroy({ where: { userId } });
+      if (tokenRecord.expiresAt < new Date()) {
+        this.logger.error(
+          'error',
+          JSON.stringify({
+            message: 'Refresh token expired',
+          }),
+        );
+        await tokenRecord.destroy();
         this.clearCookies(res);
-        return { message: "Выход из профиля успешен" }
-    }
+        throw new UnauthorizedException('Refresh token expired');
+      }
 
-    async logoutCurrentSession(jti: string, userId: number, res: Response) {
-        await this.tokenRepository.destroy({ where: { id: jti, userId } });
+      const tokenMatch = await bcrypt.compare(
+        payload.rawToken,
+        tokenRecord.tokenHash,
+      );
+
+      if (!tokenMatch) {
+        await tokenRecord.destroy();
         this.clearCookies(res);
-        return { message: 'Session ended' };
-    }
-
-    private async issueTokensAndSetCookies(
-        user: User,
-        res: Response,
-        req?: Request,
-    ) {
-        const jti = uuidv4();
-
-        const [accessToken, refreshToken] = await Promise.all([
-            this.signAccessToken(user.id, user.email, user.role),
-            this.signRefreshToken(user.id, user.email, user.role, jti),
-        ])
-
-        const tokenHash = await bcrypt.hash(refreshToken, 10);
-
-        await this.tokenRepository.create({
-            id: jti,
-            userId: user.id,
-            tokenHash,
-            userAgent: req?.headers['user-agent'] ?? null,
-            ip: req?.ip ?? null,
-            expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS)
-        });
-
-        res.cookie('accessToken', accessToken, {
-            ...COOKIE_BASE,
-            maxAge: ACCESS_TOKEN_TTL_MS,
-        })
-
-        res.cookie('refreshToken', refreshToken, {
-            ...COOKIE_BASE,
-            maxAge: REFRESH_TOKEN_TTL_MS,
-            path: "/",
-            httpOnly: true
-        })
-
-        return {
-            user: { id: user.id, email: user.email, role: user.role }
-        }
-    }
-
-
-    async signAccessToken(userId: number, email: string, role: string): Promise<string> {
-        return this.jwtService.signAsync(
-            { sub: userId, email, role },
-            {
-                secret: this.config.getOrThrow<string>('JWT_ACCESS_SECRET'),
-                expiresIn: '24h',
-            } as any
-        )
-    }
-
-    async signRefreshToken(userId: number, email: string, role: string, jti: string): Promise<string> {
-        return this.jwtService.signAsync(
-            { sub: userId, email, role, jti },
-            {
-                secret: this.config.getOrThrow<string>('JWT_REFRESH_SECRET'),
-                expiresIn: '7d',
-            } as any,
-        )
-    }
-
-    private clearCookies(res: Response) {
-        res.clearCookie('accessToken', { ...COOKIE_BASE });
-        res.clearCookie('refreshToken', { ...COOKIE_BASE, path: '/' });
-    }
-
-
-
-    async changePassword(
-        userId: number,
-        dto: ChangePasswordDto,
-        res: Response | any,
-        req: Request,
-    ) {
-        this.logger.log('info', JSON.stringify({
-            message: 'Запрос на смену пароля',
-            userId,
-        }));
-
-        const user = await this.userRepository.findByPk(userId);
-        if (!user) {
-            throw new UnauthorizedException('Пользователь не найден');
-        }
-
-        const match = await this.passwordService.comparePassword(
-            dto.currentPassword,
-            user.password,
+        throw new UnauthorizedException(
+          'Сессия недействительна, войдите заново',
         );
-        if (!match) {
-            this.logger.error('error', JSON.stringify({
-                message: 'Неверный текущий пароль',
-                userId,
-            }));
-            throw new UnauthorizedException('Неверный текущий пароль');
-        }
-        const isSame = await this.passwordService.comparePassword(
-            dto.newPassword,
-            user.password,
+      }
+      const removed = await this.tokenRepository.destroy({
+        where: { id: tokenRecord.id },
+      });
+      if (!removed) throw new UnauthorizedException('Сессия уже обновлена');
+
+      const user = await this.userRepository.findByPk(payload.sub);
+      if (!user || user.is_deleted) {
+        this.logger.error(
+          'error',
+          JSON.stringify({
+            message: 'User not found',
+          }),
         );
-        if (isSame) {
-            throw new ConflictException('Новый пароль совпадает с текущим');
-        }
+        throw new UnauthorizedException();
+      }
 
-        const newHash = await this.passwordService.hashPassword(dto.newPassword);
-        user.password = newHash;
-        await user.save();
+      return this.issueTokensAndSetCookies(user, res, req);
+    } catch (e: unknown) {
+      this.logger.error(
+        'error',
+        JSON.stringify({
+          message: 'Error refreshing token',
+          error:
+            e instanceof Error
+              ? e.message
+              : typeof e === 'string'
+                ? e
+                : 'Unknown error',
+          stack: e instanceof Error ? e.stack : undefined,
+        }),
+      );
+      throw e;
+    }
+  }
 
-        await this.tokenRepository.destroy({ where: { userId } });
+  async requestResetCode(dto: RequestCodeDto) {
+    const user = await this.userRepository.findOne({
+      where: { email: dto.email },
+    });
 
-        this.logger.log('success', JSON.stringify({
-            message: 'Пароль успешно изменён, все сессии сброшены',
-            userId,
-        }));
+    if (user) {
+      await this.resetCodeRepo.destroy({ where: { user_id: user.id } });
 
-        await this.issueTokensAndSetCookies(user, res, req);
+      const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
+      const codeHash = await bcrypt.hash(code, 10);
 
-        return { message: 'Пароль успешно изменён' };
+      await this.resetCodeRepo.create({
+        user_id: user.id,
+        code_hash: codeHash,
+        expires_at: new Date(Date.now() + RESET_CODE_TTL_MS),
+      });
+
+      await this.mailService.sendPasswordResetCode(user.email, code);
     }
 
-    @Cron(CronExpression.EVERY_30_MINUTES)
-    async cleanupExpiredResetCodes() {
-        const result = await this.resetCodeRepo.destroy({
-            where: { expires_at: { [Op.lt]: new Date() } },
-        });
-        if (result > 0) {
-            this.logger.log('info', JSON.stringify({
-                message: `Cleaned up ${result} expired reset codes`,
-            }));
-        }
+    return { message: 'Если email зарегистрирован, код отправлен' };
+  }
+
+  async verifyResetCode(
+    dto: VerifyCodeDto,
+  ): Promise<{ resetToken: string; message: string }> {
+    const user = await this.userRepository.findOne({
+      where: { email: dto.email },
+    });
+    if (!user) throw new UnauthorizedException('Неверный код или email');
+
+    const record = await this.resetCodeRepo.findOne({
+      where: { user_id: user.id },
+      order: [['id', 'DESC']],
+    });
+
+    if (!record)
+      throw new UnauthorizedException('Код не найден, запросите новый');
+    if (record.expires_at < new Date()) {
+      await record.destroy();
+      throw new UnauthorizedException('Код истёк');
+    }
+    if (record.attempts >= RESET_MAX_ATTEMPTS) {
+      await record.destroy();
+      throw new UnauthorizedException('Слишком много попыток');
     }
 
-
-    async resetPassword(dto: ResetPasswordDto): Promise<{ message: string }> {
-        let payload: any;
-        try {
-            payload = await this.jwtService.verifyAsync(dto.resetToken, {
-                secret: this.config.getOrThrow('JWT_ACCESS_SECRET'),
-            });
-        } catch {
-            throw new UnauthorizedException('Токен истёк, запросите новый код');
-        }
-
-        if (payload.purpose !== 'password-reset') {
-            throw new UnauthorizedException('Неверный тип токена');
-        }
-
-        const record = await this.resetCodeRepo.findByPk(payload.jti);
-        if (!record) {
-            throw new UnauthorizedException('Код уже использован, запросите новый');
-        }
-
-        const user = await this.userRepository.findByPk(payload.sub);
-        if (!user) throw new UnauthorizedException('Пользователь не найден');
-
-        const isSame = await this.passwordService.comparePassword(dto.newPassword, user.password);
-        if (isSame) throw new ConflictException('Новый пароль совпадает с текущим');
-
-        user.password = await this.passwordService.hashPassword(dto.newPassword);
-        await user.save();
-
-
-        await record.destroy();
-
-
-        await this.tokenRepository.destroy({ where: { userId: user.id } });
-
-        this.logger.log('info', JSON.stringify({
-            message: 'Пароль восстановлен через код',
-            userId: user.id,
-        }));
-
-        return { message: 'Пароль успешно изменён. Войдите заново.' };
+    const match = await bcrypt.compare(dto.code, record.code_hash);
+    if (!match) {
+      record.attempts += 1;
+      await record.save();
+      throw new UnauthorizedException('Неверный код');
     }
 
-    async verifyCurrentEmail(userId: number, dto: VerifyCurrentEmailDto) {
-        const user = await this.userRepository.findByPk(userId);
-        if (!user) throw new UnauthorizedException('Пользователь не найден');
+    const resetToken = await this.jwtService.signAsync(
+      { sub: user.id, jti: record.id, purpose: 'password-reset' },
+      {
+        secret: this.config.getOrThrow('JWT_ACCESS_SECRET'),
+        expiresIn: '5m',
+      },
+    );
 
-        if (user.email.toLowerCase() !== dto.email.toLowerCase()) {
-            throw new UnauthorizedException('Email не совпадает с текущим');
-        }
+    return {
+      resetToken,
+      message: 'Код верный, задайте новый пароль',
+    };
+  }
 
-        return { ok: true };
-    }
-    async requestEmailChangeCode(userId: number, dto: RequestEmailChangeCodeDto) {
-        const user = await this.userRepository.findByPk(userId);
-        if (!user) throw new UnauthorizedException('Пользователь не найден');
+  async logout(userId: number, res: Response) {
+    await this.tokenRepository.destroy({ where: { userId } });
+    this.clearCookies(res);
+    return { message: 'Выход из профиля успешен' };
+  }
 
-        if (user.email.toLowerCase() === dto.newEmail.toLowerCase()) {
-            throw new ConflictException('Новый email совпадает с текущим');
-        }
+  async logoutCurrentSession(jti: string, userId: number, res: Response) {
+    await this.tokenRepository.destroy({ where: { id: jti, userId } });
+    this.clearCookies(res);
+    return { message: 'Session ended' };
+  }
 
-        const busy = await this.userRepository.findOne({ where: { email: dto.newEmail } });
-        if (busy) {
-            throw new ConflictException('Этот email уже зарегистрирован');
-        }
+  private async issueTokensAndSetCookies(
+    user: User,
+    res: Response,
+    req?: Request,
+  ) {
+    const jti = randomUUID();
 
+    const [accessToken, refreshToken] = await Promise.all([
+      this.signAccessToken(user.id, user.email, user.role, jti),
+      this.signRefreshToken(user.id, user.email, user.role, jti),
+    ]);
 
-        await this.emailChangeRepo.destroy({ where: { user_id: user.id } });
+    const tokenHash = await bcrypt.hash(refreshToken, 10);
 
-        const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
-        const codeHash = await bcrypt.hash(code, 10);
+    await this.tokenRepository.create({
+      id: jti,
+      userId: user.id,
+      tokenHash,
+      userAgent: req?.headers['user-agent'] ?? null,
+      ip: req?.ip ?? null,
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
+    });
 
-        await this.emailChangeRepo.create({
-            user_id: user.id,
-            new_email: dto.newEmail,
-            code_hash: codeHash,
-            expires_at: new Date(Date.now() + EMAIL_CODE_TTL_MS),
-        });
+    res.cookie('accessToken', accessToken, {
+      ...COOKIE_BASE,
+      maxAge: ACCESS_TOKEN_TTL_MS,
+    });
 
-        await this.mailService.sendEmailChangeCode(dto.newEmail, code);
+    res.cookie('refreshToken', refreshToken, {
+      ...COOKIE_BASE,
+      maxAge: REFRESH_TOKEN_TTL_MS,
+      path: '/',
+      httpOnly: true,
+    });
 
-        this.logger.log('info', JSON.stringify({
-            message: 'Email change code sent',
-            userId: user.id,
-            newEmail: dto.newEmail,
-        }));
+    return {
+      user: { id: user.id, email: user.email, role: user.role },
+    };
+  }
 
-        return { message: 'Код отправлен на новый email' };
-    }
+  async signAccessToken(
+    userId: number,
+    email: string,
+    role: string,
+    jti: string,
+  ): Promise<string> {
+    return this.jwtService.signAsync(
+      { sub: userId, email, role, jti },
+      {
+        secret: this.config.getOrThrow<string>('JWT_ACCESS_SECRET'),
+        expiresIn: '24h',
+      },
+    );
+  }
 
-    async confirmEmailChange(userId: number, dto: ConfirmEmailChangeDto) {
-        const user = await this.userRepository.findByPk(userId);
-        if (!user) throw new UnauthorizedException('Пользователь не найден');
+  async signRefreshToken(
+    userId: number,
+    email: string,
+    role: string,
+    jti: string,
+  ): Promise<string> {
+    return this.jwtService.signAsync(
+      { sub: userId, email, role, jti },
+      {
+        secret: this.config.getOrThrow<string>('JWT_REFRESH_SECRET'),
+        expiresIn: '7d',
+      },
+    );
+  }
 
+  private clearCookies(res: Response) {
+    res.clearCookie('accessToken', { ...COOKIE_BASE });
+    res.clearCookie('refreshToken', { ...COOKIE_BASE, path: '/' });
+  }
 
-        const match = await this.passwordService.comparePassword(dto.password, user.password);
-        if (!match) {
-            this.logger.error('error', JSON.stringify({
-                message: 'Email change: wrong password',
-                userId: user.id,
-            }));
-            throw new UnauthorizedException('Неверный пароль');
-        }
+  async changePassword(
+    userId: number,
+    dto: ChangePasswordDto,
+    res: Response,
+    req: Request,
+  ) {
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: 'Запрос на смену пароля',
+        userId,
+      }),
+    );
 
-
-        const record = await this.emailChangeRepo.findOne({
-            where: { user_id: user.id, new_email: dto.newEmail },
-            order: [['id', 'DESC']],
-        });
-
-        if (!record) throw new UnauthorizedException('Код не найден, запросите новый');
-        if (record.expires_at < new Date()) {
-            await record.destroy();
-            throw new UnauthorizedException('Код истёк');
-        }
-        if (record.attempts >= EMAIL_MAX_ATTEMPTS) {
-            await record.destroy();
-            throw new UnauthorizedException('Слишком много попыток');
-        }
-
-        const codeMatch = await bcrypt.compare(dto.code, record.code_hash);
-        if (!codeMatch) {
-            record.attempts += 1;
-            await record.save();
-            throw new UnauthorizedException('Неверный код');
-        }
-
-
-        const busy = await this.userRepository.findOne({ where: { email: dto.newEmail } });
-        if (busy && busy.id !== user.id) {
-            throw new ConflictException('Этот email уже зарегистрирован');
-        }
-
-
-        user.email = dto.newEmail;
-        await user.save();
-        await record.destroy();
-
-        this.logger.log('info', JSON.stringify({
-            message: 'Email changed successfully',
-            userId: user.id,
-            newEmail: dto.newEmail,
-        }));
-
-        return { message: 'Email успешно изменён' };
-    } async verifyPassword(userId: number, dto: VerifyPasswordDto) {
-        const user = await this.userRepository.findByPk(userId);
-        if (!user) throw new UnauthorizedException('Пользователь не найден');
-
-        const match = await this.passwordService.comparePassword(dto.password, user.password);
-        if (!match) throw new UnauthorizedException('Неверный пароль');
-
-        return { ok: true };
-    } @Cron(CronExpression.EVERY_30_MINUTES)
-    async cleanupExpiredEmailCodes() {
-        const result = await this.emailChangeRepo.destroy({
-            where: { expires_at: { [Op.lt]: new Date() } },
-        });
-        if (result > 0) {
-            this.logger.log('info', JSON.stringify({
-                message: `Cleaned up ${result} expired email change codes`,
-            }));
-        }
+    const user = await this.userRepository.findByPk(userId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
     }
 
-    async requestAccountDeletionCode(userId: number) {
-        const user = await this.userRepository.findByPk(userId);
-        if (!user) throw new UnauthorizedException('Пользователь не найден');
-
-
-        await this.deleteCodeRepo.destroy({ where: { user_id: user.id } });
-
-        const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
-        const codeHash = await bcrypt.hash(code, 10);
-
-        await this.deleteCodeRepo.create({
-            user_id: user.id,
-            code_hash: codeHash,
-            expires_at: new Date(Date.now() + DELETE_CODE_TTL_MS),
-        });
-
-        await this.mailService.sendAccountDeletionCode(user.email, code);
-
-        this.logger.log('info', JSON.stringify({
-            message: 'Account deletion code sent',
-            userId: user.id,
-        }));
-
-        return { message: 'Код отправлен на почту' };
+    const match = await this.passwordService.comparePassword(
+      dto.currentPassword,
+      user.password,
+    );
+    if (!match) {
+      this.logger.error(
+        'error',
+        JSON.stringify({
+          message: 'Неверный текущий пароль',
+          userId,
+        }),
+      );
+      throw new UnauthorizedException('Неверный текущий пароль');
+    }
+    const isSame = await this.passwordService.comparePassword(
+      dto.newPassword,
+      user.password,
+    );
+    if (isSame) {
+      throw new ConflictException('Новый пароль совпадает с текущим');
     }
 
+    const newHash = await this.passwordService.hashPassword(dto.newPassword);
+    user.password = newHash;
+    await user.save();
 
-    async verifyAccountDeletionCode(userId: number, dto: ConfirmDeleteAccountDto) {
-        const user = await this.userRepository.findByPk(userId);
-        if (!user) throw new UnauthorizedException('Пользователь не найден');
+    await this.tokenRepository.destroy({ where: { userId } });
 
-        const record = await this.deleteCodeRepo.findOne({
-            where: { user_id: user.id },
-            order: [['id', 'DESC']],
-        });
+    this.logger.log(
+      'success',
+      JSON.stringify({
+        message: 'Пароль успешно изменён, все сессии сброшены',
+        userId,
+      }),
+    );
 
-        if (!record) throw new UnauthorizedException('Код не найден, запросите новый');
-        if (record.expires_at < new Date()) {
-            await record.destroy();
-            throw new UnauthorizedException('Код истёк');
-        }
-        if (record.attempts >= DELETE_MAX_ATTEMPTS) {
-            await record.destroy();
-            throw new UnauthorizedException('Слишком много попыток');
-        }
+    await this.issueTokensAndSetCookies(user, res, req);
 
-        const match = await bcrypt.compare(dto.code, record.code_hash);
-        if (!match) {
-            record.attempts += 1;
-            await record.save();
-            throw new UnauthorizedException('Неверный код');
-        }
+    return { message: 'Пароль успешно изменён' };
+  }
 
+  @Cron(CronExpression.EVERY_30_MINUTES)
+  async cleanupExpiredResetCodes() {
+    const result = await this.resetCodeRepo.destroy({
+      where: { expires_at: { [Op.lt]: new Date() } },
+    });
+    if (result > 0) {
+      this.logger.log(
+        'info',
+        JSON.stringify({
+          message: `Cleaned up ${result} expired reset codes`,
+        }),
+      );
+    }
+  }
 
-        await record.destroy();
-
-        return { ok: true };
+  async resetPassword(dto: ResetPasswordDto): Promise<{ message: string }> {
+    let payload: { sub: number; jti: number; purpose: string };
+    try {
+      payload = await this.jwtService.verifyAsync<{
+        sub: number;
+        jti: number;
+        purpose: string;
+      }>(dto.resetToken, {
+        secret: this.config.getOrThrow('JWT_ACCESS_SECRET'),
+      });
+    } catch {
+      throw new UnauthorizedException('Токен истёк, запросите новый код');
     }
 
-    @Cron(CronExpression.EVERY_30_MINUTES)
-    async cleanupExpiredDeleteCodes() {
-        await this.deleteCodeRepo.destroy({
-            where: { expires_at: { [Op.lt]: new Date() } },
-        });
+    if (payload.purpose !== 'password-reset') {
+      throw new UnauthorizedException('Неверный тип токена');
     }
+
+    const record = await this.resetCodeRepo.findByPk(payload.jti);
+    if (!record) {
+      throw new UnauthorizedException('Код уже использован, запросите новый');
+    }
+
+    const user = await this.userRepository.findByPk(payload.sub);
+    if (!user) throw new UnauthorizedException('Пользователь не найден');
+
+    const isSame = await this.passwordService.comparePassword(
+      dto.newPassword,
+      user.password,
+    );
+    if (isSame) throw new ConflictException('Новый пароль совпадает с текущим');
+
+    user.password = await this.passwordService.hashPassword(dto.newPassword);
+    await user.save();
+
+    await record.destroy();
+
+    await this.tokenRepository.destroy({ where: { userId: user.id } });
+
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: 'Пароль восстановлен через код',
+        userId: user.id,
+      }),
+    );
+
+    return { message: 'Пароль успешно изменён. Войдите заново.' };
+  }
+
+  async verifyCurrentEmail(userId: number, dto: VerifyCurrentEmailDto) {
+    const user = await this.userRepository.findByPk(userId);
+    if (!user) throw new UnauthorizedException('Пользователь не найден');
+
+    if (user.email.toLowerCase() !== dto.email.toLowerCase()) {
+      throw new UnauthorizedException('Email не совпадает с текущим');
+    }
+
+    return { ok: true };
+  }
+  async requestEmailChangeCode(userId: number, dto: RequestEmailChangeCodeDto) {
+    const user = await this.userRepository.findByPk(userId);
+    if (!user) throw new UnauthorizedException('Пользователь не найден');
+
+    if (user.email.toLowerCase() === dto.newEmail.toLowerCase()) {
+      throw new ConflictException('Новый email совпадает с текущим');
+    }
+
+    const busy = await this.userRepository.findOne({
+      where: { email: dto.newEmail },
+    });
+    if (busy) {
+      throw new ConflictException('Этот email уже зарегистрирован');
+    }
+
+    await this.emailChangeRepo.destroy({ where: { user_id: user.id } });
+
+    const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
+    const codeHash = await bcrypt.hash(code, 10);
+
+    await this.emailChangeRepo.create({
+      user_id: user.id,
+      new_email: dto.newEmail,
+      code_hash: codeHash,
+      expires_at: new Date(Date.now() + EMAIL_CODE_TTL_MS),
+    });
+
+    await this.mailService.sendEmailChangeCode(dto.newEmail, code);
+
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: 'Email change code sent',
+        userId: user.id,
+        newEmail: dto.newEmail,
+      }),
+    );
+
+    return { message: 'Код отправлен на новый email' };
+  }
+
+  async confirmEmailChange(userId: number, dto: ConfirmEmailChangeDto) {
+    const user = await this.userRepository.findByPk(userId);
+    if (!user) throw new UnauthorizedException('Пользователь не найден');
+
+    const match = await this.passwordService.comparePassword(
+      dto.password,
+      user.password,
+    );
+    if (!match) {
+      this.logger.error(
+        'error',
+        JSON.stringify({
+          message: 'Email change: wrong password',
+          userId: user.id,
+        }),
+      );
+      throw new UnauthorizedException('Неверный пароль');
+    }
+
+    const record = await this.emailChangeRepo.findOne({
+      where: { user_id: user.id, new_email: dto.newEmail },
+      order: [['id', 'DESC']],
+    });
+
+    if (!record)
+      throw new UnauthorizedException('Код не найден, запросите новый');
+    if (record.expires_at < new Date()) {
+      await record.destroy();
+      throw new UnauthorizedException('Код истёк');
+    }
+    if (record.attempts >= EMAIL_MAX_ATTEMPTS) {
+      await record.destroy();
+      throw new UnauthorizedException('Слишком много попыток');
+    }
+
+    const codeMatch = await bcrypt.compare(dto.code, record.code_hash);
+    if (!codeMatch) {
+      record.attempts += 1;
+      await record.save();
+      throw new UnauthorizedException('Неверный код');
+    }
+
+    const busy = await this.userRepository.findOne({
+      where: { email: dto.newEmail },
+    });
+    if (busy && busy.id !== user.id) {
+      throw new ConflictException('Этот email уже зарегистрирован');
+    }
+
+    user.email = dto.newEmail;
+    await user.save();
+    await record.destroy();
+
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: 'Email changed successfully',
+        userId: user.id,
+        newEmail: dto.newEmail,
+      }),
+    );
+
+    return { message: 'Email успешно изменён' };
+  }
+  async verifyPassword(userId: number, dto: VerifyPasswordDto) {
+    const user = await this.userRepository.findByPk(userId);
+    if (!user) throw new UnauthorizedException('Пользователь не найден');
+
+    const match = await this.passwordService.comparePassword(
+      dto.password,
+      user.password,
+    );
+    if (!match) throw new UnauthorizedException('Неверный пароль');
+
+    return { ok: true };
+  }
+  @Cron(CronExpression.EVERY_30_MINUTES)
+  async cleanupExpiredEmailCodes() {
+    const result = await this.emailChangeRepo.destroy({
+      where: { expires_at: { [Op.lt]: new Date() } },
+    });
+    if (result > 0) {
+      this.logger.log(
+        'info',
+        JSON.stringify({
+          message: `Cleaned up ${result} expired email change codes`,
+        }),
+      );
+    }
+  }
+
+  async requestAccountDeletionCode(userId: number) {
+    const user = await this.userRepository.findByPk(userId);
+    if (!user) throw new UnauthorizedException('Пользователь не найден');
+
+    await this.deleteCodeRepo.destroy({ where: { user_id: user.id } });
+
+    const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
+    const codeHash = await bcrypt.hash(code, 10);
+
+    await this.deleteCodeRepo.create({
+      user_id: user.id,
+      code_hash: codeHash,
+      expires_at: new Date(Date.now() + DELETE_CODE_TTL_MS),
+    });
+
+    await this.mailService.sendAccountDeletionCode(user.email, code);
+
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: 'Account deletion code sent',
+        userId: user.id,
+      }),
+    );
+
+    return { message: 'Код отправлен на почту' };
+  }
+
+  async verifyAccountDeletionCode(
+    userId: number,
+    dto: ConfirmDeleteAccountDto,
+  ) {
+    const user = await this.userRepository.findByPk(userId);
+    if (!user) throw new UnauthorizedException('Пользователь не найден');
+
+    const record = await this.deleteCodeRepo.findOne({
+      where: { user_id: user.id },
+      order: [['id', 'DESC']],
+    });
+
+    if (!record)
+      throw new UnauthorizedException('Код не найден, запросите новый');
+    if (record.expires_at < new Date()) {
+      await record.destroy();
+      throw new UnauthorizedException('Код истёк');
+    }
+    if (record.attempts >= DELETE_MAX_ATTEMPTS) {
+      await record.destroy();
+      throw new UnauthorizedException('Слишком много попыток');
+    }
+
+    const match = await bcrypt.compare(dto.code, record.code_hash);
+    if (!match) {
+      record.attempts += 1;
+      await record.save();
+      throw new UnauthorizedException('Неверный код');
+    }
+
+    const deletionToken = randomBytes(32).toString('base64url');
+    const [updated] = await this.deleteCodeRepo.update(
+      {
+        code_hash: `deletion:${createHash('sha256').update(deletionToken).digest('hex')}`,
+        expires_at: new Date(Date.now() + 5 * 60 * 1000),
+        attempts: 0,
+      },
+      {
+        where: {
+          id: record.id,
+          user_id: userId,
+          code_hash: record.code_hash,
+          expires_at: { [Op.gt]: new Date() },
+        },
+      },
+    );
+    if (!updated)
+      throw new UnauthorizedException('Код уже использован, запросите новый');
+    return { ok: true, deletionToken };
+  }
+
+  @Cron(CronExpression.EVERY_30_MINUTES)
+  async cleanupExpiredDeleteCodes() {
+    await this.deleteCodeRepo.destroy({
+      where: { expires_at: { [Op.lt]: new Date() } },
+    });
+  }
 }

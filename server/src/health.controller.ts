@@ -5,8 +5,12 @@ import { ApiExcludeController } from '@nestjs/swagger';
 @ApiExcludeController()
 @Controller('health')
 export class HealthController {
-    @Get()
-    check() {
-        return { status: 'ok', uptime: Math.round(process.uptime()), timestamp: new Date().toISOString() };
-    }
+  @Get()
+  check() {
+    return {
+      status: 'ok',
+      uptime: Math.round(process.uptime()),
+      timestamp: new Date().toISOString(),
+    };
+  }
 }

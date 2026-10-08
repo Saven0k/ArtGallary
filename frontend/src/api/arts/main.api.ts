@@ -1,3 +1,4 @@
+import { apiFetch } from '../request';
 // src/api/arts/main.api.ts
 import { BASE_URL_API } from "../main.api";
 import type { Genre } from "../genres/main.api";
@@ -43,8 +44,8 @@ export interface Art {
     author_id?: number;
     city_id?: number | null;
     country_id?: number | null;
-    genre_id?: number;
-    style_id?: number;
+    genre_id?: number | null;
+    style_id?: number | null;
     shares?: number;
     author?: {
         id: number;
@@ -86,8 +87,8 @@ export interface CreateArtData {
     author_id?: number;
     city_id?: number | null;
     country_id?: number | null;
-    genre_id?: number;
-    style_id?: number;
+    genre_id?: number | null;
+    style_id?: number | null;
     is_adult?: boolean;
     tags?: string[];
 }
@@ -109,8 +110,8 @@ export type UpdateArtData = Partial<{
     author_id: number;
     city_id: number | null;
     country_id: number | null;
-    genre_id: number;
-    style_id: number;
+    genre_id: number | null;
+    style_id: number | null;
     is_adult: boolean;
     tags: string[];
 }>;
@@ -133,7 +134,7 @@ export interface ArtsResponse {
 
 export const getAllArts = async (page = 1, limit = 10, lang = 'ru'): Promise<ArtsResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}?page=${page}&limit=${limit}&lang=${lang}`, { credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}?page=${page}&limit=${limit}&lang=${lang}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) { console.error("getAllArts error:", e); return null; }
@@ -141,7 +142,7 @@ export const getAllArts = async (page = 1, limit = 10, lang = 'ru'): Promise<Art
 
 export const getModeratedArts = async (page = 1, limit = 10, lang = 'ru'): Promise<ArtsResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/moderated?page=${page}&limit=${limit}&lang=${lang}`, { credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/moderated?page=${page}&limit=${limit}&lang=${lang}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) { console.error("getModeratedArts error:", e); return null; }
@@ -149,7 +150,7 @@ export const getModeratedArts = async (page = 1, limit = 10, lang = 'ru'): Promi
 
 export const getUnmoderatedArts = async (page = 1, limit = 10, lang = 'ru'): Promise<ArtsResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/unmoderated?page=${page}&limit=${limit}&lang=${lang}`, { credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/unmoderated?page=${page}&limit=${limit}&lang=${lang}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) { console.error("getUnmoderatedArts error:", e); return null; }
@@ -157,7 +158,7 @@ export const getUnmoderatedArts = async (page = 1, limit = 10, lang = 'ru'): Pro
 
 export const getArtById = async (id: number, lang = 'ru'): Promise<Art | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}?lang=${lang}`, { credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/${id}?lang=${lang}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) { console.error("getArtById error:", e); return null; }
@@ -181,7 +182,7 @@ export const createArt = async (data: CreateArtData): Promise<Art | null> => {
         if (data.is_adult != null) formData.append("is_adult", String(data.is_adult));
         if (data.tags) formData.append("tags", JSON.stringify(data.tags));
 
-        const res = await fetch(BASE_URL, { method: "POST", credentials: "include", body: formData });
+        const res = await apiFetch(BASE_URL, { method: "POST", credentials: "include", body: formData });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) { console.error("createArt error:", e); return null; }
@@ -189,7 +190,7 @@ export const createArt = async (data: CreateArtData): Promise<Art | null> => {
 
 export const updateArt = async (id: number, data: UpdateArtData): Promise<Art | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "PATCH",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
@@ -205,7 +206,7 @@ export const updateArtStatus = async (
     data: UpdateArtStatusData,
 ): Promise<Art | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/status`, {
+        const res = await apiFetch(`${BASE_URL}/${id}/status`, {
             method: "PATCH",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
@@ -218,7 +219,7 @@ export const updateArtStatus = async (
 
 export const deleteArt = async (id: number): Promise<boolean> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, { method: "DELETE", credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/${id}`, { method: "DELETE", credentials: "include" });
         if (!res.ok) throw new Error();
         return true;
     } catch (e) { console.error("deleteArt error:", e); return false; }
@@ -226,7 +227,7 @@ export const deleteArt = async (id: number): Promise<boolean> => {
 
 export const moderateArt = async (id: number, data: ModerateArtData): Promise<Art | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/moderate`, {
+        const res = await apiFetch(`${BASE_URL}/${id}/moderate`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
@@ -239,7 +240,7 @@ export const moderateArt = async (id: number, data: ModerateArtData): Promise<Ar
 
 export const getTopArts = async (limit = 10, lang = 'ru'): Promise<Art[] | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/top?limit=${limit}&lang=${lang}`, { credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/top?limit=${limit}&lang=${lang}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) { console.error("getTopArts error:", e); return null; }
@@ -247,7 +248,7 @@ export const getTopArts = async (limit = 10, lang = 'ru'): Promise<Art[] | null>
 
 export const addArtToFeatured = async (id: number, days = 7): Promise<Art | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/featured?days=${days}`, { method: "POST", credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/${id}/featured?days=${days}`, { method: "POST", credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) { console.error("addArtToFeatured error:", e); return null; }
@@ -255,7 +256,7 @@ export const addArtToFeatured = async (id: number, days = 7): Promise<Art | null
 
 export const removeArtFromFeatured = async (id: number): Promise<boolean> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/featured`, { method: "DELETE", credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/${id}/featured`, { method: "DELETE", credentials: "include" });
         if (!res.ok) throw new Error();
         return true;
     } catch (e) { console.error("removeArtFromFeatured error:", e); return false; }
@@ -263,7 +264,7 @@ export const removeArtFromFeatured = async (id: number): Promise<boolean> => {
 
 export const updateAllScores = async (): Promise<boolean> => {
     try {
-        const res = await fetch(`${BASE_URL}/update-scores`, { method: "POST", credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/update-scores`, { method: "POST", credentials: "include" });
         if (!res.ok) throw new Error();
         return true;
     } catch (e) { console.error("updateAllScores error:", e); return false; }
@@ -271,7 +272,7 @@ export const updateAllScores = async (): Promise<boolean> => {
 
 export const refreshFeatured = async (): Promise<boolean> => {
     try {
-        const res = await fetch(`${BASE_URL}/refresh-featured`, { method: "POST", credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/refresh-featured`, { method: "POST", credentials: "include" });
         if (!res.ok) throw new Error();
         return true;
     } catch (e) { console.error("refreshFeatured error:", e); return false; }
@@ -279,7 +280,7 @@ export const refreshFeatured = async (): Promise<boolean> => {
 
 export const incrementView = async (id: number): Promise<Art | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/view`, {
+        const res = await apiFetch(`${BASE_URL}/${id}/view`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
@@ -291,7 +292,7 @@ export const incrementView = async (id: number): Promise<Art | null> => {
 
 export const incrementArtShares = async (id: number): Promise<{ success: boolean; shares: number } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/share`, {
+        const res = await apiFetch(`${BASE_URL}/${id}/share`, {
             method: "POST",
             credentials: "include",
         });
@@ -302,7 +303,7 @@ export const incrementArtShares = async (id: number): Promise<{ success: boolean
 
 export const getArtShares = async (id: number): Promise<{ shares: number } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/share/count`, {
+        const res = await apiFetch(`${BASE_URL}/${id}/share/count`, {
             method: "GET",
             credentials: "include",
         });
@@ -313,7 +314,7 @@ export const getArtShares = async (id: number): Promise<{ shares: number } | nul
 
 export const likeArt = async (id: number): Promise<{ success: boolean; message: string } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/like`, {
+        const res = await apiFetch(`${BASE_URL}/${id}/like`, {
             method: "POST",
             credentials: "include",
         });
@@ -322,9 +323,9 @@ export const likeArt = async (id: number): Promise<{ success: boolean; message: 
     } catch (e) { console.error("likeArt error:", e); return null; }
 };
 
-export const getArtLikes = async (id: number, page = 1, limit = 20): Promise<any | null> => {
+export const getArtLikes = async (id: number, page = 1, limit = 20): Promise<unknown | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/likes?page=${page}&limit=${limit}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}/likes?page=${page}&limit=${limit}`, {
             method: "GET",
             credentials: "include",
         });
@@ -339,7 +340,7 @@ export const getLikedArts = async (
     lang = 'ru',
 ): Promise<LikedArtsResponse | null> => {
     try {
-        const res = await fetch(
+        const res = await apiFetch(
             `${BASE_URL}/liked?page=${page}&limit=${limit}&lang=${lang}`,
             { credentials: 'include' },
         );
@@ -355,7 +356,7 @@ export const unlikeArt = likeArt;
 
 export const getArtLikesCount = async (id: number): Promise<{ count: number } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/likes/count`, {
+        const res = await apiFetch(`${BASE_URL}/${id}/likes/count`, {
             method: "GET",
             credentials: "include",
         });
@@ -366,7 +367,7 @@ export const getArtLikesCount = async (id: number): Promise<{ count: number } | 
 
 export const getArtViewsCount = async (id: number): Promise<{ count: number } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/views/count`, {
+        const res = await apiFetch(`${BASE_URL}/${id}/views/count`, {
             method: "GET",
             credentials: "include",
         });
@@ -382,7 +383,7 @@ export const searchArts = async (
     lang = 'ru',
 ): Promise<ArtsResponse | null> => {
     try {
-        const res = await fetch(
+        const res = await apiFetch(
             `${BASE_URL}/search?q=${encodeURIComponent(q)}&page=${page}&limit=${limit}&lang=${lang}`,
             { credentials: 'include' },
         );
@@ -400,7 +401,7 @@ export const getSimilarArts = async (
     lang = 'ru',
 ): Promise<Art[] | null> => {
     try {
-        const res = await fetch(
+        const res = await apiFetch(
             `${BASE_URL}/${artId}/similar?limit=${limit}&lang=${lang}`,
             { credentials: 'include' },
         );

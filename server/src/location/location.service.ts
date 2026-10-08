@@ -6,7 +6,6 @@ import { firstValueFrom } from 'rxjs';
 import { Country } from './models/country.model';
 import { City } from './models/city.model';
 
-
 export interface CountryDto {
   id: number;
   name: string;
@@ -28,12 +27,17 @@ export interface CityDto {
 
 type Lang = 'ru' | 'en';
 
+interface NominatimCountry {
+  display_name: string;
+  address?: { country_code?: string };
+}
+
 @Injectable()
 export class LocationService implements OnModuleInit {
   private readonly logger = new Logger(LocationService.name);
   private readonly NOMINATIM_URL = 'https://nominatim.openstreetmap.org';
 
-  private readonly nominatimCache = new Map<string, any>();
+  private readonly nominatimCache = new Map<string, CountryDto>();
 
   constructor(
     @InjectModel(Country) private readonly countryModel: typeof Country,
@@ -52,11 +56,13 @@ export class LocationService implements OnModuleInit {
     }
   }
 
-  async searchCountries(query: string, lang: Lang = 'ru'): Promise<CountryDto[]> {
+  async searchCountries(
+    query: string,
+    lang: Lang = 'ru',
+  ): Promise<CountryDto[]> {
     if (!query || query.length < 2) return [];
 
     const q = query.trim();
-
 
     const [startsWith, contains] = await Promise.all([
       this.countryModel.findAll({
@@ -91,11 +97,13 @@ export class LocationService implements OnModuleInit {
       }
     }
 
-    return merged.slice(0, 10).map(c => this.toCountryDto(c, lang));
+    return merged.slice(0, 10).map((c) => this.toCountryDto(c, lang));
   }
 
-
-  async getCountryByCode(iso2: string, lang: Lang = 'ru'): Promise<CountryDto | null> {
+  async getCountryByCode(
+    iso2: string,
+    lang: Lang = 'ru',
+  ): Promise<CountryDto | null> {
     if (!iso2 || iso2.length !== 2) return null;
 
     const country = await this.countryModel.findOne({
@@ -108,20 +116,19 @@ export class LocationService implements OnModuleInit {
     return this.fetchCountryFromNominatim(iso2, lang);
   }
 
-
-  async getCountryById(id: number, lang: Lang = 'ru'): Promise<CountryDto | null> {
+  async getCountryById(
+    id: number,
+    lang: Lang = 'ru',
+  ): Promise<CountryDto | null> {
     const country = await this.countryModel.findByPk(id);
     return country ? this.toCountryDto(country, lang) : null;
   }
 
-
   async getAllCountries(lang: Lang = 'ru'): Promise<CountryDto[]> {
     const countries = await this.countryModel.findAll({
-      order: lang === 'ru'
-        ? [['name_ru', 'ASC']]
-        : [['name_en', 'ASC']],
+      order: lang === 'ru' ? [['name_ru', 'ASC']] : [['name_en', 'ASC']],
     });
-    return countries.map(c => this.toCountryDto(c, lang));
+    return countries.map((c) => this.toCountryDto(c, lang));
   }
 
   async searchCities(
@@ -132,26 +139,22 @@ export class LocationService implements OnModuleInit {
     if (!query || query.length < 2) return [];
 
     const q = query.trim();
-    const where: any = {
+    const where = {
       [Op.or]: [
         { name_ru: { [Op.iLike]: `${q}%` } },
         { name_en: { [Op.iLike]: `${q}%` } },
       ],
+      ...(countryCode ? { country_code: countryCode.toUpperCase() } : {}),
     };
-
-    if (countryCode) {
-      where.country_code = countryCode.toUpperCase();
-    }
 
     const cities = await this.cityModel.findAll({
       where,
       limit: 10,
-      order: [['population', 'DESC']]
+      order: [['population', 'DESC']],
     });
 
-    return cities.map(c => this.toCityDto(c, lang));
+    return cities.map((c) => this.toCityDto(c, lang));
   }
-
 
   async getCitiesByCountryCode(
     iso2: string,
@@ -166,7 +169,7 @@ export class LocationService implements OnModuleInit {
       limit,
     });
 
-    return cities.map(c => this.toCityDto(c, lang));
+    return cities.map((c) => this.toCityDto(c, lang));
   }
 
   async getCityById(id: number, lang: Lang = 'ru'): Promise<CityDto | null> {
@@ -176,8 +179,13 @@ export class LocationService implements OnModuleInit {
     return city ? this.toCityDto(city, lang) : null;
   }
 
-  async getCityByGeonamesId(geonamesId: number, lang: Lang = 'ru'): Promise<CityDto | null> {
-    const city = await this.cityModel.findOne({ where: { geonames_id: geonamesId } });
+  async getCityByGeonamesId(
+    geonamesId: number,
+    lang: Lang = 'ru',
+  ): Promise<CityDto | null> {
+    const city = await this.cityModel.findOne({
+      where: { geonames_id: geonamesId },
+    });
     return city ? this.toCityDto(city, lang) : null;
   }
 
@@ -207,7 +215,8 @@ export class LocationService implements OnModuleInit {
   private toCountryDto(country: Country, lang: Lang): CountryDto {
     return {
       id: country.id,
-      name: lang === 'ru' ? (country.name_ru || country.name_en) : country.name_en,
+      name:
+        lang === 'ru' ? country.name_ru || country.name_en : country.name_en,
       iso2: country.iso2,
       iso3: country.iso3,
       phone_code: country.phone_code,
@@ -219,7 +228,7 @@ export class LocationService implements OnModuleInit {
   private toCityDto(city: City, lang: Lang): CityDto {
     return {
       id: city.id,
-      name: lang === 'ru' ? (city.name_ru || city.name_en) : city.name_en,
+      name: lang === 'ru' ? city.name_ru || city.name_en : city.name_en,
       country_code: city.country_code,
       region: city.region,
       population: city.population,
@@ -238,16 +247,19 @@ export class LocationService implements OnModuleInit {
 
     try {
       const response = await firstValueFrom(
-        this.httpService.get(`${this.NOMINATIM_URL}/search`, {
-          params: {
-            q: iso2,
-            format: 'json',
-            limit: 1,
-            featuretype: 'country',
-            'accept-language': lang,
+        this.httpService.get<NominatimCountry[]>(
+          `${this.NOMINATIM_URL}/search`,
+          {
+            params: {
+              q: iso2,
+              format: 'json',
+              limit: 1,
+              featuretype: 'country',
+              'accept-language': lang,
+            },
+            headers: { 'User-Agent': 'GalleryApp/1.0' },
           },
-          headers: { 'User-Agent': 'GalleryApp/1.0' },
-        }),
+        ),
       );
 
       if (!response.data.length) return null;
@@ -257,14 +269,13 @@ export class LocationService implements OnModuleInit {
       const returnedIso2 =
         item.address?.country_code?.toUpperCase() || iso2.toUpperCase();
 
-
       const [country] = await this.countryModel.findOrCreate({
         where: { iso2: returnedIso2 },
         defaults: {
           iso2: returnedIso2,
           name_en: name,
           name_ru: lang === 'ru' ? name : null,
-        } as any,
+        },
       });
 
       const dto = this.toCountryDto(country, lang);

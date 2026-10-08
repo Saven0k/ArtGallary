@@ -4,7 +4,6 @@ import "./ProfileSidebar.scss";
 import {
     NotificationIcon,
     LockIcon,
-    SubscriptionsIcon,
     StatIcon,
     SettingsIcon,
     LikeIcon,
@@ -18,6 +17,7 @@ export type ProfileSection =
     | "statistics"
     | "likes"
     | "subscriptions"
+    | "history"
     | "cart"
     | "settings"
     | "tariff";
@@ -114,6 +114,7 @@ const ProfileSidebar = ({
             title: "Корзина",
             icon: SettingsIcon,
         },
+        { id: "history", title: "История покупок", icon: SettingsIcon },
         {
             id: "settings",
             title: "Настройки",

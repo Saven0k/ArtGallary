@@ -1,3 +1,4 @@
+import { login } from '../../../../api/auth/main.api';
 
 import { useState, useEffect } from "react";
 import "./RegisterAuthor.scss";
@@ -19,9 +20,6 @@ type Step = 1 | 2 | 3 | 4 | 5;
 /** TODO: подставьте сюда URL файла с правилами магазина и офертой на сервере */
 const TERMS_URL = "/files/terms-and-offer.pdf";
 
-interface RegisterAuthorProps {
-    onClose?: () => void;
-}
 
 interface FormData {
     surname: string;
@@ -51,7 +49,7 @@ interface ValidationErrors {
     agreement?: string;
 }
 
-const RegisterAuthor = (_props: RegisterAuthorProps) => {
+const RegisterAuthor = ({ onClose }: { onClose?: () => void }) => {
     const { language } = useLanguage();
     const t = registerAuthorTranslations[language].registerAuthor;
     const navigate = useNavigate();
@@ -312,12 +310,15 @@ const RegisterAuthor = (_props: RegisterAuthorProps) => {
 
             const result = await createAuthor(data);
             if (result) {
+                const signedIn = await login({ email: formData.email, password: formData.password });
+                if (!signedIn) { navigate("/login"); return; }
                 await refetch();
+                onClose?.();
                 navigate("/profile");
             } else {
                 setError("Ошибка при регистрации");
             }
-        } catch (err) {
+        } catch {
             setError("Произошла ошибка");
         } finally {
             setLoading(false);

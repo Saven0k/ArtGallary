@@ -7,7 +7,7 @@ export const PROMO_CODES: Record<PromoCode, number> = {
 };
 
 export const isPromoCode = (code: string): code is PromoCode =>
-    code in PROMO_CODES;
+    Object.prototype.hasOwnProperty.call(PROMO_CODES, code);
 
 export const formatPrice = (value: number, currency = 'RUB'): string => {
     const symbol = currency === 'RUB' ? '₽' : currency;

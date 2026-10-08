@@ -1,3 +1,4 @@
+import { errorMessage } from '../../../../utils/errors';
 
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -44,11 +45,8 @@ interface ValidationErrors {
     api?: string;
 }
 
-interface RegisterUserProps {
-    onClose?: () => void;
-}
 
-const RegisterUser = (_props: RegisterUserProps) => {
+const RegisterUser = ({ onClose }: { onClose?: () => void }) => {
     const { language } = useLanguage();
     const t = registerUserTranslations[language].registerUser;
     const navigate = useNavigate();
@@ -277,19 +275,20 @@ const RegisterUser = (_props: RegisterUserProps) => {
 
             if (result) {
                 await refetch();
+                onClose?.();
                 navigate("/");
             } else {
                 setApiError(t.errors.registerFailed || "Ошибка при регистрации");
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Registration error:", error);
-            if (error.message?.includes("существует")) {
+            if (errorMessage(error, "").includes("существует")) {
                 setApiError(
                     t.errors.emailExists || "Пользователь с таким email уже существует",
                 );
             } else {
                 setApiError(
-                    error.message || t.errors.registerFailed || "Ошибка при регистрации",
+                    errorMessage(error, t.errors.registerFailed || "Ошибка при регистрации"),
                 );
             }
         } finally {

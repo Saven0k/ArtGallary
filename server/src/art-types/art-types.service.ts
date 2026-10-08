@@ -9,114 +9,150 @@ import { UpdateArtTypeDto } from './dto/update-art-type.dto';
 
 @Injectable()
 export class ArtTypesService {
-    constructor(
-        @InjectModel(ArtType) private artTypeRepository: typeof ArtType,
-        @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-    ) { }
+  constructor(
+    @InjectModel(ArtType) private artTypeRepository: typeof ArtType,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
+  ) {}
 
-    async seedArtTypes() {
-        this.logger.log('info', '🌱 Начало заполнения видов искусства...');
+  async seedArtTypes() {
+    this.logger.log('info', '🌱 Начало заполнения видов искусства...');
 
-        try {
-            for (const item of initialArtTypesData) {
-                await this.artTypeRepository.findOrCreate({
-                    where: { name: item.name },
-                    defaults: {
-                        name: item.name,
-                        description: item.description || null
-                    }
-                });
-                this.logger.log('debug', `✅ Создан вид искусства: ${item.name}`);
-            }
+    try {
+      for (const item of initialArtTypesData) {
+        await this.artTypeRepository.findOrCreate({
+          where: { name: item.name },
+          defaults: {
+            name: item.name,
+            description: item.description || null,
+          },
+        });
+        this.logger.log('debug', `✅ Создан вид искусства: ${item.name}`);
+      }
 
-            this.logger.log('info', '✅ Виды искусства успешно заполнены!');
-        } catch (error) {
-            this.logger.error('❌ Ошибка при заполнении видов искусства:', String(error));
-            throw error;
-        }
+      this.logger.log('info', '✅ Виды искусства успешно заполнены!');
+    } catch (error) {
+      this.logger.error(
+        '❌ Ошибка при заполнении видов искусства:',
+        String(error),
+      );
+      throw error;
     }
+  }
 
-    async create(dto: CreateArtTypeDto) {
-        this.logger.log('info', JSON.stringify({
-            message: '🎨 Создание нового вида искусства',
-            context: 'ArtTypesService.create',
-            name: dto.name
-        }));
+  async create(dto: CreateArtTypeDto) {
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: '🎨 Создание нового вида искусства',
+        context: 'ArtTypesService.create',
+        name: dto.name,
+      }),
+    );
 
-        const artType = await this.artTypeRepository.create(dto);
+    const artType = await this.artTypeRepository.create(dto);
 
-        this.logger.log('info', JSON.stringify({
-            message: '✅ Вид искусства успешно создан',
-            context: 'ArtTypesService.create',
-            id: artType.id,
-            name: artType.name
-        }));
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: '✅ Вид искусства успешно создан',
+        context: 'ArtTypesService.create',
+        id: artType.id,
+        name: artType.name,
+      }),
+    );
 
-        return artType;
-    }
+    return artType;
+  }
 
-    async update(id: number, dto: UpdateArtTypeDto) {
-        this.logger.log('info', JSON.stringify({
-            message: '✏️ Обновление вида искусства',
-            context: 'ArtTypesService.update',
-            id: id,
-            updateData: dto
-        }));
+  async update(id: number, dto: UpdateArtTypeDto) {
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: '✏️ Обновление вида искусства',
+        context: 'ArtTypesService.update',
+        id: id,
+        updateData: dto,
+      }),
+    );
 
-        const [affectedCount] = await this.artTypeRepository.update(dto, { where: { id } });
-        if (affectedCount === 0) throw new HttpException('Вид искусства не найден', 404);
-        const updatedArtType = await this.artTypeRepository.findByPk(id);
-        this.logger.log('info', JSON.stringify({
-            message: '✅ Вид искусства успешно обновлен',
-            context: 'ArtTypesService.update',
-            id: id
-        }));
+    const [affectedCount] = await this.artTypeRepository.update(dto, {
+      where: { id },
+    });
+    if (affectedCount === 0)
+      throw new HttpException('Вид искусства не найден', 404);
+    const updatedArtType = await this.artTypeRepository.findByPk(id);
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: '✅ Вид искусства успешно обновлен',
+        context: 'ArtTypesService.update',
+        id: id,
+      }),
+    );
 
-        return updatedArtType;
-    }
+    return updatedArtType;
+  }
 
-    async delete(id: number) {
-        const deletedCount = await this.artTypeRepository.destroy({ where: { id } });
-        if (deletedCount === 0) throw new HttpException('Профессия не найдена', HttpStatus.NOT_FOUND);
-        this.logger.log('info', JSON.stringify({
-            message: '✅ Вид искусства успешно удален',
-            context: 'ArtTypesService.delete',
-            id: id
-        }));
-        return { success: true };
-    }
+  async delete(id: number) {
+    const deletedCount = await this.artTypeRepository.destroy({
+      where: { id },
+    });
+    if (deletedCount === 0)
+      throw new HttpException('Профессия не найдена', HttpStatus.NOT_FOUND);
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: '✅ Вид искусства успешно удален',
+        context: 'ArtTypesService.delete',
+        id: id,
+      }),
+    );
+    return { success: true };
+  }
 
-    async getAll() {
-        this.logger.log('info', JSON.stringify({
-            message: '📋 Запрос списка всех видов искусства',
-            context: 'ArtTypesService.getAll'
-        }));
-        const artTypes = await this.artTypeRepository.findAll();
-        this.logger.log('info', JSON.stringify({
-            message: '✅ Список видов искусства получен',
-            context: 'ArtTypesService.getAll',
-            count: artTypes.length
-        }));
+  async getAll() {
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: '📋 Запрос списка всех видов искусства',
+        context: 'ArtTypesService.getAll',
+      }),
+    );
+    const artTypes = await this.artTypeRepository.findAll();
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: '✅ Список видов искусства получен',
+        context: 'ArtTypesService.getAll',
+        count: artTypes.length,
+      }),
+    );
 
-        return artTypes;
-    }
+    return artTypes;
+  }
 
-    async getById(id: number) {
-        this.logger.log('info', JSON.stringify({
-            message: '🔍 Поиск вида искусства по ID',
-            context: 'ArtTypesService.getById',
-            id: id
-        }));
-        const artType = await this.artTypeRepository.findByPk(id);
-        if (!artType) throw new HttpException('Вид искусства не найден', 404);
+  async getById(id: number) {
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: '🔍 Поиск вида искусства по ID',
+        context: 'ArtTypesService.getById',
+        id: id,
+      }),
+    );
+    const artType = await this.artTypeRepository.findByPk(id);
+    if (!artType) throw new HttpException('Вид искусства не найден', 404);
 
-        this.logger.log('info', JSON.stringify({
-            message: '✅ Вид искусства найден',
-            context: 'ArtTypesService.getById',
-            id: id,
-            name: artType.name
-        }));
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: '✅ Вид искусства найден',
+        context: 'ArtTypesService.getById',
+        id: id,
+        name: artType.name,
+      }),
+    );
 
-        return artType;
-    }
+    return artType;
+  }
 }

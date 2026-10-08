@@ -1,3 +1,4 @@
+import { apiFetch, refreshSession } from '../request';
 
 import { BASE_URL_API, contentType } from "../main.api";
 import type { UserRole } from "../users/main.api";
@@ -50,7 +51,7 @@ export const changePassword = async (
     payload: ChangePasswordPayload,
 ): Promise<ChangePasswordResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL_API}/auth/change-password`, {
+        const res = await apiFetch(`${BASE_URL_API}/auth/change-password`, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
@@ -120,7 +121,7 @@ export const register = async (userData: RegisterData): Promise<AuthResponse | n
 
 export const logout = async (): Promise<{ message: string } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/logout`, {
+        const res = await apiFetch(`${BASE_URL}/logout`, {
             method: "POST",
             credentials: "include",
             headers: contentType
@@ -157,19 +158,7 @@ export const me = async (): Promise<{ data?: MeResponse; status: number; success
     }
 };
 
-export const refresh = async (): Promise<Response | null> => {
-    try {
-        const res = await fetch(`${BASE_URL}/refresh`, {
-            method: "POST",
-            credentials: "include",
-            headers: contentType
-        });
-        return res;
-    } catch (e) {
-        console.error("refresh error:", e);
-        return null;
-    }
-};
+export const refresh = refreshSession;
 
 export interface RequestCodePayload { email: string; }
 export interface VerifyCodePayload { email: string; code: string; }
@@ -234,7 +223,7 @@ export interface ConfirmEmailChangePayload {
 export interface VerifyPasswordPayload { password: string; }
 
 export const verifyCurrentEmail = async (payload: VerifyCurrentEmailPayload) => {
-    const res = await fetch(`${BASE_URL}/email-change/verify-current`, {
+    const res = await apiFetch(`${BASE_URL}/email-change/verify-current`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -248,7 +237,7 @@ export const verifyCurrentEmail = async (payload: VerifyCurrentEmailPayload) => 
 };
 
 export const requestEmailChangeCode = async (payload: RequestEmailChangeCodePayload) => {
-    const res = await fetch(`${BASE_URL}/email-change/request-code`, {
+    const res = await apiFetch(`${BASE_URL}/email-change/request-code`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -262,7 +251,7 @@ export const requestEmailChangeCode = async (payload: RequestEmailChangeCodePayl
 };
 
 export const confirmEmailChange = async (payload: ConfirmEmailChangePayload) => {
-    const res = await fetch(`${BASE_URL}/email-change/confirm`, {
+    const res = await apiFetch(`${BASE_URL}/email-change/confirm`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -276,7 +265,7 @@ export const confirmEmailChange = async (payload: ConfirmEmailChangePayload) => 
 };
 
 export const verifyPassword = async (payload: VerifyPasswordPayload) => {
-    const res = await fetch(`${BASE_URL}/verify-password`, {
+    const res = await apiFetch(`${BASE_URL}/verify-password`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -290,7 +279,7 @@ export const verifyPassword = async (payload: VerifyPasswordPayload) => {
 };
 
 export const requestAccountDeletionCode = async (): Promise<{ message: string }> => {
-    const res = await fetch(`${BASE_URL}/account/delete/request-code`, {
+    const res = await apiFetch(`${BASE_URL}/account/delete/request-code`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -304,8 +293,8 @@ export const requestAccountDeletionCode = async (): Promise<{ message: string }>
 
 export const verifyAccountDeletionCode = async (
     code: string,
-): Promise<{ ok: true }> => {
-    const res = await fetch(`${BASE_URL}/account/delete/verify-code`, {
+): Promise<{ ok: true; deletionToken: string }> => {
+    const res = await apiFetch(`${BASE_URL}/account/delete/verify-code`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

@@ -1,9 +1,10 @@
+import type { ReactNode } from 'react';
 
 import { X } from 'lucide-react';
 import './NotificationCard.scss';
 
 interface NotificationCardProps {
-    icon: any;
+    icon: ReactNode;
     title: string;
     description: string;
     time: string;

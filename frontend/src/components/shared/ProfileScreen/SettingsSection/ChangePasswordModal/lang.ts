@@ -1,3 +1,4 @@
+import { translatedValue } from '../../../../../utils/translations';
 
 
 export type Language = 'ru' | 'en' | 'zh';
@@ -112,18 +113,7 @@ export const getChangePasswordTranslation = (
     lang: Language,
     path: string,
 ): string => {
-    const keys = path.split('.');
-    let result: any = changePasswordTranslations[lang];
-
-    for (const key of keys) {
-        if (result && result[key] !== undefined) {
-            result = result[key];
-        } else {
-            return path;
-        }
-    }
-
-    return typeof result === 'string' ? result : path;
+    return translatedValue(changePasswordTranslations[lang], path);
 };
 
 export const useChangePasswordTranslation = (lang: Language) => {

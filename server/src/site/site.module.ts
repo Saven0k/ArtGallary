@@ -8,9 +8,9 @@ import { SiteController } from './site.controller';
 import { User } from '../users/users.model';
 
 @Module({
-    controllers: [SiteController],
-    providers: [SiteVisitService, SiteRatingService],
-    imports: [SequelizeModule.forFeature([SiteVisit, SiteRating, User])],
-    exports: [SiteVisitService, SiteRatingService],
+  controllers: [SiteController],
+  providers: [SiteVisitService, SiteRatingService],
+  imports: [SequelizeModule.forFeature([SiteVisit, SiteRating, User])],
+  exports: [SiteVisitService, SiteRatingService],
 })
 export class SiteModule {}

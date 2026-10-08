@@ -1,3 +1,4 @@
+import { apiFetch } from '../request';
 
 import { BASE_URL_API } from "../main.api";
 
@@ -89,7 +90,7 @@ export const getAuthorStats = async (
     filter?: StatsQuery,
 ): Promise<AuthorStatsData | null> => {
     try {
-        const res = await fetch(
+        const res = await apiFetch(
             `${BASE_URL}/author/${authorId}${buildQuery(filter)}`,
             { credentials: 'include' },
         );
@@ -108,7 +109,7 @@ export const getArtStats = async (
     filter?: StatsQuery,
 ): Promise<ArtStatsData | null> => {
     try {
-        const res = await fetch(
+        const res = await apiFetch(
             `${BASE_URL}/art/${artId}${buildQuery(filter)}`,
             { credentials: 'include' },
         );

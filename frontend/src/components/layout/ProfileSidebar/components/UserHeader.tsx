@@ -7,13 +7,9 @@ interface UserHeaderProps {
     onClose: () => void;
 }
 
-export const UserHeader: React.FC<UserHeaderProps> = ({ userData, onEdit, onClose }) => {
-    const { name, surname, avatar_path, email } = userData;
+export const UserHeader: React.FC<UserHeaderProps> = ({ userData }) => {
+    const { name, surname, avatar_path } = userData;
 
-    const handleEdit = () => {
-        onEdit();
-        onClose();
-    };
 
     const initials = name && surname ? `${name[0]}${surname[0]}` : '👤';
 

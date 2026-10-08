@@ -1,3 +1,4 @@
+import { apiFetch } from '../request';
 
 import { BASE_URL_API } from "../main.api";
 
@@ -26,7 +27,7 @@ export interface DeleteProfessionResponse {
 
 export const getAllProfessions = async (): Promise<Profession[] | null> => {
     try {
-        const res = await fetch(BASE_URL, {
+        const res = await apiFetch(BASE_URL, {
             method: "GET",
             credentials: "include",
         });
@@ -40,7 +41,7 @@ export const getAllProfessions = async (): Promise<Profession[] | null> => {
 
 export const getProfessionById = async (id: number): Promise<Profession | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "GET",
             credentials: "include",
         });
@@ -54,7 +55,7 @@ export const getProfessionById = async (id: number): Promise<Profession | null> 
 
 export const createProfession = async (data: CreateProfessionData): Promise<Profession | null> => {
     try {
-        const res = await fetch(BASE_URL, {
+        const res = await apiFetch(BASE_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -70,7 +71,7 @@ export const createProfession = async (data: CreateProfessionData): Promise<Prof
 
 export const updateProfession = async (id: number, data: UpdateProfessionData): Promise<Profession | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -86,7 +87,7 @@ export const updateProfession = async (id: number, data: UpdateProfessionData): 
 
 export const deleteProfession = async (id: number): Promise<DeleteProfessionResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "DELETE",
             credentials: "include",
         });

@@ -13,14 +13,29 @@ import { Country } from 'src/location/models/country.model';
 import { AuthorProfile } from 'src/authors/author.model';
 import { AuthorsModule } from 'src/authors/authors.module';
 import { AuthorFollow } from 'src/authors/author-follow.model';
+import { RefreshToken } from '../auth/models/refresh-token.model';
+import { AccountDeletionCode } from '../auth/models/account-deletion-code.model';
 
 @Module({
   controllers: [UsersController],
   providers: [UsersService],
   imports: [
-    SequelizeModule.forFeature([User, Art, AuthorProfile, Profession, City, Country, AuthorFollow]),
-    PasswordModule, FilesModule,LocationModule, AuthorsModule
+    SequelizeModule.forFeature([
+      User,
+      Art,
+      AuthorProfile,
+      Profession,
+      City,
+      Country,
+      AuthorFollow,
+      RefreshToken,
+      AccountDeletionCode,
+    ]),
+    PasswordModule,
+    FilesModule,
+    LocationModule,
+    AuthorsModule,
   ],
-  exports: [UsersService, SequelizeModule]
+  exports: [UsersService, SequelizeModule],
 })
-export class UsersModule { }
+export class UsersModule {}

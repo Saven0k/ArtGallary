@@ -42,10 +42,10 @@ const fmtDateTime = (raw: string | null | undefined, language: string) => {
     return `${date} ${time}`;
 };
 
-const fullName = (a: any) =>
+const fullName = (a: { surname?: string; name?: string } | null | undefined) =>
     [a?.surname, a?.name].filter(Boolean).join(' ').trim();
 
-const readModerate = (raw: any): ModerateObject | null => {
+const readModerate = (raw: unknown): ModerateObject | null => {
     if (!raw) return null;
     if (typeof raw === 'string') {
         try {
@@ -59,7 +59,6 @@ const readModerate = (raw: any): ModerateObject | null => {
 
 const ModeratorLine = ({
     moderatorId,
-    language,
     label,
     prefix,
 }: {
@@ -76,7 +75,7 @@ const ModeratorLine = ({
         setLoading(true);
         getModeratorById(moderatorId).then((res) => {
             if (!alive) return;
-            const u = (res as any)?.user ?? res;
+            const u = res?.user;
             setName(u ? fullName(u) || null : null);
             setLoading(false);
         });
@@ -133,7 +132,7 @@ const ModerationSection = () => {
         const authorItems: QueueItem[] = authors.map((a) => ({
             kind: 'author',
             data: a,
-            date: (a.authorProfile as any)?.created_at ?? (a.authorProfile as any)?.createdAt ?? '',
+            date: a.authorProfile?.created_at ?? a.authorProfile?.createdAt ?? '',
         }));
         if (tab === 'arts') return artItems;
         if (tab === 'authors') return authorItems;
@@ -170,13 +169,12 @@ const ModerationSection = () => {
     const emptyText = tab === 'arts' ? t.empty.arts : tab === 'authors' ? t.empty.authors : t.empty.all;
 
     const renderAuthorCard = (a: AuthorProfileResponse) => {
-        const p: any = a.authorProfile ?? {};
-        const userAny = a as any;
+        const p = a.authorProfile;
 
         const name = fullName(a) || '—';
-        const location = [userAny?.city?.name, userAny?.country?.name].filter(Boolean).join(', ');
+        const location = [a.city?.name_ru ?? a.city?.name_en, a.country?.name_ru ?? a.country?.name_en].filter(Boolean).join(', ');
         const profession = p.profession?.name;
-        const email = userAny?.email;
+        const email = a.email;
         const created = fmtDateTime(p.created_at ?? p.createdAt, language);
         const bio = p.biography;
 
@@ -256,7 +254,7 @@ const ModerationSection = () => {
     const renderArtCard = (a: Art) => {
         const author = a.author?.user ? fullName(a.author.user) : null;
         const created = fmtDateTime(a.date_published, language);
-        const moderate = readModerate((a as any).moderate);
+        const moderate = readModerate(a.moderate);
         const moderatedAt = moderate?.moderated_at ? fmtDateTime(moderate.moderated_at, language) : null;
         const moderatorId = moderate?.moderator_id;
         const moderateStatusText =

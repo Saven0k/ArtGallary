@@ -1,11 +1,12 @@
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./LoginForm.scss";
 import { useLanguage } from "../../../../hooks/useLanguage";
 import { loginFormTranslations } from "./lang";
 import { useAuth } from "../../../../hooks/useAuth";
-import { login, type LoginData } from "../../../../api/auth/main.api";
+import { login, requestResetCode, verifyResetCode, resetPassword, type LoginData } from "../../../../api/auth/main.api";
+import { errorMessage } from "../../../../utils/errors";
 
 interface LoginFormProps {
     onClose?: () => void;
@@ -24,6 +25,7 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
     const { language } = useLanguage();
     const t = loginFormTranslations[language].loginForm;
     const navigate = useNavigate();
+    const location = useLocation();
     const { refetch } = useAuth();
 
     const [mode, setMode] = useState<FormMode>('login');
@@ -64,12 +66,13 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
             const result = await login(formData);
             if (result) {
                 await refetch();
-                navigate("/");
+                const from = (location.state as { from?: unknown } | null)?.from;
+                navigate(typeof from === 'string' && from.startsWith('/') && !from.startsWith('//') && !from.startsWith('/login') ? from : '/');
                 if (onClose) onClose();
             } else {
                 setError(t.errors.invalidCredentials);
             }
-        } catch (err) {
+        } catch {
             setError(t.errors.serverError);
         } finally {
             setLoading(false);
@@ -89,17 +92,13 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
         setSuccess(null);
 
         try {
-            // TODO: Заменить на реальный API вызов
-
-
-
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await requestResetCode({ email: resetData.email.trim() });
 
             setCodeSent(true);
             setSuccess(t.reset.success);
             setError(null);
         } catch (err) {
-            setError(t.reset.error);
+            setError(errorMessage(err, t.reset.error));
         } finally {
             setLoading(false);
         }
@@ -134,11 +133,8 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
         setSuccess(null);
 
         try {
-            // TODO: Заменить на реальный API вызов
-
-
-
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const { resetToken } = await verifyResetCode({ email: resetData.email.trim(), code: resetData.code });
+            await resetPassword({ resetToken, newPassword: resetData.newPassword });
 
             setSuccess(t.reset.passwordChanged);
 
@@ -161,7 +157,7 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
                 });
             }, 2000);
         } catch (err) {
-            setError(t.reset.invalidCode);
+            setError(errorMessage(err, t.reset.invalidCode));
         } finally {
             setLoading(false);
         }

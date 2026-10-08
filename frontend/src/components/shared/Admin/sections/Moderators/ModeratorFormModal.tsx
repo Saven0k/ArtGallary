@@ -56,6 +56,8 @@ const ModeratorFormModal = (props: ModeratorFormModalProps) => {
         initialUser?.second_name ?? '',
     );
 
+    const [gender, setGender] = useState<'M' | 'F' | ''>(initialUser?.gender ?? '');
+    const [birthday, setBirthday] = useState(initialUser?.date_birthday?.slice(0, 10) ?? '');
     const [errors, setErrors] = useState<Record<string, string | undefined>>({});
 
 
@@ -66,6 +68,8 @@ const ModeratorFormModal = (props: ModeratorFormModalProps) => {
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
             e.email = t.form.errors.email;
 
+        if (!gender) e.gender = t.form.errors.required;
+        if (!birthday || Number.isNaN(Date.parse(birthday)) || new Date(birthday) > new Date()) e.birthday = t.form.errors.required;
         if (!name.trim()) e.name = t.form.errors.required;
         if (!surname.trim()) e.surname = t.form.errors.required;
 
@@ -84,10 +88,13 @@ const ModeratorFormModal = (props: ModeratorFormModalProps) => {
         }
         setErrors({});
 
+        if (!gender) return;
         if (props.mode === 'create') {
             props.onSubmit({
                 email: email.trim(),
                 password,
+                gender,
+                date_birthday: birthday,
                 name: name.trim(),
                 surname: surname.trim(),
                 second_name: secondName.trim() || undefined,
@@ -98,6 +105,8 @@ const ModeratorFormModal = (props: ModeratorFormModalProps) => {
             if (email.trim() !== (initialUser?.email ?? ''))
                 data.email = email.trim();
             if (password) data.password = password;
+            if (gender !== initialUser?.gender) data.gender = gender;
+            if (birthday !== initialUser?.date_birthday?.slice(0, 10)) data.date_birthday = birthday;
             if (name.trim() !== (initialUser?.name ?? ''))
                 data.name = name.trim();
             if (surname.trim() !== (initialUser?.surname ?? ''))
@@ -129,6 +138,10 @@ const ModeratorFormModal = (props: ModeratorFormModalProps) => {
                 </header>
 
                 <div className="moderator-form__body">
+                    <div className="moderator-form__row">
+                        <label className="moderator-form__field">{language === 'ru' ? 'Пол' : language === 'zh' ? '性别' : 'Gender'}<select value={gender} onChange={(e) => setGender(e.target.value as 'M' | 'F' | '')}><option value="">—</option><option value="M">{language === 'ru' ? 'Мужской' : 'M'}</option><option value="F">{language === 'ru' ? 'Женский' : 'F'}</option></select>{errors.gender && <span className="moderator-form__err">{errors.gender}</span>}</label>
+                        <label className="moderator-form__field">{language === 'ru' ? 'Дата рождения' : language === 'zh' ? '出生日期' : 'Birthday'}<input type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} />{errors.birthday && <span className="moderator-form__err">{errors.birthday}</span>}</label>
+                    </div>
                     <div className="moderator-form__row">
                         <label className="moderator-form__field">
                             {t.form.fields.email}

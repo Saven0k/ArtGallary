@@ -9,13 +9,13 @@ import { FilesModule } from '../files/files.module';
 import { PasswordModule } from 'src/password/password.module';
 
 @Module({
-    imports: [
-        SequelizeModule.forFeature([Moderator, User]),
-        FilesModule,
-        PasswordModule
-    ],
-    controllers: [ModeratorsController],
-    providers: [ModeratorsService, FilesService],
-    exports: [ModeratorsService]
+  imports: [
+    SequelizeModule.forFeature([Moderator, User]),
+    FilesModule,
+    PasswordModule,
+  ],
+  controllers: [ModeratorsController],
+  providers: [ModeratorsService, FilesService],
+  exports: [ModeratorsService],
 })
-export class ModeratorsModule { }
+export class ModeratorsModule {}

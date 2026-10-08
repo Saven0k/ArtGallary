@@ -16,7 +16,6 @@ import {
     getAuthors,
     getModeratedAuthors,
     getUnmoderatedAuthors,
-    getAuthorById,
     createAuthor,
     moderateAuthor,
     deleteAuthor,

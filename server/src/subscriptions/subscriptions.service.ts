@@ -1,615 +1,548 @@
-import { Injectable, HttpException, HttpStatus, Inject } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { Subscription, SubscriptionPlan } from './subscription.model';
-import { SubscriptionHistory, HistoryEventType, PaymentMethod, PaymentStatus } from './subscription-history.model';
 import {
-    PurchaseSubscriptionDto,
-    SubscriptionResponseDto,
-    PaymentInitResponseDto,
-    ConfirmPaymentDto,
-    SubscriptionHistoryResponseDto
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import axios from 'axios';
+import { randomUUID } from 'node:crypto';
+import { Transaction } from 'sequelize';
+import { AuthorProfile } from '../authors/author.model';
+import { Subscription, SubscriptionPlan } from './subscription.model';
+import {
+  HistoryEventType,
+  PaymentMethod,
+  PaymentStatus,
+  SubscriptionHistory,
+} from './subscription-history.model';
+import {
+  ConfirmPaymentDto,
+  PaymentInitResponseDto,
+  PurchaseSubscriptionDto,
+  SubscriptionResponseDto,
 } from './dto/subscription.dto';
-import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
-import { Transaction, Op } from 'sequelize';
-import { v4 as uuidv4 } from 'uuid';
-import { AuthorProfile } from 'src/authors/author.model';
+
+interface ProviderPayment {
+  id: string;
+  status: 'pending' | 'waiting_for_capture' | 'succeeded' | 'canceled';
+  paid: boolean;
+  test: boolean;
+  amount: { value: string; currency: string };
+  recipient: { account_id: string };
+  metadata: { order_id: string; user_id: string; author_id: string };
+  confirmation?: { confirmation_url?: string };
+}
 
 @Injectable()
 export class SubscriptionService {
-    private readonly PLAN_PRICES = {
-        [SubscriptionPlan.FREE]: 0,
-        [SubscriptionPlan.PRO]: 500,
-        [SubscriptionPlan.VIP]: 1000,
-    };
+  private readonly prices = { free: 0, pro: 500, vip: 1000 };
+  private readonly durations = [30, 90, 365];
+  private readonly multipliers = [1, 2.7, 10];
+  private readonly currency = 'RUB';
 
-    private readonly PLAN_DURATIONS = {
-        monthly: 30,
-        quarterly: 90,
-        yearly: 365,
-    };
+  constructor(
+    @InjectModel(Subscription) private subscriptionModel: typeof Subscription,
+    @InjectModel(SubscriptionHistory)
+    private historyModel: typeof SubscriptionHistory,
+    @InjectModel(AuthorProfile)
+    private authorProfileModel: typeof AuthorProfile,
+  ) {}
 
-    private readonly CURRENCY = 'RUB';
-
-    constructor(
-        @InjectModel(Subscription) private subscriptionModel: typeof Subscription,
-        @InjectModel(SubscriptionHistory) private historyModel: typeof SubscriptionHistory,
-        @InjectModel(AuthorProfile) private authorProfileModel: typeof AuthorProfile,
-        @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-    ) { }
-
-
-
-
-    async initiatePurchase(
-        userId: number,
-        dto: PurchaseSubscriptionDto
-    ): Promise<PaymentInitResponseDto> {
-        const profile = await this.authorProfileModel.findOne({
-            where: { user_id: userId }
-        });
-
-        if (!profile) {
-            throw new HttpException('Профиль артиста не найден', HttpStatus.NOT_FOUND);
-        }
-
-
-        const currentSubscription = await this.getActiveSubscription(profile.id);
-        if (currentSubscription && currentSubscription.plan !== SubscriptionPlan.FREE) {
-            throw new HttpException(
-                `У вас уже активна подписка ${currentSubscription.plan}. Сначала отмените её.`,
-                HttpStatus.BAD_REQUEST
-            );
-        }
-
-        const duration = dto.durationDays || this.PLAN_DURATIONS.monthly;
-        const amount = this.calculatePrice(dto.plan, duration);
-
-
-        const paymentId = `pay_${uuidv4().replace(/-/g, '').slice(0, 16)}`;
-
-
-        const history = await this.historyModel.create({
-            subscription_id: currentSubscription?.id || 0,
-            event_type: HistoryEventType.PURCHASE,
-            payment_method: dto.paymentMethod,
-            payment_status: PaymentStatus.PENDING,
-            amount: amount,
-            currency: this.CURRENCY,
-            old_plan: currentSubscription?.plan || SubscriptionPlan.FREE,
-            new_plan: dto.plan,
-            old_expires_at: currentSubscription?.expires_at || null,
-            description: `Инициация оплаты подписки ${dto.plan} на ${duration} дней`,
-            metadata: {
-                paymentId: paymentId,
-                duration: duration,
-                userId: userId,
-                authorId: profile.id
-            }
-        });
-
-
-        const paymentData = this.generatePaymentData(paymentId, amount, dto.paymentMethod);
-
-        this.logger.log('info', JSON.stringify({
-            message: '🔄 Инициирована покупка подписки',
-            context: 'SubscriptionService',
-            userId,
-            plan: dto.plan,
-            amount,
-            paymentId,
-            paymentMethod: dto.paymentMethod,
-        }));
-
-        return {
-            paymentId: paymentId,
-            paymentUrl: paymentData.paymentUrl,
-            qrCodeData: paymentData.qrCodeData,
-            amount: amount,
-            currency: this.CURRENCY,
-        };
+  async initiatePurchase(
+    userId: number,
+    dto: PurchaseSubscriptionDto,
+  ): Promise<PaymentInitResponseDto> {
+    const duration = dto.durationDays ?? 30;
+    const method = dto.paymentMethod ?? PaymentMethod.CARD;
+    const amount = this.calculatePrice(dto.plan, duration);
+    if (!amount || !Object.values(PaymentMethod).includes(method)) {
+      throw new BadRequestException(
+        'Бесплатный план уже доступен. Для платного плана выберите способ оплаты.',
+      );
     }
-
-
-    async confirmPayment(confirmDto: ConfirmPaymentDto): Promise<{ success: boolean; message: string }> {
-
-        const history = await this.historyModel.findOne({
-            where: {
-                metadata: { paymentId: confirmDto.paymentId }
-            },
-            include: [Subscription]
-        });
-
-        if (!history) {
-            throw new HttpException('Платеж не найден', HttpStatus.NOT_FOUND);
+    const config = this.providerConfig();
+    const history = await this.subscriptionModel.sequelize.transaction(
+      async (transaction) => {
+        const profile = await this.lockProfile(userId, transaction);
+        const subscription = await this.ensureSubscription(
+          Number(profile.user_id),
+          transaction,
+        );
+        if (
+          subscription.plan !== SubscriptionPlan.FREE &&
+          subscription.isActive()
+        ) {
+          throw new BadRequestException(
+            'Платная подписка уже действует. Дождитесь окончания оплаченного периода.',
+          );
         }
-
-
-        if (history.payment_status === PaymentStatus.SUCCESS) {
-            return {
-                success: true,
-                message: 'Подписка уже активирована'
-            };
-        }
-
-        if (confirmDto.status === 'success') {
-
-            return this.processSuccessfulPayment(history, confirmDto);
-        } else {
-
-            await history.update({
-                payment_status: PaymentStatus.FAILED,
-                description: `Оплата не прошла: ${confirmDto.metadata?.error || 'неизвестная ошибка'}`
-            });
-
-            return {
-                success: false,
-                message: 'Оплата не прошла'
-            };
-        }
-    }
-
-
-    async getSubscriptionInfo(userId: number): Promise<SubscriptionResponseDto> {
-        const profile = await this.authorProfileModel.findOne({
-            where: { user_id: userId }
-        });
-
-        if (!profile) {
-            throw new HttpException('Профиль артиста не найден', HttpStatus.NOT_FOUND);
-        }
-
-
-        await this.updateExpiredSubscriptions(profile.id);
-
-        let subscription = await this.subscriptionModel.findOne({
-            where: { author_id: profile.id },
-            include: [{
-                model: SubscriptionHistory,
-                limit: 10,
-                order: [['created_at', 'DESC']]
-            }]
-        });
-
-        const history = subscription?.history || [];
-        const historyResponse: SubscriptionHistoryResponseDto[] = history.map(h => ({
-            id: h.id,
-            eventType: h.event_type,
-            paymentMethod: h.payment_method,
-            paymentStatus: h.payment_status,
-            amount: h.amount,
-            currency: h.currency,
-            oldPlan: h.old_plan,
-            newPlan: h.new_plan,
-            description: h.description,
-            createdAt: h.created_at,
-        }));
-
-        if (!subscription) {
-
-            subscription = await this.subscriptionModel.create({
-                author_id: profile.id,
-                plan: SubscriptionPlan.FREE,
-                expires_at: null,
-                is_active: true
-            });
-
-            await this.historyModel.create({
-                subscription_id: subscription.id,
-                event_type: HistoryEventType.PURCHASE,
-                payment_method: null,
-                payment_status: PaymentStatus.SUCCESS,
-                amount: 0,
-                currency: this.CURRENCY,
-                new_plan: SubscriptionPlan.FREE,
-                description: 'Активация бесплатного плана'
-            });
-        }
-
-        return {
-            plan: subscription.plan,
-            expiresAt: subscription.expires_at,
-            isActive: subscription.isActive(),
-            planWeight: subscription.getWeight(),
-            daysLeft: subscription.getDaysLeft(),
-            features: subscription.getFeatures(),
-            history: historyResponse,
-        };
-    }
-
-
-    async cancelSubscription(userId: number): Promise<{ success: boolean; message: string }> {
-        const profile = await this.authorProfileModel.findOne({
-            where: { user_id: userId }
-        });
-
-        if (!profile) {
-            throw new HttpException('Профиль артиста не найден', HttpStatus.NOT_FOUND);
-        }
-
-        const subscription = await this.getActiveSubscription(profile.id);
-        if (!subscription || subscription.plan === SubscriptionPlan.FREE) {
-            throw new HttpException('Нет активной платной подписки', HttpStatus.BAD_REQUEST);
-        }
-
-
-        const oldPlan = subscription.plan;
-        const oldExpiresAt = subscription.expires_at;
-
-
-        subscription.is_active = false;
-        await subscription.save();
-
-
-        await this.historyModel.create({
+        const pending = await this.historyModel.findOne({
+          where: {
             subscription_id: subscription.id,
-            event_type: HistoryEventType.CANCELLATION,
-            payment_status: PaymentStatus.SUCCESS,
-            old_plan: oldPlan,
-            new_plan: SubscriptionPlan.FREE,
-            old_expires_at: oldExpiresAt,
-            description: `Отмена подписки ${oldPlan}`,
-            metadata: {
-                cancelled_at: new Date(),
-                reason: 'user_cancelled'
-            }
+            payment_status: PaymentStatus.PENDING,
+          },
+          transaction,
+          lock: transaction.LOCK.UPDATE,
+          order: [['id', 'DESC']],
         });
+        if (pending) {
+          if (
+            pending.new_plan !== dto.plan ||
+            pending.metadata?.duration !== duration ||
+            pending.payment_method !== method ||
+            !pending.metadata?.idempotencyKey ||
+            Date.now() - new Date(pending.created_at).getTime() >=
+              24 * 60 * 60 * 1000
+          ) {
+            throw new ConflictException(
+              'Сначала проверьте или завершите предыдущий платеж.',
+            );
+          }
+          return pending;
+        }
+        return this.historyModel.create(
+          {
+            subscription_id: subscription.id,
+            event_type: HistoryEventType.PURCHASE,
+            payment_method: method,
+            payment_status: PaymentStatus.PENDING,
+            amount,
+            currency: this.currency,
+            old_plan: subscription.plan,
+            new_plan: dto.plan,
+            old_expires_at: subscription.expires_at,
+            description: `Оплата подписки ${dto.plan} на ${duration} дней`,
+            metadata: {
+              idempotencyKey: randomUUID(),
+              duration,
+              userId,
+              authorId: Number(profile.user_id),
+              returnUrl: config.returnUrl,
+            },
+          },
+          { transaction },
+        );
+      },
+    );
+    let payment: ProviderPayment;
+    try {
+      if (history.metadata.paymentId) {
+        const response = await axios.get<ProviderPayment>(
+          `https://api.yookassa.ru/v3/payments/${encodeURIComponent(history.metadata.paymentId)}`,
+          config.request,
+        );
+        payment = response.data;
+      } else {
+        const response = await axios.post<ProviderPayment>(
+          'https://api.yookassa.ru/v3/payments',
+          {
+            amount: {
+              value: Number(history.amount).toFixed(2),
+              currency: history.currency,
+            },
+            capture: true,
+            payment_method_data: {
+              type: method === PaymentMethod.QR_CODE ? 'sbp' : 'bank_card',
+            },
+            confirmation: {
+              type: 'redirect',
+              return_url: history.metadata.returnUrl,
+            },
+            description: history.description,
+            metadata: {
+              order_id: String(history.id),
+              user_id: String(userId),
+              author_id: String(history.metadata.authorId),
+            },
+          },
+          {
+            ...config.request,
+            headers: { 'Idempotence-Key': history.metadata.idempotencyKey },
+          },
+        );
+        payment = response.data;
+      }
+    } catch {
+      throw new ServiceUnavailableException(
+        'Платежный сервис недоступен. Повторите запрос позже.',
+      );
+    }
+    this.verifyPayment(payment, history, config.shopId);
+    const paymentUrl =
+      payment.confirmation?.confirmation_url ?? history.metadata.paymentUrl;
+    if (paymentUrl) {
+      try {
+        if (new URL(paymentUrl).protocol !== 'https:') throw new Error();
+      } catch {
+        throw new ServiceUnavailableException(
+          'Платежный сервис не вернул безопасную ссылку на оплату.',
+        );
+      }
+    } else if (payment.status === 'pending')
+      throw new ServiceUnavailableException(
+        'Платежный сервис не вернул ссылку на оплату.',
+      );
+    await this.subscriptionModel.sequelize.transaction(async (transaction) => {
+      await this.lockProfile(userId, transaction);
+      const current = await this.historyModel.findByPk(history.id, {
+        transaction,
+        lock: transaction.LOCK.UPDATE,
+      });
+      await current.update(
+        {
+          metadata: { ...current.metadata, paymentId: payment.id, paymentUrl },
+          ...(payment.status === 'canceled'
+            ? { payment_status: PaymentStatus.FAILED }
+            : {}),
+        },
+        { transaction },
+      );
+    });
+    if (payment.status === 'canceled')
+      throw new BadRequestException('Платеж отменен. Повторите покупку.');
+    return {
+      paymentId: payment.id,
+      paymentUrl,
+      amount: Number(history.amount),
+      currency: history.currency,
+    };
+  }
 
+  purchaseSubscription(
+    userId: number,
+    dto: PurchaseSubscriptionDto,
+  ): Promise<PaymentInitResponseDto> {
+    return this.initiatePurchase(userId, dto);
+  }
 
-        const freeSubscription = await this.subscriptionModel.create({
-            author_id: profile.id,
+  async confirmPayment(
+    userId: number,
+    dto: ConfirmPaymentDto,
+  ): Promise<{ success: boolean; message: string }> {
+    const history = await this.historyModel.findOne({
+      where: { 'metadata.paymentId': dto.paymentId },
+    });
+    if (!history) throw new NotFoundException('Платеж не найден');
+    if (history.metadata?.userId !== userId)
+      throw new ForbiddenException('Платеж принадлежит другому пользователю');
+    if (history.payment_status === PaymentStatus.SUCCESS)
+      return { success: true, message: 'Подписка уже активирована' };
+    const config = this.providerConfig();
+    let payment: ProviderPayment;
+    try {
+      const response = await axios.get<ProviderPayment>(
+        `https://api.yookassa.ru/v3/payments/${encodeURIComponent(dto.paymentId)}`,
+        config.request,
+      );
+      payment = response.data;
+    } catch {
+      throw new ServiceUnavailableException(
+        'Не удалось проверить оплату. Повторите запрос позже.',
+      );
+    }
+    this.verifyPayment(payment, history, config.shopId);
+    return this.subscriptionModel.sequelize.transaction(async (transaction) => {
+      const profile = await this.lockProfile(userId, transaction);
+      if (profile.user_id !== history.metadata.authorId)
+        throw new ForbiddenException('Платеж принадлежит другому автору');
+      const subscription = await this.ensureSubscription(
+        Number(profile.user_id),
+        transaction,
+      );
+      const current = await this.historyModel.findByPk(history.id, {
+        transaction,
+        lock: transaction.LOCK.UPDATE,
+      });
+      if (current.payment_status === PaymentStatus.SUCCESS)
+        return { success: true, message: 'Подписка уже активирована' };
+      if (payment.status === 'canceled') {
+        await current.update(
+          { payment_status: PaymentStatus.FAILED },
+          { transaction },
+        );
+        return { success: false, message: 'Оплата отменена' };
+      }
+      if (payment.status !== 'succeeded' || !payment.paid)
+        return { success: false, message: 'Оплата еще не завершена' };
+      const duration = current.metadata.duration;
+      this.calculatePrice(current.new_plan, duration);
+      const expiry = new Date();
+      expiry.setDate(expiry.getDate() + duration);
+      await subscription.update(
+        { plan: current.new_plan, expires_at: expiry, is_active: true },
+        { transaction },
+      );
+      await current.update(
+        {
+          subscription_id: subscription.id,
+          payment_status: PaymentStatus.SUCCESS,
+          new_expires_at: expiry,
+          metadata: {
+            ...current.metadata,
+            confirmedAt: new Date().toISOString(),
+          },
+        },
+        { transaction },
+      );
+      return {
+        success: true,
+        message: `Подписка ${current.new_plan} активирована на ${duration} дней`,
+      };
+    });
+  }
+
+  async getSubscriptionInfo(userId: number): Promise<SubscriptionResponseDto> {
+    const profile = await this.authorProfileModel.findOne({
+      where: { user_id: userId },
+    });
+    if (!profile) throw new NotFoundException('Профиль артиста не найден');
+    const current = await this.subscriptionModel.findOne({
+      where: { author_id: Number(profile.user_id) },
+    });
+    const subscription =
+      current && (current.plan === SubscriptionPlan.FREE || current.isActive())
+        ? current
+        : this.subscriptionModel.build({
+            author_id: Number(profile.user_id),
             plan: SubscriptionPlan.FREE,
             expires_at: null,
-            is_active: true
-        });
-
-        await this.historyModel.create({
-            subscription_id: freeSubscription.id,
-            event_type: HistoryEventType.PLAN_CHANGE,
-            payment_status: PaymentStatus.SUCCESS,
-            old_plan: oldPlan,
-            new_plan: SubscriptionPlan.FREE,
-            description: `Переход на бесплатный план после отмены ${oldPlan}`
-        });
-
-        this.logger.log('info', JSON.stringify({
-            message: '⛔ Подписка отменена',
-            context: 'SubscriptionService',
-            userId,
-            plan: oldPlan,
-        }));
-
-        return {
-            success: true,
-            message: `Подписка ${oldPlan} отменена. Доступ сохранится до ${oldExpiresAt?.toLocaleDateString()}`,
-        };
-    }
-
-
-    async getActiveSubscription(authorId: number): Promise<Subscription | null> {
-        await this.updateExpiredSubscriptions(authorId);
-
-        return this.subscriptionModel.findOne({
-            where: {
-                author_id: authorId,
-                is_active: true,
-                expires_at: { [Op.gt]: new Date() }
-            },
-            order: [['expires_at', 'DESC']]
-        });
-    }
-
-
-    getAvailablePlans() {
-        return {
-            plans: Object.values(SubscriptionPlan).map(plan => ({
-                name: plan,
-                price: this.PLAN_PRICES[plan],
-                features: this.getPlanFeatures(plan),
-                weight: this.getPlanWeight(plan),
-                durationOptions: [
-                    { label: 'Месяц', value: this.PLAN_DURATIONS.monthly, price: this.PLAN_PRICES[plan] },
-                    { label: '3 месяца', value: this.PLAN_DURATIONS.quarterly, price: Math.round(this.PLAN_PRICES[plan] * 2.7) },
-                    { label: 'Год', value: this.PLAN_DURATIONS.yearly, price: Math.round(this.PLAN_PRICES[plan] * 10) },
-                ]
-            })),
-            currency: this.CURRENCY,
-            paymentMethods: [
-                { value: 'card', label: 'Банковская карта' },
-                { value: 'qr_code', label: 'QR-код' },
-            ]
-        };
-    }
-
-
-
-    async purchaseSubscription(
-        userId: number,
-        dto: PurchaseSubscriptionDto
-    ): Promise<SubscriptionResponseDto> {
-        try {
-
-            const profile = await this.authorProfileModel.findOne({
-                where: { user_id: userId }
-            });
-
-            if (!profile) {
-                throw new HttpException('Профиль артиста не найден', HttpStatus.NOT_FOUND);
-            }
-
-
-            const currentSubscription = await this.getActiveSubscription(profile.id);
-            if (currentSubscription && currentSubscription.plan !== SubscriptionPlan.FREE) {
-                throw new HttpException(
-                    `У вас уже активна подписка ${currentSubscription.plan}`,
-                    HttpStatus.BAD_REQUEST
-                );
-            }
-
-
-            const duration = dto.durationDays || this.PLAN_DURATIONS.monthly;
-            const amount = this.calculatePrice(dto.plan, duration);
-
-
-            const paymentId = `pay_${uuidv4().replace(/-/g, '').slice(0, 16)}`;
-
-
-            const history = await this.historyModel.create({
-                subscription_id: currentSubscription?.id || 0,
-                event_type: HistoryEventType.PURCHASE,
-                payment_method: dto.paymentMethod,
-                payment_status: PaymentStatus.PENDING,
-                amount: amount,
-                currency: this.CURRENCY,
-                old_plan: currentSubscription?.plan || SubscriptionPlan.FREE,
-                new_plan: dto.plan,
-                old_expires_at: currentSubscription?.expires_at || null,
-                description: `Покупка подписки ${dto.plan} на ${duration} дней`,
-                metadata: {
-                    paymentId: paymentId,
-                    duration: duration,
-                    userId: userId,
-                    authorId: profile.id
-                }
-            });
-
-
-            const paymentData = this.generatePaymentData(paymentId, amount, dto.paymentMethod);
-
-            this.logger.log('info', JSON.stringify({
-                message: '🔄 Инициирована покупка подписки',
-                context: 'SubscriptionService',
-                userId,
-                plan: dto.plan,
-                amount,
-                paymentId,
-            }));
-
-
-
-
-
-
-            const confirmDto: ConfirmPaymentDto = {
-                paymentId: paymentId,
-                status: 'success',
-                amount: amount,
-                currency: this.CURRENCY,
-                paymentMethod: dto.paymentMethod,
-                metadata: {
-                    card_last4: '4242',
-                    payment_system: 'yookassa'
-                }
-            };
-
-
-            await this.confirmPayment(confirmDto);
-
-
-            return this.getSubscriptionInfo(userId);
-
-        } catch (error: any) {
-            this.logger.log('error', JSON.stringify({
-                message: '❌ Ошибка при покупке подписки',
-                context: 'SubscriptionService',
-                userId,
-                error: error.message,
-            }));
-            throw error;
-        }
-    }
-
-
-
-
-    private async processSuccessfulPayment(
-        history: SubscriptionHistory,
-        confirmDto: ConfirmPaymentDto
-    ): Promise<{ success: boolean; message: string }> {
-        const metadata = history.metadata || {};
-        const authorId = metadata.authorId;
-        const newPlan = history.new_plan as SubscriptionPlan;
-        const duration = metadata.duration || 30;
-
-
-        await history.update({
-            payment_status: PaymentStatus.SUCCESS,
-            amount: confirmDto.amount,
-            currency: confirmDto.currency,
-            payment_method: confirmDto.paymentMethod,
-            description: `Оплата подписки ${newPlan} на ${duration} дней успешно завершена`,
-            metadata: {
-                ...metadata,
-                confirmed_at: new Date(),
-                ...confirmDto.metadata
-            }
-        });
-
-
-        await this.subscriptionModel.update(
-            { is_active: false },
-            { where: { author_id: authorId, is_active: true } }
-        );
-
-
-        const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + duration);
-
-        let subscription = await this.subscriptionModel.findOne({
-            where: { author_id: authorId }
-        });
-
-        if (subscription) {
-            subscription.plan = newPlan;
-            subscription.expires_at = expiryDate;
-            subscription.is_active = true;
-            await subscription.save();
-        } else {
-            subscription = await this.subscriptionModel.create({
-                author_id: authorId,
-                plan: newPlan,
-                expires_at: expiryDate,
-                is_active: true
-            });
-        }
-
-
-        await history.update({
-            subscription_id: subscription.id,
-            new_expires_at: expiryDate
-        });
-
-
-        await this.historyModel.create({
-            subscription_id: subscription.id,
-            event_type: HistoryEventType.PURCHASE,
-            payment_method: confirmDto.paymentMethod,
-            payment_status: PaymentStatus.SUCCESS,
-            amount: confirmDto.amount,
-            currency: confirmDto.currency,
-            new_plan: newPlan,
-            new_expires_at: expiryDate,
-            description: `Активация подписки ${newPlan} на ${duration} дней`,
-            metadata: {
-                paymentId: confirmDto.paymentId,
-                activated_at: new Date()
-            }
-        });
-
-        this.logger.log('info', JSON.stringify({
-            message: '✅ Подписка успешно оплачена и активирована',
-            context: 'SubscriptionService',
-            authorId,
-            plan: newPlan,
-            amount: confirmDto.amount,
-            duration,
-        }));
-
-        return {
-            success: true,
-            message: `Подписка ${newPlan} успешно активирована на ${duration} дней`
-        };
-    }
-
-
-    private async updateExpiredSubscriptions(authorId?: number): Promise<void> {
-        const where: any = {
             is_active: true,
-            expires_at: { [Op.lt]: new Date() }
+          });
+    const history = current
+      ? await this.historyModel.findAll({
+          where: { subscription_id: current.id },
+          limit: 10,
+          order: [['created_at', 'DESC']],
+        })
+      : [];
+    return {
+      plan: subscription.plan,
+      expiresAt: subscription.expires_at,
+      isActive: subscription.isActive(),
+      planWeight: subscription.getWeight(),
+      daysLeft: subscription.getDaysLeft(),
+      features: subscription.getFeatures(),
+      history: history.map((item) => ({
+        id: item.id,
+        eventType: item.event_type,
+        paymentMethod: item.payment_method,
+        paymentStatus: item.payment_status,
+        amount: item.amount,
+        currency: item.currency,
+        oldPlan: item.old_plan,
+        newPlan: item.new_plan,
+        description: item.description,
+        createdAt: item.created_at,
+        paymentId: item.metadata?.paymentId,
+      })),
+    };
+  }
+
+  async cancelSubscription(
+    userId: number,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.subscriptionModel.sequelize.transaction(async (transaction) => {
+      const profile = await this.lockProfile(userId, transaction);
+      const subscription = await this.ensureSubscription(
+        Number(profile.user_id),
+        transaction,
+      );
+      if (subscription.plan === SubscriptionPlan.FREE)
+        throw new BadRequestException('Нет активной платной подписки');
+      const cancellation = await this.historyModel.findOne({
+        where: {
+          subscription_id: subscription.id,
+          event_type: HistoryEventType.CANCELLATION,
+          old_expires_at: subscription.expires_at,
+        },
+        transaction,
+      });
+      if (!cancellation)
+        await this.historyModel.create(
+          {
+            subscription_id: subscription.id,
+            event_type: HistoryEventType.CANCELLATION,
+            old_plan: subscription.plan,
+            new_plan: SubscriptionPlan.FREE,
+            old_expires_at: subscription.expires_at,
+            description: 'Отмена продления. Оплаченный период сохраняется.',
+            metadata: { cancelledAt: new Date().toISOString() },
+          },
+          { transaction },
+        );
+      return {
+        success: true,
+        message: `Доступ сохранится до ${subscription.expires_at.toLocaleDateString('ru-RU')}`,
+      };
+    });
+  }
+
+  async getActiveSubscription(authorId: number): Promise<Subscription | null> {
+    const subscription = await this.subscriptionModel.findOne({
+      where: { author_id: authorId },
+    });
+    return subscription?.isActive() ? subscription : null;
+  }
+
+  getAvailablePlans() {
+    return {
+      plans: Object.values(SubscriptionPlan).map((plan) => {
+        const subscription = this.subscriptionModel.build({
+          author_id: 0,
+          plan,
+          is_active: true,
+          expires_at: new Date(Date.now() + 86400000),
+        });
+        return {
+          name: plan,
+          price: this.prices[plan],
+          features: subscription.getFeatures(),
+          weight: subscription.getWeight(),
+          durationOptions: this.durations.map((value, index) => ({
+            label: ['Месяц', '3 месяца', 'Год'][index],
+            value,
+            price: this.calculatePrice(plan, value),
+          })),
         };
+      }),
+      currency: this.currency,
+      paymentMethods: [
+        { value: PaymentMethod.CARD, label: 'Банковская карта' },
+        { value: PaymentMethod.QR_CODE, label: 'QR-код' },
+      ],
+    };
+  }
 
-        if (authorId) {
-            where.author_id = authorId;
-        }
+  private calculatePrice(plan: SubscriptionPlan, days: number): number {
+    const index = this.durations.indexOf(days);
+    if (!Object.values(SubscriptionPlan).includes(plan) || index === -1)
+      throw new BadRequestException(
+        'Выберите тариф и срок: 30, 90 или 365 дней.',
+      );
+    return Math.round(this.prices[plan] * this.multipliers[index]);
+  }
 
-        const expired = await this.subscriptionModel.findAll({ where });
+  private async lockProfile(
+    userId: number,
+    transaction: Transaction,
+  ): Promise<AuthorProfile> {
+    const profile = await this.authorProfileModel.findOne({
+      where: { user_id: userId },
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
+    if (!profile) throw new NotFoundException('Профиль артиста не найден');
+    return profile;
+  }
 
-        for (const subscription of expired) {
-
-            subscription.is_active = false;
-            await subscription.save();
-
-
-            await this.historyModel.create({
-                subscription_id: subscription.id,
-                event_type: HistoryEventType.EXPIRATION,
-                payment_status: PaymentStatus.SUCCESS,
-                old_plan: subscription.plan,
-                old_expires_at: subscription.expires_at,
-                description: `Подписка ${subscription.plan} истекла`
-            });
-
-
-            const freeSubscription = await this.subscriptionModel.create({
-                author_id: subscription.author_id,
-                plan: SubscriptionPlan.FREE,
-                expires_at: null,
-                is_active: true
-            });
-
-            await this.historyModel.create({
-                subscription_id: freeSubscription.id,
-                event_type: HistoryEventType.PLAN_CHANGE,
-                payment_status: PaymentStatus.SUCCESS,
-                old_plan: subscription.plan,
-                new_plan: SubscriptionPlan.FREE,
-                description: `Автоматический переход на бесплатный план после истечения ${subscription.plan}`
-            });
-
-            this.logger.log('info', JSON.stringify({
-                message: '⏰ Подписка истекла, переход на бесплатный план',
-                context: 'SubscriptionService',
-                authorId: subscription.author_id,
-                oldPlan: subscription.plan,
-            }));
-        }
+  private async ensureSubscription(
+    authorId: number,
+    transaction: Transaction,
+  ): Promise<Subscription> {
+    const [subscription, created] = await this.subscriptionModel.findOrCreate({
+      where: { author_id: authorId },
+      defaults: {
+        author_id: authorId,
+        plan: SubscriptionPlan.FREE,
+        expires_at: null,
+        is_active: true,
+      },
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
+    if (created)
+      await this.historyModel.create(
+        {
+          subscription_id: subscription.id,
+          event_type: HistoryEventType.PLAN_CHANGE,
+          new_plan: SubscriptionPlan.FREE,
+          amount: 0,
+          currency: this.currency,
+          description: 'Активация бесплатного плана',
+        },
+        { transaction },
+      );
+    if (
+      subscription.plan !== SubscriptionPlan.FREE &&
+      !subscription.isActive()
+    ) {
+      await this.historyModel.create(
+        {
+          subscription_id: subscription.id,
+          event_type: HistoryEventType.EXPIRATION,
+          old_plan: subscription.plan,
+          new_plan: SubscriptionPlan.FREE,
+          old_expires_at: subscription.expires_at,
+          description: 'Оплаченный период подписки закончился',
+        },
+        { transaction },
+      );
+      await subscription.update(
+        { plan: SubscriptionPlan.FREE, expires_at: null, is_active: true },
+        { transaction },
+      );
     }
+    return subscription;
+  }
 
-
-    private generatePaymentData(paymentId: string, amount: number, method: PaymentMethod): {
-        paymentUrl?: string;
-        qrCodeData?: string;
-    } {
-
-
-
-        const baseUrl = 'https://payment.example.com';
-
-        if (method === PaymentMethod.CARD) {
-            return {
-                paymentUrl: `${baseUrl}/pay/${paymentId}?amount=${amount}&currency=${this.CURRENCY}`,
-            };
-        } else {
-            return {
-                qrCodeData: `payment:${paymentId}:${amount}:${this.CURRENCY}`,
-                paymentUrl: `${baseUrl}/qr/${paymentId}`,
-            };
-        }
+  private providerConfig() {
+    const shopId = process.env.YOOKASSA_SHOP_ID;
+    const password = process.env.YOOKASSA_SECRET_KEY;
+    const returnUrl = process.env.YOOKASSA_RETURN_URL;
+    if (!shopId || !password || !returnUrl)
+      throw new ServiceUnavailableException('Оплата подписок не настроена.');
+    try {
+      const url = new URL(returnUrl);
+      if (
+        !['http:', 'https:'].includes(url.protocol) ||
+        url.username ||
+        url.password
+      )
+        throw new Error();
+    } catch {
+      throw new ServiceUnavailableException(
+        'Неверно настроен адрес возврата после оплаты.',
+      );
     }
+    return {
+      shopId,
+      returnUrl,
+      request: {
+        auth: { username: shopId, password },
+        timeout: 15000,
+        maxRedirects: 0,
+      },
+    };
+  }
 
-
-    private calculatePrice(plan: SubscriptionPlan, days: number): number {
-        const basePrice = this.PLAN_PRICES[plan];
-        const monthPrice = (days / this.PLAN_DURATIONS.monthly) * basePrice;
-        return Math.round(monthPrice * 100) / 100;
-    }
-
-
-    private getPlanFeatures(plan: SubscriptionPlan): string[] {
-        const features = {
-            [SubscriptionPlan.FREE]: ['🔓 Базовый профиль', '🖼️ Добавление работ', '📊 Базовая статистика'],
-            [SubscriptionPlan.PRO]: ['🔓 Базовый профиль', '🖼️ Добавление работ', '📊 Расширенная статистика', '⚡ Приоритетная загрузка'],
-            [SubscriptionPlan.VIP]: ['🔓 Базовый профиль', '🖼️ Добавление работ', '📊 Расширенная статистика', '⚡ Приоритетная загрузка', '👑 VIP-значок', '🌟 Приоритетная поддержка', '🎯 Продвижение работ'],
-        };
-        return features[plan] || features[SubscriptionPlan.FREE];
-    }
-
-
-    private getPlanWeight(plan: SubscriptionPlan): number {
-        const weights = {
-            [SubscriptionPlan.FREE]: 0,
-            [SubscriptionPlan.PRO]: 50,
-            [SubscriptionPlan.VIP]: 100,
-        };
-        return weights[plan] || 0;
-    }
+  private verifyPayment(
+    payment: ProviderPayment,
+    history: SubscriptionHistory,
+    shopId: string,
+  ): void {
+    if (
+      !/^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i.test(
+        payment?.id ?? '',
+      ) ||
+      !['pending', 'waiting_for_capture', 'succeeded', 'canceled'].includes(
+        payment.status,
+      ) ||
+      typeof payment.paid !== 'boolean' ||
+      (history.metadata.paymentId &&
+        payment.id !== history.metadata.paymentId) ||
+      payment.amount?.value !== Number(history.amount).toFixed(2) ||
+      payment.amount?.currency !== history.currency ||
+      payment.recipient?.account_id !== shopId ||
+      payment.metadata?.order_id !== String(history.id) ||
+      payment.metadata?.user_id !== String(history.metadata.userId) ||
+      payment.metadata?.author_id !== String(history.metadata.authorId) ||
+      (process.env.NODE_ENV === 'production' &&
+        payment.test &&
+        process.env.YOOKASSA_ALLOW_TEST_PAYMENTS !== 'true')
+    )
+      throw new BadRequestException('Данные платежа не соответствуют заказу.');
+  }
 }

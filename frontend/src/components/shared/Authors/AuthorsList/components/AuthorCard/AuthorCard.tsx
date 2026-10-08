@@ -42,10 +42,10 @@ const AuthorCard = (data: AuthorCardProps) => {
             </div>
             {data.arts.length > 0 ? (
                 <ul className="author-card__arts">
-                    {data?.arts?.map((art: any, index: number) => (
-                        <li key={index} className="author-card__art">
+                    {data?.arts?.map((art) => (
+                        <li key={art.id} className="author-card__art">
                             <img
-                                src={art.image_path || art.image_pah}
+                                src={art.image_path}
                                 alt={art.title}
                                 className="author-card__art-image"
                             />

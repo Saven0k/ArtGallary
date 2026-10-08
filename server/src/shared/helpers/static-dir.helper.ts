@@ -6,4 +6,7 @@ import { resolve } from 'path';
  * вне исходников, чтобы git pull / пересборка не трогали загрузки.
  * Относительный путь считается от process.cwd() (каталог server/).
  */
-export const STATIC_DIR = resolve(process.cwd(), process.env.STATIC_DIR || 'src/static');
+export const STATIC_DIR = resolve(
+  process.cwd(),
+  process.env.STATIC_DIR || 'src/static',
+);

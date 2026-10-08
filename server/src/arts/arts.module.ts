@@ -34,12 +34,12 @@ import { ArtLike } from './art-like.model';
       Style,
       Tag,
       City,
-      Country
+      Country,
     ]),
     FilesModule,
     LocationModule,
     TagsModule,
-    NotificationModule
+    NotificationModule,
   ],
 })
-export class ArtsModule { }
+export class ArtsModule {}

@@ -11,5 +11,6 @@ import { config } from 'dotenv';
 import { resolve } from 'path';
 
 const env = process.env.NODE_ENV || 'development';
+if (env !== 'production') config({ path: resolve(process.cwd(), 'dev.env') });
 config({ path: resolve(process.cwd(), `.${env}.env`) });
 config({ path: resolve(process.cwd(), '.env') });

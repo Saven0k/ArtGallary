@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import type { UserRole } from "../api/users/main.api";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../context/contexts";
 
 export const useAuth = () => {
     const ctx = useContext(AuthContext);

@@ -6,21 +6,18 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
-    allowedHosts: [
-      '.keenetic.link', // разрешает любые поддомены keenetic.link
-      '.keenetic.pro',  // добавьте вашу доменную зону, если выбрали другую
-      'all'             // или можно просто написать 'all', чтобы разрешить всё для теста
-    ],
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
+        rewrite: (path) => path.replace(/^\/api(?=\/)/, ''),
       },
       '/backend': {
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
+        rewrite: (path) => path.replace(/^\/backend(?=\/)/, ''),
       },
       '/uploads': {
         target: 'http://localhost:5000',

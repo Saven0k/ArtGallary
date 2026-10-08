@@ -1,6 +1,7 @@
+import { apiFetch } from '../request';
 
-import type { ArtsResponse } from "../arts/main.api";
-import { BASE_URL_API } from "../main.api";
+import type { Art } from "../arts/main.api";
+import { BASE_URL_API, type ModerateData } from "../main.api";
 import type { UserRole } from "../users/main.api";
 
 const BASE_URL = `${BASE_URL_API}/authors`;
@@ -11,6 +12,7 @@ export interface CountryResponse {
     id: number;
     name_en: string;
     name_ru: string;
+    name?: string;
     iso2: string;
     iso3: string;
 }
@@ -19,6 +21,7 @@ export interface CityResponse {
     id: number;
     name_en: string;
     name_ru: string;
+    name?: string;
     country_id: number;
     country_code: string;
 }
@@ -43,7 +46,7 @@ export interface AuthorProfileResponse {
     authorProfile: {
         user_id: number;
         biography?: string;
-        moderate?: any;
+        moderate?: ModerateData | string | null;
         profession_id?: number;
         profession?: ProfessionResponse;
         plan: string;
@@ -59,9 +62,10 @@ export interface AuthorProfileResponse {
         artsCount?: number;
         avatar_path: string;
         totalLikes?: number;
-        arts?: any[];
+        arts?: Art[];
         followers_count?: number;
         createdAt?: string;
+        created_at?: string;
     };
 }
 
@@ -87,7 +91,7 @@ export interface UpdateAuthorData {
     date_birthday?: string;
     biography?: string;
     avatar_path?: File | string | null;
-    profession_id?: number;
+    profession_id?: number | null;
     country_id?: number | null;
     city_id?: number | null;
 }
@@ -151,7 +155,7 @@ export interface PaginatedResponse<T> {
 
 export const getAuthors = async (page = 1, limit = 12, lang = 'ru'): Promise<AuthorListResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}?page=${page}&limit=${limit}&lang=${lang}`, {
+        const res = await apiFetch(`${BASE_URL}?page=${page}&limit=${limit}&lang=${lang}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -164,7 +168,7 @@ export const getAuthors = async (page = 1, limit = 12, lang = 'ru'): Promise<Aut
 
 export const getAuthorById = async (id: number, lang = 'ru'): Promise<AuthorProfileResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}?lang=${lang}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -177,7 +181,7 @@ export const getAuthorById = async (id: number, lang = 'ru'): Promise<AuthorProf
 
 export const getMyAuthorProfile = async (): Promise<AuthorProfileResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/me`, {
+        const res = await apiFetch(`${BASE_URL}/me`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -198,8 +202,8 @@ export const createAuthor = async (data: CreateAuthorData): Promise<AuthorProfil
         formData.append("gender", data.gender);
         formData.append("date_birthday", data.date_birthday);
 
-        if (data.second_name) formData.append("second_name", data.second_name);
-        if (data.biography) formData.append("biography", data.biography);
+        if (data.second_name !== undefined) formData.append("second_name", data.second_name);
+        if (data.biography !== undefined && data.biography !== null) formData.append("biography", data.biography);
         if (data.profession_id) formData.append("profession_id", String(data.profession_id));
         if (data.country_id != null) formData.append("country_id", String(data.country_id));
         if (data.city_id != null) formData.append("city_id", String(data.city_id));
@@ -208,7 +212,7 @@ export const createAuthor = async (data: CreateAuthorData): Promise<AuthorProfil
             formData.append("avatar_path", data.avatar_path);
         }
 
-        const res = await fetch(BASE_URL, {
+        const res = await apiFetch(BASE_URL, {
             method: "POST",
             credentials: "include",
             body: formData,
@@ -226,22 +230,24 @@ export const updateAuthor = async (id: number, data: UpdateAuthorData): Promise<
         const formData = new FormData();
         if (data.name) formData.append("name", data.name);
         if (data.surname) formData.append("surname", data.surname);
-        if (data.second_name) formData.append("second_name", data.second_name);
+        if (data.second_name !== undefined) formData.append("second_name", data.second_name);
         if (data.date_birthday) formData.append("date_birthday", data.date_birthday);
-        if (data.biography) formData.append("biography", data.biography);
-        if (data.profession_id) formData.append("profession_id", String(data.profession_id));
-        if (data.country_id !== undefined && data.country_id !== null) {
+        if (data.biography !== undefined && data.biography !== null) formData.append("biography", data.biography);
+        if (data.profession_id !== undefined) formData.append("profession_id", String(data.profession_id));
+        if (data.country_id !== undefined) {
             formData.append("country_id", String(data.country_id));
         }
-        if (data.city_id !== undefined && data.city_id !== null) {
+        if (data.city_id !== undefined) {
             formData.append("city_id", String(data.city_id));
         }
 
         if (data.avatar_path instanceof File) {
             formData.append("avatar_path", data.avatar_path);
+        } else if (data.avatar_path === null) {
+            formData.append("avatar_path", "null");
         }
 
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "PATCH",
             credentials: "include",
             body: formData,
@@ -254,11 +260,12 @@ export const updateAuthor = async (id: number, data: UpdateAuthorData): Promise<
     }
 };
 
-export const deleteAuthor = async (id: number): Promise<{ success: boolean; message: string } | null> => {
+export const deleteAuthor = async (id: number, deletionToken?: string): Promise<{ success: boolean; message: string } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "DELETE",
             credentials: "include",
+            headers: deletionToken ? { 'X-Account-Deletion-Token': deletionToken } : undefined,
         });
         if (!res.ok) throw new Error();
         return await res.json();
@@ -270,7 +277,7 @@ export const deleteAuthor = async (id: number): Promise<{ success: boolean; mess
 
 export const restoreAuthor = async (id: number): Promise<{ success: boolean; message: string } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/restore`, {
+        const res = await apiFetch(`${BASE_URL}/${id}/restore`, {
             method: "POST",
             credentials: "include",
         });
@@ -284,7 +291,7 @@ export const restoreAuthor = async (id: number): Promise<{ success: boolean; mes
 
 export const moderateAuthor = async (id: number, data: ModerateAuthorData): Promise<AuthorProfileResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/moderate`, {
+        const res = await apiFetch(`${BASE_URL}/${id}/moderate`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
@@ -300,7 +307,7 @@ export const moderateAuthor = async (id: number, data: ModerateAuthorData): Prom
 
 export const getUnmoderatedAuthors = async (page = 1, limit = 12, lang = 'ru'): Promise<AuthorListResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/unmoderated?page=${page}&limit=${limit}&lang=${lang}`, {
+        const res = await apiFetch(`${BASE_URL}/unmoderated?page=${page}&limit=${limit}&lang=${lang}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -313,7 +320,7 @@ export const getUnmoderatedAuthors = async (page = 1, limit = 12, lang = 'ru'): 
 
 export const getModeratedAuthors = async (page = 1, limit = 12, lang = 'ru'): Promise<AuthorListResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/moderated?page=${page}&limit=${limit}&lang=${lang}`, {
+        const res = await apiFetch(`${BASE_URL}/moderated?page=${page}&limit=${limit}&lang=${lang}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -324,9 +331,9 @@ export const getModeratedAuthors = async (page = 1, limit = 12, lang = 'ru'): Pr
     }
 };
 
-export const getArtsByAuthor = async (id: number): Promise<ArtsResponse | null> => {
+export const getArtsByAuthor = async (id: number): Promise<Art[] | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/arts`, {
+        const res = await apiFetch(`${BASE_URL}/${id}/arts`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -339,7 +346,7 @@ export const getArtsByAuthor = async (id: number): Promise<ArtsResponse | null> 
 
 export const getTopAuthors = async (limit = 10, lang = 'ru'): Promise<AuthorProfileResponse[] | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/top?limit=${limit}&lang=${lang}`, {
+        const res = await apiFetch(`${BASE_URL}/top?limit=${limit}&lang=${lang}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -354,7 +361,7 @@ export const getTopAuthors = async (limit = 10, lang = 'ru'): Promise<AuthorProf
 
 export const toggleFollow = async (authorId: number): Promise<FollowResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${authorId}/follow`, {
+        const res = await apiFetch(`${BASE_URL}/${authorId}/follow`, {
             method: "POST",
             credentials: "include",
         });
@@ -372,7 +379,7 @@ export const getAuthorFollowers = async (
     limit: number = 20
 ): Promise<PaginatedResponse<Follower> | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${authorId}/followers?page=${page}&limit=${limit}`, {
+        const res = await apiFetch(`${BASE_URL}/${authorId}/followers?page=${page}&limit=${limit}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -388,7 +395,7 @@ export const getUserFollowing = async (
     limit: number = 20
 ): Promise<PaginatedResponse<Following> | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/following?page=${page}&limit=${limit}`, {
+        const res = await apiFetch(`${BASE_URL}/following?page=${page}&limit=${limit}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -401,7 +408,7 @@ export const getUserFollowing = async (
 
 export const checkFollow = async (authorId: number): Promise<{ is_following: boolean } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${authorId}/follow/check`, {
+        const res = await apiFetch(`${BASE_URL}/${authorId}/follow/check`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -414,7 +421,7 @@ export const checkFollow = async (authorId: number): Promise<{ is_following: boo
 
 export const getFollowersCount = async (authorId: number): Promise<{ count: number } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${authorId}/followers/count`, {
+        const res = await apiFetch(`${BASE_URL}/${authorId}/followers/count`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -428,7 +435,7 @@ export const getFollowersCount = async (authorId: number): Promise<{ count: numb
 
 export const viewAuthor = async (authorId: number): Promise<void> => {
     try {
-        await fetch(`${BASE_URL}/${authorId}/view`, {
+        await apiFetch(`${BASE_URL}/${authorId}/view`, {
             method: "POST",
             credentials: "include",
         });
@@ -439,7 +446,7 @@ export const viewAuthor = async (authorId: number): Promise<void> => {
 
 export const getAuthorViewsCount = async (authorId: number): Promise<{ count: number } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${authorId}/views/count`, {
+        const res = await apiFetch(`${BASE_URL}/${authorId}/views/count`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -454,7 +461,7 @@ export const getAuthorViewsCount = async (authorId: number): Promise<{ count: nu
 
 export const incrementAuthorShares = async (authorId: number): Promise<{ success: boolean; shares: number } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${authorId}/share`, {
+        const res = await apiFetch(`${BASE_URL}/${authorId}/share`, {
             method: "POST",
             credentials: "include",
         });
@@ -468,7 +475,7 @@ export const incrementAuthorShares = async (authorId: number): Promise<{ success
 
 export const getAuthorShares = async (authorId: number): Promise<{ shares: number } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${authorId}/share/count`, {
+        const res = await apiFetch(`${BASE_URL}/${authorId}/share/count`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();

@@ -10,110 +10,130 @@ import { UpdateGenreDto } from './dto/update-genre.dto';
 
 @Injectable()
 export class GenresService {
-    constructor(
-        @InjectModel(Genre) private genreRepository: typeof Genre,
-        @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
-    ) { }
+  constructor(
+    @InjectModel(Genre) private genreRepository: typeof Genre,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
+  ) {}
 
-    async seedGenres() {
-        this.log('🌱 Начало заполнения жанров...');
+  async seedGenres() {
+    this.log('🌱 Начало заполнения жанров...');
 
-        try {
-            const artTypes = await ArtType.findAll();
-            const artTypeMap = new Map(artTypes.map(at => [at.name, at.id]));
+    try {
+      const artTypes = await ArtType.findAll();
+      const artTypeMap = new Map(artTypes.map((at) => [at.name, at.id]));
 
-            for (const item of initialGenresData) {
-                const artTypeId = artTypeMap.get(item.artType);
-                if (!artTypeId) {
-                    this.logger.warn(`⚠️ Вид искусства "${item.artType}" не найден, пропускаем жанр "${item.title}"`);
-                    continue;
-                }
-
-                await this.genreRepository.findOrCreate({
-                    where: { title: item.title, art_type_id: artTypeId },
-                    defaults: {
-                        title: item.title,
-                        art_type_id: artTypeId,
-                        description: item.description || null
-                    }
-                });
-                this.logger.debug(`✅ Создан жанр: ${item.title} (${item.artType})`);
-            }
-
-            this.log('✅ Жанры успешно заполнены!');
-        } catch (error) {
-            this.logger.error('❌ Ошибка при заполнении жанров:', String(error));
-            throw error;
+      for (const item of initialGenresData) {
+        const artTypeId = artTypeMap.get(item.artType);
+        if (!artTypeId) {
+          this.logger.warn(
+            `⚠️ Вид искусства "${item.artType}" не найден, пропускаем жанр "${item.title}"`,
+          );
+          continue;
         }
-    }
 
-    async create(dto: CreateGenreDto) {
-        this.log('create', { genreName: dto.title });
-        const genre = await this.genreRepository.create(dto);
-        this.log('created', { genreId: genre.id, genreName: genre.title });
-        return genre;
-    }
-
-    async update(id: number, dto: UpdateGenreDto) {
-        this.log('update', { genreId: id });
-        const [affectedCount] = await this.genreRepository.update(this.pick(dto, ['title', 'description', 'art_type_id']), { where: { id } });
-        if (!affectedCount) throw new HttpException('Genre not found', 404);
-        const updated = await this.genreRepository.findByPk(id);
-        this.log('updated', { genreId: id });
-        return updated;
-    }
-
-    async delete(id: number) {
-        this.log('delete', { genreId: id });
-        const result = await this.genreRepository.destroy({ where: { id } });
-        if (!result) throw new HttpException('Genre not found', 404);
-        this.log('deleted', { genreId: id });
-        return { success: true };
-    }
-
-    async deleteAll() {
-        this.log('deleteAll');
-        await this.genreRepository.destroy({ where: {} });
-        this.log('deletedAll');
-        return { success: true };
-    }
-
-    async getAll(artTypeId?: number) {
-        this.log('getAll', { artTypeId });
-        const where = artTypeId ? { art_type_id: artTypeId } : {};
-        const genres = await this.genreRepository.findAll({
-            include: [{ model: ArtType }],
-            raw: true,
-            nest: true
+        await this.genreRepository.findOrCreate({
+          where: { title: item.title, art_type_id: artTypeId },
+          defaults: {
+            title: item.title,
+            art_type_id: artTypeId,
+            description: item.description || null,
+          },
         });
-        return genres;
-    }
+        this.logger.debug(`✅ Создан жанр: ${item.title} (${item.artType})`);
+      }
 
-    async getById(id: number) {
-        this.log('getById', { genreId: id });
-        const genre = await this.genreRepository.findByPk(id, { include: [{ model: ArtType }] });
-        if (!genre) throw new HttpException('Genre not found', 404);
-        return genre;
+      this.log('✅ Жанры успешно заполнены!');
+    } catch (error) {
+      this.logger.error('❌ Ошибка при заполнении жанров:', String(error));
+      throw error;
     }
+  }
 
-    async getGenresByArtType(artTypeId: number) {
-        this.log('getGenresByArtType', { artTypeId });
-        const genres = await this.genreRepository.findAll({ where: { art_type_id: artTypeId }, include: [{ model: ArtType }] });
-        return genres;
-    }
+  async create(dto: CreateGenreDto) {
+    this.log('create', { genreName: dto.title });
+    const genre = await this.genreRepository.create(dto);
+    this.log('created', { genreId: genre.id, genreName: genre.title });
+    return genre;
+  }
 
-    private pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
-        return keys.reduce((acc, key) => {
-            if (obj[key] !== undefined && obj[key] !== null) acc[key] = obj[key];
-            return acc;
-        }, {} as Pick<T, K>);
-    }
+  async update(id: number, dto: UpdateGenreDto) {
+    this.log('update', { genreId: id });
+    const [affectedCount] = await this.genreRepository.update(
+      this.pick(dto, ['title', 'description', 'art_type_id']),
+      { where: { id } },
+    );
+    if (!affectedCount) throw new HttpException('Genre not found', 404);
+    const updated = await this.genreRepository.findByPk(id);
+    this.log('updated', { genreId: id });
+    return updated;
+  }
 
-    private log(message: string, data?: any) {
-        this.logger.log('info', JSON.stringify({
-            message: `📋 ${message}`,
-            context: 'GenresService',
-            ...data,
-        }));
-    }
+  async delete(id: number) {
+    this.log('delete', { genreId: id });
+    const result = await this.genreRepository.destroy({ where: { id } });
+    if (!result) throw new HttpException('Genre not found', 404);
+    this.log('deleted', { genreId: id });
+    return { success: true };
+  }
+
+  async deleteAll() {
+    this.log('deleteAll');
+    await this.genreRepository.destroy({ where: {} });
+    this.log('deletedAll');
+    return { success: true };
+  }
+
+  async getAll(artTypeId?: number) {
+    this.log('getAll', { artTypeId });
+    const where = artTypeId ? { art_type_id: artTypeId } : {};
+    const genres = await this.genreRepository.findAll({
+      where,
+      include: [{ model: ArtType }],
+      raw: true,
+      nest: true,
+    });
+    return genres;
+  }
+
+  async getById(id: number) {
+    this.log('getById', { genreId: id });
+    const genre = await this.genreRepository.findByPk(id, {
+      include: [{ model: ArtType }],
+    });
+    if (!genre) throw new HttpException('Genre not found', 404);
+    return genre;
+  }
+
+  async getGenresByArtType(artTypeId: number) {
+    this.log('getGenresByArtType', { artTypeId });
+    const genres = await this.genreRepository.findAll({
+      where: { art_type_id: artTypeId },
+      include: [{ model: ArtType }],
+    });
+    return genres;
+  }
+
+  private pick<T extends object, K extends keyof T>(
+    obj: T,
+    keys: K[],
+  ): Pick<T, K> {
+    return keys.reduce(
+      (acc, key) => {
+        if (obj[key] !== undefined && obj[key] !== null) acc[key] = obj[key];
+        return acc;
+      },
+      {} as Pick<T, K>,
+    );
+  }
+
+  private log(message: string, data?: Record<string, unknown>) {
+    this.logger.log(
+      'info',
+      JSON.stringify({
+        message: `📋 ${message}`,
+        context: 'GenresService',
+        ...data,
+      }),
+    );
+  }
 }

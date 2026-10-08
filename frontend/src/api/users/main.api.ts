@@ -1,3 +1,6 @@
+import { apiFetch } from '../request';
+import type { Art } from '../arts/main.api';
+import type { ModerateData } from '../main.api';
 
 import { BASE_URL_API } from "../main.api";
 
@@ -27,7 +30,7 @@ export interface User {
 export interface AuthorProfileData {
     user_id: number;
     biography?: string;
-    moderate?: any;
+    moderate?: ModerateData | string | null;
     profession_id?: number;
     profession?: { id: number; name: string };
     plan?: string;
@@ -43,7 +46,7 @@ export interface AuthorProfileData {
     artsCount?: number;
     totalLikes?: number;
     avatar_path: string
-    arts?: any[];
+    arts?: Art[];
 }
 
 export type UserProfile = Omit<User, 'password'>;
@@ -111,7 +114,7 @@ const BASE_URL = `${BASE_URL_API}/users`;
 
 export const getAllUsers = async (): Promise<User[] | null> => {
     try {
-        const res = await fetch(BASE_URL, { credentials: "include" });
+        const res = await apiFetch(BASE_URL, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) {
@@ -122,7 +125,7 @@ export const getAllUsers = async (): Promise<User[] | null> => {
 
 export const getDeletedUsers = async (): Promise<User[] | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/deleted`, { credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/deleted`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) {
@@ -133,7 +136,7 @@ export const getDeletedUsers = async (): Promise<User[] | null> => {
 
 export const getUserById = async (id: number): Promise<User | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, { credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/${id}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) {
@@ -144,7 +147,7 @@ export const getUserById = async (id: number): Promise<User | null> => {
 
 export const getUserProfile = async (id: number): Promise<User | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/profile`, { credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/${id}/profile`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) {
@@ -163,11 +166,11 @@ export const createUser = async (data: CreateUserData): Promise<User | null> => 
         formData.append("gender", data.gender);
         formData.append("date_birthday", data.date_birthday);
 
-        if (data.second_name) formData.append("second_name", data.second_name);
-        if (data.city_id != null) formData.append("city_id", String(data.city_id));
-        if (data.country_id != null) formData.append("country_id", String(data.country_id));
+        if (data.second_name !== undefined) formData.append("second_name", data.second_name);
+        if (data.city_id !== undefined) formData.append("city_id", String(data.city_id));
+        if (data.country_id !== undefined) formData.append("country_id", String(data.country_id));
 
-        const res = await fetch(BASE_URL, {
+        const res = await apiFetch(BASE_URL, {
             method: "POST",
             credentials: "include",
             body: formData,
@@ -187,12 +190,12 @@ export const updateUser = async (id: number, data: UpdateUserData): Promise<User
         if (data.password) formData.append("password", data.password);
         if (data.name) formData.append("name", data.name);
         if (data.surname) formData.append("surname", data.surname);
-        if (data.second_name) formData.append("second_name", data.second_name);
+        if (data.second_name !== undefined) formData.append("second_name", data.second_name);
         if (data.date_birthday) formData.append("date_birthday", data.date_birthday);
-        if (data.city_id != null) formData.append("city_id", String(data.city_id));
-        if (data.country_id != null) formData.append("country_id", String(data.country_id));
+        if (data.city_id !== undefined) formData.append("city_id", String(data.city_id));
+        if (data.country_id !== undefined) formData.append("country_id", String(data.country_id));
 
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "PATCH",
             credentials: "include",
             body: formData,
@@ -205,11 +208,12 @@ export const updateUser = async (id: number, data: UpdateUserData): Promise<User
     }
 };
 
-export const deleteUser = async (id: number): Promise<{ message: string; userId: number } | null> => {
+export const deleteUser = async (id: number, deletionToken?: string): Promise<{ message: string; userId: number } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "DELETE",
             credentials: "include",
+            headers: deletionToken ? { 'X-Account-Deletion-Token': deletionToken } : undefined,
         });
         if (!res.ok) throw new Error();
         return await res.json();
@@ -221,7 +225,7 @@ export const deleteUser = async (id: number): Promise<{ message: string; userId:
 
 export const restoreUser = async (id: number): Promise<User | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}/restore`, {
+        const res = await apiFetch(`${BASE_URL}/${id}/restore`, {
             method: "POST",
             credentials: "include",
         });
@@ -237,7 +241,7 @@ export const restoreUser = async (id: number): Promise<User | null> => {
 
 export const toggleFollow = async (authorId: number): Promise<FollowResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${authorId}/follow`, {
+        const res = await apiFetch(`${BASE_URL}/${authorId}/follow`, {
             method: "POST",
             credentials: "include",
         });
@@ -251,7 +255,7 @@ export const toggleFollow = async (authorId: number): Promise<FollowResponse | n
 
 export const checkFollow = async (authorId: number): Promise<{ is_following: boolean } | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${authorId}/follow/check`, {
+        const res = await apiFetch(`${BASE_URL}/${authorId}/follow/check`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();
@@ -264,7 +268,7 @@ export const checkFollow = async (authorId: number): Promise<{ is_following: boo
 
 export const getUserFollowing = async (page: number = 1, limit: number = 20): Promise<PaginatedResponse<Following> | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/following?page=${page}&limit=${limit}`, {
+        const res = await apiFetch(`${BASE_URL}/following?page=${page}&limit=${limit}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();

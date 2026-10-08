@@ -1,4 +1,3 @@
-
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { StatsController } from './stats.controller';
@@ -10,20 +9,19 @@ import { User } from '../users/users.model';
 import { AuthorProfile } from 'src/authors/author.model';
 import { AuthorView } from 'src/authors/author-view.model';
 
-
 @Module({
-    imports: [
-        SequelizeModule.forFeature([
-            AuthorView,
-            ArtLike,
-            ArtView,
-            AuthorProfile,
-            Art,
-            User,
-        ]),
-    ],
-    controllers: [StatsController],
-    providers: [StatsService],
-    exports: [StatsService],
+  imports: [
+    SequelizeModule.forFeature([
+      AuthorView,
+      ArtLike,
+      ArtView,
+      AuthorProfile,
+      Art,
+      User,
+    ]),
+  ],
+  controllers: [StatsController],
+  providers: [StatsService],
+  exports: [StatsService],
 })
 export class StatsModule {}

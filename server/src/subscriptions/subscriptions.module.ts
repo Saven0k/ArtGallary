@@ -7,9 +7,15 @@ import { SubscriptionController } from './subscriptions.controller';
 import { AuthorProfile } from 'src/authors/author.model';
 
 @Module({
-    imports: [SequelizeModule.forFeature([Subscription, SubscriptionHistory, AuthorProfile])],
-    controllers: [SubscriptionController],
-    providers: [SubscriptionService],
-    exports: [SubscriptionService],
+  imports: [
+    SequelizeModule.forFeature([
+      Subscription,
+      SubscriptionHistory,
+      AuthorProfile,
+    ]),
+  ],
+  controllers: [SubscriptionController],
+  providers: [SubscriptionService],
+  exports: [SubscriptionService],
 })
 export class SubscriptionModule {}

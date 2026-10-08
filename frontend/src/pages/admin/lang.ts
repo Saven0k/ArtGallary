@@ -1,5 +1,5 @@
+import type { Language } from "../../context/LanguageContext";
 
-import type { Language } from '../../hooks/useLanguage';
 
 export interface AdminTranslations {
     title: string;

@@ -1,54 +1,35 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsEmail, IsString, IsNumber, MinLength, IsOptional, IsPhoneNumber, isNumber } from "class-validator";
+import { Transform } from 'class-transformer';
+import {
+  IsDateString,
+  IsEmail,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+  Min,
+} from 'class-validator';
+import { nullableNumber } from '../../pipes/form-transformers';
 
 export class CreateAuthorDto {
-    @ApiProperty({ example: 'email@email.ru', description: 'Почта' })
-    @IsEmail()
-    email: string;
-
-    @ApiProperty({ example: 'password123', description: 'Пароль' })
-    @IsString()
-    @MinLength(6)
-    password: string;
-
-    @ApiProperty({ example: 'Иван', description: 'Имя' })
-    @IsString()
-    name: string;
-
-    @ApiProperty({ example: 'Петров', description: 'Фамилия' })
-    @IsString()
-    surname: string;
-
-    @ApiProperty({ example: 'Иванович', description: 'Отчество', required: false })
-    @IsString()
-    second_name: string;
-
-    @ApiProperty({ example: 'F', description: 'Женщина', required: false })
-    @IsString()
-    gender: "M" | "F";
-
-    @ApiProperty({ example: '1990-01-01', description: 'Дата рождения' })
-    date_birthday: Date;
-
-    @ApiProperty({ example: 'Известный художник...', description: 'Биография автора' })
-    @IsString()
-    biography: string;
-
-    @ApiProperty({ example: '5', description: 'Вид профессии автора' })
-    @IsNumber()
-    profession_id: number;
-
-    @ApiProperty({ example: 1, description: 'ID страны (countries.id)', required: false })
-    @IsOptional()
-    @Type(() => Number)
-    country_id?: number;
-
-    @ApiProperty({ example: 42, description: 'ID города (cities.id)', required: false })
-    @IsOptional()
-    @Type(() => Number)
-    city_id?: number;
-
-    @ApiProperty({ example: '/awd/photo.png', description: 'Фотография автора' })
-    readonly avatar_path: string;
+  @IsEmail() email: string;
+  @IsString() @Length(8, 25) password: string;
+  @IsString() @IsNotEmpty() name: string;
+  @IsString() @IsNotEmpty() surname: string;
+  @IsOptional() @IsString() second_name?: string;
+  @IsIn(['M', 'F']) gender: 'M' | 'F';
+  @IsDateString() date_birthday: Date;
+  @IsOptional() @IsString() biography: string;
+  @IsOptional()
+  @Transform(nullableNumber)
+  @IsInt()
+  @Min(1)
+  profession_id: number;
+  @IsOptional() @Transform(nullableNumber) @IsInt() @Min(1) country_id?:
+    | number
+    | null;
+  @IsOptional() @Transform(nullableNumber) @IsInt() @Min(1) city_id?:
+    | number
+    | null;
 }

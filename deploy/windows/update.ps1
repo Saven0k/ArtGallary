@@ -1,18 +1,25 @@
-# Обновление приложения на Windows-ПК: git pull → сборка → перезапуск API.
-# Запуск из PowerShell:  powershell -ExecutionPolicy Bypass -File deploy\windows\update.ps1
 $ErrorActionPreference = 'Stop'
-$root = Resolve-Path (Join-Path $PSScriptRoot '..\..')
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 
-Set-Location $root
-git pull
+function Invoke-CheckedCommand {
+    param([string]$Command, [string[]]$Arguments)
+    & $Command @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "$Command failed with exit code $LASTEXITCODE"
+    }
+}
 
-Set-Location (Join-Path $root 'server')
-npm ci
-npm run build
-
-Set-Location (Join-Path $root 'frontend')
-npm ci
-npm run build          # использует frontend/.env.production (VITE_API_URL=/api)
-
-pm2 restart gallery-api --update-env
-Write-Host "`nГотово. Проверка: curl http://localhost/api/health  (или откройте http://localhost/)"
+Push-Location $projectRoot
+try {
+    Invoke-CheckedCommand 'git' @('pull', '--ff-only')
+    Set-Location (Join-Path $projectRoot 'server')
+    Invoke-CheckedCommand 'npm.cmd' @('ci')
+    Invoke-CheckedCommand 'npm.cmd' @('run', 'build')
+    Set-Location (Join-Path $projectRoot 'frontend')
+    Invoke-CheckedCommand 'npm.cmd' @('ci')
+    Invoke-CheckedCommand 'npm.cmd' @('run', 'build')
+    Invoke-CheckedCommand 'pm2.cmd' @('restart', 'gallery-api', '--update-env')
+    Write-Host 'curl http://localhost/api/health   http://localhost/'
+} finally {
+    Pop-Location
+}

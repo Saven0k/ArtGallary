@@ -4,7 +4,7 @@ import ArtsList from "../../../components/shared/Arts/ArtsList/ArtsList";
 import AuthorHeader from "../../../components/shared/Authors/AuthorDetail/AuthorHeader/AuthorHeader";
 import { useEffect, useState } from "react";
 import { getArtsByAuthor, getAuthorById, type AuthorProfileResponse } from "../../../api/authors/main.api";
-import { type ArtsResponse } from "../../../api/arts/main.api";
+import { type Art } from "../../../api/arts/main.api";
 import Navigation from "../../../components/layout/Navigation/Navigation";
 import AuthorProfile from "../../../components/shared/Authors/AuthorDetail/AuthorProfile/AuthorProfile";
 
@@ -12,7 +12,7 @@ const AuthorPage = () => {
     const { id } = useParams<{ id: string }>();
 
     const [author, setAuthor] = useState<AuthorProfileResponse | null>(null);
-    const [arts, setArts] = useState<ArtsResponse | null>(null);
+    const [arts, setArts] = useState<Art[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -73,7 +73,7 @@ const AuthorPage = () => {
         <main className="author-page">
             <Navigation />
             <AuthorHeader author={author} />
-            <ArtsList data={arts || { arts: [] }} />
+            <ArtsList data={{ arts }} />
             <AuthorProfile author={author} />
         </main>
     );

@@ -5,9 +5,9 @@ import { ProfessionsService } from './professions.service';
 import { Profession } from './profession.model';
 
 @Module({
-    imports: [SequelizeModule.forFeature([Profession])],
-    controllers: [ProfessionsController],
-    providers: [ProfessionsService],
-    exports: [ProfessionsService],
+  imports: [SequelizeModule.forFeature([Profession])],
+  controllers: [ProfessionsController],
+  providers: [ProfessionsService],
+  exports: [ProfessionsService],
 })
 export class ProfessionsModule {}

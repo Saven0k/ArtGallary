@@ -1,3 +1,4 @@
+import { apiFetch } from '../request';
 import { BASE_URL_API } from "../main.api";
 
 const BASE_URL = `${BASE_URL_API}/moderators`;
@@ -8,6 +9,8 @@ export interface CreateModeratorData {
     name: string;
     surname: string;
     second_name?: string;
+    gender: 'M' | 'F';
+    date_birthday: string;
 }
 
 export interface Moderator {
@@ -23,6 +26,8 @@ export interface Moderator {
         surname: string;
         second_name?: string;
         role: string;
+        gender: 'M' | 'F';
+        date_birthday: string;
     };
 }
 
@@ -41,7 +46,7 @@ export interface ModeratorsResponse {
 
 export const getAllModerators = async (page: number = 1, limit: number = 10): Promise<ModeratorsResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}?page=${page}&limit=${limit}`, {
+        const res = await apiFetch(`${BASE_URL}?page=${page}&limit=${limit}`, {
             credentials: "include",
         });
 
@@ -59,7 +64,7 @@ export const getAllModerators = async (page: number = 1, limit: number = 10): Pr
 
 export const getModeratorById = async (id: number): Promise<Moderator | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             credentials: "include",
         });
 
@@ -77,21 +82,11 @@ export const getModeratorById = async (id: number): Promise<Moderator | null> =>
 
 export const createModerator = async (data: CreateModeratorData): Promise<Moderator | null> => {
     try {
-        const formData = new FormData();
-
-        formData.append("email", data.email);
-        formData.append("password", data.password);
-        formData.append("name", data.name);
-        formData.append("surname", data.surname);
-
-        if (data.second_name) {
-            formData.append("second_name", data.second_name);
-        }
-
-        const res = await fetch(BASE_URL, {
+        const res = await apiFetch(BASE_URL, {
             method: "POST",
             credentials: "include",
-            body: formData,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
         });
 
         if (!res.ok) {
@@ -109,7 +104,7 @@ export const createModerator = async (data: CreateModeratorData): Promise<Modera
 
 export const deleteModerator = async (id: number): Promise<boolean> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "DELETE",
             credentials: "include",
         });
@@ -133,6 +128,8 @@ export interface UpdateModeratorData {
     name?: string;
     surname?: string;
     second_name?: string;
+    gender?: 'M' | 'F';
+    date_birthday?: string;
 }
 
 export const updateModerator = async (
@@ -140,19 +137,11 @@ export const updateModerator = async (
     data: UpdateModeratorData,
 ): Promise<Moderator | null> => {
     try {
-        const formData = new FormData();
-
-        if (data.email) formData.append('email', data.email);
-        if (data.password) formData.append('password', data.password);
-        if (data.name) formData.append('name', data.name);
-        if (data.surname) formData.append('surname', data.surname);
-        if (data.second_name !== undefined)
-            formData.append('second_name', data.second_name);
-
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: 'PUT',
             credentials: 'include',
-            body: formData,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
         });
 
         if (!res.ok) {

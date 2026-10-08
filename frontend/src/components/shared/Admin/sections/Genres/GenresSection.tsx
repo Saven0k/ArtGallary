@@ -1,5 +1,5 @@
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Sparkles, BookOpen } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { adminTranslations } from '../../../../../pages/admin/lang';

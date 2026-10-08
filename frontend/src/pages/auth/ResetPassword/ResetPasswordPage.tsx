@@ -1,3 +1,4 @@
+import { errorMessage } from '../../../utils/errors';
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -7,7 +8,7 @@ import {
 } from '../../../api/auth/main.api';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { resetPasswordTranslations } from './lang';
-import './ResetPassword.scss';
+import './ResetPasswordPage.scss';
 
 type Step = 'email' | 'code' | 'password';
 
@@ -33,8 +34,8 @@ const ResetPasswordPage = () => {
         try {
             await requestResetCode({ email });
             setStep('code');
-        } catch (err: any) {
-            setError(err?.message || t.errors.generic);
+        } catch (err: unknown) {
+            setError(errorMessage(err, t.errors.generic));
         } finally {
             setLoading(false);
         }
@@ -49,8 +50,8 @@ const ResetPasswordPage = () => {
             const res = await verifyResetCode({ email, code });
             setResetToken(res.resetToken);
             setStep('password');
-        } catch (err: any) {
-            setError(err?.message || t.errors.generic);
+        } catch (err: unknown) {
+            setError(errorMessage(err, t.errors.generic));
         } finally {
             setLoading(false);
         }
@@ -72,8 +73,8 @@ const ResetPasswordPage = () => {
         try {
             await resetPassword({ resetToken, newPassword });
             navigate('/login', { replace: true });
-        } catch (err: any) {
-            setError(err?.message || t.errors.generic);
+        } catch (err: unknown) {
+            setError(errorMessage(err, t.errors.generic));
         } finally {
             setLoading(false);
         }

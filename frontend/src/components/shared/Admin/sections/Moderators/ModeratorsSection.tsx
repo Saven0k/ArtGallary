@@ -115,18 +115,11 @@ const ModeratorsSection = () => {
             key: 'avatar',
             title: t.table.avatar,
             width: '64px',
-            render: (m) =>
-                m.user?.avatar_path ? (
-                    <img
-                        src={m.user.avatar_path}
-                        alt={m.user.name}
-                        className="moderators-section__avatar"
-                    />
-                ) : (
-                    <div className="moderators-section__avatar moderators-section__avatar--empty">
-                        <UserCog size={18} />
-                    </div>
-                ),
+            render: () => (
+                <div className="moderators-section__avatar moderators-section__avatar--empty">
+                    <UserCog size={18} />
+                </div>
+            ),
         },
         {
             key: 'name',
@@ -142,23 +135,18 @@ const ModeratorsSection = () => {
             render: (m) => m.user?.email ?? '—',
         },
         {
-            key: 'phone',
-            title: t.table.phone,
-            render: (m) => m.user?.phone_number ?? '—',
-        },
-        {
             key: 'createdAt',
             title: t.table.createdAt,
             width: '140px',
             render: (m) =>
                 m.createdAt
                     ? new Date(m.createdAt).toLocaleDateString(
-                          language === 'ru'
-                              ? 'ru-RU'
-                              : language === 'zh'
-                              ? 'zh-CN'
-                              : 'en-US',
-                      )
+                        language === 'ru'
+                            ? 'ru-RU'
+                            : language === 'zh'
+                                ? 'zh-CN'
+                                : 'en-US',
+                    )
                     : '—',
         },
         {

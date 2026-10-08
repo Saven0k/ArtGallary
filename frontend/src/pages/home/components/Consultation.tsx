@@ -3,7 +3,6 @@ import { translations } from '../lang';
 import './Consultation.scss';
 import { useLanguage } from '../../../hooks/useLanguage';
 import ArrowIcon from "../icons/arrowCirclce.svg"
-import { useEffect } from 'react';
 
 const Consultation = () => {
     const { language } = useLanguage();

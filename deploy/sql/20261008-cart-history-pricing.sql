@@ -1,0 +1,1 @@
+ALTER TABLE cart_history ADD COLUMN IF NOT EXISTS pricing JSONB;

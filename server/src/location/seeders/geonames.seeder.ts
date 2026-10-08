@@ -1,4 +1,4 @@
-
+import { inspect } from 'node:util';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as https from 'https';
@@ -10,14 +10,19 @@ import AdmZip from 'adm-zip';
 import * as dotenv from 'dotenv';
 
 // Тот же порядок, что и у ConfigModule в app.module.ts: .<NODE_ENV>.env, затем .env
-dotenv.config({ path: path.resolve(process.cwd(), `.${process.env.NODE_ENV || 'development'}.env`) });
+dotenv.config({
+  path: path.resolve(
+    process.cwd(),
+    `.${process.env.NODE_ENV || 'development'}.env`,
+  ),
+});
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 const client = new Client({
-  host:     process.env.POSTGRES_HOST     || 'localhost',
-  port:     Number(process.env.POSTGRES_PORT) || 5432,
-  database: process.env.POSTGRES_DB       || 'gallery',
-  user:     process.env.POSTGRES_USER     || 'postgres',
+  host: process.env.POSTGRES_HOST || 'localhost',
+  port: Number(process.env.POSTGRES_PORT) || 5432,
+  database: process.env.POSTGRES_DB || 'gallery',
+  user: process.env.POSTGRES_USER || 'postgres',
   password: process.env.POSTGRES_PASSWORD || 'root',
 });
 
@@ -74,18 +79,36 @@ async function createTables() {
     UPDATE cities SET updated_at = NOW() WHERE updated_at IS NULL;
   `);
 
-  await client.query(`CREATE INDEX IF NOT EXISTS idx_countries_iso2    ON countries(iso2);`);
-  await client.query(`CREATE INDEX IF NOT EXISTS idx_countries_name_ru ON countries(name_ru);`);
-  await client.query(`CREATE INDEX IF NOT EXISTS idx_countries_name_en ON countries(name_en);`);
-  await client.query(`CREATE INDEX IF NOT EXISTS idx_cities_name_ru    ON cities(name_ru);`);
-  await client.query(`CREATE INDEX IF NOT EXISTS idx_cities_name_en    ON cities(name_en);`);
-  await client.query(`CREATE INDEX IF NOT EXISTS idx_cities_country    ON cities(country_code);`);
-  await client.query(`CREATE INDEX IF NOT EXISTS idx_cities_population ON cities(population);`);
+  await client.query(
+    `CREATE INDEX IF NOT EXISTS idx_countries_iso2    ON countries(iso2);`,
+  );
+  await client.query(
+    `CREATE INDEX IF NOT EXISTS idx_countries_name_ru ON countries(name_ru);`,
+  );
+  await client.query(
+    `CREATE INDEX IF NOT EXISTS idx_countries_name_en ON countries(name_en);`,
+  );
+  await client.query(
+    `CREATE INDEX IF NOT EXISTS idx_cities_name_ru    ON cities(name_ru);`,
+  );
+  await client.query(
+    `CREATE INDEX IF NOT EXISTS idx_cities_name_en    ON cities(name_en);`,
+  );
+  await client.query(
+    `CREATE INDEX IF NOT EXISTS idx_cities_country    ON cities(country_code);`,
+  );
+  await client.query(
+    `CREATE INDEX IF NOT EXISTS idx_cities_population ON cities(population);`,
+  );
 
   console.log('  ✅ Таблицы и индексы готовы');
 }
 
-async function downloadFile(url: string, dest: string, attempt = 1): Promise<void> {
+async function downloadFile(
+  url: string,
+  dest: string,
+  attempt = 1,
+): Promise<void> {
   if (fs.existsSync(dest) && fs.statSync(dest).size > 0) {
     console.log(`  ↩  Уже скачан: ${path.basename(dest)}`);
     return;
@@ -97,13 +120,21 @@ async function downloadFile(url: string, dest: string, attempt = 1): Promise<voi
 
   await new Promise<void>((resolve, reject) => {
     const file = createWriteStream(dest);
-    let downloaded = 0, total = 0, lastPrint = Date.now();
+    let downloaded = 0,
+      total = 0,
+      lastPrint = Date.now();
 
     const req = proto.get(url, { timeout: 30_000 }, (res) => {
       if (res.statusCode === 301 || res.statusCode === 302) {
         file.close();
         if (fs.existsSync(dest)) fs.unlinkSync(dest);
-        downloadFile(res.headers.location!, dest, attempt).then(resolve).catch(reject);
+        downloadFile(
+          new URL(res.headers.location || '', url).href,
+          dest,
+          attempt,
+        )
+          .then(resolve)
+          .catch(reject);
         return;
       }
       if (res.statusCode !== 200) {
@@ -118,7 +149,10 @@ async function downloadFile(url: string, dest: string, attempt = 1): Promise<voi
       let dataTimer: NodeJS.Timeout;
       const resetTimer = () => {
         clearTimeout(dataTimer);
-        dataTimer = setTimeout(() => req.destroy(new Error('Нет данных 60 сек')), 60_000);
+        dataTimer = setTimeout(
+          () => req.destroy(new Error('Нет данных 60 сек')),
+          60_000,
+        );
       };
       resetTimer();
 
@@ -130,7 +164,9 @@ async function downloadFile(url: string, dest: string, attempt = 1): Promise<voi
           const mb = (downloaded / 1024 / 1024).toFixed(1);
           if (total > 0) {
             const pct = Math.round((downloaded / total) * 100);
-            process.stdout.write(`\r     ${pct}%  ${mb} / ${(total / 1024 / 1024).toFixed(0)} MB`);
+            process.stdout.write(
+              `\r     ${pct}%  ${mb} / ${(total / 1024 / 1024).toFixed(0)} MB`,
+            );
           } else {
             process.stdout.write(`\r     ${mb} MB`);
           }
@@ -140,10 +176,15 @@ async function downloadFile(url: string, dest: string, attempt = 1): Promise<voi
       res.pipe(file);
       file.on('finish', () => {
         clearTimeout(dataTimer);
-        process.stdout.write(`\r  ✅ ${path.basename(dest)} — ${(downloaded / 1024 / 1024).toFixed(1)} MB\n`);
+        process.stdout.write(
+          `\r  ✅ ${path.basename(dest)} — ${(downloaded / 1024 / 1024).toFixed(1)} MB\n`,
+        );
         file.close(() => resolve());
       });
-      file.on('error', (err) => { clearTimeout(dataTimer); reject(err); });
+      file.on('error', (err) => {
+        clearTimeout(dataTimer);
+        reject(err);
+      });
     });
 
     req.on('timeout', () => req.destroy(new Error('Таймаут (30 сек)')));
@@ -156,14 +197,18 @@ async function downloadFile(url: string, dest: string, attempt = 1): Promise<voi
     console.error(`\n  ❌ ${err.message}`);
     if (attempt < 3) {
       console.log(`  ⏳ Повтор через ${attempt * 5} сек...`);
-      await new Promise(r => setTimeout(r, attempt * 5000));
+      await new Promise((r) => setTimeout(r, attempt * 5000));
       return downloadFile(url, dest, attempt + 1);
     }
     throw new Error(`Не удалось скачать: ${path.basename(dest)}`);
   });
 }
 
-function extractZip(zipPath: string, destDir: string, filename: string): string {
+function extractZip(
+  zipPath: string,
+  destDir: string,
+  filename: string,
+): string {
   const outPath = path.join(destDir, filename);
   if (fs.existsSync(outPath) && fs.statSync(outPath).size > 0) {
     console.log(`  ↩  Уже распакован: ${filename}`);
@@ -171,22 +216,32 @@ function extractZip(zipPath: string, destDir: string, filename: string): string 
   }
 
   console.log(`  📦 Распаковываю: ${filename}...`);
-  const zip   = new AdmZip(zipPath);
+  const zip = new AdmZip(zipPath);
   const entry = zip.getEntry(filename);
 
   if (!entry) {
-    const names = zip.getEntries().map(e => e.entryName).join(', ');
+    const names = zip
+      .getEntries()
+      .map((e) => e.entryName)
+      .join(', ');
     throw new Error(`"${filename}" не найден в архиве. Содержимое: ${names}`);
   }
 
   fs.writeFileSync(outPath, entry.getData());
-  console.log(`  ✅ Распакован (${(entry.header.size / 1024 / 1024).toFixed(0)} MB): ${filename}`);
+  console.log(
+    `  ✅ Распакован (${(entry.header.size / 1024 / 1024).toFixed(0)} MB): ${filename}`,
+  );
   return outPath;
 }
 
 interface RawCountry {
-  iso2: string; iso3: string; name_en: string;
-  geonames_id: number; phone_code: string; currency: string; continent: string;
+  iso2: string;
+  iso3: string;
+  name_en: string;
+  geonames_id: number;
+  phone_code: string;
+  currency: string;
+  continent: string;
 }
 
 function parseCountryInfo(filePath: string): RawCountry[] {
@@ -196,20 +251,27 @@ function parseCountryInfo(filePath: string): RawCountry[] {
     const c = line.split('\t');
     if (c.length < 19 || !c[0].trim() || c[0].trim().length !== 2) continue;
     result.push({
-      iso2: c[0].trim(), iso3: c[1].trim(),
-      name_en: c[4].trim(), geonames_id: parseInt(c[16].trim(), 10),
-      phone_code: c[12].trim(), currency: c[10].trim(), continent: c[8].trim(),
+      iso2: c[0].trim(),
+      iso3: c[1].trim(),
+      name_en: c[4].trim(),
+      geonames_id: parseInt(c[16].trim(), 10),
+      phone_code: c[12].trim(),
+      currency: c[10].trim(),
+      continent: c[8].trim(),
     });
   }
   return result;
 }
 
 async function parseAlternateNames(
-  filePath: string, targetIds: Set<number>, lang = 'ru',
+  filePath: string,
+  targetIds: Set<number>,
+  lang = 'ru',
 ): Promise<Map<number, string>> {
   console.log(`  🌐 Читаю переводы (${lang})...`);
   const result = new Map<number, string>();
-  let lines = 0, lastPrint = Date.now();
+  let lines = 0,
+    lastPrint = Date.now();
 
   return new Promise((resolve, reject) => {
     const rl = readline.createInterface({
@@ -220,17 +282,26 @@ async function parseAlternateNames(
       lines++;
       if (Date.now() - lastPrint > 3000) {
         lastPrint = Date.now();
-        process.stdout.write(`\r     ${(lines / 1_000_000).toFixed(1)}M строк, найдено: ${result.size}`);
+        process.stdout.write(
+          `\r     ${(lines / 1_000_000).toFixed(1)}M строк, найдено: ${result.size}`,
+        );
       }
       const c = line.split('\t');
       if (c.length < 4) return;
       const id = parseInt(c[1], 10);
-      if (c[2].trim() === lang && c[3].trim() && targetIds.has(id) && !result.has(id)) {
+      if (
+        c[2].trim() === lang &&
+        c[3].trim() &&
+        targetIds.has(id) &&
+        !result.has(id)
+      ) {
         result.set(id, c[3].trim());
       }
     });
     rl.on('close', () => {
-      process.stdout.write(`\r  ✅ Переводов: ${result.size} из ${lines.toLocaleString()} строк\n`);
+      process.stdout.write(
+        `\r  ✅ Переводов: ${result.size} из ${lines.toLocaleString()} строк\n`,
+      );
       resolve(result);
     });
     rl.on('error', reject);
@@ -238,8 +309,14 @@ async function parseAlternateNames(
 }
 
 interface RawCity {
-  geonames_id: number; name_en: string; country_code: string;
-  region: string; lat: number; lon: number; population: number; timezone: string;
+  geonames_id: number;
+  name_en: string;
+  country_code: string;
+  region: string;
+  lat: number;
+  lon: number;
+  population: number;
+  timezone: string;
 }
 
 function parseCitiesFile(filePath: string): RawCity[] {
@@ -248,14 +325,17 @@ function parseCitiesFile(filePath: string): RawCity[] {
     if (!line.trim()) continue;
     const c = line.split('\t');
     if (c.length < 19) continue;
-    const geonames_id  = parseInt(c[0], 10);
-    const name_en      = c[2].trim() || c[1].trim();
+    const geonames_id = parseInt(c[0], 10);
+    const name_en = c[2].trim() || c[1].trim();
     const country_code = c[8].trim().toUpperCase();
     if (!geonames_id || !name_en || !country_code) continue;
     result.push({
-      geonames_id, name_en, country_code,
+      geonames_id,
+      name_en,
+      country_code,
       region: c[10].trim(),
-      lat: parseFloat(c[4]), lon: parseFloat(c[5]),
+      lat: parseFloat(c[4]),
+      lon: parseFloat(c[5]),
       population: parseInt(c[14], 10) || 0,
       timezone: c[17].trim(),
     });
@@ -268,7 +348,9 @@ async function seed() {
   if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR, { recursive: true });
 
   console.log('📦 Подключение к БД...');
-  console.log(`   ${process.env.POSTGRES_USER}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/${process.env.POSTGRES_DB}`);
+  console.log(
+    `   ${process.env.POSTGRES_USER}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/${process.env.POSTGRES_DB}`,
+  );
   await client.connect();
   console.log('  ✅ Подключено\n');
 
@@ -278,16 +360,29 @@ async function seed() {
 
   console.log('📥 Файлы GeoNames...\n');
   const countryInfoPath = path.join(TMP_DIR, 'countryInfo.txt');
-  const citiesZipPath   = path.join(TMP_DIR, 'cities1000.zip');
+  const citiesZipPath = path.join(TMP_DIR, 'cities1000.zip');
   const altNamesZipPath = path.join(TMP_DIR, 'alternateNames.zip');
 
-  await downloadFile('http://download.geonames.org/export/dump/countryInfo.txt',    countryInfoPath);
-  await downloadFile('http://download.geonames.org/export/dump/cities1000.zip',     citiesZipPath);
-  await downloadFile('http://download.geonames.org/export/dump/alternateNames.zip', altNamesZipPath);
+  await downloadFile(
+    'http://download.geonames.org/export/dump/countryInfo.txt',
+    countryInfoPath,
+  );
+  await downloadFile(
+    'http://download.geonames.org/export/dump/cities1000.zip',
+    citiesZipPath,
+  );
+  await downloadFile(
+    'http://download.geonames.org/export/dump/alternateNames.zip',
+    altNamesZipPath,
+  );
   console.log();
 
-  const citiesTxtPath   = extractZip(citiesZipPath,   TMP_DIR, 'cities1000.txt');
-  const altNamesTxtPath = extractZip(altNamesZipPath, TMP_DIR, 'alternateNames.txt');
+  const citiesTxtPath = extractZip(citiesZipPath, TMP_DIR, 'cities1000.txt');
+  const altNamesTxtPath = extractZip(
+    altNamesZipPath,
+    TMP_DIR,
+    'alternateNames.txt',
+  );
   console.log();
 
   console.log('🗺  Парсинг стран...');
@@ -300,15 +395,16 @@ async function seed() {
 
   console.log('🔤 Русские переводы...');
   const allIds = new Set<number>([
-    ...rawCountries.map(c => c.geonames_id).filter(Boolean),
-    ...rawCities.map(c => c.geonames_id),
+    ...rawCountries.map((c) => c.geonames_id).filter(Boolean),
+    ...rawCities.map((c) => c.geonames_id),
   ]);
   const ruNames = await parseAlternateNames(altNamesTxtPath, allIds, 'ru');
   console.log();
 
   console.log('💾 Сохранение стран...');
   for (const raw of rawCountries) {
-    await client.query(`
+    await client.query(
+      `
       INSERT INTO countries (iso2, iso3, name_en, name_ru, geonames_id, phone_code, currency, continent)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
       ON CONFLICT (iso2) DO UPDATE SET
@@ -316,33 +412,50 @@ async function seed() {
         geonames_id=EXCLUDED.geonames_id, phone_code=EXCLUDED.phone_code,
         currency=EXCLUDED.currency, continent=EXCLUDED.continent,
         updated_at=NOW()
-    `, [
-      raw.iso2, raw.iso3 || null, raw.name_en,
-      raw.geonames_id ? (ruNames.get(raw.geonames_id) ?? null) : null,
-      raw.geonames_id || null, raw.phone_code || null,
-      raw.currency || null, raw.continent || null,
-    ]);
+    `,
+      [
+        raw.iso2,
+        raw.iso3 || null,
+        raw.name_en,
+        raw.geonames_id ? (ruNames.get(raw.geonames_id) ?? null) : null,
+        raw.geonames_id || null,
+        raw.phone_code || null,
+        raw.currency || null,
+        raw.continent || null,
+      ],
+    );
   }
   console.log(`  ✅ Стран: ${rawCountries.length}`);
 
-  const { rows: countryRows } = await client.query('SELECT id, iso2 FROM countries');
-  const countryIdByIso2 = new Map<string, number>(countryRows.map((r: any) => [r.iso2, r.id]));
+  const { rows: countryRows } = await client.query<{
+    id: number;
+    iso2: string;
+  }>('SELECT id, iso2 FROM countries');
+  const countryIdByIso2 = new Map<string, number>(
+    countryRows.map((r) => [r.iso2, r.id]),
+  );
 
   console.log('💾 Сохранение городов...');
   const BATCH = 500;
-  let saved = 0, skipped = 0;
+  let saved = 0,
+    skipped = 0;
 
   for (let i = 0; i < rawCities.length; i += BATCH) {
     const batch = rawCities.slice(i, i + BATCH);
-    const records: any[] = [];
+    const records: (string | number | null)[][] = [];
 
     for (const raw of batch) {
       const country_id = countryIdByIso2.get(raw.country_code);
-      if (!country_id) { skipped++; continue; }
+      if (!country_id) {
+        skipped++;
+        continue;
+      }
       records.push([
-        raw.geonames_id, raw.name_en,
+        raw.geonames_id,
+        raw.name_en,
         ruNames.get(raw.geonames_id) ?? null,
-        country_id, raw.country_code,
+        country_id,
+        raw.country_code,
         raw.region || null,
         isNaN(raw.lat) ? null : raw.lat,
         isNaN(raw.lon) ? null : raw.lon,
@@ -354,11 +467,15 @@ async function seed() {
     if (records.length === 0) continue;
 
     const cols = 10;
-    const placeholders = records.map((_, ri) =>
-      `(${Array.from({ length: cols }, (__, ci) => `$${ri * cols + ci + 1}`).join(',')})`
-    ).join(',');
+    const placeholders = records
+      .map(
+        (_, ri) =>
+          `(${Array.from({ length: cols }, (__, ci) => `$${ri * cols + ci + 1}`).join(',')})`,
+      )
+      .join(',');
 
-    await client.query(`
+    await client.query(
+      `
       INSERT INTO cities
         (geonames_id,name_en,name_ru,country_id,country_code,region,latitude,longitude,population,timezone)
       VALUES ${placeholders}
@@ -368,33 +485,49 @@ async function seed() {
         region=EXCLUDED.region, latitude=EXCLUDED.latitude,
         longitude=EXCLUDED.longitude, population=EXCLUDED.population,
         timezone=EXCLUDED.timezone, updated_at=NOW()
-    `, records.flat());
+    `,
+      records.flat(),
+    );
 
     saved += records.length;
 
     if (i % (BATCH * 20) === 0) {
-      process.stdout.write(`\r  ⏳ ${Math.min(i + BATCH, rawCities.length).toLocaleString()} / ${rawCities.length.toLocaleString()}`);
+      process.stdout.write(
+        `\r  ⏳ ${Math.min(i + BATCH, rawCities.length).toLocaleString()} / ${rawCities.length.toLocaleString()}`,
+      );
     }
   }
 
   console.log(`\n  ✅ Городов: ${saved}`);
   if (skipped > 0) console.log(`  ⚠️  Пропущено: ${skipped}`);
 
-  const { rows: [{ count: cCount }] } = await client.query('SELECT COUNT(*) FROM countries');
-  const { rows: [{ count: ciCount }] } = await client.query('SELECT COUNT(*) FROM cities');
+  const {
+    rows: [{ count: cCount }],
+  } = await client.query<{ count: string }>('SELECT COUNT(*) FROM countries');
+  const {
+    rows: [{ count: ciCount }],
+  } = await client.query<{ count: string }>('SELECT COUNT(*) FROM cities');
   console.log(`\n📊 Итого: стран ${cCount}, городов ${ciCount}`);
   console.log('✅ Готово!\n');
 
   await client.end();
 }
 
-seed().catch(async err => {
+seed().catch(async (err: unknown) => {
+  const error = err instanceof Error ? err : new Error(inspect(err));
   console.error('\n❌ Ошибка:');
-  console.error('  message:', err?.message  ?? '(нет)');
-  console.error('  code   :', err?.code     ?? '(нет)');
-  console.error('  detail :', err?.detail   ?? '(нет)');
-  console.error('  hint   :', err?.hint     ?? '(нет)');
-  if (!err?.message) console.error('  full err:', err);
-  try { await client.end(); } catch {}
+  console.error('  message:', error.message);
+  console.error('  code   :', 'code' in error ? inspect(error.code) : '(нет)');
+  console.error(
+    '  detail :',
+    'detail' in error ? inspect(error.detail) : '(нет)',
+  );
+  console.error('  hint   :', 'hint' in error ? inspect(error.hint) : '(нет)');
+  if (!(err instanceof Error)) console.error('  full err:', err);
+  try {
+    await client.end();
+  } catch (closeError: unknown) {
+    console.error(closeError);
+  }
   process.exit(1);
 });

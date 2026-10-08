@@ -1,3 +1,4 @@
+import { apiFetch } from '../request';
 
 import type { Genre } from "../genres/main.api";
 import { BASE_URL_API } from "../main.api";
@@ -23,7 +24,7 @@ export interface UpdateArtTypeData {
 
 export const getAllArtTypes = async (): Promise<ArtType[]> => {
     try {
-        const res = await fetch(BASE_URL, {
+        const res = await apiFetch(BASE_URL, {
             method: "GET",
             credentials: "include",
         });
@@ -37,7 +38,7 @@ export const getAllArtTypes = async (): Promise<ArtType[]> => {
 
 export const getArtTypeById = async (id: number): Promise<ArtType> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "GET",
             credentials: "include",
         });
@@ -51,7 +52,7 @@ export const getArtTypeById = async (id: number): Promise<ArtType> => {
 
 export const createArtType = async (data: CreateArtTypeData): Promise<ArtType> => {
     try {
-        const res = await fetch(BASE_URL, {
+        const res = await apiFetch(BASE_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -67,7 +68,7 @@ export const createArtType = async (data: CreateArtTypeData): Promise<ArtType> =
 
 export const updateArtType = async (id: number, data: UpdateArtTypeData): Promise<ArtType> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -83,7 +84,7 @@ export const updateArtType = async (id: number, data: UpdateArtTypeData): Promis
 
 export const deleteArtType = async (id: number): Promise<{ success: boolean; message: string }> => {
     try {
-        const res = await fetch(`${BASE_URL}/${id}`, {
+        const res = await apiFetch(`${BASE_URL}/${id}`, {
             method: "DELETE",
             credentials: "include",
         });
@@ -97,7 +98,7 @@ export const deleteArtType = async (id: number): Promise<{ success: boolean; mes
 
 export const seedArtTypes = async (): Promise<ArtType[]> => {
     try {
-        const res = await fetch(`${BASE_URL}/seed`, {
+        const res = await apiFetch(`${BASE_URL}/seed`, {
             method: "POST",
             credentials: "include",
         });

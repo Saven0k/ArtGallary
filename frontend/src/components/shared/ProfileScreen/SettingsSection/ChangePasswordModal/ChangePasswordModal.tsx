@@ -1,3 +1,4 @@
+import { errorMessage } from '../../../../../utils/errors';
 
 import { useState } from 'react';
 import { Eye, EyeOff, X } from 'lucide-react';
@@ -46,8 +47,8 @@ const ChangePasswordModal = ({ resetToken, onClose, onSuccess, onError }: Change
             await resetPassword({ resetToken, newPassword });
             onSuccess?.();
             onClose();
-        } catch (err: any) {
-            setError(err?.message || t.errors.generic);
+        } catch (err: unknown) {
+            setError(errorMessage(err, t.errors.generic));
             onError?.();
         } finally {
             setLoading(false);

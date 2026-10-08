@@ -7,7 +7,7 @@ import {
     type UpdateUserData,
 } from "../../../../api/users/main.api";
 import {
-    getAuthorById,
+    getMyAuthorProfile,
     updateAuthor,
     type UpdateAuthorData,
 } from "../../../../api/authors/main.api";
@@ -79,6 +79,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarRemoved, setAvatarRemoved] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [cropSrc, setCropSrc] = useState<string | null>(null);
     const [avatarError, setAvatarError] = useState<string | null>(null);
@@ -91,7 +92,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
 
             try {
                 if (isAuthor) {
-                    const author = await getAuthorById(id, language);
+                    const author = await getMyAuthorProfile();
                     if (author) {
                         setFormData({
                             name: author.name || "",
@@ -252,6 +253,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
             URL.revokeObjectURL(avatarPreview);
         }
         setAvatarFile(file);
+        setAvatarRemoved(false);
         setAvatarPreview(URL.createObjectURL(file));
         setCropSrc(null);
     };
@@ -264,6 +266,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
         }
         setAvatarFile(null);
         setAvatarPreview(null);
+        setAvatarRemoved(true);
         setAvatarError(null);
     };
 
@@ -278,21 +281,22 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                 const data: UpdateAuthorData = {
                     name: formData.name,
                     surname: formData.surname,
-                    second_name: formData.secondName || undefined,
+                    second_name: formData.secondName,
                     date_birthday: formData.birthday,
-                    biography: formData.about || undefined,
+                    biography: formData.about,
                     profession_id: formData.professionId
                         ? Number(formData.professionId)
-                        : undefined,
+                        : null,
                     country_id: formData.countryId ? Number(formData.countryId) : null,
                     city_id: formData.cityId ? Number(formData.cityId) : null,
-                    avatar_path: avatarFile ?? undefined,
+                    avatar_path: avatarRemoved ? null : avatarFile ?? undefined,
                 };
 
                 const result = await updateAuthor(id, data);
                 if (result) {
                     setSuccess(t.avatar.saved);
                     setAvatarFile(null);
+                    setAvatarRemoved(false);
                     if (result.authorProfile?.avatar_path) {
                         setAvatarPreview(result.authorProfile.avatar_path);
                     }
@@ -304,7 +308,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                 const data: UpdateUserData = {
                     name: formData.name,
                     surname: formData.surname,
-                    second_name: formData.secondName || undefined,
+                    second_name: formData.secondName,
                     date_birthday: formData.birthday,
                     country_id: formData.countryId ? Number(formData.countryId) : null,
                     city_id: formData.cityId ? Number(formData.cityId) : null,
@@ -419,6 +423,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                         <input
                             type="text"
                             name="surname"
+                            required
                             placeholder={t.placeholders.surname}
                             value={formData.surname}
                             onChange={handleChange}
@@ -430,6 +435,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                         <input
                             type="text"
                             name="name"
+                            required
                             placeholder={t.placeholders.name}
                             value={formData.name}
                             onChange={handleChange}
@@ -452,6 +458,8 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                         <input
                             type="date"
                             name="birthday"
+                            required
+                            max={new Date().toISOString().slice(0, 10)}
                             value={formData.birthday}
                             onChange={handleChange}
                         />

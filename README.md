@@ -1,125 +1,48 @@
-# Art Gallery — Галерея художников
+# GalleryTema
 
-Веб-приложение для управления художественной галереей: каталог картин, художники, выставки и гости.
+Галерея произведений искусства с каталогом, профилями авторов, модерацией, корзиной и подписками.
 
-> **Деплой** (Windows-ПК / ВМ с Docker, статический IP, reverse proxy): см. [deploy/README.md](deploy/README.md).
-> Актуальный стек: `server/` — NestJS + Sequelize + PostgreSQL, `frontend/` — React + Vite.
-> Список изменений конфигурации под деплой: [Changes.md](Changes.md).
+## Структура
 
----
+- `frontend/` — React 19, TypeScript, Vite, SCSS.
+- `server/` — NestJS 11, Sequelize, PostgreSQL.
+- `deploy/` — Docker, nginx/Caddy и обновление на Windows.
 
-## Структура проекта
+## Локальный запуск
 
-```
-gallary/
-├── backend/     # REST API (Node.js + Express + Prisma)
-├── fronted/     # SPA (React + Vite)
-└── README.md
-```
+Нужны Node.js 22 и PostgreSQL. Команды выполняются из соответствующего каталога.
 
----
+1. Скопируйте `server/.env.example` в `server/.development.env` и заполните настройки БД, JWT, администратора и почты.
+2. Создайте базу `gallery` или укажите существующую в `POSTGRES_DB`.
+3. В `server/`: `npm ci`, затем `npm run start:dev`.
+4. В `frontend/`: `npm ci`, затем `npm run dev`.
 
-## Стек технологий
+Фронтенд: http://localhost:5173. API: http://localhost:5000. Проверка API: `GET /health`.
+Swagger доступен на `/api/docs`, когда `SWAGGER_ENABLED=true`.
+Справочник стран и городов заполняется командой `npm run seed:geonames` в `server/`.
 
-### Backend (`/backend`)
+Для контейнера разработки: `docker compose --env-file .development.env -f docker-compose.yml up --build` из `server/`.
+PostgreSQL в этой конфигурации доступен на хосте через порт 5433.
 
-| Блок | Технология | Описание |
-|------|------------|----------|
-| **Runtime** | Node.js 18+ | Среда выполнения |
-| **Язык** | TypeScript 5.x | Статическая типизация |
-| **Фреймворк** | Express.js 4.x | HTTP-сервер и роутинг |
-| **ORM** | Prisma 5.x | Работа с БД, миграции |
-| **База данных** | PostgreSQL | Реляционная СУБД |
-| **Аутентификация** | JWT (jsonwebtoken) | Токены для artist и guest |
-| **Пароли** | bcryptjs | Хеширование паролей |
-| **Валидация** | express-validator | Валидация тела запросов |
-| **Загрузка файлов** | multer | Multer (в зависимостях) |
-| **Разработка** | nodemon, tsx | Hot reload, запуск TS |
+## Проверки
 
-### Frontend (`/fronted`)
+- `frontend/`: `npm run build`, `npm run lint`, `node --test src/__tests__/api.test.cjs`.
+- `server/`: `npm run build`, `npm run lint:check`, `npm test -- --runInBand`, `npm run test:e2e -- --runInBand`.
+- Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File deploy/windows/update.tests.ps1`.
 
-| Блок | Технология | Описание |
-|------|------------|----------|
-| **Фреймворк** | React 19.x | UI-библиотека |
-| **Сборщик** | Vite 7.x | Сборка и dev-сервер |
-| **Маршрутизация** | React Router DOM 7.x | SPA-роутинг |
-| **Язык** | TypeScript 5.x | Статическая типизация |
-| **Стили** | CSS (CSS Variables) | Светлая/тёмная тема |
-| **Lint** | ESLint 9.x | Проверка кода |
+## Оплата подписок
 
----
+Подписки и оплата пока не подключены. Настройки ЮKassa можно оставить пустыми.
+Когда потребуется подключение, задайте `YOOKASSA_SHOP_ID`, `YOOKASSA_SECRET_KEY` и `YOOKASSA_RETURN_URL` в окружении сервера.
+Адрес возврата указывает на фронтенд: `https://ваш-домен/profile?section=tariff`.
+Ключ магазина хранится только на сервере. После возврата с оплаты сервер проверяет платёж через API ЮKassa;
+данные об успешной оплате, сумма и валюта из браузера не подтверждают покупку.
+При отсутствии настройки провайдера покупка недоступна, бесплатный тариф и остальные функции сохраняются.
+Для тестового магазина в production дополнительно нужен `YOOKASSA_ALLOW_TEST_PAYMENTS=true`.
 
-## Архитектура Backend
+## Деплой
 
-```
-backend/src/
-├── app.ts              # Точка входа, Express app
-├── config/
-│   ├── database.ts     # Prisma Client
-│   └── jwt.ts          # Настройки JWT
-├── controllers/        # Обработчики HTTP
-├── services/           # Бизнес-логика
-├── routes/             # Роуты API
-├── middleware/         # auth, валидация
-└── types/              # TypeScript-типы
-```
-
-### Модели (Prisma)
-
-- **Artist** — художник (профиль, аватар, биография)
-- **Guest** — гость (регистрация на выставки)
-- **Painting** — картина (автор, жанр, стоимость)
-- **Genre** — жанр
-- **Exhibition** — выставка
-- **ArtistGenre**, **PaintingExhibition**, **ExhibitionGuest** — связующие таблицы
-
----
-
-## Запуск
-
-### Backend
-
-```bash
-cd backend
-npm install
-cp .env.example .env   # заполнить DATABASE_URL, JWT_SECRET
-npx prisma migrate dev
-npm run dev
-```
-
-Сервер: `http://localhost:3000`
-
-### Frontend
-
-```bash
-cd fronted
-npm install
-npm run dev
-```
-
-Приложение: `http://localhost:5173`
-
----
-
-## API (основные эндпоинты)
-
-| Метод | Путь | Описание |
-|-------|------|----------|
-| POST | /api/auth/register/artist | Регистрация художника |
-| POST | /api/auth/register/guest | Регистрация гостя |
-| POST | /api/auth/login | Вход |
-| GET | /api/auth/me | Текущий пользователь |
-| GET | /backend/artists | Список художников |
-| GET | /backend/paintings | Список картин |
-| GET | /backend/genres | Список жанров |
-| GET | /backend/exhibitions | Список выставок |
-| GET | /backend/guests | Список гостей |
-| GET | /health | Проверка работоспособности |
-
----
-
-## Требования
-
-- Node.js 18+
-- PostgreSQL 12+
-- npm или yarn
+Инструкция и настройки reverse proxy: [deploy/README.md](deploy/README.md).
+В production загрузки размещаются вне исходников, `BASE_URL` должен соответствовать внешнему адресу API.
+Для сохранения состава и цены заказов добавлен столбец `cart_history.pricing`. При `DB_SYNC=false`
+перед запуском примените [deploy/sql/20261008-cart-history-pricing.sql](deploy/sql/20261008-cart-history-pricing.sql).

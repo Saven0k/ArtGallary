@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
-import { useLanguage } from "../../../context/LanguageContext";
 import { publicRouteTranslations } from "./lang";
+import { useLanguage } from "../../../hooks/useLanguage";
 
 interface PublicRouteProps {
     children?: React.ReactNode;

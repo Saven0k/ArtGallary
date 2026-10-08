@@ -137,6 +137,7 @@ const AuthorHeader = ({ author }: AuthorHeaderProps) => {
                 </button>
             </div>
 
+            {isBioExpanded && <p>{author.authorProfile.biography}</p>}
             {authModalOpen && (
                 <AuthRequiredModal
                     title={t.authRequiredTitle}

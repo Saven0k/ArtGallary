@@ -1,3 +1,4 @@
+import type { TooltipItem } from "chart.js";
 
 import { useMemo } from "react";
 import {
@@ -63,7 +64,7 @@ const CountriesChart = ({ data }: CountriesChartProps) => {
                 tooltip: {
                     ...tooltipStyle,
                     callbacks: {
-                        label: (ctx: any) => `${ctx.parsed.x}%`,
+                        label: (ctx: TooltipItem<"bar">) => `${ctx.parsed.x}%`,
                     },
                 },
             },
@@ -73,7 +74,7 @@ const CountriesChart = ({ data }: CountriesChartProps) => {
                     ticks: {
                         color: "#727272",
                         font: { size: 12 },
-                        callback: (v: any) => `${v}%`,
+                        callback: (v: string | number) => `${v}%`,
                     },
                     max: 100,
                 },

@@ -1,11 +1,9 @@
 // src/pages/Profile/components/ProfileContent/Cart/Cart.tsx
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-    clearCart,
-    getCart,
-    removeFromCart,
-    type CartData,
-} from '../../../../api/cart/main.api';
+import { useEffect, useMemo, useState } from 'react';
+import { useCart } from '../../../../hooks/useCart';
+import { checkoutCart } from '../../../../api/cart-history/main.api';
+import { useNavigate } from 'react-router-dom';
+import { errorMessage } from '../../../../utils/errors';
 import { getArtById } from '../../../../api/arts/main.api';
 import { useLanguage } from '../../../../hooks/useLanguage';
 import type { Language } from '../../../../context/LanguageContext';
@@ -27,7 +25,8 @@ const Cart = () => {
     const { language } = useLanguage();
     const t = cartTranslations[language];
 
-    const [artIds, setArtIds] = useState<number[]>([]);
+    const { cartItems: artIds, loading: cartLoading, removeFromCart, clearCart, reload } = useCart();
+    const navigate = useNavigate();
     const [arts, setArts] = useState<Record<number, ArtPreview>>({});
     const [quantities, setQuantities] = useState<Record<number, number>>({});
     const [loading, setLoading] = useState(true);
@@ -35,62 +34,28 @@ const Cart = () => {
     const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    // ---------- load ----------
-    const load = useCallback(async () => {
-        console.log('[Cart] load() start');
-
+    useEffect(() => {
+        let active = true;
         setLoading(true);
         setError(null);
-
-        const cart: CartData | null = await getCart();
-        console.log('[Cart] getCart response:', cart);
-
-        if (!cart) {
-            setError(t.errors.loadFailed);
-            setLoading(false);
-            return;
-        }
-
-        setArtIds(cart.artIds);
-
-        const missing = cart.artIds.filter((id) => !arts[id]);
-        const fetched = await Promise.all(missing.map((id) => getArtById(id)));
-
-        const next: Record<number, ArtPreview> = { ...arts };
-        fetched.forEach((art) => {
-            if (!art) return;
-            next[art.id] = {
-                id: art.id,
-                title: art.title,
-                imagePath: art.image_path,
-                authorName:
-                    art.author?.user?.name && art.author?.user?.surname
-                        ? `${art.author.user.name} ${art.author.user.surname}`
-                        : t.item.unknownAuthor,
-                price: Number(art.cost) || 0,
-                currency: art.currency ?? 'RUB',
-                isOriginal: isOriginalByPrice(Number(art.cost) || 0),
-            };
-        });
-        setArts(next);
-
-        setQuantities((prev) => {
-            const copy = { ...prev };
-            cart.artIds.forEach((id) => {
-                if (copy[id] == null) copy[id] = 1;
+        Promise.all(artIds.map((id) => getArtById(id, language))).then((fetched) => {
+            if (!active) return;
+            const next: Record<number, ArtPreview> = {};
+            fetched.forEach((art) => {
+                if (!art) return;
+                next[art.id] = {
+                    id: art.id, title: art.title, imagePath: art.image_path,
+                    authorName: [art.author?.user?.surname, art.author?.user?.name].filter(Boolean).join(' ') || t.item.unknownAuthor,
+                    price: Number(art.cost) || 0, currency: art.currency ?? 'RUB',
+                    isOriginal: isOriginalByPrice(Number(art.cost) || 0),
+                };
             });
-            return copy;
+            setArts(next);
+            if (fetched.some((art) => !art)) setError(t.errors.loadFailed);
+            setLoading(false);
         });
-
-        setLoading(false);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [language]);
-
-    useEffect(() => {
-        console.log('[Cart] mounted');
-        load();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        return () => { active = false; };
+    }, [artIds, language, t.errors.loadFailed, t.item.unknownAuthor]);
 
     // ---------- derived ----------
     const lines: CartLine[] = useMemo(() => {
@@ -126,7 +91,7 @@ const Cart = () => {
         setError(null);
         const updated = await removeFromCart(id);
         if (updated) {
-            setArtIds(updated.artIds);
+
             setQuantities((prev) => {
                 const copy = { ...prev };
                 delete copy[id];
@@ -143,7 +108,7 @@ const Cart = () => {
         setError(null);
         const updated = await clearCart();
         if (updated) {
-            setArtIds([]);
+
             setQuantities({});
             setAppliedPromo(null);
         } else {
@@ -158,8 +123,22 @@ const Cart = () => {
         return null;
     };
 
+    const mixedCurrencies = new Set(lines.map((line) => line.currency)).size > 1;
+    const handleCheckout = async () => {
+        if (busy || mixedCurrencies || lines.length !== artIds.length) return;
+        setBusy(true);
+        setError(null);
+        try {
+            await checkoutCart({ items: lines.map((line) => ({ artId: line.id, quantity: line.isOriginal ? 1 : line.quantity })), promoCode: appliedPromo ?? undefined });
+            await reload();
+            navigate('/profile?section=history');
+        } catch (e) {
+            setError(errorMessage(e, t.errors.loadFailed));
+        } finally { setBusy(false); }
+    };
+
     // ---------- render ----------
-    if (loading) {
+    if (loading || cartLoading) {
         return (
             <section className="profile-cart profile-cart--loading">
                 {t.loading}
@@ -167,7 +146,7 @@ const Cart = () => {
         );
     }
 
-    if (lines.length === 0) {
+    if (lines.length === 0 && !error) {
         return <EmptyCart language={language as Language} />;
     }
 
@@ -206,14 +185,15 @@ const Cart = () => {
                 onRemove={() => setAppliedPromo(null)}
             />
 
-            {error && <div className="profile-cart__error">{error}</div>}
+            {(error || mixedCurrencies) && <div className="profile-cart__error" role="alert">{error || "Работы в разных валютах нужно оформить отдельно"}</div>}
 
             <TotalsBlock totals={totals} language={language as Language} />
 
             <button
                 type="button"
                 className="profile-cart__checkout"
-                disabled={busy}
+                onClick={handleCheckout}
+                disabled={busy || mixedCurrencies || lines.length !== artIds.length || !lines.length}
             >
                 {t.checkout}
             </button>

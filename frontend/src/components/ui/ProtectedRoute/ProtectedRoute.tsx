@@ -1,5 +1,4 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
 import { useLanguage } from "../../../hooks/useLanguage";
 import { protectedRouteTranslations } from "./lang";
@@ -13,29 +12,12 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     children,
     allowedRoles = [],
-    redirectTo = "/"
+    redirectTo = "/login"
 }) => {
     const { user, isLoading, isAuthenticated } = useAuth();
     const { language } = useLanguage();
     const lang = protectedRouteTranslations[language];
-    const [shouldRedirect, setShouldRedirect] = useState(false);
-    const [timerDone, setTimerDone] = useState(false);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setTimerDone(true);
-        }, 5000);
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    useEffect(() => {
-        if (timerDone && !isLoading) {
-            if (!isAuthenticated) {
-                setShouldRedirect(true);
-            }
-        }
-    }, [timerDone, isLoading, isAuthenticated]);
+    const location = useLocation();
 
     if (isLoading) {
         return (
@@ -46,17 +28,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         );
     }
 
-    if (!timerDone && !isAuthenticated) {
-        return (
-            <div className="loading-container">
-                <div className="spinner"></div>
-                <p>{lang.checkingAuth}</p>
-            </div>
-        );
-    }
-
-    if (shouldRedirect || (!isAuthenticated && timerDone)) {
-        return <Navigate to={redirectTo} replace />;
+    if (!isAuthenticated) {
+        return <Navigate to={redirectTo} state={{ from: location.pathname + location.search }} replace />;
     }
 
     if (allowedRoles.length > 0 && user && !allowedRoles.includes(user.role)) {

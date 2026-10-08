@@ -18,6 +18,8 @@ import Notifications from "../../components/shared/ProfileScreen/NotificationSec
 import Statistics from "../../components/shared/ProfileScreen/StatisticsSection/StatisticsSection";
 import Likes from "../../components/shared/ProfileScreen/LikesSection/LikesSection";
 import Follows from "../../components/shared/ProfileScreen/FollowsSection/FollowsSection";
+import PurchaseHistory from "../../components/shared/ProfileScreen/PurchaseHistorySection/PurchaseHistorySection";
+import { useLanguage } from "../../hooks/useLanguage";
 import Cart from "../../components/shared/ProfileScreen/CartSection/CartSection";
 
 const sectionIds: Record<ProfileSection, string> = {
@@ -26,6 +28,7 @@ const sectionIds: Record<ProfileSection, string> = {
     statistics: "statistics",
     likes: "likes",
     cart: "cart",
+    history: "history",
     subscriptions: "subscriptions",
     settings: "settings",
     tariff: "tariff",
@@ -39,6 +42,7 @@ const isValidSection = (s: string | null): s is ProfileSection =>
 
 const ProfilePage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
+    const { language } = useLanguage();
     const { user: authUser } = useAuth();
 
     const [profile, setProfile] = useState<AuthorProfileResponse | User | null>(null);
@@ -114,7 +118,7 @@ const ProfilePage = () => {
 
         switch (activeSection) {
             case "notifications":
-                return <Notifications id={userId} role={userRole} />;
+                return <Notifications />;
             case "statistics":
                 return isAuthor ? <Statistics authorId={userId} /> : null;
             case "settings":
@@ -123,6 +127,8 @@ const ProfilePage = () => {
                 return <Likes />;
             case "subscriptions":
                 return <Follows />;
+            case "history":
+                return <PurchaseHistory lang={language} />;
             case "cart":
                 return <Cart />;
             case "tariff":

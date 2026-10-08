@@ -1,3 +1,4 @@
+import { apiFetch } from '../request';
 
 import { BASE_URL_API } from '../main.api';
 
@@ -19,7 +20,7 @@ export interface NotificationItem {
     link: string | null;
     target_id: number | null;
     status: NotificationStatus;
-    metadata: any;
+    metadata: { actor_name?: string; actor_surname?: string; art_title?: string } | null;
     created_at: string;
 }
 
@@ -40,7 +41,7 @@ export interface NotificationsResponse {
 
 const request = async <T>(url: string, init?: RequestInit): Promise<T | null> => {
     try {
-        const res = await fetch(url, { credentials: 'include', ...init });
+        const res = await apiFetch(url, { credentials: 'include', ...init });
         if (!res.ok) {
             const message = await res.text().catch(() => '');
             throw new Error(`HTTP ${res.status} ${message}`);

@@ -1,4 +1,19 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, Response, UseGuards, UsePipes } from '@nestjs/common';
+import {
+  type Request as ExpressRequest,
+  type Response as ExpressResponse,
+} from 'express';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+  UsePipes,
+} from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthService } from './auth.service';
@@ -15,147 +30,151 @@ import { RequestCodeDto, VerifyCodeDto } from './dto/request-code.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
 import {
-    VerifyCurrentEmailDto,
-    RequestEmailChangeCodeDto,
-    ConfirmEmailChangeDto,
-    VerifyPasswordDto,
+  VerifyCurrentEmailDto,
+  RequestEmailChangeCodeDto,
+  ConfirmEmailChangeDto,
+  VerifyPasswordDto,
 } from './dto/email-change.dto';
 import { ConfirmDeleteAccountDto } from './dto/delete-account.dto';
 
-@ApiTags("Авторизация")
+@ApiTags('Авторизация')
 @Controller('auth')
+@UsePipes(ValidationPipe)
 export class AuthController {
+  constructor(private authService: AuthService) {}
 
-    constructor(private authService: AuthService) { }
+  @Post('/login')
+  login(
+    @Body() userDto: AuthUserDto,
+    @Req() req: ExpressRequest,
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ) {
+    return this.authService.login(userDto, req, res);
+  }
 
-    @Post("/login")
+  @Post('/register')
+  register(
+    @Body() userDto: CreateUserDto,
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ) {
+    return this.authService.register(userDto, res);
+  }
 
-    login(@Body() userDto: AuthUserDto, @Req() req: any, @Res({ passthrough: true }) res: Response) {
-        return this.authService.login(userDto, req, res)
-    }
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtRefreshGuard)
+  refresh(
+    @CurrentUser() payload: JwtRefreshPayload & { rawToken: string },
+    @Res({ passthrough: true }) res: ExpressResponse,
+    @Req() req: ExpressRequest,
+  ) {
+    return this.authService.refresh(payload, res, req);
+  }
 
-    @Post("/register")
-    @UsePipes(ValidationPipe)
-    register(@Body() userDto: CreateUserDto, @Res({ passthrough: true }) res: Response) {
-        return this.authService.register(userDto, res)
-    }
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  logout(
+    @CurrentUser('id') userId: number,
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ) {
+    return this.authService.logout(userId, res);
+  }
 
-    @Post('refresh')
-    @HttpCode(HttpStatus.OK)
-    @UseGuards(JwtRefreshGuard)
-    refresh(
-        @CurrentUser() payload: JwtRefreshPayload & { rawToken: string },
-        @Res({ passthrough: true }) res: Response,
-        @Req() req: any,
-    ) {
-        return this.authService.refresh(payload, res, req);
-    }
+  @Get('me')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin, Role.User, Role.Author, Role.Moderator)
+  getMe(@CurrentUser() user: { id: number; email: string; role: Role }) {
+    return user;
+  }
 
-    @Post('logout')
-    @HttpCode(HttpStatus.OK)
-    @UseGuards(JwtAccessGuard, RolesGuard)
-    logout(
-        @CurrentUser('id') userId: number,
-        @Res({ passthrough: true }) res: Response,
-    ) {
-        return this.authService.logout(userId, res);
-    }
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @ApiResponse({ status: 200, description: 'Пароль успешно изменён' })
+  @ApiResponse({ status: 401, description: 'Неверный текущий пароль' })
+  @ApiResponse({ status: 409, description: 'Новый пароль совпадает с текущим' })
+  changePassword(
+    @CurrentUser('id') userId: number,
+    @Body() dto: ChangePasswordDto,
+    @Res({ passthrough: true }) res: ExpressResponse,
+    @Req() req: ExpressRequest,
+  ) {
+    return this.authService.changePassword(userId, dto, res, req);
+  }
 
-    @Get('me')
-    @UseGuards(JwtAccessGuard, RolesGuard)
-    @Roles(Role.Admin, Role.User, Role.Author, Role.Moderator)
-    getMe(@CurrentUser() user: { id: number; email: string, role: Role }) {
-        return user;
-    }
+  @Post('password-reset/request-code')
+  @HttpCode(HttpStatus.OK)
+  requestResetCode(@Body() dto: RequestCodeDto) {
+    return this.authService.requestResetCode(dto);
+  }
 
-    @Post('change-password')
-    @HttpCode(HttpStatus.OK)
-    @UseGuards(JwtAccessGuard, RolesGuard)
-    @ApiResponse({ status: 200, description: 'Пароль успешно изменён' })
-    @ApiResponse({ status: 401, description: 'Неверный текущий пароль' })
-    @ApiResponse({ status: 409, description: 'Новый пароль совпадает с текущим' })
-    changePassword(
-        @CurrentUser('id') userId: number,
-        @Body() dto: ChangePasswordDto,
-        @Res({ passthrough: true }) res: Response,
-        @Req() req: any,
-    ) {
-        return this.authService.changePassword(userId, dto, res, req);
-    }
+  @Post('password-reset/verify-code')
+  @HttpCode(HttpStatus.OK)
+  verifyResetCode(@Body() dto: VerifyCodeDto) {
+    return this.authService.verifyResetCode(dto);
+  }
 
+  @Post('password-reset/reset-password')
+  @HttpCode(HttpStatus.OK)
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
+  }
 
-    @Post('password-reset/request-code')
-    @HttpCode(HttpStatus.OK)
-    requestResetCode(@Body() dto: RequestCodeDto) {
-        return this.authService.requestResetCode(dto);
-    }
+  @Post('email-change/verify-current')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  verifyCurrentEmail(
+    @CurrentUser('id') userId: number,
+    @Body() dto: VerifyCurrentEmailDto,
+  ) {
+    return this.authService.verifyCurrentEmail(userId, dto);
+  }
 
-    @Post('password-reset/verify-code')
-    @HttpCode(HttpStatus.OK)
-    verifyResetCode(@Body() dto: VerifyCodeDto) {
-        return this.authService.verifyResetCode(dto);
-    }
+  @Post('email-change/request-code')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  requestEmailChangeCode(
+    @CurrentUser('id') userId: number,
+    @Body() dto: RequestEmailChangeCodeDto,
+  ) {
+    return this.authService.requestEmailChangeCode(userId, dto);
+  }
 
-    @Post('password-reset/reset-password')
-    @HttpCode(HttpStatus.OK)
-    resetPassword(@Body() dto: ResetPasswordDto) {
-        return this.authService.resetPassword(dto);
-    }
+  @Post('email-change/confirm')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  confirmEmailChange(
+    @CurrentUser('id') userId: number,
+    @Body() dto: ConfirmEmailChangeDto,
+  ) {
+    return this.authService.confirmEmailChange(userId, dto);
+  }
 
-    @Post('email-change/verify-current')
-    @HttpCode(HttpStatus.OK)
-    @UseGuards(JwtAccessGuard, RolesGuard)
-    verifyCurrentEmail(
-        @CurrentUser('id') userId: number,
-        @Body() dto: VerifyCurrentEmailDto,
-    ) {
-        return this.authService.verifyCurrentEmail(userId, dto);
-    }
+  @Post('verify-password')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  verifyPassword(
+    @CurrentUser('id') userId: number,
+    @Body() dto: VerifyPasswordDto,
+  ) {
+    return this.authService.verifyPassword(userId, dto);
+  }
 
-    @Post('email-change/request-code')
-    @HttpCode(HttpStatus.OK)
-    @UseGuards(JwtAccessGuard, RolesGuard)
-    requestEmailChangeCode(
-        @CurrentUser('id') userId: number,
-        @Body() dto: RequestEmailChangeCodeDto,
-    ) {
-        return this.authService.requestEmailChangeCode(userId, dto);
-    }
+  @Post('account/delete/request-code')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  requestAccountDeletionCode(@CurrentUser('id') userId: number) {
+    return this.authService.requestAccountDeletionCode(userId);
+  }
 
-    @Post('email-change/confirm')
-    @HttpCode(HttpStatus.OK)
-    @UseGuards(JwtAccessGuard, RolesGuard)
-    confirmEmailChange(
-        @CurrentUser('id') userId: number,
-        @Body() dto: ConfirmEmailChangeDto,
-    ) {
-        return this.authService.confirmEmailChange(userId, dto);
-    }
-
-    @Post('verify-password')
-    @HttpCode(HttpStatus.OK)
-    @UseGuards(JwtAccessGuard, RolesGuard)
-    verifyPassword(
-        @CurrentUser('id') userId: number,
-        @Body() dto: VerifyPasswordDto,
-    ) {
-        return this.authService.verifyPassword(userId, dto);
-    }
-
-    @Post('account/delete/request-code')
-    @HttpCode(HttpStatus.OK)
-    @UseGuards(JwtAccessGuard, RolesGuard)
-    requestAccountDeletionCode(@CurrentUser('id') userId: number) {
-        return this.authService.requestAccountDeletionCode(userId);
-    }
-
-    @Post('account/delete/verify-code')
-    @HttpCode(HttpStatus.OK)
-    @UseGuards(JwtAccessGuard, RolesGuard)
-    verifyAccountDeletionCode(
-        @CurrentUser('id') userId: number,
-        @Body() dto: ConfirmDeleteAccountDto,
-    ) {
-        return this.authService.verifyAccountDeletionCode(userId, dto);
-    }
+  @Post('account/delete/verify-code')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  verifyAccountDeletionCode(
+    @CurrentUser('id') userId: number,
+    @Body() dto: ConfirmDeleteAccountDto,
+  ) {
+    return this.authService.verifyAccountDeletionCode(userId, dto);
+  }
 }

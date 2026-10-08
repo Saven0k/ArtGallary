@@ -4,13 +4,9 @@ import { useNavigate } from "react-router-dom";
 import LoginForm from "../../components/shared/auth/LoginForm/LoginForm";
 import AuthImage from "./authImg.png";
 import "./form.scss";
-import { useLanguage } from "../../hooks/useLanguage";
-import { loginPageTranslations } from "./lang";
 import { useAuth } from "../../hooks/useAuth";
 
 const LoginPage = () => {
-    const { language } = useLanguage();
-    const t = loginPageTranslations[language].loginPage;
 
     const { user, isLoading } = useAuth();
     const navigate = useNavigate();

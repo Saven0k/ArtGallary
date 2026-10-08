@@ -1,3 +1,4 @@
+import { translatedValue } from '../../utils/translations';
 import artConsulationPhoto from "./images/art-c.png"
 import deliveryPhoto from "./images/delivery.png"
 import orderPhoto from "./images/order.png"
@@ -189,16 +190,5 @@ export const servicesTranslations = {
 };
 
 export const getTranslation = (lang: Language, path: string): string => {
-    const keys = path.split('.');
-    let result: any = servicesTranslations[lang];
-
-    for (const key of keys) {
-        if (result && result[key] !== undefined) {
-            result = result[key];
-        } else {
-            return path;
-        }
-    }
-
-    return typeof result === 'string' ? result : path;
+    return translatedValue(servicesTranslations[lang], path);
 };

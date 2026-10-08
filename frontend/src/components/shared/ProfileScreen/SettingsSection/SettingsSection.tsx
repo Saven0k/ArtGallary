@@ -24,7 +24,7 @@ const Settings = ({ id, role }: SettingsProps) => {
     const t = profileTranslations[language].settings;
     const n = t.notifications;
     const { showNotification } = useNotification();
-    const { logout } = useAuth();
+    const { logout, refetch } = useAuth();
 
     const [passwordStage, setPasswordStage] = useState<PasswordStage>('idle');
     const [resetToken, setResetToken] = useState<string | null>(null);
@@ -38,13 +38,10 @@ const Settings = ({ id, role }: SettingsProps) => {
         setPasswordStage('idle');
     };
 
-    const handleDeleteAccount = async () => {
+    const handleDeleteAccount = async (deletionToken: string) => {
         try {
-            if (role === 'author') {
-                await deleteAuthor(id);
-            } else {
-                await deleteUser(id);
-            }
+            const result = role === 'author' ? await deleteAuthor(id, deletionToken) : await deleteUser(id, deletionToken);
+            if (!result) throw new Error(n.accountDeleteFailed);
             showNotification(n.accountDeleted, 'success');
 
             await logout();
@@ -108,6 +105,7 @@ const Settings = ({ id, role }: SettingsProps) => {
                     onSuccess={() => {
                         showNotification(n.passwordChanged, 'success');
                         closePasswordFlow();
+                        void logout();
                     }}
                     onError={() => {
                         showNotification(n.passwordChangeFailed, 'error');
@@ -121,6 +119,7 @@ const Settings = ({ id, role }: SettingsProps) => {
                     onSuccess={() => {
                         showNotification(n.emailChanged, 'success');
                         setOpenChangeEmail(false);
+                        void refetch();
                     }}
                     onError={() => {
                         showNotification(n.emailChangeFailed, 'error');

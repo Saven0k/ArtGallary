@@ -2,10 +2,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
     getLikedArts,
-    unlikeArt,
     type Art,
     type LikedArtsResponse,
 } from '../../../../api/arts/main.api';
+import { useLikes } from '../../../../hooks/useLikes';
 import LikeCard from './LikeCard';
 import { useLanguage } from '../../../../hooks/useLanguage';
 import { likesTranslations } from './lang';
@@ -15,6 +15,7 @@ const PAGE_LIMIT = 12;
 
 const Likes = () => {
     const { language } = useLanguage();
+    const { toggleLikeArt } = useLikes();
     const t = likesTranslations[language].likes;
 
     const [arts, setArts] = useState<Art[]>([]);
@@ -45,8 +46,8 @@ const Likes = () => {
 
         setArts(prev => prev.filter(a => a.id !== artId));
 
-        const res = await unlikeArt(artId);
-        if (!res || !res.success) {
+        const success = await toggleLikeArt(artId);
+        if (!success) {
 
             fetchLiked(page);
         }

@@ -1,3 +1,4 @@
+import { errorMessage } from '../../../../../utils/errors';
 
 import { useEffect, useState } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
@@ -10,7 +11,7 @@ import { deleteAccountTranslations } from './lang';
 import './DeleteAccountModal.scss';
 
 interface DeleteAccountModalProps {
-    onConfirm: () => Promise<void> | void;
+    onConfirm: (deletionToken: string) => Promise<void> | void;
     onClose: () => void;
 }
 
@@ -21,6 +22,7 @@ const DeleteAccountModal = ({ onConfirm, onClose }: DeleteAccountModalProps) => 
     const t = deleteAccountTranslations[language];
 
     const [step, setStep] = useState<Step>('code');
+    const [deletionToken, setDeletionToken] = useState<string | null>(null);
     const [code, setCode] = useState('');
     const [loading, setLoading] = useState(false);
     const [sending, setSending] = useState(false);
@@ -36,8 +38,8 @@ const DeleteAccountModal = ({ onConfirm, onClose }: DeleteAccountModalProps) => 
             try {
                 await requestAccountDeletionCode();
                 if (alive) setInfo(t.codeSent);
-            } catch (err: any) {
-                if (alive) setError(err?.message || t.errors.generic);
+            } catch (err: unknown) {
+                if (alive) setError(errorMessage(err, t.errors.generic));
             } finally {
                 if (alive) setSending(false);
             }
@@ -46,16 +48,17 @@ const DeleteAccountModal = ({ onConfirm, onClose }: DeleteAccountModalProps) => 
             alive = false;
         };
 
-    }, []);
+    }, [t.codeSent, t.errors.generic]);
 
     const handleResend = async () => {
         setError(null);
+        setDeletionToken(null);
         setSending(true);
         try {
             await requestAccountDeletionCode();
             setInfo(t.codeSent);
-        } catch (err: any) {
-            setError(err?.message || t.errors.generic);
+        } catch (err: unknown) {
+            setError(errorMessage(err, t.errors.generic));
         } finally {
             setSending(false);
         }
@@ -66,23 +69,25 @@ const DeleteAccountModal = ({ onConfirm, onClose }: DeleteAccountModalProps) => 
         setError(null);
         setLoading(true);
         try {
-            await verifyAccountDeletionCode(code);
+            const result = await verifyAccountDeletionCode(code);
+            setDeletionToken(result.deletionToken);
             setStep('confirm');
-        } catch (err: any) {
-            setError(err?.message || t.errors.generic);
+        } catch (err: unknown) {
+            setError(errorMessage(err, t.errors.generic));
         } finally {
             setLoading(false);
         }
     };
 
     const handleConfirm = async () => {
+        if (!deletionToken) return;
         setError(null);
         setLoading(true);
         try {
-            await onConfirm();
+            await onConfirm(deletionToken);
             onClose();
-        } catch (err: any) {
-            setError(err?.message || t.errors.generic);
+        } catch (err: unknown) {
+            setError(errorMessage(err, t.errors.generic));
         } finally {
             setLoading(false);
         }

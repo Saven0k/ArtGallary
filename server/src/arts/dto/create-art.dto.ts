@@ -1,44 +1,51 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNumber, IsOptional, IsString, IsArray } from "class-validator";
-import { type CurrencyType } from "../arts.model";
+import { Transform, Type } from 'class-transformer';
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsBoolean,
+  IsDateString,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
+import { type CurrencyType } from '../arts.model';
+import {
+  formBoolean,
+  formTags,
+  nullableNumber,
+} from '../../pipes/form-transformers';
 
 export class CreateArtDto {
-    @ApiProperty({ example: 'Шишкин Лес', description: 'Название картины' })
-    readonly title: string;
-    @ApiProperty({ example: 'Очень инетересная картина', description: 'Описание ' })
-    readonly description: string;
-    @ApiProperty({ example: '4500', description: 'Цена ', required: false })
-    @IsOptional()
-    @IsNumber()
-    readonly cost?: number;
-    @ApiProperty({ example: 'Доллары', description: 'Валюта ', required: false })
-    @IsOptional()
-    @IsString()
-    readonly currency?: CurrencyType;
-    @ApiProperty({ example: 'Путь до файла', description: 'Путь до файла на сервере' })
-    readonly image_path: string;
-    @ApiProperty({ example: '12.10.1911', description: 'Дата создания' })
-    readonly date_published: Date;
-    @ApiProperty({ example: '5', description: 'ID художника' })
-    readonly author_id: number;
-    @ApiProperty({ example: '2', description: 'ID города' })
-    readonly city_id: number;
-    @ApiProperty({ example: '3', description: 'ID страны' })
-    readonly country_id: number;
-    @ApiProperty({ example: '3', description: 'ID жанра' })
-    readonly genre_id: number;
-    @ApiProperty({ example: '3', description: 'ID типа' })
-    readonly style_id: number;
-    @ApiProperty({ example: '{"key": "120x120", "value": "jpg"}', description: 'Характеристики картины в формате json ' })
-    readonly specifications: string;
-    @ApiProperty({ required: false, default: false })
-    @IsOptional()
-    is_adult?: boolean;
-    @ApiProperty({
-        example: ['пейзаж', 'природа', 'лето'],
-        description: 'Ключевые слова/теги картины (от 1 до 20)'
-    })
-    @IsArray()
-    @IsOptional()
-    tags?: string[];
+  @IsString() @IsNotEmpty() title: string;
+  @IsString() description: string;
+  @IsOptional() @Transform(nullableNumber) @IsNumber() @Min(0) cost?:
+    | number
+    | null;
+  @IsOptional() @IsIn(['USD', 'EUR', 'RUB', 'UAH']) currency?: CurrencyType;
+  @IsDateString() date_published: Date;
+  @Type(() => Number) @IsInt() @Min(1) author_id: number;
+  @IsOptional() @Transform(nullableNumber) @IsInt() @Min(1) city_id?:
+    | number
+    | null;
+  @IsOptional() @Transform(nullableNumber) @IsInt() @Min(1) country_id?:
+    | number
+    | null;
+  @IsOptional() @Transform(nullableNumber) @IsInt() @Min(1) genre_id?:
+    | number
+    | null;
+  @IsOptional() @Transform(nullableNumber) @IsInt() @Min(1) style_id?:
+    | number
+    | null;
+  @IsOptional() @IsString() specifications?: string;
+  @IsOptional() @Transform(formBoolean) @IsBoolean() is_adult?: boolean;
+  @IsOptional()
+  @Transform(formTags)
+  @IsArray()
+  @ArrayMaxSize(20)
+  @IsString({ each: true })
+  tags?: string[];
 }

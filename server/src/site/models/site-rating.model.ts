@@ -1,39 +1,38 @@
-
 import { ApiProperty } from '@nestjs/swagger';
 import {
-    BelongsTo,
-    Column,
-    DataType,
-    ForeignKey,
-    Model,
-    Table,
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  Model,
+  Table,
 } from 'sequelize-typescript';
 import { User } from '../../users/users.model';
 
 export interface SiteRatingCreationAttrs {
-    user_id: number;
-    value: number;
+  user_id: number;
+  value: number;
 }
 
 @Table({
-    tableName: 'site_ratings',
-    timestamps: true,
-    indexes: [{ fields: ['user_id'], unique: true }],
+  tableName: 'site_ratings',
+  timestamps: true,
+  indexes: [{ fields: ['user_id'], unique: true }],
 })
 export class SiteRating extends Model<SiteRating, SiteRatingCreationAttrs> {
-    @ApiProperty({ example: 1 })
-    @Column({ type: DataType.INTEGER, autoIncrement: true, primaryKey: true })
-    id: number;
+  @ApiProperty({ example: 1 })
+  @Column({ type: DataType.INTEGER, autoIncrement: true, primaryKey: true })
+  id: number;
 
-    @ApiProperty({ example: 6 })
-    @ForeignKey(() => User)
-    @Column({ type: DataType.INTEGER, allowNull: false, unique: true })
-    user_id: number;
+  @ApiProperty({ example: 6 })
+  @ForeignKey(() => User)
+  @Column({ type: DataType.INTEGER, allowNull: false, unique: true })
+  user_id: number;
 
-    @BelongsTo(() => User, { foreignKey: 'user_id', as: 'user' })
-    user: User;
+  @BelongsTo(() => User, { foreignKey: 'user_id', as: 'user' })
+  user: User;
 
-    @ApiProperty({ example: 5, description: 'Оценка от 1 до 5' })
-    @Column({ type: DataType.INTEGER, allowNull: false })
-    value: number;
+  @ApiProperty({ example: 5, description: 'Оценка от 1 до 5' })
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  value: number;
 }

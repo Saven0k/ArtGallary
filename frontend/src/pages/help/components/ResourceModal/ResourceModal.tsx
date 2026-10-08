@@ -1,7 +1,5 @@
 
 import "./ResourceModal.scss";
-import { useLanguage } from "../../../../hooks/useLanguage";
-import { translations } from "../../lang";
 
 interface ResourceItem {
     icon: string;
@@ -18,9 +16,7 @@ interface ResourceModalProps {
     list: ResourceItem[];
 }
 
-const ResourceModal = ({ isOpen, onClose, title, description, img, list }: ResourceModalProps) => {
-    const { language } = useLanguage();
-    const t = translations[language].help.resources;
+const ResourceModal = ({ isOpen, onClose, title, description, list }: ResourceModalProps) => {
 
     if (!isOpen) return null;
 

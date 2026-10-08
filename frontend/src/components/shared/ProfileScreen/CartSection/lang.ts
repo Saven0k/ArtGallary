@@ -1,3 +1,4 @@
+import { translatedValue } from '../../../../utils/translations';
 import type { Language } from '../../../../context/LanguageContext';
 
 export interface CartTranslations {
@@ -149,18 +150,7 @@ export const getCartTranslation = (
     lang: Language,
     path: string,
 ): string => {
-    const keys = path.split('.');
-    let result: any = cartTranslations[lang];
-
-    for (const key of keys) {
-        if (result && result[key] !== undefined) {
-            result = result[key];
-        } else {
-            return path;
-        }
-    }
-
-    return typeof result === 'string' ? result : path;
+    return translatedValue(cartTranslations[lang], path);
 };
 
 export const useCartTranslation = (lang: Language) => {

@@ -1,72 +1,84 @@
-
-import { ApiProperty } from "@nestjs/swagger";
-import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
-import { Art } from "./arts.model";
-import { User } from "../users/users.model";
-import { City } from "../location/models/city.model";
-import { Country } from "../location/models/country.model";
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  Model,
+  Table,
+} from 'sequelize-typescript';
+import { Art } from './arts.model';
+import { User } from '../users/users.model';
+import { City } from '../location/models/city.model';
+import { Country } from '../location/models/country.model';
 
 @Table({ tableName: 'art_views' })
 export class ArtView extends Model<ArtView> {
-    @ApiProperty({ example: 1, description: 'ID просмотра' })
-    @Column({ type: DataType.INTEGER, autoIncrement: true, primaryKey: true })
-    id: number;
+  @ApiProperty({ example: 1, description: 'ID просмотра' })
+  @Column({ type: DataType.INTEGER, autoIncrement: true, primaryKey: true })
+  id: number;
 
-    @ApiProperty({ example: 1, description: 'ID картины' })
-    @ForeignKey(() => Art)
-    @Column({ type: DataType.INTEGER, allowNull: false })
-    art_id: number;
+  @ApiProperty({ example: 1, description: 'ID картины' })
+  @ForeignKey(() => Art)
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  art_id: number;
 
-    @BelongsTo(() => Art)
-    art: Art;
+  @BelongsTo(() => Art)
+  art: Art;
 
-    @ApiProperty({ example: 1, description: 'ID пользователя (если авторизован)' })
-    @ForeignKey(() => User)
-    @Column({ type: DataType.INTEGER, allowNull: true })
-    user_id: number;
+  @ApiProperty({
+    example: 1,
+    description: 'ID пользователя (если авторизован)',
+  })
+  @ForeignKey(() => User)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  user_id: number;
 
-    @BelongsTo(() => User)
-    user: User;
+  @BelongsTo(() => User)
+  user: User;
 
-    @ApiProperty({ example: 'M', description: 'Пол пользователя' })
-    @Column({ type: DataType.STRING(1), allowNull: true })
-    user_gender: string;
+  @ApiProperty({ example: 'M', description: 'Пол пользователя' })
+  @Column({ type: DataType.STRING(1), allowNull: true })
+  user_gender: string;
 
-    @ApiProperty({ example: '25', description: 'Возраст пользователя' })
-    @Column({ type: DataType.INTEGER, allowNull: true })
-    user_age: number;
+  @ApiProperty({ example: '25', description: 'Возраст пользователя' })
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  user_age: number;
 
-    @ApiProperty({ example: 1, description: 'ID города пользователя' })
-    @ForeignKey(() => City)
-    @Column({ type: DataType.INTEGER, allowNull: true })
-    city_id: number;
+  @ApiProperty({ example: 1, description: 'ID города пользователя' })
+  @ForeignKey(() => City)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  city_id: number;
 
-    @BelongsTo(() => City)
-    city: City;
+  @BelongsTo(() => City)
+  city: City;
 
-    @ApiProperty({ example: 1, description: 'ID страны пользователя' })
-    @ForeignKey(() => Country)
-    @Column({ type: DataType.INTEGER, allowNull: true })
-    country_id: number;
+  @ApiProperty({ example: 1, description: 'ID страны пользователя' })
+  @ForeignKey(() => Country)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  country_id: number;
 
-    @BelongsTo(() => Country)
-    country: Country;
+  @BelongsTo(() => Country)
+  country: Country;
 
-    @ApiProperty({ example: '192.168.1.1', description: 'IP адрес' })
-    @Column({ type: DataType.STRING, allowNull: true })
-    ip_address: string;
+  @ApiProperty({ example: '192.168.1.1', description: 'IP адрес' })
+  @Column({ type: DataType.STRING, allowNull: true })
+  ip_address: string;
 
-    @ApiProperty({ example: 'Mozilla/5.0...', description: 'User Agent' })
-    @Column({ type: DataType.TEXT, allowNull: true })
-    user_agent: string;
+  @ApiProperty({ example: 'Mozilla/5.0...', description: 'User Agent' })
+  @Column({ type: DataType.TEXT, allowNull: true })
+  user_agent: string;
 
-    @ApiProperty({ example: '2024-01-01T00:00:00.000Z', description: 'Дата просмотра' })
-    @Column({ type: DataType.DATE, defaultValue: DataType.NOW })
-    created_at: Date;
+  @ApiProperty({
+    example: '2024-01-01T00:00:00.000Z',
+    description: 'Дата просмотра',
+  })
+  @Column({ type: DataType.DATE, defaultValue: DataType.NOW })
+  created_at: Date;
 
-    static indexes = [
-        { fields: ['art_id', 'created_at'] },
-        { fields: ['user_id'] },
-        { fields: ['art_id', 'user_id'] },
-    ];
+  static indexes = [
+    { fields: ['art_id', 'created_at'] },
+    { fields: ['user_id'] },
+    { fields: ['art_id', 'user_id'] },
+  ];
 }

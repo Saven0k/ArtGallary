@@ -1,9 +1,5 @@
 import "./PromoPanel.scss"
 
-interface PromoPanelProps {
-    value: string,
-    onChange: (value: string) => void
-}
 
 const PromoPanel = () => {
     return (

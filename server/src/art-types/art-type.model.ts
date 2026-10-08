@@ -1,26 +1,29 @@
-
-import { ApiProperty } from "@nestjs/swagger";
-import { Column, DataType, HasMany, Model, Table } from "sequelize-typescript";
-import { Genre } from "../genres/genre.model";
+import { ApiProperty } from '@nestjs/swagger';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { Genre } from '../genres/genre.model';
 
 interface ArtTypeCreationAttrs {
-    name: string;
-    description?: string;
+  name: string;
+  description?: string;
 }
 
 @Table({ tableName: 'art_types' })
 export class ArtType extends Model<ArtType, ArtTypeCreationAttrs> {
-    @ApiProperty({ example: 'Живопись', description: 'Название вида искусства' })
-    @Column({ type: DataType.STRING, unique: true, allowNull: false })
-    name: string;
+  declare id: number;
+  @ApiProperty({ example: 'Живопись', description: 'Название вида искусства' })
+  @Column({ type: DataType.STRING, unique: true, allowNull: false })
+  name: string;
 
-    @ApiProperty({ example: 'Искусство создания изображений с помощью красок', description: 'Описание вида искусства' })
-    @Column({ type: DataType.TEXT, allowNull: true })
-    description: string;
+  @ApiProperty({
+    example: 'Искусство создания изображений с помощью красок',
+    description: 'Описание вида искусства',
+  })
+  @Column({ type: DataType.TEXT, allowNull: true })
+  description: string;
 
-    @HasMany(() => Genre, {
-        onDelete: 'CASCADE',
-        hooks: true
-    })
-    genres: Genre[];
+  @HasMany(() => Genre, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
+  genres: Genre[];
 }

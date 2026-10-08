@@ -6,20 +6,18 @@ import { Genre } from './genre.model';
 import { ArtType } from '../art-types/art-type.model';
 
 @Module({
-    imports: [
-        SequelizeModule.forFeature([Genre, ArtType])
-    ],
-    controllers: [GenresController],
-    providers: [GenresService],
-    exports: [GenresService],
+  imports: [SequelizeModule.forFeature([Genre, ArtType])],
+  controllers: [GenresController],
+  providers: [GenresService],
+  exports: [GenresService],
 })
 export class GenresModule implements OnModuleInit {
-    constructor(private genresService: GenresService) {}
+  constructor(private genresService: GenresService) {}
 
-    async onModuleInit() {
-        const count = await this.genresService['genreRepository'].count();
-        if (count === 0) {
-            await this.genresService.seedGenres();
-        }
+  async onModuleInit() {
+    const count = await this.genresService['genreRepository'].count();
+    if (count === 0) {
+      await this.genresService.seedGenres();
     }
+  }
 }

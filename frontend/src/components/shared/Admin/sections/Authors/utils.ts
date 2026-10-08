@@ -12,7 +12,7 @@ export const getAuthorStatus = (
     if (!raw) return 'pending';
 
 
-    let obj: any = raw;
+    let obj: import('../../../../../api/main.api').ModerateData | null = typeof raw === 'string' ? null : raw;
     if (typeof raw === 'string') {
         try {
             obj = JSON.parse(raw);

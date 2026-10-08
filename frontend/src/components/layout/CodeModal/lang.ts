@@ -1,3 +1,4 @@
+import { translatedValue } from '../../../utils/translations';
 
 
 export type Language = 'ru' | 'en' | 'zh';
@@ -70,18 +71,7 @@ export const getCodeModalTranslation = (
     lang: Language,
     path: string,
 ): string => {
-    const keys = path.split('.');
-    let result: any = codeModalTranslations[lang];
-
-    for (const key of keys) {
-        if (result && result[key] !== undefined) {
-            result = result[key];
-        } else {
-            return path;
-        }
-    }
-
-    return typeof result === 'string' ? result : path;
+    return translatedValue(codeModalTranslations[lang], path);
 };
 
 export const useCodeModalTranslation = (lang: Language) => {

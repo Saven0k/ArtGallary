@@ -1,19 +1,7 @@
-import { createContext, useState } from "react";
+import { useState } from "react";
 import { ConfirmComponent } from "../components/ui/ConfirmComponent/ConfirmComponent";
 
-type ConfirmOptions = {
-    title: string;
-    message: string;
-    confirmText?: string;
-    cancelText?: string;
-    type?: "danger" | "warning" | "info";
-};
-
-type ConfirmContextType = {
-    confirm: (options: ConfirmOptions) => Promise<boolean>;
-};
-
-export const ConfirmContext = createContext<ConfirmContextType | null>(null);
+import { ConfirmContext, type ConfirmOptions } from './contexts';
 
 export const ConfirmProvider = ({ children }: { children: React.ReactNode }) => {
     const [confirmState, setConfirmState] = useState<{

@@ -1,10 +1,28 @@
+import { type Request as ExpressRequest } from 'express';
 // arts.controller.ts
 import {
-    Body, Controller, Delete, ForbiddenException, Get, Param,
-    ParseIntPipe, Patch, Post, Query, Request, UploadedFile,
-    UseGuards, UseInterceptors,
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  Request,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+  UsePipes,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { ArtsService } from './arts.service';
@@ -15,273 +33,336 @@ import { UpdateArtStatusDto } from './dto/update-art-status.dto';
 
 import { Role } from '../auth/enums/role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  type CurrentUserData,
+} from '../auth/decorators/current-user.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { JwtAccessGuard } from 'src/auth/guards/jwt.guard';
+import {
+  JwtAccessGuard,
+  OptionalJwtAccessGuard,
+} from 'src/auth/guards/jwt.guard';
+import { ValidationPipe } from '../pipes/validation.pipe';
+import {
+  IMAGE_UPLOAD_OPTIONS,
+  type UploadedImage,
+} from '../files/files.service';
 
 @ApiTags('Arts')
 @ApiBearerAuth()
 @Controller('arts')
-@UseGuards(JwtAccessGuard, RolesGuard)
+@UsePipes(ValidationPipe)
 export class ArtsController {
-    constructor(private readonly artsService: ArtsService) {}
+  constructor(private readonly artsService: ArtsService) {}
 
-    @ApiOperation({ summary: 'Получение топ-10 картин для главной' })
-    @Get('top')
-    @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
-    getTopArts(@Query('limit') limit?: number) {
-        return this.artsService.getTopArts(Number(limit) || 10);
-    }
+  @ApiOperation({ summary: 'Получение топ-10 картин для главной' })
+  @Get('top')
+  @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
+  getTopArts(@Query('limit') limit?: number) {
+    return this.artsService.getTopArts(Number(limit) || 10);
+  }
 
-    @ApiOperation({ summary: 'Получение списка модерированных картин' })
-    @Get('moderated')
-    @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
-    getModeratedArts(
-        @Query('page') page?: number,
-        @Query('limit') limit?: number,
+  @ApiOperation({ summary: 'Получение списка модерированных картин' })
+  @Get('moderated')
+  @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
+  getModeratedArts(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.artsService.getModeratedArts(
+      Number(page) || 1,
+      Number(limit) || 10,
+    );
+  }
+
+  @ApiOperation({ summary: 'Получение списка немодерированных объектов' })
+  @Get('unmoderated')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Moderator)
+  getUnmoderatedArts(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.artsService.getUnmoderatedArts(
+      Number(page) || 1,
+      Number(limit) || 10,
+    );
+  }
+
+  @Get('liked')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.User, Role.Author, Role.Admin)
+  @ApiOperation({
+    summary: 'Получить картины, которые лайкнул текущий пользователь',
+  })
+  @ApiResponse({ status: 200, description: 'Список понравившихся картин' })
+  async getLikedArts(
+    @CurrentUser('id') userId: number,
+    @Query('page') page = 1,
+    @Query('limit') limit = 12,
+    @Query('lang') lang = 'ru',
+  ) {
+    return this.artsService.getLikedArts(
+      userId,
+      Number(page),
+      Number(limit),
+      lang,
+    );
+  }
+
+  @ApiOperation({ summary: 'Получения списка всех объектов (админ)' })
+  @Get()
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Moderator)
+  getAllArts(@Query('page') page?: number, @Query('limit') limit?: number) {
+    return this.artsService.getAllArts(Number(page) || 1, Number(limit) || 10);
+  }
+
+  @ApiOperation({ summary: 'Поиск картин по названию / описанию / автору' })
+  @Get('search')
+  @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
+  searchArts(
+    @Query('q') q: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('lang') lang = 'ru',
+  ) {
+    return this.artsService.searchArts(
+      q,
+      Number(page) || 1,
+      Number(limit) || 20,
+      lang === 'en' ? 'en' : 'ru',
+    );
+  }
+
+  @ApiOperation({ summary: 'Похожие картины по тегам' })
+  @Get(':id/similar')
+  @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
+  getSimilarArts(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('limit') limit?: number,
+    @Query('lang') lang = 'ru',
+  ) {
+    return this.artsService.getSimilarArts(
+      id,
+      Number(limit) || 20,
+      lang === 'en' ? 'en' : 'ru',
+    );
+  }
+
+  @ApiOperation({ summary: 'Обновить все скоры' })
+  @Post('update-scores')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin)
+  updateAllScores() {
+    return this.artsService.updateAllScores();
+  }
+
+  @ApiOperation({ summary: 'Обновить топ' })
+  @Post('refresh-featured')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin)
+  refreshFeatured() {
+    return this.artsService.refreshFeaturedArts();
+  }
+
+  @ApiOperation({ summary: 'Создание нового объекта' })
+  @Post()
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Moderator, Role.Author)
+  @UseInterceptors(FileInterceptor('image_path', IMAGE_UPLOAD_OPTIONS))
+  createArt(
+    @Body() dto: CreateArtDto,
+    @UploadedFile() image: UploadedImage,
+    @CurrentUser() user: CurrentUserData,
+  ) {
+    if (
+      user.role !== Role.Admin &&
+      user.role !== Role.Moderator &&
+      user.id !== dto.author_id
     ) {
-        return this.artsService.getModeratedArts(Number(page) || 1, Number(limit) || 10);
+      throw new ForbiddenException(
+        'Вы можете создавать работы только от своего имени',
+      );
     }
+    return this.artsService.createArt(dto, image, dto.author_id);
+  }
 
-    @ApiOperation({ summary: 'Получение списка немодерированных объектов' })
-    @Get('unmoderated')
-    @Roles(Role.Admin, Role.Moderator, Role.Author)
-    getUnmoderatedArts(
-        @Query('page') page?: number,
-        @Query('limit') limit?: number,
+  @ApiOperation({ summary: 'Получение объекта по Id' })
+  @Get(':id')
+  @UseGuards(OptionalJwtAccessGuard)
+  @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
+  getArt(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { id: number; role: Role } | null,
+  ) {
+    return this.artsService.getAccessibleArtById(id, user);
+  }
+
+  @ApiOperation({ summary: 'Обновление объекта' })
+  @Patch(':id')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Moderator, Role.Author)
+  async updateArt(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateArtDTO,
+    @CurrentUser() user: CurrentUserData,
+  ) {
+    const art = await this.artsService.getArtById(id);
+    if (!art) throw new ForbiddenException('Картина не найдена');
+
+    if (
+      user.role !== Role.Admin &&
+      user.role !== Role.Moderator &&
+      art.author_id !== user.id
     ) {
-        return this.artsService.getUnmoderatedArts(Number(page) || 1, Number(limit) || 10);
+      throw new ForbiddenException(
+        'Вы можете редактировать только свои работы',
+      );
     }
+    return this.artsService.updateArt(id, dto);
+  }
 
-    @Get('liked')
-    @Roles(Role.User, Role.Author, Role.Admin)
-    @ApiOperation({ summary: 'Получить картины, которые лайкнул текущий пользователь' })
-    @ApiResponse({ status: 200, description: 'Список понравившихся картин' })
-    async getLikedArts(
-        @CurrentUser('id') userId: number,
-        @Query('page') page = 1,
-        @Query('limit') limit = 12,
-        @Query('lang') lang = 'ru',
+  @ApiOperation({ summary: 'Изменение статуса объекта' })
+  @Patch(':id/status')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Moderator, Role.Author)
+  async updateArtStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateArtStatusDto,
+    @CurrentUser() user: CurrentUserData,
+  ) {
+    const art = await this.artsService.getArtById(id);
+    if (!art) throw new ForbiddenException('Картина не найдена');
+
+    if (
+      user.role !== Role.Admin &&
+      user.role !== Role.Moderator &&
+      art.author_id !== user.id
     ) {
-        return this.artsService.getLikedArts(userId, Number(page), Number(limit), lang);
+      throw new ForbiddenException(
+        'Вы можете менять статус только своих работ',
+      );
     }
+    return this.artsService.updateArtStatus(id, dto.status);
+  }
 
-    @ApiOperation({ summary: 'Получения списка всех объектов (админ)' })
-    @Get()
-    @Roles(Role.Admin, Role.Moderator)
-    getAllArts(
-        @Query('page') page?: number,
-        @Query('limit') limit?: number,
+  @ApiOperation({ summary: 'Удаление объекта' })
+  @Delete(':id')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Moderator, Role.Author)
+  async deleteArt(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: CurrentUserData,
+  ) {
+    const art = await this.artsService.getArtById(id);
+    if (!art) throw new ForbiddenException('Картина не найдена');
+
+    if (
+      user.role !== Role.Admin &&
+      user.role !== Role.Moderator &&
+      art.author_id !== user.id
     ) {
-        return this.artsService.getAllArts(Number(page) || 1, Number(limit) || 10);
+      throw new ForbiddenException('Вы можете удалять только свои работы');
     }
+    return this.artsService.deleteArt(id);
+  }
 
-    @ApiOperation({ summary: 'Поиск картин по названию / описанию / автору' })
-    @Get('search')
-    @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
-    searchArts(
-        @Query('q') q: string,
-        @Query('page') page?: number,
-        @Query('limit') limit?: number,
-        @Query('lang') lang = 'ru',
-    ) {
-        return this.artsService.searchArts(q, Number(page) || 1, Number(limit) || 20, lang as any);
-    }
+  @ApiOperation({ summary: 'Изменение модерации' })
+  @Post(':id/moderate')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Moderator)
+  moderateArt(
+    @Body() moderate: ModerateArtDto,
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser('id') moderatorId: number,
+  ) {
+    return this.artsService.moderateArt(
+      { ...moderate, moderator_id: moderatorId },
+      id,
+    );
+  }
 
-    @ApiOperation({ summary: 'Похожие картины по тегам' })
-    @Get(':id/similar')
-    @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
-    getSimilarArts(
-        @Param('id', ParseIntPipe) id: number,
-        @Query('limit') limit?: number,
-        @Query('lang') lang = 'ru',
-    ) {
-        return this.artsService.getSimilarArts(id, Number(limit) || 20, lang as any);
-    }
+  @ApiOperation({ summary: 'Добавление картины в топ' })
+  @Post(':id/featured')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Moderator)
+  addToFeatured(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('days') days?: number,
+  ) {
+    return this.artsService.addToFeatured(id, Number(days) || 7);
+  }
 
-    @ApiOperation({ summary: 'Обновить все скоры' })
-    @Post('update-scores')
-    @Roles(Role.Admin)
-    updateAllScores() {
-        return this.artsService.updateAllScores();
-    }
+  @ApiOperation({ summary: 'Удаление картины из топа' })
+  @Delete(':id/featured')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Moderator)
+  removeFromFeatured(@Param('id', ParseIntPipe) id: number) {
+    return this.artsService.removeFromFeatured(id);
+  }
 
-    @ApiOperation({ summary: 'Обновить топ' })
-    @Post('refresh-featured')
-    @Roles(Role.Admin)
-    refreshFeatured() {
-        return this.artsService.refreshFeaturedArts();
-    }
+  @ApiOperation({ summary: 'Записать просмотр картины' })
+  @Post(':id/view')
+  @UseGuards(OptionalJwtAccessGuard)
+  @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
+  viewArt(
+    @Param('id', ParseIntPipe) artId: number,
+    @CurrentUser() user: CurrentUserData,
+    @Request() req: ExpressRequest,
+  ) {
+    return this.artsService.viewArt(user?.id || null, artId, req);
+  }
 
-    @ApiOperation({ summary: 'Создание нового объекта' })
-    @Post()
-    @Roles(Role.Admin, Role.Moderator, Role.Author)
-    @UseInterceptors(FileInterceptor('image_path'))
-    createArt(
-        @Body() dto: CreateArtDto,
-        @UploadedFile() image: any,
-        @CurrentUser() user: any,
-    ) {
-        if (
-            user.role !== Role.Admin &&
-            user.role !== Role.Moderator &&
-            user.id !== dto.author_id
-        ) {
-            throw new ForbiddenException('Вы можете создавать работы только от своего имени');
-        }
-        return this.artsService.createArt(dto, image, dto.author_id);
-    }
+  @Get(':id/views/count')
+  @ApiOperation({ summary: 'Получить количество просмотров картины' })
+  getArtViewsCount(@Param('id', ParseIntPipe) artId: number) {
+    return this.artsService.getArtViewsCount(artId);
+  }
 
-    @ApiOperation({ summary: 'Получение объекта по Id' })
-    @Get(':id')
-    @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
-    getArt(@Param('id', ParseIntPipe) id: number) {
-        return this.artsService.getArtById(id);
-    }
+  @Post(':id/share')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.User, Role.Author, Role.Admin)
+  @ApiOperation({ summary: 'Увеличить количество поделившихся картиной' })
+  incrementArtShares(@Param('id', ParseIntPipe) artId: number) {
+    return this.artsService.incrementArtShares(artId);
+  }
 
-    @ApiOperation({ summary: 'Обновление объекта' })
-    @Patch(':id')
-    @Roles(Role.Admin, Role.Moderator, Role.Author)
-    async updateArt(
-        @Param('id', ParseIntPipe) id: number,
-        @Body() dto: UpdateArtDTO,
-        @CurrentUser() user: any,
-    ) {
-        const art = await this.artsService.getArtById(id);
-        if (!art) throw new ForbiddenException('Картина не найдена');
+  @Get(':id/share/count')
+  @ApiOperation({ summary: 'Получить количество поделившихся картиной' })
+  getArtShares(@Param('id', ParseIntPipe) artId: number) {
+    return this.artsService.getArtShares(artId);
+  }
 
-        if (
-            user.role !== Role.Admin &&
-            user.role !== Role.Moderator &&
-            art.Author_id !== user.id
-        ) {
-            throw new ForbiddenException('Вы можете редактировать только свои работы');
-        }
-        return this.artsService.updateArt(id, dto);
-    }
+  @Post(':id/like')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.User, Role.Author, Role.Admin)
+  @ApiOperation({ summary: 'Поставить/убрать лайк картине' })
+  likeArt(
+    @Param('id', ParseIntPipe) artId: number,
+    @CurrentUser() user: CurrentUserData,
+    @Request() req: ExpressRequest,
+  ) {
+    return this.artsService.likeArt(user.id, artId, req);
+  }
 
-    @ApiOperation({ summary: 'Изменение статуса объекта' })
-    @Patch(':id/status')
-    @Roles(Role.Admin, Role.Moderator, Role.Author)
-    async updateArtStatus(
-        @Param('id', ParseIntPipe) id: number,
-        @Body() dto: UpdateArtStatusDto,
-        @CurrentUser() user: any,
-    ) {
-        const art = await this.artsService.getArtById(id);
-        if (!art) throw new ForbiddenException('Картина не найдена');
+  @Get(':id/likes')
+  @ApiOperation({ summary: 'Получить список лайков картины' })
+  getArtLikes(
+    @Param('id', ParseIntPipe) artId: number,
+    @Query('page') page = 1,
+    @Query('limit') limit = 20,
+  ) {
+    return this.artsService.getArtLikes(
+      artId,
+      Number(page) || 1,
+      Number(limit) || 20,
+    );
+  }
 
-        if (
-            user.role !== Role.Admin &&
-            user.role !== Role.Moderator &&
-            art.Author_id !== user.id
-        ) {
-            throw new ForbiddenException('Вы можете менять статус только своих работ');
-        }
-        return this.artsService.updateArtStatus(id, dto.status);
-    }
-
-    @ApiOperation({ summary: 'Удаление объекта' })
-    @Delete(':id')
-    @Roles(Role.Admin, Role.Moderator, Role.Author)
-    async deleteArt(
-        @Param('id', ParseIntPipe) id: number,
-        @CurrentUser() user: any,
-    ) {
-        const art = await this.artsService.getArtById(id);
-        if (!art) throw new ForbiddenException('Картина не найдена');
-
-        if (
-            user.role !== Role.Admin &&
-            user.role !== Role.Moderator &&
-            art.Author_id !== user.id
-        ) {
-            throw new ForbiddenException('Вы можете удалять только свои работы');
-        }
-        return this.artsService.deleteArt(id);
-    }
-
-    @ApiOperation({ summary: 'Изменение модерации' })
-    @Post(':id/moderate')
-    @Roles(Role.Admin, Role.Moderator)
-    moderateArt(
-        @Body() moderate: ModerateArtDto,
-        @Param('id', ParseIntPipe) id: number,
-    ) {
-        return this.artsService.moderateArt(moderate, id);
-    }
-
-    @ApiOperation({ summary: 'Добавление картины в топ' })
-    @Post(':id/featured')
-    @Roles(Role.Admin, Role.Moderator)
-    addToFeatured(
-        @Param('id', ParseIntPipe) id: number,
-        @Query('days') days?: number,
-    ) {
-        return this.artsService.addToFeatured(id, Number(days) || 7);
-    }
-
-    @ApiOperation({ summary: 'Удаление картины из топа' })
-    @Delete(':id/featured')
-    @Roles(Role.Admin, Role.Moderator)
-    removeFromFeatured(@Param('id', ParseIntPipe) id: number) {
-        return this.artsService.removeFromFeatured(id);
-    }
-
-    @ApiOperation({ summary: 'Записать просмотр картины' })
-    @Post(':id/view')
-    @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
-    viewArt(
-        @Param('id', ParseIntPipe) artId: number,
-        @CurrentUser() user: any,
-        @Request() req: any,
-    ) {
-        return this.artsService.viewArt(user?.id || null, artId, req);
-    }
-
-    @Get(':id/views/count')
-    @ApiOperation({ summary: 'Получить количество просмотров картины' })
-    getArtViewsCount(@Param('id', ParseIntPipe) artId: number) {
-        return this.artsService.getArtViewsCount(artId);
-    }
-
-    @Post(':id/share')
-    @Roles(Role.User, Role.Author, Role.Admin)
-    @ApiOperation({ summary: 'Увеличить количество поделившихся картиной' })
-    incrementArtShares(@Param('id', ParseIntPipe) artId: number) {
-        return this.artsService.incrementArtShares(artId);
-    }
-
-    @Get(':id/share/count')
-    @ApiOperation({ summary: 'Получить количество поделившихся картиной' })
-    getArtShares(@Param('id', ParseIntPipe) artId: number) {
-        return this.artsService.getArtShares(artId);
-    }
-
-    @Post(':id/like')
-    @Roles(Role.User, Role.Author, Role.Admin)
-    @ApiOperation({ summary: 'Поставить/убрать лайк картине' })
-    likeArt(
-        @Param('id', ParseIntPipe) artId: number,
-        @CurrentUser() user: any,
-        @Request() req: any,
-    ) {
-        return this.artsService.likeArt(user.id, artId, req);
-    }
-
-    @Get(':id/likes')
-    @ApiOperation({ summary: 'Получить список лайков картины' })
-    getArtLikes(
-        @Param('id', ParseIntPipe) artId: number,
-        @Query('page') page = 1,
-        @Query('limit') limit = 20,
-    ) {
-        return this.artsService.getArtLikes(artId, Number(page) || 1, Number(limit) || 20);
-    }
-
-    @Get(':id/likes/count')
-    @ApiOperation({ summary: 'Получить количество лайков картины' })
-    getArtLikesCount(@Param('id', ParseIntPipe) artId: number) {
-        return this.artsService.getArtLikesCount(artId);
-    }
+  @Get(':id/likes/count')
+  @ApiOperation({ summary: 'Получить количество лайков картины' })
+  getArtLikesCount(@Param('id', ParseIntPipe) artId: number) {
+    return this.artsService.getArtLikesCount(artId);
+  }
 }

@@ -1,3 +1,4 @@
+import { apiFetch } from '../request';
 
 import { BASE_URL_API } from "../main.api";
 
@@ -13,6 +14,12 @@ export interface OrderHistoryItem {
     artIds: number[];
     status: OrderStatus;
     createdAt: string;
+    items?: { artId: number; title: string; imagePath: string; price: number; quantity: number; currency: string; total: number }[];
+    subtotal?: number;
+    discount?: number;
+    total?: number;
+    currency?: string;
+    promoCode?: string | null;
 }
 
 export interface OrderHistoryResponse {
@@ -31,7 +38,7 @@ const request = async <T>(
     init?: RequestInit,
 ): Promise<T | null> => {
     try {
-        const res = await fetch(url, { credentials: "include", ...init });
+        const res = await apiFetch(url, { credentials: "include", ...init });
         if (!res.ok) {
             const message = await res.text().catch(() => "");
             throw new Error(`HTTP ${res.status} ${message}`);
@@ -59,8 +66,14 @@ const json = (body: unknown): RequestInit => ({
 export const getCartHistory = (filter?: HistoryFilter) =>
     request<OrderHistoryResponse>(`${BASE_URL}${buildQuery(filter)}`);
 
-export const checkoutCart = () =>
-    request<OrderHistoryItem>(`${BASE_URL}/checkout`, { method: "POST" });
+export const checkoutCart = async (payload: { items: { artId: number; quantity: number }[]; promoCode?: string }): Promise<OrderHistoryItem> => {
+    const res = await apiFetch(`${BASE_URL}/checkout`, json(payload));
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || 'Не удалось оформить заказ');
+    }
+    return res.json();
+};
 
 export const updateOrderStatus = (id: number, status: OrderStatus) =>
     request<OrderHistoryItem>(

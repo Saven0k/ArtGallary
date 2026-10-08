@@ -19,14 +19,28 @@ import { AccountDeletionCode } from './models/account-deletion-code.model';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, JwtService, JwtRefreshStrategy, JwtAccessStrategy, RolesGuard],
-  imports: [UsersModule, ConfigModule,
-    SequelizeModule.forFeature([User, RefreshToken, PasswordResetCode, EmailChangeCode,AccountDeletionCode]),
+  providers: [
+    AuthService,
+    JwtService,
+    JwtRefreshStrategy,
+    JwtAccessStrategy,
+    RolesGuard,
+  ],
+  imports: [
+    UsersModule,
+    ConfigModule,
+    SequelizeModule.forFeature([
+      User,
+      RefreshToken,
+      PasswordResetCode,
+      EmailChangeCode,
+      AccountDeletionCode,
+    ]),
     PassportModule,
     PasswordModule,
     JwtModule.register({}),
-    MailModule
+    MailModule,
   ],
-  exports: [AuthService, RolesGuard]
+  exports: [AuthService, RolesGuard],
 })
-export class AuthModule { }
+export class AuthModule {}

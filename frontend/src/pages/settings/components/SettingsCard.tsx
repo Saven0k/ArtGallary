@@ -1,9 +1,10 @@
+import type { ReactNode } from 'react';
 import "./SettingsCard.scss";
 
 interface SettingsCardProps {
     title: string;
-    icon: any;
-    children: any;
+    icon: ReactNode;
+    children: ReactNode;
 }
 
 const SettingsCard = ({

@@ -3,10 +3,11 @@ import type { Art } from "../../../../api/arts/main.api";
 import "./ArtCard.scss";
 import LikeIcon from "./icons/like.svg";
 import CartIcon from "./icons/cart.svg";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../../../hooks/useLanguage";
 import { artCardTranslations } from "./lang";
-import { useAuth } from "../../../../hooks/useAuth";
+import { Link } from "react-router-dom";
+import { useNotification } from "../../../../hooks/useNotification";
 import { useLikes } from "../../../../hooks/useLikes";
 import { useCart } from "../../../../hooks/useCart";
 
@@ -19,49 +20,44 @@ const ArtCard = ({ art_id, art }: ArtCardProps) => {
     const { language } = useLanguage();
     const t = artCardTranslations[language];
 
-    const { isAuthenticated } = useAuth();
-    const { isArtLiked, toggleLikeArt } = useLikes();
+    const { isArtLiked, toggleLikeArt, loading } = useLikes();
     const { isInCart, addToCart } = useCart();
-
+    const { showNotification } = useNotification();
     const isLiked = isArtLiked(art_id);
     const inCart = isInCart(art_id);
-    const [likesCount, setLikesCount] = useState<number>(art.likes || 0);
-
-    const handleLike = () => {
-        if (!isAuthenticated) {
-
-            toggleLikeArt(art_id);
-            setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
-            return;
+    const [busy, setBusy] = useState(false);
+    const [likesCount, setLikesCount] = useState(art.likes ?? 0);
+    const previousLiked = useRef(isLiked);
+    const wasLoading = useRef(loading);
+    useEffect(() => {
+        if (!loading && !wasLoading.current && previousLiked.current !== isLiked) {
+            setLikesCount((count) => Math.max(0, count + (isLiked ? 1 : -1)));
         }
-
-        // Авторизован - TODO: API запрос
-        toggleLikeArt(art_id);
-        setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
-        console.log("Authenticated - like API for art:", art_id);
+        previousLiked.current = isLiked;
+        wasLoading.current = loading;
+    }, [isLiked, loading]);
+    const handleLike = async () => {
+        if (busy || loading) return;
+        setBusy(true);
+        if (!await toggleLikeArt(art_id)) showNotification('Не удалось изменить избранное', 'error');
+        setBusy(false);
     };
-
-    const handleAddToCart = () => {
-        if (!isAuthenticated) {
-
-            addToCart(art_id);
-            return;
-        }
-
-        // Авторизован - TODO: API запрос
-        addToCart(art_id);
-        console.log("Authenticated - add to cart API for art:", art_id);
+    const handleAddToCart = async () => {
+        if (busy || loading || inCart) return;
+        setBusy(true);
+        if (!await addToCart(art_id)) showNotification('Не удалось добавить работу в корзину', 'error');
+        setBusy(false);
     };
 
     return (
         <article className="art-card">
-            <div className="art-card__image-wrapper">
+            <Link to={`/arts/${art_id}`} className="art-card__image-wrapper">
                 <img
                     src={art.image_path}
                     alt={art.title}
                     className="art-card__image"
                 />
-            </div>
+            </Link>
 
             <div className="art-card__content">
                 <div className="art-card__top">
@@ -79,6 +75,7 @@ const ArtCard = ({ art_id, art }: ArtCardProps) => {
                     <button
                         className={`art-card__like-btn ${isLiked ? 'art-card__like-btn--active' : ''}`}
                         onClick={handleLike}
+                        disabled={busy || loading}
                         aria-label={t.like}
                     >
                         <img src={LikeIcon} alt={t.like} className="art-card__icon" />
@@ -90,6 +87,7 @@ const ArtCard = ({ art_id, art }: ArtCardProps) => {
                     <button
                         className={`art-card__cart-btn ${inCart ? 'art-card__cart-btn--active' : ''}`}
                         onClick={handleAddToCart}
+                        disabled={busy || loading || inCart}
                         aria-label={t.addToCart}
                     >
                         <img src={CartIcon} alt={t.addToCart} className="art-card__icon" />

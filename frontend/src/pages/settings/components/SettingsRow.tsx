@@ -1,10 +1,11 @@
+import type { ReactNode } from 'react';
 
 import "./SettingsRow.scss";
 
 interface SettingsRowProps {
     title: string;
     subtitle?: string;
-    children?: any;
+    children?: ReactNode;
 }
 
 const SettingsRow = ({
