@@ -56,6 +56,7 @@ import {
   type CurrentUserData,
 } from '../auth/decorators/current-user.decorator';
 import { AccountDeletionGuard } from '../auth/guards/account-deletion.guard';
+import { contentLanguage } from '../translation/translation-text';
 
 @ApiTags('Авторы')
 @Controller('authors')
@@ -92,10 +93,12 @@ export class AuthorsController {
   getUnmoderatedAuthors(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '12',
+    @Query('lang') lang = 'ru',
   ) {
     return this.authorService.getUnmoderatedAuthors(
       parseInt(page, 10),
       parseInt(limit, 10),
+      contentLanguage(lang),
     );
   }
 
@@ -110,10 +113,12 @@ export class AuthorsController {
   getModeratedAuthors(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '12',
+    @Query('lang') lang = 'ru',
   ) {
     return this.authorService.getModeratedAuthors(
       parseInt(page, 10),
       parseInt(limit, 10),
+      contentLanguage(lang),
     );
   }
 
@@ -121,8 +126,14 @@ export class AuthorsController {
   @ApiResponse({ status: 200, type: [AuthorProfile] })
   @Get('top')
   @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
-  getTopAuthors(@Query('limit') limit: string = '10') {
-    return this.authorService.getTopAuthors(parseInt(limit, 10));
+  getTopAuthors(
+    @Query('limit') limit: string = '10',
+    @Query('lang') lang = 'ru',
+  ) {
+    return this.authorService.getTopAuthors(
+      parseInt(limit, 10),
+      contentLanguage(lang),
+    );
   }
 
   @ApiOperation({
@@ -159,11 +170,12 @@ export class AuthorsController {
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '12',
     @CurrentUser() user: { id: number; role: Role } | null,
+    @Query('lang') lang = 'ru',
   ) {
     return this.authorService.getAll(
       parseInt(page, 10),
       parseInt(limit, 10),
-      'ru',
+      contentLanguage(lang),
       user?.role === Role.Admin || user?.role === Role.Moderator,
     );
   }
@@ -236,10 +248,11 @@ export class AuthorsController {
   getAuthor(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { id: number; role: Role } | null,
+    @Query('lang') lang = 'ru',
   ) {
     return this.authorService.getAuthorById(
       id,
-      'ru',
+      contentLanguage(lang),
       user?.id === id ||
         user?.role === Role.Admin ||
         user?.role === Role.Moderator,
@@ -278,10 +291,11 @@ export class AuthorsController {
   getArtsByAuthor(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { id: number; role: Role } | null,
+    @Query('lang') lang = 'ru',
   ) {
     return this.authorService.getArtsByAuthor(
       id,
-      'ru',
+      contentLanguage(lang),
       user?.id === id ||
         user?.role === Role.Admin ||
         user?.role === Role.Moderator,

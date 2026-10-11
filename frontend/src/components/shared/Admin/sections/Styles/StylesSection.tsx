@@ -1,5 +1,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
+import { getOriginal } from '../../../../../api/request';
 import { Plus, Pencil, Trash2, Palette } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { adminTranslations } from '../../../../../pages/admin/lang';
@@ -129,7 +130,10 @@ const StylesSection = () => {
                         type="button"
                         className="styles-section__action styles-section__action--edit"
                         title={t.actions.edit}
-                        onClick={() => setEditTarget(s)}
+                        onClick={async () => {
+                            const original = await getOriginal<Style>('styles', s.id);
+                            if (original) setEditTarget(original); else setError(t.errors.loadFailed);
+                        }}
                     >
                         <Pencil size={16} />
                     </button>

@@ -88,10 +88,12 @@ const buildQuery = (filter?: StatsQuery): string => {
 export const getAuthorStats = async (
     authorId: number,
     filter?: StatsQuery,
+    lang = 'ru',
 ): Promise<AuthorStatsData | null> => {
     try {
+        const query = buildQuery(filter);
         const res = await apiFetch(
-            `${BASE_URL}/author/${authorId}${buildQuery(filter)}`,
+            `${BASE_URL}/author/${authorId}${query}${query ? '&' : '?'}lang=${lang}`,
             { credentials: 'include' },
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -43,6 +43,7 @@ import {
   OptionalJwtAccessGuard,
 } from 'src/auth/guards/jwt.guard';
 import { ValidationPipe } from '../pipes/validation.pipe';
+import { contentLanguage } from '../translation/translation-text';
 import {
   IMAGE_UPLOAD_OPTIONS,
   type UploadedImage,
@@ -58,8 +59,11 @@ export class ArtsController {
   @ApiOperation({ summary: 'Получение топ-10 картин для главной' })
   @Get('top')
   @Roles(Role.Admin, Role.Moderator, Role.Author, Role.Visitor, Role.User)
-  getTopArts(@Query('limit') limit?: number) {
-    return this.artsService.getTopArts(Number(limit) || 10);
+  getTopArts(@Query('limit') limit?: number, @Query('lang') lang = 'ru') {
+    return this.artsService.getTopArts(
+      Number(limit) || 10,
+      contentLanguage(lang),
+    );
   }
 
   @ApiOperation({ summary: 'Получение списка модерированных картин' })
@@ -68,10 +72,12 @@ export class ArtsController {
   getModeratedArts(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('lang') lang = 'ru',
   ) {
     return this.artsService.getModeratedArts(
       Number(page) || 1,
       Number(limit) || 10,
+      contentLanguage(lang),
     );
   }
 
@@ -82,10 +88,12 @@ export class ArtsController {
   getUnmoderatedArts(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('lang') lang = 'ru',
   ) {
     return this.artsService.getUnmoderatedArts(
       Number(page) || 1,
       Number(limit) || 10,
+      contentLanguage(lang),
     );
   }
 
@@ -114,8 +122,16 @@ export class ArtsController {
   @Get()
   @UseGuards(JwtAccessGuard, RolesGuard)
   @Roles(Role.Admin, Role.Moderator)
-  getAllArts(@Query('page') page?: number, @Query('limit') limit?: number) {
-    return this.artsService.getAllArts(Number(page) || 1, Number(limit) || 10);
+  getAllArts(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('lang') lang = 'ru',
+  ) {
+    return this.artsService.getAllArts(
+      Number(page) || 1,
+      Number(limit) || 10,
+      contentLanguage(lang),
+    );
   }
 
   @ApiOperation({ summary: 'Поиск картин по названию / описанию / автору' })
@@ -131,7 +147,7 @@ export class ArtsController {
       q,
       Number(page) || 1,
       Number(limit) || 20,
-      lang === 'en' ? 'en' : 'ru',
+      contentLanguage(lang),
     );
   }
 
@@ -146,7 +162,7 @@ export class ArtsController {
     return this.artsService.getSimilarArts(
       id,
       Number(limit) || 20,
-      lang === 'en' ? 'en' : 'ru',
+      contentLanguage(lang),
     );
   }
 
@@ -195,8 +211,13 @@ export class ArtsController {
   getArt(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { id: number; role: Role } | null,
+    @Query('lang') lang = 'ru',
   ) {
-    return this.artsService.getAccessibleArtById(id, user);
+    return this.artsService.getAccessibleArtById(
+      id,
+      user,
+      contentLanguage(lang),
+    );
   }
 
   @ApiOperation({ summary: 'Обновление объекта' })

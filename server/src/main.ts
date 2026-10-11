@@ -5,11 +5,16 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { STATIC_DIR } from './shared/helpers/static-dir.helper';
+import { STATIC_DIR, publicImageUrl } from './shared/helpers/static-dir.helper';
 
 async function start() {
   const PORT = process.env.PORT || 5000;
+  const host =
+    process.env.HTTP_HOST ||
+    (process.env.NODE_ENV === 'production' ? '127.0.0.1' : '0.0.0.0');
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.enableShutdownHooks();
+  app.set('json replacer', publicImageUrl);
 
   // За reverse proxy (Caddy / nginx / docker) — чтобы req.ip и secure-cookie работали корректно
   if (process.env.TRUST_PROXY === 'true') {
@@ -22,6 +27,7 @@ async function start() {
   app.enableCors({
     origin: allowedOrigins,
     credentials: true,
+    exposedHeaders: ['Content-Language', 'X-Translation-Status'],
   });
 
   app.use(cookieParser());
@@ -30,6 +36,20 @@ async function start() {
     .setDescription('REST API Documentation')
     .setVersion('1.0.0')
     .addTag('Gallery')
+    .addGlobalParameters(
+      {
+        name: 'lang',
+        in: 'query',
+        required: false,
+        schema: { type: 'string', enum: ['ru', 'en', 'zh'], default: 'ru' },
+      },
+      {
+        name: 'original',
+        in: 'query',
+        required: false,
+        schema: { type: 'boolean', default: false },
+      },
+    )
     .build();
 
   app.useStaticAssets(STATIC_DIR, {
@@ -51,7 +71,7 @@ async function start() {
     SwaggerModule.setup('/api/docs', app, document);
   }
 
-  await app.listen(PORT, '0.0.0.0', () =>
+  await app.listen(PORT, host, () =>
     console.log(`Server started on port ${PORT}`),
   );
 }

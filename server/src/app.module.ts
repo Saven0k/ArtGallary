@@ -56,6 +56,12 @@ import { AccountDeletionCode } from './auth/models/account-deletion-code.model';
 import { HealthController } from './health.controller';
 import { NotificationSettings } from './notifications/notification-settings.model';
 import { BrowserPushSubscription } from './notifications/push-subscription.model';
+import { TranslationModule } from './translation/translation.module';
+import { TelegramModule } from './telegram/telegram.module';
+
+const dbSync =
+  process.env.DB_SYNC ??
+  (process.env.NODE_ENV === 'production' ? 'false' : 'create');
 
 @Module({
   imports: [
@@ -138,14 +144,8 @@ import { BrowserPushSubscription } from './notifications/push-subscription.model
         AuthorFollow,
       ],
       logging: process.env.NODE_ENV === 'development' ? console.log : false,
-      // DB_SYNC=alter  — ALTER TABLE под модели (по умолчанию; удобно, пока нет миграций)
-      // DB_SYNC=create — только CREATE TABLE IF NOT EXISTS, без ALTER
-      // DB_SYNC=false  — не трогать схему (когда перейдёте на миграции)
-      sync:
-        process.env.DB_SYNC === 'false'
-          ? undefined
-          : { alter: (process.env.DB_SYNC || 'alter') === 'alter' },
-      synchronize: process.env.DB_SYNC !== 'false',
+      sync: dbSync === 'false' ? undefined : { alter: dbSync === 'alter' },
+      synchronize: dbSync !== 'false',
       autoLoadModels: true,
     }),
     UsersModule,
@@ -169,6 +169,8 @@ import { BrowserPushSubscription } from './notifications/push-subscription.model
     CartHistoryModule,
     SiteModule,
     MailModule,
+    TranslationModule,
+    TelegramModule,
   ],
   controllers: [HealthController],
 })

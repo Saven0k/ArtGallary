@@ -11,6 +11,7 @@ import DeleteAccountModal from './DeleteAccountModal/DeleteAccountModal';
 import { deleteAuthor } from '../../../../api/authors/main.api';
 import { deleteUser } from '../../../../api/users/main.api';
 import './SettingsSection.scss';
+import TelegramSettings from './TelegramSettings';
 
 interface SettingsProps {
     id: number;
@@ -87,6 +88,8 @@ const Settings = ({ id, role }: SettingsProps) => {
                     </button>
                 ))}
             </div>
+
+            {(role === 'admin' || role === 'moderator') && <TelegramSettings key={id} />}
 
             {passwordStage === 'code' && (
                 <CodeModal

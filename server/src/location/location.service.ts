@@ -25,7 +25,7 @@ export interface CityDto {
   timezone?: string;
 }
 
-type Lang = 'ru' | 'en';
+type Lang = 'ru' | 'en' | 'zh';
 
 interface NominatimCountry {
   display_name: string;
@@ -126,7 +126,7 @@ export class LocationService implements OnModuleInit {
 
   async getAllCountries(lang: Lang = 'ru'): Promise<CountryDto[]> {
     const countries = await this.countryModel.findAll({
-      order: lang === 'ru' ? [['name_ru', 'ASC']] : [['name_en', 'ASC']],
+      order: lang !== 'en' ? [['name_ru', 'ASC']] : [['name_en', 'ASC']],
     });
     return countries.map((c) => this.toCountryDto(c, lang));
   }
@@ -216,7 +216,7 @@ export class LocationService implements OnModuleInit {
     return {
       id: country.id,
       name:
-        lang === 'ru' ? country.name_ru || country.name_en : country.name_en,
+        lang !== 'en' ? country.name_ru || country.name_en : country.name_en,
       iso2: country.iso2,
       iso3: country.iso3,
       phone_code: country.phone_code,
@@ -228,7 +228,7 @@ export class LocationService implements OnModuleInit {
   private toCityDto(city: City, lang: Lang): CityDto {
     return {
       id: city.id,
-      name: lang === 'ru' ? city.name_ru || city.name_en : city.name_en,
+      name: lang !== 'en' ? city.name_ru || city.name_en : city.name_en,
       country_code: city.country_code,
       region: city.region,
       population: city.population,
@@ -274,7 +274,7 @@ export class LocationService implements OnModuleInit {
         defaults: {
           iso2: returnedIso2,
           name_en: name,
-          name_ru: lang === 'ru' ? name : null,
+          name_ru: lang !== 'en' ? name : null,
         },
       });
 

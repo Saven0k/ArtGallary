@@ -43,7 +43,7 @@ const AuthorProfile = ({ author }: AuthorProfileProps) => {
                                 {author.surname} {author.name}
                             </h2>
                             <span className="author-profile__location">
-                                {author.city?.name_ru || author.city?.name_en}, {author.country?.name_ru || author.country?.name_en}
+                                {author.city?.name || author.city?.name_ru || author.city?.name_en}, {author.country?.name || author.country?.name_ru || author.country?.name_en}
                             </span>
                         </div>
                         <p className="author-profile__followers">

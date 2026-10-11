@@ -1,4 +1,5 @@
 $ErrorActionPreference = 'Stop'
+$env:Path = "$(Join-Path $env:APPDATA 'npm');$env:Path"
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 
 function Invoke-CheckedCommand {
@@ -18,7 +19,7 @@ try {
     Set-Location (Join-Path $projectRoot 'frontend')
     Invoke-CheckedCommand 'npm.cmd' @('ci')
     Invoke-CheckedCommand 'npm.cmd' @('run', 'build')
-    Invoke-CheckedCommand 'pm2.cmd' @('restart', 'gallery-api', '--update-env')
+    Invoke-CheckedCommand 'powershell.exe' @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $projectRoot 'deploy\windows\start.ps1'))
     Write-Host 'curl http://localhost/api/health   http://localhost/'
 } finally {
     Pop-Location

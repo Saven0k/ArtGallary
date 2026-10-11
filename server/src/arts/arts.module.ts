@@ -22,6 +22,7 @@ import { ArtLike } from './art-like.model';
 @Module({
   providers: [ArtsService, ArtsCron],
   controllers: [ArtsController],
+  exports: [ArtsService],
   imports: [
     SequelizeModule.forFeature([
       Art,

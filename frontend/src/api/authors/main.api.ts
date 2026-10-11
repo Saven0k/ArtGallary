@@ -179,9 +179,9 @@ export const getAuthorById = async (id: number, lang = 'ru'): Promise<AuthorProf
     }
 };
 
-export const getMyAuthorProfile = async (): Promise<AuthorProfileResponse | null> => {
+export const getMyAuthorProfile = async (original = false): Promise<AuthorProfileResponse | null> => {
     try {
-        const res = await apiFetch(`${BASE_URL}/me`, {
+        const res = await apiFetch(`${BASE_URL}/me${original ? '?original=true' : ''}`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error();

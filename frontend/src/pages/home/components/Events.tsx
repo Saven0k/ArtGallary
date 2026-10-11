@@ -33,7 +33,7 @@ const Events = () => {
 
         load();
         return () => { cancelled = true; };
-    }, []);
+    }, [language]);
 
     return (
         <section className="events">

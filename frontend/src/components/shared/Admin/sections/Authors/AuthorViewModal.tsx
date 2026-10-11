@@ -59,7 +59,7 @@ const AuthorViewModal = ({ author, onClose }: AuthorViewModalProps) => {
                     <div>
                         <dt>{t.viewModal.country}</dt>
                         <dd>
-                            {author.country?.name_ru ??
+                            {author.country?.name ?? author.country?.name_ru ??
                                 author.country?.name_en ??
                                 notSpecified}
                         </dd>
@@ -67,7 +67,7 @@ const AuthorViewModal = ({ author, onClose }: AuthorViewModalProps) => {
                     <div>
                         <dt>{t.viewModal.city}</dt>
                         <dd>
-                            {author.city?.name_ru ??
+                            {author.city?.name ?? author.city?.name_ru ??
                                 author.city?.name_en ??
                                 notSpecified}
                         </dd>

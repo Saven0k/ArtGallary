@@ -7,9 +7,11 @@ import { getArtsByAuthor, getAuthorById, type AuthorProfileResponse } from "../.
 import { type Art } from "../../../api/arts/main.api";
 import Navigation from "../../../components/layout/Navigation/Navigation";
 import AuthorProfile from "../../../components/shared/Authors/AuthorDetail/AuthorProfile/AuthorProfile";
+import { useLanguage } from '../../../hooks/useLanguage';
 
 const AuthorPage = () => {
     const { id } = useParams<{ id: string }>();
+    const { language } = useLanguage();
 
     const [author, setAuthor] = useState<AuthorProfileResponse | null>(null);
     const [arts, setArts] = useState<Art[]>([]);
@@ -17,6 +19,7 @@ const AuthorPage = () => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        let active = true;
         const getData = async () => {
             if (!id) {
                 setError("ID автора не указан");
@@ -32,6 +35,7 @@ const AuthorPage = () => {
                     getAuthorById(Number(id)),
                     getArtsByAuthor(Number(id)),
                 ]);
+                if (!active) return;
 
                 if (authorData) {
                     setAuthor(authorData);
@@ -46,12 +50,13 @@ const AuthorPage = () => {
                 console.error("Error fetching author data:", err);
                 setError("Ошибка при загрузке данных");
             } finally {
-                setLoading(false);
+                if (active) setLoading(false);
             }
         };
 
         getData();
-    }, [id]);
+        return () => { active = false; };
+    }, [id, language]);
 
     if (loading) {
         return (

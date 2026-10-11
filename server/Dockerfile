@@ -20,5 +20,6 @@ COPY --from=build /app/dist ./dist
 RUN mkdir -p /data/uploads /app/logs
 ENV STATIC_DIR=/data/uploads
 ENV PORT=5000
+ENV HTTP_HOST=0.0.0.0
 EXPOSE 5000
 CMD ["node", "dist/main"]

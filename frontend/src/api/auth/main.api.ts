@@ -1,4 +1,4 @@
-import { apiFetch, refreshSession } from '../request';
+import { apiFetch, apiRequest, refreshSession } from '../request';
 
 import { BASE_URL_API, contentType } from "../main.api";
 import type { UserRole } from "../users/main.api";
@@ -79,7 +79,7 @@ export const changePassword = async (
 
 export const login = async (userData: LoginData): Promise<AuthResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/login`, {
+        const res = await apiRequest(`${BASE_URL}/login`, {
             method: "POST",
             headers: contentType,
             body: JSON.stringify(userData),
@@ -100,7 +100,7 @@ export const login = async (userData: LoginData): Promise<AuthResponse | null> =
 
 export const register = async (userData: RegisterData): Promise<AuthResponse | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/register`, {
+        const res = await apiRequest(`${BASE_URL}/register`, {
             method: "POST",
             headers: contentType,
             body: JSON.stringify(userData),
@@ -141,7 +141,7 @@ export const logout = async (): Promise<{ message: string } | null> => {
 
 export const me = async (): Promise<{ data?: MeResponse; status: number; success: boolean }> => {
     try {
-        const res = await fetch(`${BASE_URL}/me`, {
+        const res = await apiRequest(`${BASE_URL}/me`, {
             credentials: "include"
         });
 
@@ -164,7 +164,7 @@ export interface RequestCodePayload { email: string; }
 export interface VerifyCodePayload { email: string; code: string; }
 
 export const requestResetCode = async (payload: RequestCodePayload) => {
-    const res = await fetch(`${BASE_URL}/password-reset/request-code`, {
+    const res = await apiRequest(`${BASE_URL}/password-reset/request-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -181,7 +181,7 @@ export interface VerifyCodeResponse {
 export const verifyResetCode = async (
     payload: VerifyCodePayload,
 ): Promise<VerifyCodeResponse> => {
-    const res = await fetch(`${BASE_URL}/password-reset/verify-code`, {
+    const res = await apiRequest(`${BASE_URL}/password-reset/verify-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -201,7 +201,7 @@ export interface ResetPasswordPayload {
 export const resetPassword = async (
     payload: ResetPasswordPayload,
 ): Promise<{ message: string }> => {
-    const res = await fetch(`${BASE_URL}/password-reset/reset-password`, {
+    const res = await apiRequest(`${BASE_URL}/password-reset/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

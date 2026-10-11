@@ -19,6 +19,7 @@ import EmptyState from '../../EmptyState/EmptyState';
 import EventFormModal from './EventFormModal';
 import { eventsTranslations } from './lang';
 import './EventsSection.scss';
+import { getOriginal } from '../../../../../api/request';
 
 const PAGE_SIZE = 10;
 
@@ -172,7 +173,10 @@ const EventsSection = () => {
                         type="button"
                         className="events-section__action events-section__action--edit"
                         title={t.actions.edit}
-                        onClick={() => setEditTarget(ev)}
+                        onClick={async () => {
+                            const original = await getOriginal<Event>('events', ev.id);
+                            if (original) setEditTarget(original); else setError(t.errors.loadFailed);
+                        }}
                     >
                         <Pencil size={16} />
                     </button>

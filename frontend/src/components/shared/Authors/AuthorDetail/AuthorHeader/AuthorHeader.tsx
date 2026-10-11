@@ -99,8 +99,8 @@ const AuthorHeader = ({ author }: AuthorHeaderProps) => {
                         </h1>
 
                         <span className="author-header__location">
-                            {author.city?.name_ru || author.city?.name_en},{' '}
-                            {author.country?.name_ru || author.country?.name_en}
+                            {author.city?.name || author.city?.name_ru || author.city?.name_en},{' '}
+                            {author.country?.name || author.country?.name_ru || author.country?.name_en}
                         </span>
 
                         <button

@@ -1,5 +1,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
+import { getOriginal } from '../../../../../api/request';
 import { Plus, Pencil, Trash2, Briefcase } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { adminTranslations } from '../../../../../pages/admin/lang';
@@ -132,7 +133,10 @@ const ProfessionsSection = () => {
                         type="button"
                         className="professions-section__action professions-section__action--edit"
                         title={t.actions.edit}
-                        onClick={() => setEditTarget(p)}
+                        onClick={async () => {
+                            const original = await getOriginal<Profession>('professions', p.id);
+                            if (original) setEditTarget(original); else setError(t.errors.loadFailed);
+                        }}
                     >
                         <Pencil size={16} />
                     </button>

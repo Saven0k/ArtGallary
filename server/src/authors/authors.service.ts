@@ -31,6 +31,7 @@ import { ModerateObject, ModerateResponse } from 'src/types/moderate.types';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
 import { ModerateAuthorDto } from './dto/moderate-author.dto';
+import { moderationRevision } from '../shared/helpers/moderation-revision';
 import { RefreshToken } from '../auth/models/refresh-token.model';
 
 export type Gender = 'M' | 'F';
@@ -568,7 +569,7 @@ export class AuthorsService {
     const scored = (
       await Promise.all(
         rows
-          .map((user) => this.buildScoredAuthor(user, user.authorProfile))
+          .map((user) => this.buildScoredAuthor(user, user.authorProfile, lang))
           .filter(Boolean),
       )
     ).filter((a): a is AuthorListItemResponse => a !== null);
@@ -624,6 +625,7 @@ export class AuthorsService {
   async moderateAuthor(
     moderateDto: ModerateAuthorDto,
     authorId: number,
+    expectedRevision?: string,
   ): Promise<ModerateResponse> {
     this.log('moderateAuthor', { authorId, moderate: moderateDto.moderate });
 
@@ -632,8 +634,16 @@ export class AuthorsService {
       const author = await this.authorProfileModel.findOne({
         where: { user_id: authorId },
         transaction,
+        lock: transaction.LOCK.UPDATE,
       });
       if (!author) throw new NotFoundException('Профиль автора не найден');
+      if (
+        expectedRevision &&
+        moderationRevision('author', author) !== expectedRevision
+      )
+        throw new ConflictException(
+          'Автор уже изменён или промодерирован. Обновите очередь',
+        );
 
       const moderateObject: ModerateObject = {
         moderate: moderateDto.moderate,
@@ -701,7 +711,9 @@ export class AuthorsService {
 
     const scored = (
       await Promise.all(
-        users.map((user) => this.buildScoredAuthor(user, user.authorProfile)),
+        users.map((user) =>
+          this.buildScoredAuthor(user, user.authorProfile, lang),
+        ),
       )
     ).filter((a): a is AuthorListItemResponse => a !== null);
 
@@ -788,6 +800,7 @@ export class AuthorsService {
   private async buildScoredAuthor(
     user: User,
     author: AuthorProfile | undefined,
+    lang: string,
   ): Promise<AuthorListItemResponse | null> {
     if (!author) return null;
 
@@ -804,7 +817,7 @@ export class AuthorsService {
     const planWeight = subscription ? subscription.getWeight() : 0;
     const score = totalLikes * 2 + artsCount * 10 + planWeight;
 
-    return this.formatAuthorListItem(user, author, 0, 'ru', {
+    return this.formatAuthorListItem(user, author, 0, lang, {
       score: Math.round(score * 100) / 100,
       totalLikes,
       artsCount,
@@ -830,7 +843,7 @@ export class AuthorsService {
   ): AuthorListItemResponse {
     const plainUser = this.toPlainUser(user);
     const plainAuthor = author ? this.toPlainProfile(author) : null;
-    const nameField = lang === 'ru' ? 'name_ru' : 'name_en';
+    const nameField = lang === 'en' ? 'name_en' : 'name_ru';
 
     return {
       id: plainUser.id,

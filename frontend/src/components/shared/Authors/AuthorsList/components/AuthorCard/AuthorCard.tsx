@@ -26,7 +26,7 @@ const AuthorCard = (data: AuthorCardProps) => {
                 />
                 <div className="author-card__info">
                     <h2 className="author-card__name">{data.author.surname} {data.author.name}</h2>
-                    <p className="author-card__city">{data.author.city?.name_ru}</p>
+                    <p className="author-card__city">{data.author.city?.name ?? data.author.city?.name_ru}</p>
                     <Link
                         to={`/authors/${data.author.id}`}
                         className="author-card__link"

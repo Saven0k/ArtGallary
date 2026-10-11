@@ -16,12 +16,14 @@ const AuthorFilter = ({ activeProfession, onChange }: AuthorFilterProps) => {
     const [professions, setProfessions] = useState<Profession[]>([]);
 
     useEffect(() => {
+        let active = true;
         const getProfessions = async () => {
             const data = await getAllProfessions();
-            setProfessions(data || []);
+            if (active) setProfessions(data || []);
         };
         getProfessions();
-    }, []);
+        return () => { active = false; };
+    }, [language]);
 
     return (
         <aside className="filter" aria-label={t.title}>

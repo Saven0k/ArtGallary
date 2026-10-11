@@ -172,7 +172,7 @@ const ModerationSection = () => {
         const p = a.authorProfile;
 
         const name = fullName(a) || '—';
-        const location = [a.city?.name_ru ?? a.city?.name_en, a.country?.name_ru ?? a.country?.name_en].filter(Boolean).join(', ');
+        const location = [a.city?.name ?? a.city?.name_ru ?? a.city?.name_en, a.country?.name ?? a.country?.name_ru ?? a.country?.name_en].filter(Boolean).join(', ');
         const profession = p.profession?.name;
         const email = a.email;
         const created = fmtDateTime(p.created_at ?? p.createdAt, language);

@@ -7,6 +7,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "telegram:migrate": "node dist/telegram/telegram.cli.js",
+    "translations:migrate": "node dist/translation/translation.cli.js migrate",
+    "translations:warm": "node dist/translation/translation.cli.js warm",
     "push:keys": "web-push generate-vapid-keys --json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "cross-env NODE_ENV=production node dist/main",
@@ -41,6 +44,7 @@
     "cookie-parser": "^1.4.7",
     "cross-env": "^10.1.0",
     "dotenv": "^16.4.5",
+    "https-proxy-agent": "7.0.6",
     "nest-winston": "^1.10.2",
     "nodemailer": "^10.0.10",
     "passport": "^0.7.0",

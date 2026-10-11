@@ -19,7 +19,7 @@ interface LocationSelectProps {
   onCountryChange: (iso2: string, name: string, iso2OrId: string | number) => void;
   onCityChange: (cityId: number | null, cityName: string) => void;
   isEditing?: boolean;
-  lang?: 'ru' | 'en';
+  lang?: 'ru' | 'en' | 'zh';
 }
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -142,7 +142,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
 
 
   const handleCountrySelect = useCallback((country: CountrySuggestion) => {
-    const name = country.name_en || country.iso2;
+    const name = country.name || country.name_en || country.iso2;
     setCountryDisplay(name);
     setSelectedCountryCode(country.iso2);
     setCountryQuery('');
@@ -157,7 +157,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
   }, [onCountryChange, onCityChange]);
 
   const handleCitySelect = useCallback((city: CitySuggestion) => {
-    const name = city.name_en || city.id.toString();
+    const name = city.name || city.name_en || city.id.toString();
     setCityDisplay(name);
     setSelectedCityId(city.id);
     setCityQuery('');
@@ -231,7 +231,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
                   handleCountrySelect(item);
                 }}
               >
-                {item.name_en || item.iso2}
+                {item.name || item.name_en || item.iso2}
               </li>
             ))}
           </ul>
@@ -284,7 +284,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
                   handleCitySelect(item);
                 }}
               >
-                <span className="location-select__city-name">{item.name_en || item.id.toString()}</span>
+                <span className="location-select__city-name">{item.name || item.name_en || item.id.toString()}</span>
                 {item.region && (
                   <span className="location-select__city-region">{item.region}</span>
                 )}

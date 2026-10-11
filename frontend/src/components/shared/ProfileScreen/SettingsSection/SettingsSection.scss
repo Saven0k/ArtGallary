@@ -1,3 +1,21 @@
+.telegram-settings {
+    margin-top: 24px;
+    padding: 22px;
+    border: 1px solid rgba(188, 149, 71, .25);
+    border-radius: var(--radius-l);
+    background: rgba(188, 149, 71, .04);
+    display: grid;
+    gap: 12px;
+
+    h3, p { margin: 0; }
+    p { color: var(--neutral-grey-600); line-height: 1.5; }
+    a { color: var(--neutral-grey-800); text-decoration: underline; overflow-wrap: anywhere; }
+    &__actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    button { padding: 10px 16px; border: 1px solid var(--brand-primary-gold); border-radius: var(--radius-m); background: #fff; color: var(--neutral-grey-800); cursor: pointer; }
+    button:disabled { opacity: .5; cursor: wait; }
+    button:focus-visible, a:focus-visible { outline: 2px solid var(--brand-primary-gold); outline-offset: 3px; }
+}
+
 .profile-settings {
     width: 100%;
     padding: 36px;

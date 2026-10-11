@@ -57,8 +57,8 @@ export interface Art {
             avatar_path?: string | null;
         };
     };
-    city?: { id: number; name_en: string; name_ru?: string } | null;
-    country?: { id: number; name_en: string; name_ru?: string; iso2: string } | null;
+    city?: { id: number; name?: string; name_en: string; name_ru?: string } | null;
+    country?: { id: number; name?: string; name_en: string; name_ru?: string; iso2: string } | null;
     genre?: Genre;
     style?: Style;
     tags?: { id: number; name: string }[];
@@ -156,9 +156,9 @@ export const getUnmoderatedArts = async (page = 1, limit = 10, lang = 'ru'): Pro
     } catch (e) { console.error("getUnmoderatedArts error:", e); return null; }
 };
 
-export const getArtById = async (id: number, lang = 'ru'): Promise<Art | null> => {
+export const getArtById = async (id: number, lang = 'ru', original = false): Promise<Art | null> => {
     try {
-        const res = await apiFetch(`${BASE_URL}/${id}?lang=${lang}`, { credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/${id}?lang=${lang}${original ? '&original=true' : ''}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) { console.error("getArtById error:", e); return null; }

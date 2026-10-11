@@ -5,6 +5,7 @@ import ViewsChart from "./Charts/ViewsChart";
 import GenderChart from "./Charts/GenderChart";
 import AgeChart from "./Charts/AgeChart";
 import CountriesChart from "./Charts/CountriesChart";
+import { useLanguage } from '../../../../hooks/useLanguage';
 
 type Period = "week" | "month" | "year";
 
@@ -25,6 +26,7 @@ const periodToFilter = (period: Period): StatsQuery => {
 };
 
 const Statistics = ({ authorId }: ProfileStatsProps) => {
+    const { language } = useLanguage();
     const [stats, setStats] = useState<AuthorStatsData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -35,11 +37,11 @@ const Statistics = ({ authorId }: ProfileStatsProps) => {
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
-        const res = await getAuthorStats(authorId, filter);
+        const res = await getAuthorStats(authorId, filter, language);
         if (!res) setError("Не удалось загрузить статистику");
         setStats(res);
         setLoading(false);
-    }, [authorId, filter]);
+    }, [authorId, filter, language]);
 
     useEffect(() => {
         load();

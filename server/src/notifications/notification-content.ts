@@ -45,6 +45,13 @@ export function notificationContent(
   const art = typeof metadata?.art_title === 'string' ? metadata.art_title : '';
   let body = notification.message;
   if (actor) {
+    if (notification.type === NotificationType.AUTHOR_LIKE)
+      body =
+        language === 'ru'
+          ? `${actor} оценил ваш профиль`
+          : language === 'en'
+            ? `${actor} liked your profile`
+            : `${actor} 点赞了您的个人资料`;
     if (notification.type === NotificationType.NEW_FOLLOWER)
       body =
         language === 'ru'

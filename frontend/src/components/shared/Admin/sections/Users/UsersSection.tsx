@@ -200,7 +200,7 @@ const UsersSection = () => {
                 key: 'country',
                 title: t.table.country,
                 render: (u) =>
-                    u.country?.name_ru ?? u.country?.name_en ?? '—',
+                    u.country?.name ?? u.country?.name_ru ?? u.country?.name_en ?? '—',
             },
             {
                 key: 'status',

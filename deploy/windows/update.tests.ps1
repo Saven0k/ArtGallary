@@ -4,6 +4,11 @@ $initialLocation = (Get-Location).Path
 $parseErrors = $null
 [void][System.Management.Automation.Language.Parser]::ParseFile($updatePath, [ref]$null, [ref]$parseErrors)
 if ($parseErrors.Count -gt 0) { throw $parseErrors[0].Message }
+foreach ($name in 'start.ps1', 'firewall.ps1') {
+    $ast = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot $name), [ref]$null, [ref]$parseErrors)
+    if ($parseErrors.Count -gt 0) { throw $parseErrors[0].Message }
+    if ($name -eq 'start.ps1' -and -not $ast.ParamBlock) { throw 'Startup parameter block is missing' }
+}
 
 function Invoke-Stub {
     $script:callCount++
@@ -12,7 +17,7 @@ function Invoke-Stub {
 
 function global:git { Invoke-Stub }
 function global:npm.cmd { Invoke-Stub }
-function global:pm2.cmd { Invoke-Stub }
+function global:powershell.exe { Invoke-Stub }
 
 try {
     foreach ($failure in 1..6) {
@@ -31,5 +36,5 @@ try {
     if ($script:callCount -ne 6) { throw 'Successful update did not finish' }
     Write-Host 'Update checks passed: six failure paths and successful completion.'
 } finally {
-    Remove-Item -LiteralPath 'Function:\git', 'Function:\npm.cmd', 'Function:\pm2.cmd'
+    Remove-Item -LiteralPath 'Function:\git', 'Function:\npm.cmd', 'Function:\powershell.exe'
 }

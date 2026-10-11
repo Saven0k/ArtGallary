@@ -41,6 +41,6 @@ import { AccountDeletionCode } from '../auth/models/account-deletion-code.model'
   ],
   controllers: [AuthorsController],
   providers: [AuthorFollowService, AuthorsService],
-  exports: [AuthorFollowService],
+  exports: [AuthorFollowService, AuthorsService],
 })
 export class AuthorsModule {}

@@ -3,7 +3,13 @@ import { type WhereOptions, type Transaction } from 'sequelize';
 import { type ModerateObject } from '../types/moderate.types';
 import { type UploadedImage } from '../files/files.service';
 // arts.service.ts
-import { HttpException, HttpStatus, Injectable, Inject } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Inject,
+} from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/sequelize';
 import { Sequelize, Op } from 'sequelize';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
@@ -14,6 +20,7 @@ import { ArtView } from './art-view.model';
 import { CreateArtDto } from './dto/create-art.dto';
 import { UpdateArtDTO } from './dto/update-art.dto';
 import { ModerateArtDto } from './dto/moderate-art.dto';
+import { moderationRevision } from '../shared/helpers/moderation-revision';
 import { FilesService } from '../files/files.service';
 import { User } from '../users/users.model';
 import { Genre } from '../genres/genre.model';
@@ -30,7 +37,7 @@ import { NotificationService } from 'src/notifications/notification.service';
 import { LocationService } from '../location/location.service';
 import { Role } from '../auth/enums/role.enum';
 
-type Lang = 'ru' | 'en';
+type Lang = 'ru' | 'en' | 'zh';
 type FilterType = 'all' | 'moderated' | 'unmoderated';
 
 @Injectable()
@@ -139,8 +146,9 @@ export class ArtsService {
   async getAccessibleArtById(
     id: number,
     user?: { id: number; role: Role } | null,
+    lang = 'ru',
   ) {
-    const art = await this.getArtById(id);
+    const art = await this.getArtById(id, lang);
     if (!art)
       throw new HttpException('Картина не найдена', HttpStatus.NOT_FOUND);
     if (
@@ -250,7 +258,11 @@ export class ArtsService {
     return { success: true };
   }
 
-  async moderateArt(moderateDto: ModerateArtDto, id: number) {
+  async moderateArt(
+    moderateDto: ModerateArtDto,
+    id: number,
+    expectedRevision?: string,
+  ) {
     const transaction = await this.sequelize.transaction();
     try {
       const art = await this.artRepository.findByPk(id, {
@@ -258,6 +270,13 @@ export class ArtsService {
         lock: transaction.LOCK.UPDATE,
       });
       if (!art) throw new HttpException('Art not found', HttpStatus.NOT_FOUND);
+      if (
+        expectedRevision &&
+        moderationRevision('art', art) !== expectedRevision
+      )
+        throw new ConflictException(
+          'Работа уже изменена или промодерирована. Обновите очередь',
+        );
 
       await this.artRepository.update(
         {
@@ -773,7 +792,7 @@ export class ArtsService {
   }
 
   private getLocationIncludes(lang = 'ru') {
-    const nameField = lang === 'ru' ? 'name_ru' : 'name_en';
+    const nameField = lang === 'en' ? 'name_en' : 'name_ru';
     return [
       {
         model: Country,
@@ -791,7 +810,7 @@ export class ArtsService {
   }
 
   private formatArtWithLocation(art: Art, lang = 'ru') {
-    const nameField = lang === 'ru' ? 'name_ru' : 'name_en';
+    const nameField = lang === 'en' ? 'name_en' : 'name_ru';
     return {
       ...art,
       moderate: this.parseModerate(art.moderate),

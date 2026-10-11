@@ -27,7 +27,7 @@ const EventDetails = () => {
         return () => {
             alive = false;
         };
-    }, [id]);
+    }, [id, language]);
 
     if (loading) {
         return <div className="event-details__state">{t.loading}</div>;

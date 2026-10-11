@@ -23,8 +23,8 @@ export interface User {
     createdAt?: string;
     updatedAt?: string;
     authorProfile?: AuthorProfileData;
-    country?: { id: number; name_en: string; name_ru: string; iso2: string; iso3: string };
-    city?: { id: number; name_en: string; name_ru: string; country_id: number; country_code: string };
+    country?: { id: number; name?: string; name_en: string; name_ru: string; iso2: string; iso3: string };
+    city?: { id: number; name?: string; name_en: string; name_ru: string; country_id: number; country_code: string };
 }
 
 export interface AuthorProfileData {
@@ -134,9 +134,9 @@ export const getDeletedUsers = async (): Promise<User[] | null> => {
     }
 };
 
-export const getUserById = async (id: number): Promise<User | null> => {
+export const getUserById = async (id: number, original = false): Promise<User | null> => {
     try {
-        const res = await apiFetch(`${BASE_URL}/${id}`, { credentials: "include" });
+        const res = await apiFetch(`${BASE_URL}/${id}${original ? '?original=true' : ''}`, { credentials: "include" });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) {

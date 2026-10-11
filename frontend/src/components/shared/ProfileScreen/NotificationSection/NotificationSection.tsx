@@ -67,7 +67,7 @@ const Notifications = () => {
         return () => {
             alive = false;
         };
-    }, []);
+    }, [language]);
 
     const handleLoadMore = async () => {
         if (loadingMore || !hasNextPage) return;

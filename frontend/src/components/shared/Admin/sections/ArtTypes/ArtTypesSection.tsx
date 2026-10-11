@@ -1,5 +1,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
+import { getOriginal } from '../../../../../api/request';
 import { Plus, Pencil, Trash2, Sparkles, Brush } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { adminTranslations } from '../../../../../pages/admin/lang';
@@ -139,7 +140,10 @@ const ArtTypesSection = () => {
                         type="button"
                         className="art-types-section__action art-types-section__action--edit"
                         title={t.actions.edit}
-                        onClick={() => setEditTarget(a)}
+                        onClick={async () => {
+                            const original = await getOriginal<ArtType>('art-types', a.id);
+                            if (original) setEditTarget(original); else setError(t.errors.loadFailed);
+                        }}
                     >
                         <Pencil size={16} />
                     </button>

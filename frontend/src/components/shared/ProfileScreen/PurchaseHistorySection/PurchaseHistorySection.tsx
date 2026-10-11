@@ -1,5 +1,5 @@
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     getCartHistory,
     type OrderHistoryItem,
@@ -55,10 +55,6 @@ const PurchaseHistory = ({ lang = "ru" }: PurchaseHistoryProps) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const artsRef = useRef<Record<number, ArtPreview>>({});
-    useEffect(() => {
-        artsRef.current = arts;
-    }, [arts]);
 
 
 
@@ -108,9 +104,9 @@ const PurchaseHistory = ({ lang = "ru" }: PurchaseHistoryProps) => {
         setOrders(res.items);
 
         const ids = Array.from(new Set(res.items.filter((order) => !order.items?.length).flatMap((o) => o.artIds)));
-        const missing = ids.filter((id) => !artsRef.current[id]);
+        const missing = ids;
 
-        const fetched = await Promise.all(missing.map((id) => getArtById(id)));
+        const fetched = await Promise.all(missing.map((id) => getArtById(id, lang)));
 
         if (fetched.length > 0) {
             setArts((prev) => {
@@ -133,7 +129,7 @@ const PurchaseHistory = ({ lang = "ru" }: PurchaseHistoryProps) => {
 
         setLoading(false);
 
-    }, [tab, t]);
+    }, [tab, t, lang]);
 
     useEffect(() => {
         load();

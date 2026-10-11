@@ -1,179 +1,140 @@
-# Деплой Art Gallery
+# Запуск Art Gallery на домашнем Windows-ПК
 
-Схема одинакова для Windows-ПК и для ВМ: наружу смотрит **только порт 80** (reverse proxy),
-он отдаёт собранный фронт и проксирует `/api/*` на Nest (`127.0.0.1:5000`), снимая префикс `/api`.
-Фронт и API на одном origin → CORS не нужен, cookie с токенами работают.
+Сайт запускается в production: Caddy отдаёт собранный фронт и проксирует `/api/*` на Nest. API слушает `127.0.0.1:5000`, PostgreSQL остаётся локальным. В интернет открываются только TCP 80 и 443.
 
-```
-Интернет → роутер (проброс 80 → ПК:80) → Caddy/nginx :80 ─┬─ /api/*  → Nest :5000 → PostgreSQL :5432
-                                                          └─ /*      → frontend/dist (SPA)
-```
+Бесплатный локальный перевод текстов RU/EN/ZH настраивается по [инструкции перевода](../TRANSLATION.md). Ollama запускается отдельно в Docker; его порт в интернет не открывается.
 
-Файлы в этой папке:
+Telegram-бот для администраторов и модераторов, создание через BotFather и бесплатный прокси описаны в [TELEGRAM.md](../TELEGRAM.md). Перед включением бота выполни `telegram:migrate` с `NODE_ENV=production`; используй один экземпляр API с одним токеном.
 
-| Файл | Назначение |
-|------|-----------|
-| `Caddyfile` | reverse proxy + SPA для Windows/Linux без Docker (рекомендуется: один exe) |
-| `nginx.conf` | то же самое на nginx для Windows, если Caddy не подходит |
-| `ecosystem.config.cjs` | PM2: запуск/автоперезапуск Nest-сервера |
-| `docker-compose.yml` + `.env.example` | вариант для ВМ: Postgres + API + nginx в контейнерах |
-| `windows/firewall.ps1` | открыть 80 порт в брандмауэре |
-| `windows/update.ps1` | обновление: `git pull` → сборка → `pm2 restart` |
+## 1. Проверить внешний IP
 
----
+Открой настройки роутера и найди **WAN IPv4 / Internet IP**. Сравни его с внешним IPv4, который показывает сайт проверки IP.
 
-## Вариант A — Windows-ПК (без Docker)
+Если WAN находится в диапазонах `10.*`, `192.168.*`, `172.16.*–172.31.*`, `100.64.*–100.127.*` или отличается от внешнего адреса, прямой проброс может не работать: это NAT провайдера или ещё один роутер. Уточни у провайдера: «Нужен публичный белый IPv4 с входящими TCP 80 и 443 для своего сайта». При двух домашних роутерах нужен проброс на обоих или режим моста.
 
-### 1. Установить
+Динамический **белый** IP тоже подходит, но для постоянного адреса нужен DDNS. DDNS не устраняет NAT провайдера. [Разница публичного и частного IP](https://help.keenetic.com/hc/en-us/articles/213965789-What-is-the-difference-between-a-public-and-private-IP-address-).
 
-- **Node.js 22 LTS** — https://nodejs.org
-- **PostgreSQL 16** — https://www.postgresql.org/download/windows/ (запомнить пароль `postgres`)
-- **Caddy** — https://caddyserver.com/download (один `caddy.exe`, положить например в `C:\gallery\caddy\`)
-- **PM2**: `npm i -g pm2 pm2-windows-startup`
-- **Git**
+## 2. Установить инструменты
 
-### 2. Клонировать
+На этом ПК Node.js, PostgreSQL, PM2 и Caddy уже подготовлены. Шаги установки ниже нужны для другого ПК. На другом ПК также создай БД `gallery` или восстанови её резервную копию.
+
+Поставь PM2:
 
 ```powershell
-mkdir C:\gallery; cd C:\gallery
-git clone https://github.com/Saven0k/ArtGallary
+npm install -g pm2
 ```
 
-Пути `C:\gallery\ArtGallary\...` используются в `Caddyfile` / `nginx.conf` — если каталог другой, поправьте там `root`.
+Скачай Windows x64 архив Caddy с [официальной страницы](https://caddyserver.com/docs/install), распакуй `caddy.exe` в `deploy/bin/caddy.exe`. Можно вместо этого добавить Caddy в PATH.
 
-### 3. База данных
+Команды ниже выполняются из корня проекта в PowerShell. Если Windows блокирует локальные скрипты, запускай их через `powershell.exe -NoProfile -ExecutionPolicy Bypass -File <путь>`.
 
-В pgAdmin или psql:
-
-```sql
-CREATE DATABASE gallery;
-```
-
-Таблицы создаёт сам сервер при первом старте (`DB_SYNC=alter`).
-
-### 4. Сервер
+## 3. Подготовить и собрать
 
 ```powershell
-cd C:\gallery\ArtGallary\server
-copy .env.example .production.env
-notepad .production.env
-```
-
-Обязательно заполнить:
-
-| Переменная | Значение для http://<статический-ip> |
-|-----------|------|
-| `POSTGRES_PASSWORD` | пароль postgres |
-| `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | два разных случайных (см. комментарий в файле) |
-| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | учётка администратора |
-| `BASE_URL` | `http://<статический-ip>/api` — **внешний** адрес, он попадает в URL картинок |
-| `STATIC_DIR` | `C:/gallery/uploads` (вне исходников) |
-| `TRUST_PROXY` | `true` |
-| `COOKIE_SECURE` | `false` — пока нет HTTPS, иначе логин не будет работать |
-| `SWAGGER_ENABLED` | `false` |
-| `SMTP_*` | если нужны письма с кодами |
-
-Затем:
-
-```powershell
-npm install
+Set-Location server
+npm ci
 npm run build
-pm2 start ..\deploy\ecosystem.config.cjs
+Set-Location ../frontend
+npm ci
+npm run build
+Set-Location ..
+node deploy/windows/prepare.cjs
+```
+
+Подготовка создаёт приватный `server/.production.env`, переносит настройки локальной БД и SMTP, создаёт отдельные JWT-секреты, сохраняет существующие VAPID-ключи или генерирует новые. Файлы из текущего STATIC_DIR копируются в `data/uploads`; оригиналы сохраняются, существующие файлы назначения не перезаписываются.
+
+Повторный запуск подготовки сохраняет production-настройки и загрузки. `data/`, `deploy/bin/` и env-файлы исключены из Git.
+
+Открой `server/.production.env` и проверь:
+
+- `POSTGRES_*` — подключение к существующей локальной БД.
+- `ADMIN_EMAIL`, `ADMIN_PASSWORD` — используются для создания администратора, если такого email ещё нет. Пароль существующего аккаунта не меняется.
+- `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `VAPID_SUBJECT` — свои данные для уведомлений. В production файл `dev.env` не загружается.
+- `FRONTEND_URL='http://localhost'` — пока оставь для локальной проверки.
+- `DB_SYNC='false'`, `BASE_URL='/api'`, `STATIC_DIR='../data/uploads'` — оставь такими.
+
+У текущей БД необходимые изменения уже применены. Для перенесённой старой БД после резервного копирования примени файлы из `deploy/sql/` по порядку. Для совершенно новой пустой БД один раз поставь `DB_SYNC='create'`, запусти сервер, дождись создания таблиц и сразу верни `DB_SYNC='false'`. `alter` при каждом запуске не нужен.
+
+Старые локальные ссылки на загруженные картинки исправляются при выдаче API; переписывать БД для смены адреса не требуется.
+
+## 4. Проверить дома
+
+Останови ранее запущенный dev-сервер на порту 5000. PostgreSQL должен работать.
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File deploy/windows/start.ps1
+pm2 status
+curl.exe http://localhost/api/health
+```
+
+Открой [сайт на этом ПК](http://localhost). `start.ps1` запускает API и Caddy, сохраняет процессы в PM2. PM2 перезапускает их при аварийном завершении. Логи: `pm2 logs gallery-api`, `pm2 logs gallery-web`, файлы `server/logs/`.
+
+Если PM2 сообщает `connect EPERM \\.\pipe\rpc.sock`, не запускай несколько демонов от разных пользователей или с разными правами. Управляй им из того же пользователя и с тем же уровнем прав, с которыми он был запущен. Для проверки сайта без PM2 выполни `powershell.exe -NoProfile -ExecutionPolicy Bypass -File deploy/windows/start.ps1 -Foreground`: окно нужно оставить открытым, остановка — Ctrl+C, автоматического перезапуска в этом режиме нет. Логи API — `server/logs/foreground-*.log`. [Известное ограничение PM2 на Windows](https://github.com/Unitech/pm2/issues/5510).
+
+Для доступа с телефона в домашней Wi-Fi сети открой `http://<локальный-IP-ПК>`. Если соединение блокируется, выполни из PowerShell **от администратора**:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File deploy/windows/firewall.ps1
+```
+
+Скрипт открывает только TCP 80 и 443; повторный запуск не создаёт дубликаты правил.
+
+## 5. Подключить интернет и HTTPS
+
+Закрепи за ПК постоянный локальный адрес в DHCP роутера, например `192.168.1.50`. Добавь проброс:
+
+| Внешний порт | Протокол | IP назначения | Порт назначения |
+| --- | --- | --- | --- |
+| 80 | TCP | локальный IP ПК | 80 |
+| 443 | TCP | локальный IP ПК | 443 |
+
+Порты 5000, 5173 и 5432 на роутере не открывай. DMZ и UPnP для этого не нужны.
+
+Заведи домен или DDNS-имя. DNS A-запись должна указывать на белый внешний IPv4. AAAA добавляй только при настроенном доступном IPv6.
+
+В `server/.production.env` замени:
+
+```dotenv
+FRONTEND_URL='https://твой-домен'
+CORS_ORIGINS='https://твой-домен'
+COOKIE_SECURE='true'
+```
+
+Затем повтори `start.ps1`. Caddy возьмёт домен из FRONTEND_URL и автоматически получит и продлит HTTPS-сертификат. Secure-cookie переключается по протоколу FRONTEND_URL. Для выпуска сертификата домен должен вести на ПК, а входящие 80/443 быть доступны. [Официальная инструкция Caddy](https://caddyserver.com/docs/quick-starts/https).
+
+После этого проверяй сайт **с мобильного интернета**, отключив Wi-Fi: домашний роутер может не поддерживать обращение к своему внешнему адресу из LAN. Проверь вход, картинки и уведомления. Браузерные push работают на localhost и через HTTPS. HTTP по IP оставь для диагностики; для постоянного доступа к аккаунтам используй HTTPS.
+
+При белом IP без домена можно временно поставить `FRONTEND_URL='http://<внешний-IP>'`, `CORS_ORIGINS` с тем же адресом и `COOKIE_SECURE='false'`, затем повторить запуск.
+
+## 6. Автозапуск, обновления, резервная копия
+
+Отключи сон и гибернацию ПК, оставь питание и интернет. В службах Windows у PostgreSQL должен быть автоматический запуск.
+
+В «Планировщике заданий» создай задачу от **того же Windows-пользователя**, который запускал PM2: триггер «При входе в систему», программа `powershell.exe`, аргументы:
+
+```text
+-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "C:\Users\Savenok\Projects\GallaryTema\deploy\windows\start.ps1"
+```
+
+Это автозапуск **после входа пользователя**, не до него. Для круглосуточной работы после перезагрузки без входа потребуется отдельная настройка Windows-служб. [Варианты службы Caddy](https://caddyserver.com/docs/running).
+
+Обновление кода и сборок:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File deploy/windows/update.ps1
 pm2 save
-pm2-startup install        # автозапуск pm2 при входе в Windows
-pm2 logs gallery-api       # убедиться, что "Server started on port 5000" и "Администратор создан"
 ```
 
-Проверка: `curl http://localhost:5000/health`
+Если обновление содержит SQL, предварительно сделай резервную копию и применяй изменения схемы по инструкции обновления. Скрипт останавливается при ошибке; старые процессы продолжают работать до успешной сборки.
 
-Справочник стран/городов (один раз, ~10 минут, качает данные geonames):
+Перед обновлениями сохраняй БД и папку `data/uploads` на другой диск. Пример для установленного на этом ПК PostgreSQL 17:
 
 ```powershell
-npm run seed:geonames:prod
+New-Item -ItemType Directory -Force data/backups
+& "C:\Program Files\PostgreSQL\17\bin\pg_dump.exe" -h localhost -U postgres -d gallery -Fc -f data/backups/gallery.dump
+Copy-Item -LiteralPath data/uploads -Destination data/backups/uploads -Recurse
 ```
 
-### 5. Фронт
+Пользователь/имя БД должны соответствовать production-настройкам. Пароль вводится в запросе pg_dump. Храни также приватный `.production.env` и VAPID-ключи. Повторную копию загрузок делай в новую датированную папку.
 
-```powershell
-cd C:\gallery\ArtGallary\frontend
-npm install
-npm run build
-```
-
-Сборка берёт `VITE_API_URL=/api` из `frontend/.env.production`. Результат — `frontend/dist`.
-
-### 6. Reverse proxy (Caddy)
-
-```powershell
-cd C:\gallery\ArtGallary\deploy
-C:\gallery\caddy\caddy.exe run --config Caddyfile
-```
-
-Проверка в браузере: `http://localhost/` и `http://localhost/api/health`.
-
-Чтобы Caddy стартовал как служба — через [NSSM](https://nssm.cc/) или [WinSW](https://github.com/winsw/winsw):
-
-```powershell
-nssm install gallery-caddy C:\gallery\caddy\caddy.exe run --config C:\gallery\ArtGallary\deploy\Caddyfile
-nssm start gallery-caddy
-```
-
-### 7. Сеть
-
-- `deploy\windows\firewall.ps1` от администратора — открывает входящий TCP 80.
-- На роутере: проброс внешнего порта 80 → `<ip ПК в LAN>:80`. Порты 5000 и 5432 **не** пробрасывать.
-- Отключить спящий режим ПК (Параметры → Система → Питание).
-
-Проверка снаружи: `http://<статический-ip>/` и `http://<статический-ip>/api/health`.
-
-### 8. Обновление
-
-```powershell
-powershell -ExecutionPolicy Bypass -File C:\gallery\ArtGallary\deploy\windows\update.ps1
-```
-
-### Когда появится домен и HTTPS
-
-1. DNS A-запись домена → статический IP, проброс 443 на роутере, открыть 443 в брандмауэре.
-2. В `Caddyfile` заменить `:80` на `gallery.example.com` — Caddy сам получит сертификат.
-3. В `server/.production.env`: `COOKIE_SECURE=true`, `BASE_URL=https://gallery.example.com/api`, затем `pm2 restart gallery-api --update-env`.
-
----
-
-## Вариант B — ВМ с Docker
-
-```bash
-git clone https://github.com/Saven0k/ArtGallary && cd ArtGallary
-cp server/.env.example server/.production.env    # заполнить: секреты, ADMIN_*, BASE_URL=http://<ip-вм>/api, COOKIE_SECURE=false
-cp deploy/.env.example deploy/.env               # POSTGRES_PASSWORD такой же, как в .production.env
-docker compose -f deploy/docker-compose.yml up -d --build
-docker compose -f deploy/docker-compose.yml logs -f server
-```
-
-`POSTGRES_HOST`, `STATIC_DIR`, `TRUST_PROXY` для контейнера compose задаёт сам. Загрузки и БД лежат в volumes `uploads`, `pgdata`.
-
-Сидер geonames (образ сервера без dev-зависимостей, поэтому запускается с хоста, где есть Node):
-
-```bash
-cd server && npm ci && POSTGRES_HOST=127.0.0.1 NODE_ENV=production npm run seed:geonames:prod
-```
-
-Обновление: `git pull && docker compose -f deploy/docker-compose.yml up -d --build`.
-
----
-
-## Частые проблемы
-
-| Симптом | Причина |
-|--------|---------|
-| Логин «проходит», но пользователь не залогинен | `COOKIE_SECURE=true` при работе по http. Поставить `false`. |
-| Картинки не открываются / ссылки на `localhost:5000` | `BASE_URL` не внешний. Старые записи в БД хранят абсолютный URL — после смены `BASE_URL` их надо перезалить или обновить в БД (`UPDATE arts SET image_path = replace(image_path, 'http://localhost:5000', 'http://<ip>/api');` и аналогично `author_profiles.avatar_path`, `events.image`). |
-| 502 на `/api/*` | Nest не запущен: `pm2 logs gallery-api`. |
-| `ADMIN_PASSWORD must be set` | Не найден `.production.env` или pm2 запущен не из `server/` (cwd задаёт `ecosystem.config.cjs`). |
-| Сервер стартует, но «Таблица стран пуста» | Запустить `npm run seed:geonames:prod`. |
-
-## Оплата подписок через ЮKassa
-
-В `server/.production.env` задайте `YOOKASSA_SHOP_ID`, `YOOKASSA_SECRET_KEY` и `YOOKASSA_RETURN_URL=https://ваш-домен/profile?section=tariff`. Секретный ключ используется только сервером. Платёж подтверждается после проверки статуса, суммы, валюты и принадлежности через API провайдера. Без настроек оплата вернёт понятную ошибку; подписки не активируются автоматически.
-
-Используйте тестовый магазин ЮKassa для проверки интеграции. Документация: [сценарий оплаты](https://yookassa.ru/developers/payment-acceptance/getting-started/payment-process), [аутентификация и идемпотентность](https://yookassa.ru/developers/using-api/interaction-format).
+Остановка: `pm2 stop gallery-api gallery-web`. Дополнительная настройка уведомлений: [NOTIFICATIONS.md](NOTIFICATIONS.md). Docker-вариант сохранён в `deploy/docker-compose.yml`; перед запуском подготовь production env и `deploy/.env` по образцу, затем `docker compose --env-file deploy/.env -f deploy/docker-compose.yml up -d --build`.

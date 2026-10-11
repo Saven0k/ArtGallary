@@ -21,22 +21,24 @@ const AuthorList = ({ filter = null }: AuthorListProps) => {
     const authorsPerPage = 4;
 
     useEffect(() => {
+        let active = true;
         const getAuthorList = async () => {
             setLoading(true);
             try {
                 const data = await getModeratedAuthors(1, 100);
-                if (data) {
+                if (data && active) {
                     setAllAuthors(data.data || []);
                 }
             } catch (error) {
                 console.error("getAuthorList error:", error);
             } finally {
-                setLoading(false);
+                if (active) setLoading(false);
             }
         };
 
         getAuthorList();
-    }, []);
+        return () => { active = false; };
+    }, [language]);
 
     useEffect(() => {
         if (!filter || filter === null) {

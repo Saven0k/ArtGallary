@@ -391,7 +391,7 @@ const ArtsSection = () => {
                                 <div>
                                     <dt>{t.viewModal.country}</dt>
                                     <dd>
-                                        {viewArt.country?.name_ru ??
+                                        {viewArt.country?.name ?? viewArt.country?.name_ru ??
                                             viewArt.country?.name_en ??
                                             t.viewModal.notSpecified}
                                     </dd>
@@ -399,7 +399,7 @@ const ArtsSection = () => {
                                 <div>
                                     <dt>{t.viewModal.city}</dt>
                                     <dd>
-                                        {viewArt.city?.name_ru ??
+                                        {viewArt.city?.name ?? viewArt.city?.name_ru ??
                                             viewArt.city?.name_en ??
                                             t.viewModal.notSpecified}
                                     </dd>

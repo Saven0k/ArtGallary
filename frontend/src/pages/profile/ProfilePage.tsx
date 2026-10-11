@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { ProfileSection } from "../../components/shared/ProfileScreen/ProfileSidebar/ProfileSidebar";
 import Settings from "../../components/shared/ProfileScreen/SettingsSection/SettingsSection";
@@ -47,6 +47,7 @@ const ProfilePage = () => {
 
     const [profile, setProfile] = useState<AuthorProfileResponse | User | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const loadedUser = useRef<number | null>(null);
 
     const isAuthor = authUser?.role === "author";
 
@@ -76,28 +77,30 @@ const ProfilePage = () => {
 
 
     useEffect(() => {
+        let active = true;
         const getProfile = async () => {
             if (!authUser?.id) {
                 setLoading(false);
                 return;
             }
-            setLoading(true);
+            setLoading(loadedUser.current !== authUser.id);
             try {
                 if (authUser.role === "author") {
                     const data = await getMyAuthorProfile();
-                    setProfile(data);
+                    if (active) { setProfile(data); if (data) loadedUser.current = authUser.id; }
                 } else {
                     const data = await getUserById(authUser.id);
-                    setProfile(data);
+                    if (active) { setProfile(data); if (data) loadedUser.current = authUser.id; }
                 }
             } catch (error) {
                 console.error("Error fetching profile:", error);
             } finally {
-                setLoading(false);
+                if (active) setLoading(false);
             }
         };
         getProfile();
-    }, [authUser]);
+        return () => { active = false; };
+    }, [authUser, language]);
 
 
     const handleSectionChange = (section: ProfileSection) => {

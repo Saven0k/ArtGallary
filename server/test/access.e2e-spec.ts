@@ -18,6 +18,8 @@ import { EventsController } from '../src/events/events.controller';
 import { EventsService } from '../src/events/events.service';
 import { NotificationController } from '../src/notifications/notification.controller';
 import { NotificationService } from '../src/notifications/notification.service';
+import { TelegramController } from '../src/telegram/telegram.controller';
+import { TelegramService } from '../src/telegram/telegram.service';
 
 describe('HTTP access and validation', () => {
   let app: INestApplication;
@@ -27,6 +29,13 @@ describe('HTTP access and validation', () => {
     userId,
     ...body,
   }));
+  const telegram = {
+    status: jest.fn(() => ({ configured: true, linked: false })),
+    createLink: jest.fn(() => ({
+      url: 'https://t.me/GalleryTestBot?start=test',
+    })),
+    unlink: jest.fn(() => ({ linked: false })),
+  };
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -35,6 +44,7 @@ describe('HTTP access and validation', () => {
         SiteController,
         EventsController,
         NotificationController,
+        TelegramController,
       ],
       providers: [
         { provide: ProfessionsService, useValue: { create, getAll: () => [] } },
@@ -42,6 +52,7 @@ describe('HTTP access and validation', () => {
         { provide: SiteRatingService, useValue: { rate } },
         { provide: EventsService, useValue: { create } },
         { provide: NotificationService, useValue: { updateSettings } },
+        { provide: TelegramService, useValue: telegram },
         RolesGuard,
       ],
     })
@@ -69,6 +80,43 @@ describe('HTTP access and validation', () => {
     await request(app.getHttpServer() as Server)
       .get('/professions')
       .expect(200);
+  });
+
+  it('protects every Telegram endpoint from anonymous and ordinary accounts', async () => {
+    for (const role of [undefined, 'user', 'author']) {
+      for (const [method, path] of [
+        ['get', '/telegram/status'],
+        ['post', '/telegram/link'],
+        ['delete', '/telegram/link'],
+      ] as const) {
+        const call = request(app.getHttpServer() as Server)[method](path);
+        if (role) call.set('x-test-role', role);
+        await call.expect(role ? 403 : 401);
+      }
+    }
+    expect(telegram.status).not.toHaveBeenCalled();
+    expect(telegram.createLink).not.toHaveBeenCalled();
+    expect(telegram.unlink).not.toHaveBeenCalled();
+  });
+
+  it('links and unlinks only the authenticated staff account', async () => {
+    for (const role of ['admin', 'moderator']) {
+      await request(app.getHttpServer() as Server)
+        .get('/telegram/status')
+        .set('x-test-role', role)
+        .expect(200);
+      await request(app.getHttpServer() as Server)
+        .post('/telegram/link')
+        .set('x-test-role', role)
+        .send({ userId: 99 })
+        .expect(201);
+      await request(app.getHttpServer() as Server)
+        .delete('/telegram/link')
+        .set('x-test-role', role)
+        .expect(200);
+    }
+    for (const method of Object.values(telegram))
+      expect(method).toHaveBeenCalledWith(7);
   });
 
   it('requires authentication for notification preferences', async () => {

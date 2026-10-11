@@ -1,5 +1,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
+import { getOriginal } from '../../../../../api/request';
 import { Plus, Pencil, Trash2, Sparkles, BookOpen } from 'lucide-react';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { adminTranslations } from '../../../../../pages/admin/lang';
@@ -171,7 +172,10 @@ const GenresSection = () => {
                         type="button"
                         className="genres-section__action genres-section__action--edit"
                         title={t.actions.edit}
-                        onClick={() => setEditTarget(g)}
+                        onClick={async () => {
+                            const original = await getOriginal<Genre>('genres', g.id);
+                            if (original) setEditTarget(original); else setError(t.errors.loadFailed);
+                        }}
                     >
                         <Pencil size={16} />
                     </button>

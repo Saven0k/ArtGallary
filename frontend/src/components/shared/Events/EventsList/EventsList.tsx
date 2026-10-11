@@ -37,7 +37,7 @@ const EventsList = () => {
         return () => {
             alive = false;
         };
-    }, [page]);
+    }, [page, language]);
 
     if (loading) {
         return <div className="events-list__state">{t.loading}</div>;

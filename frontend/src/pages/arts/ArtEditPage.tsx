@@ -14,7 +14,7 @@ const ArtEditPage = () => {
     useEffect(() => {
         if (!id) return;
         let active = true;
-        getArtById(Number(id)).then((result) => { if (active) { setArt(result); setLoading(false); } });
+        getArtById(Number(id), 'ru', true).then((result) => { if (active) { setArt(result); setLoading(false); } });
         return () => { active = false; };
     }, [id]);
     if (loading) return <main className="page">…</main>;

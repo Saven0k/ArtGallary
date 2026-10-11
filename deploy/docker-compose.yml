@@ -32,16 +32,25 @@ services:
     environment:
       NODE_ENV: production
       PORT: "5000"
+      HTTP_HOST: "0.0.0.0"
       POSTGRES_HOST: db                 # перекрывает значение из .production.env
       POSTGRES_PORT: "5432"
       STATIC_DIR: /data/uploads
       TRUST_PROXY: "true"
+      TRANSLATION_URL: http://translator:11434
     volumes:
       - uploads:/data/uploads
       - server-logs:/app/logs
     depends_on:
       db:
         condition: service_healthy
+      translator:
+        condition: service_started
+
+  translator:
+    extends:
+      file: translation.compose.yml
+      service: translator
 
   web:
     build: ../frontend
@@ -55,3 +64,4 @@ volumes:
   pgdata:
   uploads:
   server-logs:
+  translation-models:

@@ -83,17 +83,20 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [cropSrc, setCropSrc] = useState<string | null>(null);
     const [avatarError, setAvatarError] = useState<string | null>(null);
+    const loadedProfile = useRef('');
 
     useEffect(() => {
+        let active = true;
         const fetchProfile = async () => {
-            if (!id) return;
+            if (!id || loadedProfile.current === `${id}:${role}`) return;
             setLoading(true);
             setError(null);
 
             try {
                 if (isAuthor) {
-                    const author = await getMyAuthorProfile();
-                    if (author) {
+                    const author = await getMyAuthorProfile(true);
+                    if (active && author) {
+                        loadedProfile.current = `${id}:${role}`;
                         setFormData({
                             name: author.name || "",
                             surname: author.surname || "",
@@ -110,8 +113,9 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                         setAvatarPreview(author.authorProfile?.avatar_path || null);
                     }
                 } else {
-                    const user = await getUserById(id);
-                    if (user) {
+                    const user = await getUserById(id, true);
+                    if (active && user) {
+                        loadedProfile.current = `${id}:${role}`;
                         setFormData({
                             name: user.name || "",
                             surname: user.surname || "",
@@ -129,13 +133,14 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                 }
             } catch (e) {
                 console.error("Error loading profile:", e);
-                setError(t.common.errorLoading);
+                if (active) setError(t.common.errorLoading);
             } finally {
-                setLoading(false);
+                if (active) setLoading(false);
             }
         };
 
         fetchProfile();
+        return () => { active = false; };
     }, [id, role, language, isAuthor, t.common.errorLoading]);
 
     useEffect(() => {
@@ -167,7 +172,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
             }
         };
         fetchProfessions();
-    }, [isAuthor]);
+    }, [isAuthor, language]);
 
     useEffect(() => {
         const fetchCities = async () => {

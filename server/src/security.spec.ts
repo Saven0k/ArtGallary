@@ -29,9 +29,61 @@ import { ArtsController } from './arts/arts.controller';
 import { ArtsService } from './arts/arts.service';
 import { SubscriptionService } from './subscriptions/subscriptions.service';
 import { FilesService, MAX_FILE_SIZE } from './files/files.service';
+import {
+  publicImageUrl,
+  staticFileUrl,
+} from './shared/helpers/static-dir.helper';
+import { moderationRevision } from './shared/helpers/moderation-revision';
 
 const user = { id: 7, email: 'author@example.com', role: Role.Author };
 const logger = { log: jest.fn(), error: jest.fn() };
+
+test('Telegram decisions compare the reviewed content under a row lock before writing', async () => {
+  const original = {
+    moderate: '{"moderate":false}',
+    biography: 'Оригинал',
+    title: 'Оригинал',
+  };
+  for (const kind of ['author', 'art'] as const) {
+    const transaction = {
+      LOCK: { UPDATE: 'UPDATE' },
+      commit: jest.fn(),
+      rollback: jest.fn(),
+    };
+    const repository = {
+      findOne: jest
+        .fn()
+        .mockResolvedValue({ ...original, biography: 'Изменено' }),
+      findByPk: jest.fn().mockResolvedValue({ ...original, title: 'Изменено' }),
+      update: jest.fn(),
+    };
+    const service = serviceWith(
+      kind === 'author' ? AuthorsService.prototype : ArtsService.prototype,
+      {
+        logger,
+        sequelize: { transaction: () => Promise.resolve(transaction) },
+        authorProfileModel: repository,
+        artRepository: repository,
+      },
+    );
+    const dto = { moderate: true, moderator_id: 7 };
+    const revision = moderationRevision(kind, original);
+    const decision =
+      kind === 'author'
+        ? (service as AuthorsService).moderateAuthor(dto, 9, revision)
+        : (service as ArtsService).moderateArt(dto, 9, revision);
+    await expect(decision).rejects.toMatchObject({ status: 409 });
+    const options: unknown = expect.objectContaining({
+      lock: 'UPDATE',
+      transaction,
+    });
+    if (kind === 'author')
+      expect(repository.findOne).toHaveBeenCalledWith(options);
+    else expect(repository.findByPk).toHaveBeenCalledWith(9, options);
+    expect(repository.update).not.toHaveBeenCalled();
+    expect(transaction.rollback).toHaveBeenCalled();
+  }
+});
 
 test('followers are notified only when moderation publishes an available work', async () => {
   for (const [previous, approved, status, count] of [
@@ -81,6 +133,42 @@ function serviceWith<T extends object>(prototype: T, dependencies: object): T {
 }
 
 afterEach(() => jest.restoreAllMocks());
+
+test('JSON responses make local uploaded images portable without changing external images or text', () => {
+  const previous = process.env.BASE_URL;
+  process.env.BASE_URL = '/api/';
+  const name = '11111111-1111-4111-8111-111111111111.png';
+  const local = `http://localhost:5000/static/${name}`;
+  try {
+    const data = JSON.parse(
+      JSON.stringify(
+        {
+          avatar_path: local,
+          items: [{ imagePath: local }],
+          image: `/static/${name}`,
+          image_path: `https://cdn.example.test/static/${name}`,
+          message: local,
+        },
+        publicImageUrl,
+      ),
+    ) as Record<string, unknown>;
+    expect(data.avatar_path).toBe(`/api/static/${name}`);
+    expect(data.items).toEqual([{ imagePath: `/api/static/${name}` }]);
+    expect(data.image).toBe(`/api/static/${name}`);
+    expect(data.image_path).toBe(`https://cdn.example.test/static/${name}`);
+    expect(data.message).toBe(local);
+    expect(publicImageUrl('image_path', '/static/../../secret.png')).toBe(
+      '/static/../../secret.png',
+    );
+    expect(publicImageUrl('image_path', null)).toBeNull();
+    expect(staticFileUrl(name)).toBe(`/api/static/${name}`);
+    delete process.env.BASE_URL;
+    expect(publicImageUrl('avatar_path', `/api/static/${name}`)).toBe(local);
+  } finally {
+    if (previous === undefined) delete process.env.BASE_URL;
+    else process.env.BASE_URL = previous;
+  }
+});
 
 test('registration validates and keeps optional country and city identifiers', async () => {
   const pipe = new ValidationPipe();

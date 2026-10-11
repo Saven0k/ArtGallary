@@ -18,42 +18,42 @@ export class LocationController {
   @ApiQuery({
     name: 'lang',
     required: false,
-    enum: ['ru', 'en'],
+    enum: ['ru', 'en', 'zh'],
     example: 'ru',
   })
   @Get('countries/search')
   async searchCountries(
     @Query('q') query: string,
-    @Query('lang') lang: 'ru' | 'en' = 'ru',
+    @Query('lang') lang: 'ru' | 'en' | 'zh' = 'ru',
   ) {
     return this.locationService.searchCountries(query, lang);
   }
 
   @ApiOperation({ summary: 'Все страны (для полного выпадающего списка)' })
-  @ApiQuery({ name: 'lang', required: false, enum: ['ru', 'en'] })
+  @ApiQuery({ name: 'lang', required: false, enum: ['ru', 'en', 'zh'] })
   @Get('countries')
-  async getAllCountries(@Query('lang') lang: 'ru' | 'en' = 'ru') {
+  async getAllCountries(@Query('lang') lang: 'ru' | 'en' | 'zh' = 'ru') {
     return this.locationService.getAllCountries(lang);
   }
 
   @ApiOperation({ summary: 'Получить страну по ISO2 коду (RU, US, DE...)' })
   @ApiParam({ name: 'code', example: 'RU', description: 'ISO2 код страны' })
-  @ApiQuery({ name: 'lang', required: false, enum: ['ru', 'en'] })
+  @ApiQuery({ name: 'lang', required: false, enum: ['ru', 'en', 'zh'] })
   @Get('countries/by-code/:code')
   async getCountryByCode(
     @Param('code') code: string,
-    @Query('lang') lang: 'ru' | 'en' = 'ru',
+    @Query('lang') lang: 'ru' | 'en' | 'zh' = 'ru',
   ) {
     return this.locationService.getCountryByCode(code, lang);
   }
 
   @ApiOperation({ summary: 'Получить страну по внутреннему ID' })
   @ApiParam({ name: 'id', example: 1 })
-  @ApiQuery({ name: 'lang', required: false, enum: ['ru', 'en'] })
+  @ApiQuery({ name: 'lang', required: false, enum: ['ru', 'en', 'zh'] })
   @Get('countries/:id')
   async getCountryById(
     @Param('id', ParseIntPipe) id: number,
-    @Query('lang') lang: 'ru' | 'en' = 'ru',
+    @Query('lang') lang: 'ru' | 'en' | 'zh' = 'ru',
   ) {
     return this.locationService.getCountryById(id, lang);
   }
@@ -65,30 +65,30 @@ export class LocationController {
     required: false,
     description: 'ISO2 код страны для фильтрации',
   })
-  @ApiQuery({ name: 'lang', required: false, enum: ['ru', 'en'] })
+  @ApiQuery({ name: 'lang', required: false, enum: ['ru', 'en', 'zh'] })
   @Get('cities/search')
   async searchCities(
     @Query('q') query: string,
     @Query('countryCode') countryCode?: string,
-    @Query('lang') lang: 'ru' | 'en' = 'ru',
+    @Query('lang') lang: 'ru' | 'en' | 'zh' = 'ru',
   ) {
     return this.locationService.searchCities(query, countryCode, lang);
   }
 
   @ApiOperation({ summary: 'Получить город по внутреннему ID' })
   @ApiParam({ name: 'id', example: 524901 })
-  @ApiQuery({ name: 'lang', required: false, enum: ['ru', 'en'] })
+  @ApiQuery({ name: 'lang', required: false, enum: ['ru', 'en', 'zh'] })
   @Get('cities/:id')
   async getCityById(
     @Param('id', ParseIntPipe) id: number,
-    @Query('lang') lang: 'ru' | 'en' = 'ru',
+    @Query('lang') lang: 'ru' | 'en' | 'zh' = 'ru',
   ) {
     return this.locationService.getCityById(id, lang);
   }
 
   @ApiOperation({ summary: 'Топ городов страны (по населению)' })
   @ApiParam({ name: 'code', example: 'RU' })
-  @ApiQuery({ name: 'lang', required: false, enum: ['ru', 'en'] })
+  @ApiQuery({ name: 'lang', required: false, enum: ['ru', 'en', 'zh'] })
   @ApiQuery({
     name: 'limit',
     required: false,
@@ -97,7 +97,7 @@ export class LocationController {
   @Get('countries/by-code/:code/cities')
   async getCitiesByCountryCode(
     @Param('code') code: string,
-    @Query('lang') lang: 'ru' | 'en' = 'ru',
+    @Query('lang') lang: 'ru' | 'en' | 'zh' = 'ru',
     @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
   ) {
     return this.locationService.getCitiesByCountryCode(code, lang, limit);

@@ -1,4 +1,4 @@
-import { apiFetch } from '../request';
+import { apiFetch, languageUrl } from '../request';
 
 import { BASE_URL_API } from "../main.api";
 
@@ -39,45 +39,46 @@ async function locationRequest<T>(url: string, fallback: T): Promise<T> {
     }
 }
 
-export const searchCountries = async (query: string, lang: 'ru' | 'en' = 'ru'): Promise<CountrySuggestion[]> => {
+export const searchCountries = async (query: string, lang: 'ru' | 'en' | 'zh' = 'ru'): Promise<CountrySuggestion[]> => {
     if (!query || query.length < 2) return [];
     return locationRequest(`${BASE_URL}/countries/search?q=${encodeURIComponent(query)}&lang=${lang}`, []);
 };
 
-export const getCountryByCode = async (code: string, lang: 'ru' | 'en' = 'ru'): Promise<CountrySuggestion | null> => {
+export const getCountryByCode = async (code: string, lang: 'ru' | 'en' | 'zh' = 'ru'): Promise<CountrySuggestion | null> => {
     if (!code || code.length !== 2) return null;
     return locationRequest(`${BASE_URL}/countries/by-code/${code.toUpperCase()}?lang=${lang}`, null);
 };
 
-export const getCountryById = async (id: number, lang: 'ru' | 'en' = 'ru'): Promise<CountrySuggestion | null> => {
+export const getCountryById = async (id: number, lang: 'ru' | 'en' | 'zh' = 'ru'): Promise<CountrySuggestion | null> => {
     return locationRequest(`${BASE_URL}/countries/${id}?lang=${lang}`, null);
 };
 
-export const getAllCountries = async (lang: 'ru' | 'en' = 'ru'): Promise<CountrySuggestion[]> => {
+export const getAllCountries = async (lang: 'ru' | 'en' | 'zh' = 'ru'): Promise<CountrySuggestion[]> => {
     return locationRequest(`${BASE_URL}/countries?lang=${lang}`, []);
 };
 
-export const searchCities = async (query: string, countryCode?: string, lang: 'ru' | 'en' = 'ru'): Promise<CitySuggestion[]> => {
+export const searchCities = async (query: string, countryCode?: string, lang: 'ru' | 'en' | 'zh' = 'ru'): Promise<CitySuggestion[]> => {
     if (!query || query.length < 2) return [];
     let url = `${BASE_URL}/cities/search?q=${encodeURIComponent(query)}&lang=${lang}`;
     if (countryCode) url += `&countryCode=${countryCode.toUpperCase()}`;
     return locationRequest(url, []);
 };
 
-export const getCityById = async (id: number, lang: 'ru' | 'en' = 'ru'): Promise<CitySuggestion | null> => {
+export const getCityById = async (id: number, lang: 'ru' | 'en' | 'zh' = 'ru'): Promise<CitySuggestion | null> => {
     return locationRequest(`${BASE_URL}/cities/${id}?lang=${lang}`, null);
 };
 
-export const getCitiesByCountryCode = async (code: string, lang: 'ru' | 'en' = 'ru', limit: number = 50): Promise<CitySuggestion[]> => {
+export const getCitiesByCountryCode = async (code: string, lang: 'ru' | 'en' | 'zh' = 'ru', limit: number = 50): Promise<CitySuggestion[]> => {
     return locationRequest(`${BASE_URL}/countries/by-code/${code.toUpperCase()}/cities?lang=${lang}&limit=${limit}`, []);
 };
 
 let _countriesCache: CountrySuggestion[] | null = null;
 let _countriesCacheLang: string | null = null;
 
-export const getAllCountriesCached = async (lang: 'ru' | 'en' = 'ru'): Promise<CountrySuggestion[]> => {
-    if (_countriesCache && _countriesCacheLang === lang) return _countriesCache;
+export const getAllCountriesCached = async (lang: 'ru' | 'en' | 'zh' = 'ru'): Promise<CountrySuggestion[]> => {
+    const cacheKey = languageUrl(`${BASE_URL}/countries?lang=${lang}`);
+    if (_countriesCache && _countriesCacheLang === cacheKey) return _countriesCache;
     _countriesCache = await getAllCountries(lang);
-    _countriesCacheLang = lang;
+    _countriesCacheLang = cacheKey;
     return _countriesCache;
 };

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { STATIC_DIR } from '../shared/helpers/static-dir.helper';
+import { STATIC_DIR, staticFileUrl } from '../shared/helpers/static-dir.helper';
 
 export interface UploadedImage {
   buffer: Buffer;
@@ -64,8 +64,7 @@ export class FilesService {
     await fs.writeFile(path.join(STATIC_DIR, fileName), file.buffer, {
       flag: 'wx',
     });
-    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
-    return `${baseUrl}/static/${fileName}`;
+    return staticFileUrl(fileName);
   }
 
   async removeFile(fileURL: string): Promise<void> {

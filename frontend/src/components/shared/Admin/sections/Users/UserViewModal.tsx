@@ -64,7 +64,7 @@ const UserViewModal = ({ user, onClose }: UserViewModalProps) => {
                     <div>
                         <dt>{t.viewModal.country}</dt>
                         <dd>
-                            {user.country?.name_ru ??
+                            {user.country?.name ?? user.country?.name_ru ??
                                 user.country?.name_en ??
                                 notSpecified}
                         </dd>
@@ -72,7 +72,7 @@ const UserViewModal = ({ user, onClose }: UserViewModalProps) => {
                     <div>
                         <dt>{t.viewModal.city}</dt>
                         <dd>
-                            {user.city?.name_ru ??
+                            {user.city?.name ?? user.city?.name_ru ??
                                 user.city?.name_en ??
                                 notSpecified}
                         </dd>

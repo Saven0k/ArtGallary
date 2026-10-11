@@ -4,11 +4,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const ts = require('typescript');
 
-const load = (file, apiFetch) => {
+const load = (file, apiFetch, requestOverrides = {}) => {
     const source = fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
     const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
     const module = { exports: {} };
-    const requireMock = (name) => name.endsWith('main.api') ? { BASE_URL_API: 'https://gallery.test', contentType: { 'Content-Type': 'application/json' } } : { apiFetch, refreshSession: () => Promise.resolve(null) };
+    const requireMock = (name) => name.endsWith('main.api') ? { BASE_URL_API: 'https://gallery.test', contentType: { 'Content-Type': 'application/json' } } : { apiFetch, apiRequest: apiFetch, refreshSession: () => Promise.resolve(null), ...requestOverrides };
     new Function('require', 'module', 'exports', code)(requireMock, module, module.exports);
     return module.exports;
 };
@@ -21,6 +21,20 @@ test('notification preferences preserve opt-out and expose transport errors', as
     assert.deepEqual(JSON.parse(body), { emailEnabled: false, pushEnabled: false, language: 'zh' });
     const failed = load('api/notification/settings.api.ts', async () => json({}, 429));
     await assert.rejects(failed.sendTestNotification('email'), error => error.status === 429);
+});
+
+test('Telegram binding uses authenticated API methods and handles configuration errors', async () => {
+    const calls = [];
+    const api = load('api/telegram/main.api.ts', async (url, init) => { calls.push({ url, ...init }); return json({ configured: true, linked: false }); });
+    await api.getTelegramStatus();
+    await api.createTelegramLink();
+    await api.unlinkTelegram();
+    assert.deepEqual(calls.map(call => [call.url, call.method]), [
+        ['https://gallery.test/telegram/status', 'GET'],
+        ['https://gallery.test/telegram/link', 'POST'],
+        ['https://gallery.test/telegram/link', 'DELETE'],
+    ]);
+    await assert.rejects(load('api/telegram/main.api.ts', async () => json({}, 503)).createTelegramLink(), /HTTP 503/);
 });
 
 test('author updates preserve explicit empty values and nullable fields', async () => {
@@ -116,4 +130,70 @@ test('failed session refresh preserves the unauthorized response without retry',
         assert.equal((await load('api/request.ts').apiFetch('https://gallery.test/cart')).status, 401);
         assert.deepEqual(calls, ['https://gallery.test/cart', 'https://gallery.test/auth/refresh']);
     } finally { global.fetch = originalFetch; }
+});
+
+test('all API requests use the selected language and preserve original reads, bodies and fragments', async () => {
+    const storage = global.localStorage;
+    const fetch = global.fetch;
+    const calls = [];
+    global.localStorage = { getItem: () => 'zh' };
+    global.fetch = async (url, init) => { calls.push({ url, ...init }); return json({}); };
+    try {
+        const api = load('api/request.ts');
+        assert.equal(api.languageUrl('https://gallery.test/arts?page=2&lang=ru#details'), 'https://gallery.test/arts?page=2&lang=zh#details');
+        assert.equal(api.languageUrl('https://other.test/a?lang=ru'), 'https://other.test/a?lang=ru');
+        await api.apiRequest('https://gallery.test/auth/login', { method: 'POST', body: '{"email":"me@example.test"}' });
+        await api.getOriginal('events', 5);
+        assert.equal(calls[0].url, 'https://gallery.test/auth/login?lang=zh');
+        assert.equal(calls[0].body, '{"email":"me@example.test"}');
+        assert.equal(calls[1].url, 'https://gallery.test/events/5?original=true&lang=zh');
+        assert.equal(calls[1].credentials, 'include');
+    } finally { global.localStorage = storage; global.fetch = fetch; }
+});
+
+test('a cold translation can retry one read but never repeats a write', async () => {
+    const fetch = global.fetch;
+    let count = 0;
+    global.fetch = async () => { count++; return new Response('{}', { headers: { 'X-Translation-Status': count === 1 ? 'pending' : 'complete' } }); };
+    try {
+        const api = load('api/request.ts');
+        assert.equal((await api.apiFetch('https://gallery.test/events')).headers.get('X-Translation-Status'), 'complete');
+        assert.equal(count, 2);
+        count = 0;
+        await api.apiFetch('https://gallery.test/events', { method: 'POST', body: '{}' });
+        assert.equal(count, 1);
+    } finally { global.fetch = fetch; }
+});
+
+test('country cache follows the selected request language after switching', async () => {
+    const storage = global.localStorage;
+    let language = 'en';
+    let calls = 0;
+    global.localStorage = { getItem: () => language };
+    try {
+        const request = load('api/request.ts');
+        const api = load('api/location/main.api.ts', async (url) => {
+            calls++;
+            return json([{ id: 1, name: new URL(request.languageUrl(url)).searchParams.get('lang') }]);
+        }, { languageUrl: request.languageUrl });
+        assert.equal((await api.getAllCountriesCached('en'))[0].name, 'en');
+        await api.getAllCountriesCached('en');
+        language = 'zh';
+        assert.equal((await api.getAllCountriesCached('en'))[0].name, 'zh');
+        assert.equal(calls, 2);
+    } finally { global.localStorage = storage; }
+});
+
+test('a failed translation retry preserves the successful original response', async () => {
+    const fetch = global.fetch;
+    let calls = 0;
+    global.fetch = async () => {
+        if (++calls > 1) throw new TypeError('Connection lost');
+        return new Response('{"title":"Пейзаж"}', { headers: { 'X-Translation-Status': 'pending' } });
+    };
+    try {
+        const response = await load('api/request.ts').apiFetch('https://gallery.test/events');
+        assert.deepEqual(await response.json(), { title: 'Пейзаж' });
+        assert.equal(calls, 2);
+    } finally { global.fetch = fetch; }
 });
