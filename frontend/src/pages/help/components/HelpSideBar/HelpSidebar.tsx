@@ -1,5 +1,5 @@
 
-import "./HelpSidebar.scss";
+import "./HelpSideBar.scss";
 import { translations } from "../../lang";
 import { useLanguage } from "../../../../hooks/useLanguage";
 import { type HelpSection } from "../../HelpPage";
