@@ -364,15 +364,15 @@ async function seed() {
   const altNamesZipPath = path.join(TMP_DIR, 'alternateNames.zip');
 
   await downloadFile(
-    'http://download.geonames.org/export/dump/countryInfo.txt',
+    'https://download.geonames.org/export/dump/countryInfo.txt',
     countryInfoPath,
   );
   await downloadFile(
-    'http://download.geonames.org/export/dump/cities1000.zip',
+    'https://download.geonames.org/export/dump/cities1000.zip',
     citiesZipPath,
   );
   await downloadFile(
-    'http://download.geonames.org/export/dump/alternateNames.zip',
+    'https://download.geonames.org/export/dump/alternateNames.zip',
     altNamesZipPath,
   );
   console.log();
