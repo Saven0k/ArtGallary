@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
+    stop_grace_period: 2m
     environment:
       POSTGRES_USER: gallery
       POSTGRES_DB: gallery
@@ -12,7 +13,8 @@ services:
       test: [CMD-SHELL, pg_isready -U gallery -d gallery]
       interval: 5s
       timeout: 3s
-      retries: 20
+      start_period: 120s
+      retries: 120
     logging:
       driver: journald
       options:
