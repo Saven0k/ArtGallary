@@ -1,61 +1,32 @@
+import { GALLERY_MODELS } from './database/models';
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
-import { User } from './users/users.model';
 import { ArtsModule } from './arts/arts.module';
 import { AuthModule } from './auth/auth.module';
 import { GenresModule } from './genres/genres.module';
-import { Genre } from './genres/genre.model';
-import { Art } from './arts/arts.model';
 import { FilesModule } from './files/files.module';
 import { StylesModule } from './styles/styles.module';
 import { PasswordModule } from './password/password.module';
 
 import { utilities, WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
-import { RefreshToken } from './auth/models/refresh-token.model';
 import { ModeratorsModule } from './moderators/moderators.module';
-import { Moderator } from './moderators/moderator.model';
 import { ArtTypesModule } from './art-types/art-types.module';
-import { Style } from './styles/styles.model';
-import { ArtView } from './arts/art-view.model';
-import { ArtType } from './art-types/art-type.model';
 import { ProfessionsModule } from './professions/professions.module';
 import { LocationModule } from './location/location.module';
-import { Profession } from './professions/profession.model';
 import { TagsModule } from './tags/tags.module';
-import { Tag } from './tags/tag.model';
-import { ArtTag } from './tags/art-tag.model';
-import { City } from './location/models/city.model';
-import { Country } from './location/models/country.model';
 import { SubscriptionModule } from './subscriptions/subscriptions.module';
-import { Subscription } from './subscriptions/subscription.model';
 import { StatsModule } from './stats/stats.module';
-import { ArtLike } from './arts/art-like.model';
-import { SubscriptionHistory } from './subscriptions/subscription-history.model';
-import { AuthorProfile } from './authors/author.model';
-import { AuthorView } from './authors/author-view.model';
 import { AuthorsModule } from './authors/authors.module';
-import { AuthorFollow } from './authors/author-follow.model';
 import { NotificationModule } from './notifications/notifications.module';
-import { Notification } from './notifications/notification.model';
 import { EventsModule } from './events/events.module';
-import { Event } from './events/event.model';
 import { CartModule } from './cart/cart.module';
-import { Cart } from './cart/cart.model';
 import { CartHistoryModule } from './cart-history/cart-history.module';
-import { CartHistory } from './cart-history/cart-history.model';
 import { SiteModule } from './site/site.module';
-import { SiteVisit } from './site/models/site-visit.model';
-import { SiteRating } from './site/models/site-rating.model';
 import { MailModule } from './mail/mail.module';
-import { PasswordResetCode } from './auth/models/password-reset-code.model';
-import { EmailChangeCode } from './auth/models/email-change-code.model';
-import { AccountDeletionCode } from './auth/models/account-deletion-code.model';
 import { HealthController } from './health.controller';
-import { NotificationSettings } from './notifications/notification-settings.model';
-import { BrowserPushSubscription } from './notifications/push-subscription.model';
 import { TranslationModule } from './translation/translation.module';
 import { TelegramModule } from './telegram/telegram.module';
 
@@ -68,6 +39,7 @@ const dbSync =
     WinstonModule.forRoot({
       transports: [
         new winston.transports.Console({
+          stderrLevels: ['error'],
           format: winston.format.combine(
             winston.format.timestamp(),
             winston.format.ms(),
@@ -79,6 +51,9 @@ const dbSync =
         }),
         new winston.transports.File({
           filename: 'logs/app.log',
+          maxsize: 10 * 1024 * 1024,
+          maxFiles: 5,
+          tailable: true,
           format: winston.format.combine(
             winston.format.timestamp(),
             winston.format.json(),
@@ -86,6 +61,9 @@ const dbSync =
         }),
         new winston.transports.File({
           filename: 'logs/error.log',
+          maxsize: 10 * 1024 * 1024,
+          maxFiles: 5,
+          tailable: true,
           level: 'error',
           format: winston.format.combine(
             winston.format.timestamp(),
@@ -111,38 +89,7 @@ const dbSync =
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [
-        User,
-        Art,
-        Genre,
-        AuthorProfile,
-        RefreshToken,
-        PasswordResetCode,
-        AccountDeletionCode,
-        EmailChangeCode,
-        Cart,
-        CartHistory,
-        ArtView,
-        Moderator,
-        ArtType,
-        Profession,
-        Style,
-        SiteVisit,
-        SiteRating,
-        Tag,
-        ArtTag,
-        Country,
-        City,
-        Event,
-        Subscription,
-        ArtLike,
-        AuthorView,
-        SubscriptionHistory,
-        Notification,
-        NotificationSettings,
-        BrowserPushSubscription,
-        AuthorFollow,
-      ],
+      models: GALLERY_MODELS,
       logging: process.env.NODE_ENV === 'development' ? console.log : false,
       sync: dbSync === 'false' ? undefined : { alter: dbSync === 'alter' },
       synchronize: dbSync !== 'false',

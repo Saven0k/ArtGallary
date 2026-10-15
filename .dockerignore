@@ -1,0 +1,12 @@
+.git
+**/node_modules
+**/dist
+**/logs
+**/.geonames_tmp
+**/.env
+**/.*.env
+**/.env.local
+**/.env.*.local
+server/src/static
+server/.agnes
+**/dev.env
