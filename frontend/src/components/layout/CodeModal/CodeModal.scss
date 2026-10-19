@@ -182,6 +182,51 @@
     }
 }
 
+@media (max-width: 768px), (max-height: 650px) {
+    .code-modal-overlay {
+        padding: 12px;
+    }
+
+    .code-modal {
+        max-height: calc(100dvh - 24px);
+        padding: 20px;
+        border-radius: 18px;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+    }
+
+    .code-modal__header {
+        gap: 12px;
+    }
+
+    .code-modal__title,
+    .code-modal__hint {
+        overflow-wrap: anywhere;
+    }
+
+    .code-modal__close {
+        min-width: 44px;
+        min-height: 44px;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .code-modal__input {
+        min-width: 0;
+        font-size: 16px;
+    }
+
+    .code-modal__input--code {
+        font-size: 22px;
+    }
+
+    .code-modal__resend,
+    .code-modal__btn {
+        min-height: 44px;
+        white-space: normal;
+    }
+}
+
 @keyframes codeModalFadeIn {
     from {
         opacity: 0;

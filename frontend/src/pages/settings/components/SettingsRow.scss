@@ -80,3 +80,24 @@
     align-items: center;
     justify-content: center;
 }
+
+@media (max-width: 768px) {
+    .settings-row {
+        align-items: flex-start;
+        padding: 16px 0;
+    }
+
+    .settings-row__action {
+        min-height: 44px;
+    }
+
+    .settings-row__title,
+    .settings-row__subtitle {
+        overflow-wrap: anywhere;
+    }
+
+    .settings-row__subtitle {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+}

@@ -81,4 +81,68 @@
 
 .profile-page__content {
     width: 100%;
+    min-width: 0;
+    flex: 1;
+}
+
+.profile-page__container,
+.profile-page__layout {
+    min-width: 0;
+}
+
+@media (max-width: 768px) {
+    .profile-page {
+        padding-bottom: 32px;
+    }
+
+    .profile-page__content > * {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .profile-page :is(h1, h2, h3, p, label) {
+        overflow-wrap: anywhere;
+    }
+
+    .profile-page button {
+        min-height: 44px;
+        white-space: normal;
+    }
+
+    .profile-page :is(input:not([type='checkbox']):not([type='radio']):not([type='range']), select, textarea) {
+        min-width: 0;
+        max-width: 100%;
+        font-size: 16px;
+    }
+
+    .profile-page :is(.change-email-overlay, .change-password-overlay, .delete-account-overlay, .notifications__confirm-overlay) {
+        padding: 12px;
+    }
+
+    .profile-page :is(.change-email, .change-password, .delete-account, .notifications__confirm) {
+        max-height: calc(100dvh - 24px);
+        padding: 20px;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        border-radius: 18px;
+    }
+
+    .profile-page :is(.change-email__close, .change-password__close, .delete-account__close) {
+        min-width: 44px;
+        flex-shrink: 0;
+    }
+
+    .profile-page :is(.change-email__header, .change-password__header, .delete-account__header) {
+        gap: 12px;
+    }
+
+    .profile-page .change-password__eye {
+        min-width: 44px;
+        right: 2px;
+        justify-content: center;
+    }
+
+    .profile-page .change-password__input {
+        padding-right: 52px;
+    }
 }

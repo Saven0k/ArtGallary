@@ -257,6 +257,7 @@
     flex-direction: column;
     gap: 4px;
     min-width: 0;
+    overflow-wrap: anywhere;
 
     @media (max-width: 600px) {
         grid-area: info;
@@ -329,6 +330,7 @@
     @media (max-width: 600px) {
         grid-area: right;
         flex-direction: row;
+        flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
         min-width: 0;

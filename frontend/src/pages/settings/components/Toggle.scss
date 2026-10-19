@@ -86,3 +86,11 @@
 .toggle:disabled:hover {
     box-shadow: none;
 }
+
+@media (max-width: 768px) {
+    .toggle::after {
+        content: '';
+        position: absolute;
+        inset: -12px -5px;
+    }
+}

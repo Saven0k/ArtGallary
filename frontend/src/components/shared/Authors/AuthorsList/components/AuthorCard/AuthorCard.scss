@@ -1,4 +1,6 @@
 .author-card {
+    min-width: 0;
+    overflow-wrap: anywhere;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -156,6 +158,7 @@
     }
 
     &__link {
+        min-height: 44px;
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -185,6 +188,7 @@
     }
 
     &__link-icon {
+        flex-shrink: 0;
         transition: transform 0.2s ease;
 
         @media (max-width: 480px) {
@@ -229,6 +233,7 @@
     }
 
     &__art {
+        min-width: 0;
         aspect-ratio: 1 / 1;
         border-radius: var(--radius-s);
         overflow: hidden;

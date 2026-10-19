@@ -1,5 +1,7 @@
 // src/components/shared/Events/EventCard/EventCard.scss
 .event-card {
+    min-width: 0;
+    overflow-wrap: anywhere;
     height: 100%;
     background: #fff;
     border-radius: var(--radius-l, 16px);
@@ -22,6 +24,11 @@
         height: 100%;
         text-decoration: none;
         color: inherit;
+
+        &:focus-visible {
+            outline: 2px solid var(--brand-primary-gold, #bc9547);
+            outline-offset: -3px;
+        }
     }
 
     &__image-wrap {
@@ -61,8 +68,7 @@
         letter-spacing: .04em;
         text-transform: uppercase;
 
-        @media (max-width: 480px) { font-size: 11px; }
-        @media (max-width: 360px) { font-size: 10px; }
+        @media (max-width: 480px) { font-size: 12px; }
     }
 
     &__title {
@@ -79,8 +85,7 @@
         @media (max-width: 1280px) { font-size: 19px; }
         @media (max-width: 992px)  { font-size: 18px; }
         @media (max-width: 768px)  { font-size: 17px; }
-        @media (max-width: 480px)  { font-size: 16px; }
-        @media (max-width: 360px)  { font-size: 15px; }
+        @media (max-width: 480px)  { font-size: 18px; }
     }
 
     &__description {
@@ -93,9 +98,7 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
 
-        @media (max-width: 768px) { font-size: 13px; -webkit-line-clamp: 2; }
-        @media (max-width: 480px) { font-size: 13px; }
-        @media (max-width: 360px) { font-size: 12px; }
+        @media (max-width: 768px) { font-size: 14px; -webkit-line-clamp: 2; }
     }
 
     &__more {

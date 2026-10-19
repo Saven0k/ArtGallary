@@ -1,0 +1,31 @@
+.author-page {
+    min-width: 0;
+    padding-bottom: 48px;
+
+    &__container {
+        width: 100%;
+        max-width: 1400px;
+        min-width: 0;
+        margin: 0 auto 48px;
+        padding: 0 40px;
+    }
+
+    &__loading,
+    &__error {
+        min-height: 240px;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        text-align: center;
+        overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 768px) {
+        padding-bottom: 32px;
+
+        &__container {
+            margin-bottom: 32px;
+            padding: 0 16px;
+        }
+    }
+}

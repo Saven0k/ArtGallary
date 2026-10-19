@@ -211,79 +211,42 @@
     }
 
     @media (max-width: 768px) {
-        min-height: 560px;
-        padding: 150px 20px;
-        text-align: center;
-        align-items: center;
+        min-height: 620px;
+        min-height: 85svh;
+        padding: 152px 20px 64px;
+        justify-content: center;
+        align-items: flex-start;
+        text-align: left;
         background-size: cover;
 
-        .hero__nav {
-            margin-bottom: 60px;
-            justify-content: center;
-        }
-
-        .hero__nav-list {
-            justify-content: center;
-        }
-
         .hero__title {
-            font-size: 36px;
+            margin: 0 0 20px;
+            font-size: clamp(34px, 7vw, 52px);
+            line-height: 1.12;
+            overflow-wrap: anywhere;
         }
 
         .hero__subtitle {
+            margin: 0 0 32px;
             font-size: 18px;
-            margin-bottom: 24px;
+            line-height: 1.5;
         }
 
         .hero__button {
-            font-size: 18px;
-            padding: 12px 24px;
-            width: 100%;
-            max-width: 280px;
+            min-height: 48px;
+            max-width: 100%;
+            margin: 0;
+            padding: 14px 24px;
+            font-size: 16px;
+            text-align: center;
         }
     }
 
     @media (max-width: 480px) {
-        min-height: 520px;
-        padding: 0 16px;
-        padding-top: 64px;
-
-        .hero__nav {
-            margin-bottom: 40px;
-        }
-
-        .hero__nav-link {
-            padding: 5px 12px;
-            font-size: 12px;
-        }
-
-        .hero__title {
-            font-size: 28px;
-        }
-
-        .hero__subtitle {
-            font-size: 16px;
-        }
+        padding: 136px 16px 48px;
 
         .hero__button {
-            font-size: 16px;
-            padding: 10px 20px;
-            max-width: 240px;
-        }
-    }
-
-    @media (max-width: 360px) {
-        .hero__title {
-            font-size: 24px;
-        }
-
-        .hero__subtitle {
-            font-size: 14px;
-        }
-
-        .hero__button {
-            font-size: 14px;
-            padding: 10px 16px;
+            width: 100%;
         }
     }
 }

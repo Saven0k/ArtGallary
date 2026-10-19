@@ -145,3 +145,24 @@
         font-size: 48px;
     }
 }
+
+@media (max-width: 768px), (max-height: 650px) {
+    .age-modal__overlay {
+        padding: 12px;
+    }
+
+    .age-modal__content {
+        width: 100%;
+        max-height: calc(100dvh - 24px);
+        padding: 24px 20px;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        border-radius: 18px;
+    }
+
+    .age-modal__btn {
+        min-height: 44px;
+        padding: 10px 14px;
+        white-space: normal;
+    }
+}

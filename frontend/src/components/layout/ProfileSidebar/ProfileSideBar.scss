@@ -2,11 +2,13 @@
 
 
 .sidebarProfile {
+    max-width: 100%;
     position: fixed;
     top: 0;
     right: 0;
     width: 380px;
     height: 100vh;
+    height: 100dvh;
     background: #ffffff;
     box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
     transform: translateX(100%);
@@ -15,6 +17,25 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .sidebarProfile {
+        width: min(380px, 100%);
+        max-width: 100%;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .sidebarProfile__close {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .sidebarProfile__guest-content {
+        min-height: 0;
+        overflow-y: auto;
+        justify-content: flex-start;
+    }
 }
 
 .sidebarProfile--open {
@@ -32,6 +53,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     background: rgba(0, 0, 0, 0.4);
     z-index: 999;
     opacity: 0;

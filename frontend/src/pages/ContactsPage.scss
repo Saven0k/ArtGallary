@@ -1,0 +1,16 @@
+.contacts-page {
+    background: var(--bg-default);
+
+    &__content {
+        width: 100%;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 32px 40px 80px;
+    }
+
+    @media (max-width: 768px) {
+        &__content {
+            padding: 24px 16px 48px;
+        }
+    }
+}

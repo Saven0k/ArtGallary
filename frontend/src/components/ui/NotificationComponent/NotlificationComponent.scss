@@ -9,6 +9,20 @@
     box-shadow: 0 8px 25px rgba(0,0,0,0.2);
     z-index: 9999;
     animation: slideIn 0.3s ease;
+    max-width: min(440px, calc(100vw - 40px));
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+    .notification {
+        top: max(12px, env(safe-area-inset-top));
+        right: 12px;
+        left: 12px;
+        max-width: none;
+        padding: 14px 16px;
+        font-size: 14px;
+        line-height: 1.5;
+    }
 }
 
 .notification--success {

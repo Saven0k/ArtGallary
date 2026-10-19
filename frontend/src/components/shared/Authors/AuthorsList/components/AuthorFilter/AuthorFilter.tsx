@@ -29,35 +29,36 @@ const AuthorFilter = ({ activeProfession, onChange }: AuthorFilterProps) => {
         <aside className="filter" aria-label={t.title}>
             <h3 className="filter__title">{t.title}</h3>
             <ul className="filter__list">
-                <li key="all" className="filter__item">
-                    <input
-                        type="radio"
-                        checked={activeProfession === null}
-                        onChange={() => onChange(null)}
-                        name="profession"
-                        id="profession-all"
-                        className="filter__radio"
-                    />
-                    <label htmlFor="profession-all" className="filter__label">
-                        {t.all}
+                <li key="all" className="filter__option">
+                    <label className="filter__item" htmlFor="profession-all">
+                        <input
+                            type="radio"
+                            checked={activeProfession === null}
+                            onChange={() => onChange(null)}
+                            name="profession"
+                            id="profession-all"
+                            className="filter__radio"
+                        />
+                        <span className="filter__label">
+                            {t.all}
+                        </span>
                     </label>
                 </li>
 
                 {professions.map((profession) => (
-                    <li key={profession.id} className="filter__item">
-                        <input
-                            type="checkbox"
-                            checked={activeProfession?.id === profession.id}
-                            onChange={() => onChange(profession)}
-                            name="profession"
-                            id={`profession-${profession.id}`}
-                            className="filter__radio"
-                        />
-                        <label
-                            htmlFor={`profession-${profession.id}`}
-                            className="filter__label"
-                        >
-                            {profession.name}
+                    <li key={profession.id} className="filter__option">
+                        <label className="filter__item" htmlFor={`profession-${profession.id}`}>
+                            <input
+                                type="checkbox"
+                                checked={activeProfession?.id === profession.id}
+                                onChange={() => onChange(profession)}
+                                name="profession"
+                                id={`profession-${profession.id}`}
+                                className="filter__radio"
+                            />
+                            <span className="filter__label">
+                                {profession.name}
+                            </span>
                         </label>
                     </li>
                 ))}

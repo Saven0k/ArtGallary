@@ -22,6 +22,32 @@
     text-align: center;
     box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
     animation: slideUp 0.3s ease;
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+}
+
+@media (max-width: 600px) {
+    .confirm-overlay {
+        padding: 12px;
+    }
+
+    .confirm-overlay .confirm-modal {
+        width: 100%;
+        padding: 24px 20px;
+        border-radius: 18px;
+    }
+
+    .confirm-buttons {
+        flex-wrap: wrap;
+    }
+
+    .confirm-button {
+        flex: 1 1 100px;
+        min-height: 44px;
+        padding: 10px 14px;
+        white-space: normal;
+    }
 }
 
 .confirm-icon {

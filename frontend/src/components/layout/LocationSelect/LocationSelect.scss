@@ -90,3 +90,33 @@
 .location-select__item:hover {
   background: #f0f0f0;
 }
+
+.location-select__group,
+.location-select__input-wrapper {
+  min-width: 0;
+}
+
+.location-select__value,
+.location-select__item {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 768px) {
+  .location-select__input {
+    min-width: 0;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .location-select__item {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .location-select__dropdown {
+    max-height: min(240px, 35dvh);
+    overscroll-behavior-y: contain;
+  }
+}

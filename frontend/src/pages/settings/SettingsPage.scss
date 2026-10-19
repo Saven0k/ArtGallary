@@ -236,3 +236,31 @@
 .notification-settings__push-content { display: flex; align-items: flex-start; gap: 12px; padding: 16px 12px; border-radius: 12px; background: #fff; box-shadow: 0 6px 24px #28271f0d; }
 .notification-settings__monogram { flex-shrink: 0; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; color: #e4d3a3; background: #28271f; font-size: 12px; }
 .notification-settings__push-brand { display: block; margin-bottom: 8px; color: #8c815f; font-size: 11px; }
+
+@media (max-width: 768px) {
+    .settings-page__container {
+        width: calc(100% - 32px);
+    }
+
+    .notification-settings__channel {
+        flex-wrap: wrap;
+        gap: 8px 12px;
+    }
+
+    .notification-settings__test,
+    .settings-page__reset {
+        min-height: 44px;
+        font-size: 14px;
+        white-space: normal;
+    }
+
+    .notification-settings__preview,
+    .notification-settings__push-content > div {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .notification-settings__previews {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

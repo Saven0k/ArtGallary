@@ -1,5 +1,6 @@
 .dynamic-metadata {
     width: 100%;
+    min-width: 0;
 }
 
 .dynamic-metadata__section {
@@ -48,6 +49,7 @@
 
 .dynamic-metadata__field-input {
     flex: 1;
+    min-width: 0;
     padding: 8px 12px;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
@@ -165,6 +167,7 @@
     font-family: 'Monaco', 'Menlo', monospace;
     color: #475569;
     border: 1px solid #e2e8f0;
+    overflow-wrap: anywhere;
 }
 
 .dynamic-metadata__preview strong {
@@ -174,6 +177,20 @@
 
 
 @media (max-width: 768px) {
+    .dynamic-metadata__field-input,
+    .dynamic-metadata__select,
+    .dynamic-metadata__input {
+        min-width: 0;
+        width: 100%;
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+    .dynamic-metadata__remove-btn,
+    .dynamic-metadata__add-btn {
+        min-height: 44px;
+    }
+
     .dynamic-metadata__field {
         flex-wrap: wrap;
         padding: 10px;

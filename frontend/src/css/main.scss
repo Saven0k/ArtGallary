@@ -18,6 +18,12 @@
 }
 
 :root {
+  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-size-base: 16px;
+  --line-height-base: 1.5;
+  --color-text-main: #222222;
+  --color-bg-light: #f8f8f8;
+  --space-sm: 16px;
 
   --radius-s: 8px;
   --radius-m: 12px;
@@ -94,6 +100,7 @@
 }
 
 html {
+  min-width: 320px;
   font-size: 16px;
   scroll-behavior: smooth;
 }
@@ -106,6 +113,39 @@ body {
   background-color: var(--color-bg-light);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+img,
+video,
+canvas {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-primary-gold);
+  outline-offset: 3px;
 }
 
 h1 {
@@ -183,7 +223,7 @@ h5 {
 }
 
 
-@media (max-width: var(--breakpoint-lg)) {
+@media (max-width: 1024px) {
 
   .grid-cols-2,
   .grid-cols-3,
@@ -211,7 +251,16 @@ h5 {
   }
 }
 
-@media (max-width: var(--breakpoint-md)) {
+@media (max-width: 768px) {
+  :root {
+    --font-h1: clamp(32px, 8vw, 48px);
+    --font-h2: clamp(28px, 6.5vw, 38px);
+    --font-h3: clamp(24px, 5.5vw, 32px);
+    --font-h4: 24px;
+    --font-h5: 20px;
+    --font-body-large: 20px;
+    --font-body-medium: 18px;
+  }
 
   .grid-cols-2,
   .grid-cols-3,
@@ -230,7 +279,7 @@ h5 {
   }
 }
 
-@media (max-width: var(--breakpoint-sm)) {
+@media (max-width: 480px) {
   .container {
     padding-left: var(--space-sm);
     padding-right: var(--space-sm);
@@ -286,4 +335,18 @@ h5 {
 
 .opacity-0 {
   opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

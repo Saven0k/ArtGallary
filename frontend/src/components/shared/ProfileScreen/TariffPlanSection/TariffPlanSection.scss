@@ -148,6 +148,21 @@
     }
 }
 
+@media (max-width: 768px) {
+    .tariff-plan {
+        border-radius: 18px;
+    }
+
+    .tariff-plan__current {
+        padding: 14px;
+        line-height: 1.5;
+    }
+
+    .tariff-plan__field select {
+        font-size: 16px;
+    }
+}
+
 .tariff-plan__feedback {
     margin: 0 0 20px;
     color: #346044;

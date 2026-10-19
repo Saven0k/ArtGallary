@@ -281,6 +281,13 @@
 @media (max-width: 900px) {
     .art-consultation {
         &__hero,
+        &__section,
+        &__request {
+            padding-left: 32px;
+            padding-right: 32px;
+        }
+
+        &__hero,
         &__request {
             grid-template-columns: 1fr;
         }
@@ -299,7 +306,7 @@
 
         &__format {
             display: grid;
-            grid-template-columns: minmax(220px, .8fr) 1fr;
+            grid-template-columns: minmax(0, .8fr) minmax(0, 1fr);
 
             img {
                 height: 100%;
@@ -319,6 +326,40 @@
 
         &__hero-copy {
             padding: 56px 0;
+            min-width: 0;
+        }
+
+        h1 {
+            font-size: clamp(34px, 8vw, 48px);
+            line-height: 1.12;
+            overflow-wrap: anywhere;
+        }
+
+        h2 {
+            margin-bottom: 28px;
+            line-height: 1.2;
+        }
+
+        &__button,
+        &__request button {
+            width: 100%;
+            min-height: 48px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        &__request label,
+        &__request input,
+        &__request textarea {
+            min-width: 0;
+            font-size: 16px;
+        }
+
+        &__format-copy a {
+            display: flex;
+            align-items: center;
+            min-height: 44px;
+            font-size: 14px;
         }
 
         &__hero-description {

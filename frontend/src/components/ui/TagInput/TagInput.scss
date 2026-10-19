@@ -34,6 +34,8 @@
     font-size: 13px;
     color: #2d3748;
     animation: tagAppear 0.2s ease;
+    max-width: 100%;
+    overflow-wrap: anywhere;
 }
 
 .tag-input__remove {
@@ -50,6 +52,7 @@
     cursor: pointer;
     border-radius: 50%;
     transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
 .tag-input__remove:hover {
@@ -113,5 +116,24 @@
     to {
         transform: scale(1);
         opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .tag-input__field {
+        min-width: 0;
+        flex-basis: 120px;
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+    .tag-input__remove {
+        width: 32px;
+        height: 36px;
+    }
+
+    .tag-input__suggestion {
+        min-height: 44px;
+        white-space: normal;
     }
 }

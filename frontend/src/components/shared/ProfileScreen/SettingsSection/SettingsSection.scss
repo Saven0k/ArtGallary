@@ -266,3 +266,21 @@
     background: rgba(184, 7, 7, .1);
     color: var(--error-background);
 }
+
+@media (max-width: 768px) {
+    .telegram-settings {
+        min-width: 0;
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .telegram-settings__actions button {
+        flex: 1 1 160px;
+        min-height: 44px;
+        font-size: 14px;
+    }
+
+    .profile-settings__item {
+        align-items: flex-start;
+    }
+}

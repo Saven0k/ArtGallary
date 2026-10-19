@@ -100,6 +100,41 @@
     }
 }
 
+@media (max-width: 768px), (max-height: 650px) {
+    .avatar-crop-overlay {
+        padding: 12px;
+    }
+
+    .avatar-crop {
+        max-height: calc(100dvh - 24px);
+        padding: 20px;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        border-radius: 18px;
+    }
+
+    .avatar-crop__stage {
+        height: min(320px, 40dvh);
+        min-height: 150px;
+        flex-shrink: 0;
+    }
+
+    .avatar-crop__zoom {
+        flex-wrap: wrap;
+    }
+
+    .avatar-crop__zoom input {
+        min-width: 0;
+        min-height: 44px;
+    }
+
+    .avatar-crop__btn {
+        min-height: 44px;
+        padding: 10px 14px;
+        white-space: normal;
+    }
+}
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to   { opacity: 1; }

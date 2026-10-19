@@ -227,109 +227,39 @@
         }
     }
 
-    /* ---------------- 768 ---------------- */
     @media (max-width: 768px) {
-        min-height: 140px;
-
         &__container {
-            padding: 24px 24px 20px;
+            padding: 32px 16px;
         }
 
         &__content {
-            gap: 16px;
+            gap: 24px;
+            min-width: 0;
         }
 
-        &__text {
-            font-size: 14px;
-            margin-bottom: 16px;
+        &__text,
+        &__subtitle,
+        &__quote {
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
         }
 
+        &__text,
         &__subtitle {
-            font-size: 14px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         &__button {
-            font-size: 13px;
-            padding: 6px 0;
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            padding: 10px 0;
+            font-size: 15px;
         }
 
         &__quote {
-            font-size: 14px;
             padding-left: 16px;
-        }
-    }
-
-    /* ---------------- 600 ---------------- */
-    @media (max-width: 600px) {
-        &__container {
-            padding: 20px 20px 18px;
-        }
-
-        &__text,
-        &__subtitle {
-            font-size: 13px;
-            margin-bottom: 14px;
-        }
-
-        &__button {
-            font-size: 12px;
-        }
-
-        &__quote {
-            font-size: 13px;
-            padding-left: 14px;
-        }
-    }
-
-    /* ---------------- 480 ---------------- */
-    @media (max-width: 480px) {
-        min-height: 120px;
-
-        &__container {
-            padding: 18px 16px 16px;
-        }
-
-        &__content {
-            gap: 12px;
-        }
-
-        &__text,
-        &__subtitle {
-            font-size: 13px;
-            margin-bottom: 12px;
-        }
-
-        &__button {
-            font-size: 12px;
-        }
-
-        &__quote {
-            font-size: 12px;
-            padding-left: 12px;
-            line-height: 1.5;
-        }
-    }
-
-    /* ---------------- 360 ---------------- */
-    @media (max-width: 360px) {
-        &__container {
-            padding: 16px 12px 14px;
-        }
-
-        &__text,
-        &__subtitle {
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-
-        &__button {
-            font-size: 11px;
-        }
-
-        &__quote {
-            font-size: 11px;
-            padding-left: 10px;
         }
     }
 }

@@ -1,0 +1,36 @@
+.not-found-page {
+    display: flex;
+    min-height: 65vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 56px 16px;
+    background: var(--bg-default);
+    text-align: center;
+
+    h1 {
+        color: var(--brand-primary-gold);
+        font-size: clamp(80px, 20vw, 160px);
+        font-weight: var(--font-weight-regular);
+        line-height: 1;
+    }
+
+    p {
+        font-size: clamp(20px, 4vw, 28px);
+        line-height: 1.5;
+    }
+
+    a {
+        display: inline-flex;
+        min-height: 48px;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 28px;
+        border-radius: var(--radius-full);
+        background: var(--neutral-grey-800);
+        color: #fff;
+        font-size: 16px;
+        text-decoration: none;
+    }
+}

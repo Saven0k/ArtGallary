@@ -59,6 +59,18 @@
     }
 }
 
+@media (max-width: 600px) {
+    .profile-cart__header {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .profile-cart__title {
+        margin-bottom: 0;
+    }
+}
+
 .profile-cart__clear {
     background: transparent;
     border: none;

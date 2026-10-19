@@ -1,4 +1,6 @@
 .author-header {
+    min-width: 0;
+    overflow-wrap: anywhere;
     max-width: 1462px;
     margin: 0 auto 48px;
     display: flex;
@@ -72,6 +74,7 @@
     &__info {
         display: flex;
         gap: 23px;
+        min-width: 0;
 
         @media (max-width: 1400px) {
             gap: 20px;
@@ -130,6 +133,7 @@
         display: flex;
         flex-direction: column;
         max-width: 261px;
+        min-width: 0;
 
         @media (max-width: 992px) {
             max-width: 240px;
@@ -199,6 +203,8 @@
         padding: 0;
         align-self: flex-start;
         text-decoration: underline;
+        min-height: 44px;
+        text-align: inherit;
 
         @media (max-width: 768px) {
             align-self: center;
@@ -234,6 +240,8 @@
     }
 
     &__subscribe-btn {
+        min-height: 44px;
+        max-width: 100%;
         padding: 14px 24px;
         border-radius: var(--radius-xl);
         font-size: var(--font-body-large);
@@ -301,8 +309,20 @@
 
         @media (max-width: 360px) {
             padding: 10px;
-            font-size: 12px;
+            font-size: 14px;
             margin-top: 10px;
         }
+    }
+
+    > p {
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.7;
+        white-space: pre-line;
+    }
+
+    button:focus-visible {
+        outline: 2px solid var(--brand-primary-gold);
+        outline-offset: 3px;
     }
 }

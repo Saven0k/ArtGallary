@@ -119,3 +119,12 @@
 .language-switcher__button:hover:not(.active) {
     background: rgba(188, 149, 71, .08);
 }
+
+@media (max-width: 768px) {
+    .language-switcher__button {
+        min-height: 44px;
+        padding: 10px 8px;
+        font-size: 14px;
+        white-space: normal;
+    }
+}

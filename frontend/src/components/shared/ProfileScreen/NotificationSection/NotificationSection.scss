@@ -324,3 +324,26 @@
         }
     }
 }
+
+@media (max-width: 768px) {
+    .notifications__actions {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+    }
+
+    .notifications__mark-all,
+    .notifications__delete-all {
+        min-height: 44px;
+        font-size: 13px;
+        text-align: left;
+    }
+
+    .notifications__confirm-actions {
+        flex-wrap: wrap;
+    }
+
+    .notifications__confirm-btn {
+        flex-basis: 100px;
+    }
+}

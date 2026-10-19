@@ -678,3 +678,47 @@
         }
     }
 }
+
+.personal-info__field {
+    min-width: 0;
+}
+
+@media (max-width: 768px) {
+    .personal-info {
+        padding: 20px;
+        border-radius: 18px;
+    }
+
+    .personal-info__grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .personal-info__gender-group {
+        flex-wrap: wrap;
+    }
+
+    .personal-info__gender-btn {
+        flex-basis: 100px;
+        font-size: 14px;
+    }
+
+    .personal-info__avatar-row {
+        align-items: center;
+        text-align: center;
+    }
+
+    .personal-info__avatar-actions {
+        width: 100%;
+        align-items: center;
+    }
+
+    .personal-info__avatar-btn {
+        align-self: stretch;
+    }
+}
+
+@media (max-width: 380px) {
+    .personal-info {
+        padding: 16px;
+    }
+}

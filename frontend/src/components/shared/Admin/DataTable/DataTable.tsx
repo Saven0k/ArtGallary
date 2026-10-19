@@ -36,7 +36,7 @@ function DataTable<T>({
     }
 
     return (
-        <div className="data-table">
+        <div className="data-table" tabIndex={0}>
             <table className="data-table__table">
                 <thead>
                     <tr>

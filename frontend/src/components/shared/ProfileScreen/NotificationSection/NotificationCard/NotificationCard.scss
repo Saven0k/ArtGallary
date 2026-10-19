@@ -190,3 +190,29 @@
         background: rgba(220, 38, 38, 0.08);
     }
 }
+
+@media (max-width: 600px) {
+    .notification-card {
+        display: grid;
+        grid-template-columns: 38px minmax(0, 1fr);
+        gap: 10px;
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .notification-card__meta {
+        grid-column: 2;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .notification-card__time {
+        align-self: center;
+    }
+
+    .notification-card__delete {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}

@@ -191,118 +191,47 @@
         }
     }
 
-    /* ---------------- 768 ---------------- */
     @media (max-width: 768px) {
         &__container {
             flex-direction: column;
-            padding: 28px 24px;
-            gap: 24px;
             align-items: stretch;
+            padding: 32px 16px 40px;
+            gap: 28px;
         }
 
         &__image-wrapper {
             width: 100%;
+            max-width: 480px;
             height: auto;
             aspect-ratio: 4 / 5;
-            padding: 28px 44px;
+            margin: 0 auto;
+            padding: 24px;
         }
 
         &__content {
-            max-width: 100%;
+            max-width: none;
+            min-width: 0;
         }
 
         &__title {
-            font-size: 26px;
-            text-align: center;
+            font-size: clamp(30px, 6vw, 42px);
+            text-align: left;
+            overflow-wrap: anywhere;
         }
 
         &__text {
-            font-size: 14px;
-            line-height: 21px;
-            margin: 12px 0;
-            text-align: center;
+            margin: 20px 0;
+            font-size: 16px;
+            line-height: 1.65;
+            text-align: left;
 
             &:not(:last-of-type)::after {
-                left: 50%;
-                transform: translateX(-50%);
-                bottom: -12px;
+                bottom: -20px;
+                left: 0;
                 width: 56px;
-            }
-        }
-    }
-
-    /* ---------------- 600 ---------------- */
-    @media (max-width: 600px) {
-        &__container {
-            padding: 24px 20px;
-            gap: 20px;
-        }
-
-        &__image-wrapper {
-            padding: 22px 34px;
-        }
-
-        &__title {
-            font-size: 24px;
-        }
-
-        &__text {
-            font-size: 13px;
-            line-height: 20px;
-            margin: 10px 0;
-
-            &:not(:last-of-type)::after {
-                bottom: -10px;
-                width: 48px;
-            }
-        }
-    }
-
-    /* ---------------- 480 ---------------- */
-    @media (max-width: 480px) {
-        &__container {
-            padding: 20px 16px;
-            gap: 16px;
-        }
-
-        &__image-wrapper {
-            padding: 18px 26px;
-        }
-
-        &__title {
-            font-size: 22px;
-        }
-
-        &__text {
-            font-size: 13px;
-            line-height: 19px;
-            margin: 8px 0;
-
-            &:not(:last-of-type)::after {
-                bottom: -8px;
-                width: 40px;
                 height: 2px;
+                transform: none;
             }
-        }
-    }
-
-    /* ---------------- 360 ---------------- */
-    @media (max-width: 360px) {
-        &__container {
-            padding: 18px 12px;
-        }
-
-        &__image-wrapper {
-            padding: 14px 20px;
-        }
-
-        &__title {
-            font-size: 20px;
-        }
-
-        &__text {
-            font-size: 12px;
-            line-height: 18px;
         }
     }
 }

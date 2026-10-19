@@ -7,6 +7,7 @@ import Navigation from '../../components/layout/Navigation/Navigation';
 import NotFoundPage from '../NotFoundPage';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../hooks/useLanguage';
+import './ArtsPages.scss';
 
 const ArtPage = () => {
     const { id } = useParams();
@@ -30,10 +31,13 @@ const ArtPage = () => {
     if (loading) return <main className="page">…</main>;
     if (!art) return <NotFoundPage />;
     const owner = user && (user.role === 'admin' || art.author_id === user.id || art.author?.user_id === user.id);
-    return <main className="page"><Navigation /><h1>{art.title}</h1><ArtCard art={art} art_id={art.id} /><p>{art.description}</p>
-        {art.author_id && <Link to={`/authors/${art.author_id}`}>{art.author?.user?.surname} {art.author?.user?.name}</Link>}
-        {owner && <Link to={`/arts/my/edit/${art.id}`}>{language === 'ru' ? 'Редактировать' : language === 'zh' ? '编辑' : 'Edit'}</Link>}
+    return <main className="page artwork-page"><Navigation /><div className="artwork-page__container"><h1>{art.title}</h1><div className="artwork-page__feature"><ArtCard art={art} art_id={art.id} /></div><p className="artwork-page__description">{art.description}</p>
+        <div className="artwork-page__links">
+            {art.author_id && <Link to={`/authors/${art.author_id}`}>{art.author?.user?.surname} {art.author?.user?.name}</Link>}
+            {owner && <Link to={`/arts/my/edit/${art.id}`}>{language === 'ru' ? 'Редактировать' : language === 'zh' ? '编辑' : 'Edit'}</Link>}
+        </div>
         <SimilarArts artId={art.id} />
+        </div>
     </main>;
 };
 export default ArtPage;

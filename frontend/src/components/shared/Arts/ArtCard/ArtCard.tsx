@@ -56,6 +56,7 @@ const ArtCard = ({ art_id, art }: ArtCardProps) => {
                     src={art.image_path}
                     alt={art.title}
                     className="art-card__image"
+                    loading="lazy"
                 />
             </Link>
 

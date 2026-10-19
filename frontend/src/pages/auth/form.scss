@@ -131,6 +131,67 @@
     }
 }
 
+@media (max-width: 768px) {
+    .auth-page .auth__content {
+        min-width: 0;
+        padding: 28px 24px;
+    }
+
+    .auth-page :is(.register-user, .register-author) {
+        padding: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .auth-page .register__tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid #ece8df;
+    }
+
+    .auth-page :is(input:not([type='checkbox']):not([type='radio']):not([type='range']), select, textarea) {
+        min-width: 0;
+        max-width: 100%;
+        font-size: 16px;
+    }
+
+    .auth-page button {
+        min-height: 44px;
+        white-space: normal;
+    }
+
+    .auth-page :is(h1, h2, h3, p, label) {
+        overflow-wrap: anywhere;
+    }
+
+    .auth-page :is(.register-user__header, .register-author__header, .register-user__actions, .register-author__actions) {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .auth-page :is(.register-user__gender-group, .register-author__gender-group) {
+        flex-wrap: wrap;
+    }
+
+    .auth-page :is(.register-user__gender-btn, .register-author__gender-btn) {
+        flex-basis: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-page .auth__content {
+        padding: 24px 20px;
+    }
+
+    .auth-page .register__tab {
+        flex: 1;
+        min-width: 0;
+        padding: 10px 8px;
+        font-size: 14px;
+    }
+}
+
 .register__tab {
     padding: 12px 24px;
     background: none;

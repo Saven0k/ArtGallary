@@ -95,6 +95,7 @@
     flex-direction: column;
     gap: 4px;
     min-width: 0;
+    overflow-wrap: anywhere;
 
     @media (max-width: 600px) {
         grid-area: info;
@@ -159,6 +160,7 @@
     @media (max-width: 600px) {
         grid-area: controls;
         justify-content: space-between;
+        flex-wrap: wrap;
     }
 
     @media (max-width: 480px) {
@@ -302,5 +304,18 @@
 
     @media (max-width: 360px) {
         font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .cart-item__quantity {
+        gap: 4px;
+        padding: 0;
+    }
+
+    .cart-item__quantity button,
+    .cart-item__remove {
+        min-width: 44px;
+        min-height: 44px;
     }
 }

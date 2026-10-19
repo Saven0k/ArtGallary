@@ -1,5 +1,7 @@
 // src/components/shared/Events/EventDetails/EventDetails.scss
 .event-details {
+    min-width: 0;
+    overflow-wrap: anywhere;
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -10,6 +12,9 @@
     @media (max-width: 360px) { gap: 14px; }
 
     &__back {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
         align-self: flex-start;
         font-size: 14px;
         font-weight: 500;
@@ -18,6 +23,11 @@
         transition: color .2s ease;
 
         &:hover { color: #a87d3a; }
+
+        &:focus-visible {
+            outline: 2px solid var(--brand-primary-gold, #bc9547);
+            outline-offset: 3px;
+        }
 
         @media (max-width: 768px) { font-size: 13px; }
         @media (max-width: 480px) { font-size: 13px; }
@@ -40,8 +50,7 @@
         text-transform: uppercase;
 
         @media (max-width: 768px) { font-size: 12px; }
-        @media (max-width: 480px) { font-size: 11px; }
-        @media (max-width: 360px) { font-size: 10px; }
+        @media (max-width: 480px) { font-size: 12px; }
     }
 
     &__title {
@@ -55,8 +64,7 @@
         @media (max-width: 1280px) { font-size: 34px; }
         @media (max-width: 992px)  { font-size: 30px; }
         @media (max-width: 768px)  { font-size: 26px; }
-        @media (max-width: 480px)  { font-size: 22px; }
-        @media (max-width: 360px)  { font-size: 20px; }
+        @media (max-width: 480px)  { font-size: 26px; }
     }
 
     &__image-wrap {
@@ -73,7 +81,8 @@
         width: 100%;
         height: auto;
         display: block;
-        object-fit: cover;
+        max-height: 75svh;
+        object-fit: contain;
     }
 
     &__body {
@@ -92,7 +101,7 @@
         @media (max-width: 992px) { font-size: 16px; }
         @media (max-width: 768px) { font-size: 15px; line-height: 1.6; }
         @media (max-width: 480px) { font-size: 14px; }
-        @media (max-width: 360px) { font-size: 13px; }
+        @media (max-width: 360px) { font-size: 14px; }
     }
 
     &__state {

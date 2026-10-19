@@ -7,6 +7,7 @@
     justify-content: center;
     z-index: 1000;
     padding: 20px;
+    overflow-y: auto;
     animation: authFadeIn 0.15s ease;
 
     @media (max-width: 768px) {
@@ -25,6 +26,9 @@
 .auth-required {
     width: 100%;
     max-width: 440px;
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+    overflow-wrap: anywhere;
     background: #fff;
     border-radius: var(--radius-xl);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
@@ -89,6 +93,7 @@
 
     &__actions {
         display: flex;
+        flex-wrap: wrap;
         gap: 12px;
 
         @media (max-width: 480px) {
@@ -102,6 +107,8 @@
 
     &__btn {
         flex: 1;
+        min-width: 100px;
+        min-height: 44px;
         padding: 12px 20px;
         border: none;
         border-radius: var(--radius-full);

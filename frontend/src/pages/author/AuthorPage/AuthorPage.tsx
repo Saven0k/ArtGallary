@@ -8,6 +8,7 @@ import { type Art } from "../../../api/arts/main.api";
 import Navigation from "../../../components/layout/Navigation/Navigation";
 import AuthorProfile from "../../../components/shared/Authors/AuthorDetail/AuthorProfile/AuthorProfile";
 import { useLanguage } from '../../../hooks/useLanguage';
+import './AuthorPage.scss';
 
 const AuthorPage = () => {
     const { id } = useParams<{ id: string }>();
@@ -77,8 +78,10 @@ const AuthorPage = () => {
     return (
         <main className="author-page">
             <Navigation />
-            <AuthorHeader author={author} />
-            <ArtsList data={{ arts }} />
+            <div className="author-page__container">
+                <AuthorHeader author={author} />
+                <ArtsList data={{ arts }} />
+            </div>
             <AuthorProfile author={author} />
         </main>
     );

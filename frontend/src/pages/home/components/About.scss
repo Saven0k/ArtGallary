@@ -324,193 +324,89 @@
         }
     }
 
-    /* ---------------- 768 ---------------- */
     @media (max-width: 768px) {
-        padding: 32px 20px;
-        gap: 20px;
+        padding: 40px 16px;
+        gap: 28px;
 
         &__image {
-            height: 280px;
+            height: auto;
+            max-height: 420px;
+            aspect-ratio: 4 / 3;
+            border-radius: var(--radius-l);
+        }
+
+        &__content {
+            min-width: 0;
         }
 
         &__title {
-            font-size: 28px;
-            margin-bottom: 14px;
+            margin-bottom: 20px;
+            font-size: clamp(28px, 5vw, 36px);
+        }
+
+        &__text,
+        &__plus {
+            font-size: 16px;
+            line-height: 1.6;
         }
 
         &__text {
-            font-size: 14px;
-            line-height: 21px;
-            margin-bottom: 18px;
-        }
-
-        &__pros {
-            gap: 12px;
             margin-bottom: 24px;
         }
 
+        &__pros {
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
         &__plus {
-            font-size: 14px;
-            padding-left: 22px;
+            padding-left: 24px;
 
             &::before {
+                top: 12px;
                 width: 8px;
                 height: 8px;
             }
         }
 
         &__stats {
-            grid-template-columns: 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0;
+            margin: 0 0 20px;
         }
 
         &__stat {
-            flex-direction: row;
-            align-items: baseline;
-            gap: 12px;
-            padding: 8px 0;
-            height: auto;
             min-height: 0;
+            height: auto;
+            padding: 16px 0;
+            flex-direction: row;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 1px solid var(--neutral-grey);
 
-            &:not(:last-child)::after {
+            &::after {
                 display: none;
             }
         }
 
         &__stat-number {
-            font-size: 24px;
+            min-width: 80px;
+            font-size: 30px;
         }
 
         &__stat-label {
-            font-size: 13px;
+            max-width: none;
+            font-size: 14px;
+            line-height: 1.5;
             text-transform: none;
-            max-width: 100%;
         }
 
         &__link {
-            font-size: 13px;
-        }
-    }
-
-    /* ---------------- 600 ---------------- */
-    @media (max-width: 600px) {
-        padding: 28px 18px;
-        gap: 18px;
-
-        &__image {
-            height: 240px;
-        }
-
-        &__title {
-            font-size: 25px;
-            margin-bottom: 12px;
-        }
-
-        &__text {
-            font-size: 13px;
-            line-height: 20px;
-        }
-
-        &__plus {
-            font-size: 13px;
-        }
-
-        &__stat-number {
-            font-size: 22px;
-        }
-    }
-
-    /* ---------------- 480 ---------------- */
-    @media (max-width: 480px) {
-        padding: 24px 16px;
-        gap: 16px;
-
-        &__image {
-            height: 200px;
-        }
-
-        &__title {
-            font-size: 22px;
-            margin-bottom: 10px;
-        }
-
-        &__text {
-            font-size: 13px;
-            line-height: 19px;
-            margin-bottom: 16px;
-        }
-
-        &__pros {
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        &__plus {
-            font-size: 12px;
-            padding-left: 20px;
-        }
-
-        &__stats {
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        &__stat {
-            padding: 6px 0;
-        }
-
-        &__stat-number {
-            font-size: 20px;
-        }
-
-        &__stat-label {
-            font-size: 12px;
-        }
-
-        &__link {
-            font-size: 12px;
-            padding: 4px 0;
-        }
-    }
-
-    /* ---------------- 360 ---------------- */
-    @media (max-width: 360px) {
-        padding: 20px 12px;
-
-        &__image {
-            height: 170px;
-        }
-
-        &__title {
-            font-size: 20px;
-        }
-
-        &__text {
-            font-size: 12px;
-            line-height: 18px;
-        }
-
-        &__plus {
-            font-size: 11px;
-            padding-left: 18px;
-
-            &::before {
-                width: 7px;
-                height: 7px;
-            }
-        }
-
-        &__stat-number {
-            font-size: 18px;
-        }
-
-        &__stat-label {
-            font-size: 11px;
-        }
-
-        &__link {
-            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            padding: 10px 0;
+            font-size: 15px;
         }
     }
 }

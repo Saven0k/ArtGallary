@@ -5,7 +5,7 @@
 
     &__container {
         display: grid;
-        grid-template-columns: 260px 1fr;
+        grid-template-columns: 260px minmax(0, 1fr);
         gap: 24px;
         max-width: 1440px;
         margin: 0 auto;
@@ -22,5 +22,99 @@
             grid-template-columns: 1fr;
             gap: 16px;
         }
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-page {
+        padding: 16px 12px 32px;
+
+        :is(h1, h2, h3, p, label) {
+            overflow-wrap: anywhere;
+        }
+
+        button {
+            min-height: 44px;
+            white-space: normal;
+        }
+
+        :is(input:not([type='checkbox']):not([type='radio']):not([type='range']), select, textarea) {
+            min-width: 0;
+            max-width: 100%;
+            font-size: 16px;
+        }
+
+        [class$='__tabs'] {
+            max-width: 100%;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        [class$='__search'] {
+            width: 100%;
+            min-height: 44px;
+        }
+
+        [class$='__action'],
+        [class$='__pagination'] button {
+            min-width: 44px;
+        }
+
+        [class$='-overlay'] {
+            padding: 12px;
+        }
+
+        :is([class$='-form'], .author-view, .user-view, .confirm-modal, [class$='__modal']) {
+            max-height: calc(100dvh - 24px);
+            min-width: 0;
+            border-radius: 18px;
+            overflow-y: auto;
+            overscroll-behavior-y: contain;
+        }
+
+        [class*='-form__header'],
+        [class*='-form__actions'] {
+            flex-shrink: 0;
+            padding: 14px 16px;
+            gap: 10px;
+        }
+
+        [class*='-form__header'] button,
+        .author-view__header button,
+        .user-view__header button {
+            min-width: 44px;
+            flex-shrink: 0;
+        }
+
+        [class*='-form__body'] {
+            min-height: 0;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        [class*='-form__field'] {
+            min-width: 0;
+        }
+
+        :is(.author-view, .user-view, [class$='__modal']) {
+            padding: 20px;
+        }
+
+        .author-form__steps {
+            flex-wrap: wrap;
+            flex-shrink: 0;
+
+            span {
+                min-width: 0;
+                overflow-wrap: anywhere;
+            }
+        }
+    }
+}
+
+@media (max-width: 380px) {
+    .admin-page [class*='-form__actions'],
+    .admin-page [class$='__modal-actions'] {
+        flex-direction: column-reverse;
     }
 }

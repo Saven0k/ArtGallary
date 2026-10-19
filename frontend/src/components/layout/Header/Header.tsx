@@ -45,6 +45,7 @@ const Header = memo(() => {
     }, []);
 
     const handleOpenSidebar = useCallback(() => {
+        setIsMenuOpen(false);
         setIsSidebarClosing(false);
         setIsSidebarOpen(true);
     }, []);
@@ -134,15 +135,14 @@ const Header = memo(() => {
 
         document.addEventListener("keydown", handleEscape);
 
-        if (isMenuOpen || isSearchModalOpen || isSidebarOpen) {
+        const previousOverflow = document.body.style.overflow;
+        if (isSearchModalOpen || isSidebarOpen) {
             document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "unset";
         }
 
         return () => {
             document.removeEventListener("keydown", handleEscape);
-            document.body.style.overflow = "unset";
+            document.body.style.overflow = previousOverflow;
         };
     }, [isMenuOpen, isSearchModalOpen, isSidebarOpen, handleCloseSearchModal, handleCloseSidebar]);
 
@@ -153,14 +153,23 @@ const Header = memo(() => {
             <header className={isHome ? "header header--home" : "header"} id="header" role="banner">
                 <div className="header__container">
                     <div className="header__top">
+                        <button
+                            type="button"
+                            className={`header__burger ${isMenuOpen ? 'header__burger--open' : ''}`}
+                            aria-label={isMenuOpen ? lang.menu.close : lang.menu.open}
+                            aria-expanded={isMenuOpen}
+                            aria-controls="primary-navigation"
+                            onClick={() => setIsMenuOpen((open) => !open)}
+                        >
+                            <span className="header__burger-line" />
+                            <span className="header__burger-line" />
+                            <span className="header__burger-line" />
+                        </button>
                         <LanguageSwitcher />
-                        <Link to="/" className="header__logo">
+                        <Link to="/" className="header__logo" onClick={() => setIsMenuOpen(false)}>
                             <img src={Logo} alt={lang.logoTitle} className="header__logo-img" />
                         </Link>
                         <div className="header__icons">
-                            {
-
-                                      }
                             <Link to="/profile?section=likes" className="header__icon-link" aria-label={lang.likes}>
                                 <img src={Like} alt={lang.likes} className="header__icon" />
                             </Link>
@@ -177,8 +186,10 @@ const Header = memo(() => {
                             </button>
                         </div>
                     </div>
-                    <div className="header__bottom">
-                        <nav className={`header__nav ${isMenuOpen ? 'header__nav--open' : ''}`} role="navigation">
+                    <div className={`header__bottom ${isMenuOpen ? 'header__bottom--open' : ''}`}>
+                        <nav id="primary-navigation" className={`header__nav ${isMenuOpen ? 'header__nav--open' : ''}`} aria-label={lang.menu.open} onClick={(event) => {
+                            if ((event.target as HTMLElement).closest('a')) setIsMenuOpen(false);
+                        }}>
                             <ul className="header__nav-list">
                                 <li className="header__nav-item">
                                     <Link to="/arts" className="header__nav-link">

@@ -168,6 +168,26 @@
     }
 }
 
+@media (max-width: 768px) {
+    .ratings-section__summary,
+    .ratings-section__cards {
+        grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+        gap: 12px;
+    }
+
+    .ratings-section__distribution,
+    .ratings-section__card,
+    .ratings-section__summary-card {
+        padding: 16px;
+        min-width: 0;
+    }
+
+    .ratings-section__dist-row {
+        grid-template-columns: 40px minmax(0, 1fr) 45px;
+        gap: 8px;
+    }
+}
+
 
 
 .ratings-section {

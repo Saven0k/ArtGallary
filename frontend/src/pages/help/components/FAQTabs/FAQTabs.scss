@@ -65,21 +65,11 @@
 
     @media (max-width: 768px) {
         flex-shrink: 0;
-        height: 42px;
+        min-width: 44px;
+        height: 44px;
         padding: 0 18px;
         font-size: 14px;
         border-radius: 12px;
     }
 
-    @media (max-width: 480px) {
-        height: 38px;
-        padding: 0 14px;
-        font-size: 13px;
-    }
-
-    @media (max-width: 360px) {
-        height: 34px;
-        padding: 0 12px;
-        font-size: 12px;
-    }
 }

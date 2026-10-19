@@ -1,5 +1,7 @@
 .filter {
     width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
 
     @media (max-width: 1200px) {
         width: 100%;
@@ -60,8 +62,15 @@
         }
     }
 
+    &__option {
+        max-width: 100%;
+        min-width: 0;
+    }
+
     &__item {
         display: flex;
+        min-height: 44px;
+        height: 100%;
         align-items: center;
         gap: 12px;
         padding: 10px 12px;
@@ -71,6 +80,11 @@
 
         &:hover {
             background: var(--brand-gold-light);
+        }
+
+        &:has(input:checked) {
+            background: var(--brand-gold-light);
+            border-color: var(--brand-primary-gold);
         }
 
         @media (max-width: 1200px) {
@@ -129,6 +143,7 @@
         color: var(--neutral-black-900);
         cursor: pointer;
         user-select: none;
+        min-width: 0;
 
         @media (max-width: 992px) {
             font-size: 13px;

@@ -146,123 +146,59 @@
     }
 
     @media (max-width: 768px) {
-        gap: 20px;
-        padding: 24px;
+        min-width: 0;
+        gap: 24px;
+        padding: 24px 16px;
         border-radius: var(--radius-l);
 
         .support__title {
-            font-size: 20px;
+            font-size: 24px;
         }
 
         .support__subtitle {
-            font-size: 13px;
+            font-size: 15px;
+            line-height: 1.6;
         }
 
         .support__content {
-            gap: 12px;
+            gap: 16px;
         }
 
-        .support__contact {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
-            padding: 14px 16px;
-        }
-
-        .support__contact-label {
-            font-size: 14px;
-            min-width: auto;
-        }
-
-        .support__contact-value {
-            font-size: 14px;
-        }
-
+        .support__contact,
         .support__hours {
             flex-direction: column;
             align-items: flex-start;
             gap: 4px;
-            padding: 14px 16px;
+            padding: 16px;
         }
 
+        .support__contact-label,
         .support__hours-label {
+            min-width: 0;
             font-size: 14px;
-            min-width: auto;
+            line-height: 1.5;
         }
 
+        .support__contact-value,
         .support__hours-value {
-            font-size: 14px;
+            max-width: 100%;
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .support__contact-value {
+            display: flex;
+            align-items: center;
+            min-height: 44px;
         }
 
         .support__button {
             width: 100%;
-            padding: 14px;
-            font-size: 14px;
-            text-align: center;
-        }
-    }
-
-    @media (max-width: 480px) {
-        gap: 16px;
-        padding: 20px 16px;
-
-        .support__title {
-            font-size: 18px;
-        }
-
-        .support__subtitle {
-            font-size: 12px;
-        }
-
-        .support__content {
-            gap: 10px;
-        }
-
-        .support__contact,
-        .support__hours {
-            padding: 12px 14px;
-        }
-
-        .support__contact-label,
-        .support__contact-value,
-        .support__hours-label,
-        .support__hours-value {
-            font-size: 13px;
-        }
-
-        .support__button {
-            padding: 12px;
-            font-size: 13px;
-        }
-    }
-
-    @media (max-width: 360px) {
-        gap: 14px;
-        padding: 18px 14px;
-
-        .support__title {
+            min-height: 48px;
+            padding: 12px 20px;
             font-size: 16px;
-        }
-
-        .support__subtitle {
-            font-size: 11px;
-        }
-
-        .support__contact,
-        .support__hours {
-            padding: 10px 12px;
-        }
-
-        .support__contact-label,
-        .support__contact-value,
-        .support__hours-label,
-        .support__hours-value {
-            font-size: 12px;
-        }
-
-        .support__button {
-            padding: 10px;
-            font-size: 12px;
+            text-align: center;
         }
     }
 }
