@@ -16,6 +16,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     useEffect(() => {
         localStorage.setItem('language', language);
+        document.documentElement.lang = language === 'zh' ? 'zh-CN' : language;
     }, [language]);
 
     return (

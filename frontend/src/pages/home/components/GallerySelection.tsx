@@ -28,7 +28,7 @@ const GallerySelection = () => {
         if (busy !== null || loading) return;
         setBusy(id);
         const success = operation === 'like' ? await toggleLikeArt(id) : await addToCart(id);
-        if (!success) showNotification(language === 'ru' ? 'Не удалось сохранить изменение' : language === 'zh' ? '保存失败' : 'Could not save the change', 'error');
+        if (!success) showNotification(t.saveError, 'error');
         setBusy(null);
     };
 
@@ -47,11 +47,11 @@ const GallerySelection = () => {
                                 <span className="gallery-selection__item-title">{item.title}</span>
                                 <span className="gallery-selection__item-materials">{item.specifications}</span>
                             </div>
-                            <button className="gallery-selection__item-like" aria-label="Нравится" aria-pressed={isArtLiked(item.id)} disabled={loading || busy !== null} onClick={() => void mutate(item.id, 'like')}>
-                                <img src={LikeIcon} alt="Like" className="gallery-selection__item-like__img" />
+                            <button className="gallery-selection__item-like" aria-label={t.like} aria-pressed={isArtLiked(item.id)} disabled={loading || busy !== null} onClick={() => void mutate(item.id, 'like')}>
+                                <img src={LikeIcon} alt="" className="gallery-selection__item-like__img" />
                             </button>
-                            <button className="gallery-selection__item-cart" aria-label="Купить" disabled={loading || busy !== null || isInCart(item.id)} onClick={() => void mutate(item.id, 'cart')}>
-                                <img src={CartIcon} alt="Go to cart" className="gallery-selection__item-like__img" />
+                            <button className="gallery-selection__item-cart" aria-label={t.buy} disabled={loading || busy !== null || isInCart(item.id)} onClick={() => void mutate(item.id, 'cart')}>
+                                <img src={CartIcon} alt="" className="gallery-selection__item-like__img" />
                             </button>
                         </div>
                     </li>

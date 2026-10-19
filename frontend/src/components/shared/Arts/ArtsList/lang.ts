@@ -1,5 +1,7 @@
 export const artsListTranslations = {
     ru: {
+        empty: 'Работ пока нет',
+        similar: 'Похожие работы',
         loading: "Загружаем шедевры...",
         hero: {
             myWorks: "Мои работы",
@@ -35,6 +37,8 @@ export const artsListTranslations = {
         }
     },
     en: {
+        empty: 'No artworks yet',
+        similar: 'Similar artworks',
         loading: "Loading masterpieces...",
         hero: {
             myWorks: "My Works",
@@ -68,5 +72,22 @@ export const artsListTranslations = {
         notifications: {
             loadError: "Error loading artworks"
         }
+    },
+    zh: {
+        empty: '暂无作品',
+        similar: '相似作品',
+        loading: '正在加载艺术作品…',
+        hero: {
+            myWorks: '我的作品', worksOfArtist: '艺术家的作品', mySubtitle: '管理您的艺术作品',
+            artistSubtitle: '收藏中的全部作品', defaultTitle: '艺术画廊',
+            defaultSubtitle: '探索才华横溢的艺术家的独特作品',
+        },
+        results: { noWorks: '暂无作品', foundWorks: '找到的作品：' },
+        buttons: { create: '+ 创建作品' },
+        mobileFilters: {
+            title: '筛选', genre: '流派', type: '类型', sort: '排序', allGenres: '所有流派', allTypes: '所有类型',
+            sortOptions: { newest: '最新优先', oldest: '最早优先', popular: '最受欢迎' }, reset: '重置所有筛选',
+        },
+        notifications: { loadError: '无法加载作品' },
     }
 };

@@ -1,3 +1,4 @@
+import { apiErrorText } from '../lang';
 import { apiFetch } from '../request';
 
 import { BASE_URL_API } from "../main.api";
@@ -39,7 +40,7 @@ export const getAllGenres = async (lang: string = 'ru', artTypeId?: number): Pro
             credentials: "include",
         });
 
-        if (!res.ok) throw new Error("Ошибка при загрузке жанров");
+        if (!res.ok) throw new Error(apiErrorText('loadOptions'));
         return await res.json();
     } catch (e) {
         console.error("getAllGenres error:", e);
@@ -54,7 +55,7 @@ export const getGenresByArtType = async (artTypeId: number, lang: string = 'ru')
             credentials: "include",
         });
 
-        if (!res.ok) throw new Error("Ошибка при получении жанров для типа искусства");
+        if (!res.ok) throw new Error(apiErrorText('loadOptions'));
         return await res.json();
     } catch (e) {
         console.error("getGenresByArtType error:", e);
@@ -69,7 +70,7 @@ export const getGenreById = async (id: number, lang: string = 'ru'): Promise<Gen
             credentials: "include",
         });
 
-        if (!res.ok) throw new Error("Ошибка при получении жанра");
+        if (!res.ok) throw new Error(apiErrorText('loadOptions'));
         return await res.json();
     } catch (e) {
         console.error("getGenreById error:", e);
@@ -86,7 +87,7 @@ export const createGenre = async (data: CreateGenreData): Promise<Genre> => {
             body: JSON.stringify(data),
         });
 
-        if (!res.ok) throw new Error("Ошибка при создании жанра");
+        if (!res.ok) throw new Error(apiErrorText('saveChanges'));
         return await res.json();
     } catch (e) {
         console.error("createGenre error:", e);
@@ -103,7 +104,7 @@ export const updateGenre = async (id: number, data: UpdateGenreData): Promise<Ge
             body: JSON.stringify(data),
         });
 
-        if (!res.ok) throw new Error("Ошибка при обновлении жанра");
+        if (!res.ok) throw new Error(apiErrorText('saveChanges'));
         return await res.json();
     } catch (e) {
         console.error("updateGenre error:", e);
@@ -118,7 +119,7 @@ export const deleteGenre = async (id: number): Promise<{ success: boolean; messa
             credentials: "include",
         });
 
-        if (!res.ok) throw new Error("Ошибка при удалении жанра");
+        if (!res.ok) throw new Error(apiErrorText('deleteRecord'));
         return await res.json();
     } catch (e) {
         console.error("deleteGenre error:", e);
@@ -133,7 +134,7 @@ export const deleteAllGenres = async (): Promise<{ success: boolean; message: st
             credentials: "include",
         });
 
-        if (!res.ok) throw new Error("Ошибка при удалении всех жанров");
+        if (!res.ok) throw new Error(apiErrorText('deleteRecord'));
         return await res.json();
     } catch (e) {
         console.error("deleteAllGenres error:", e);
@@ -148,7 +149,7 @@ export const seedGenres = async (): Promise<Genre[]> => {
             credentials: "include",
         });
 
-        if (!res.ok) throw new Error("Ошибка при заполнении начальных данных");
+        if (!res.ok) throw new Error(apiErrorText('seedOptions'));
         return await res.json();
     } catch (e) {
         console.error("seedGenres error:", e);

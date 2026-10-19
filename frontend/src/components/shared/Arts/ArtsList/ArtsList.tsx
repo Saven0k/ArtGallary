@@ -2,18 +2,21 @@
 import type { Art } from "../../../../api/arts/main.api";
 import ArtCard from "../ArtCard/ArtCard";
 import "./ArtsList.scss";
+import { useLanguage } from '../../../../hooks/useLanguage';
+import { artsListTranslations } from './lang';
 
 export interface ArtsListProps {
     data: { arts: Art[] };
 }
 
 const ArtsList = ({ data }: ArtsListProps) => {
+    const { language } = useLanguage();
     const arts = data?.arts || [];
 
     if (!arts.length) {
         return (
             <div className="art-list__empty">
-                У автора пока нет работ
+                {artsListTranslations[language].empty}
             </div>
         );
     }

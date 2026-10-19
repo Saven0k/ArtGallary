@@ -59,7 +59,7 @@ const CartItemRow = ({
                 )}
 
                 <div className="cart-item__price">
-                    {formatPrice(line.total, line.currency)}
+                    {formatPrice(line.total, line.currency, language)}
                 </div>
 
                 <button

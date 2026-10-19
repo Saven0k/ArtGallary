@@ -9,10 +9,13 @@ import Navigation from "../../../components/layout/Navigation/Navigation";
 import AuthorProfile from "../../../components/shared/Authors/AuthorDetail/AuthorProfile/AuthorProfile";
 import { useLanguage } from '../../../hooks/useLanguage';
 import './AuthorPage.scss';
+import { authorTranslations } from '../../../components/shared/Authors/AuthorDetail/lang';
+import { commonTranslations } from '../../../lang';
 
 const AuthorPage = () => {
     const { id } = useParams<{ id: string }>();
     const { language } = useLanguage();
+    const t = authorTranslations[language];
 
     const [author, setAuthor] = useState<AuthorProfileResponse | null>(null);
     const [arts, setArts] = useState<Art[]>([]);
@@ -23,7 +26,7 @@ const AuthorPage = () => {
         let active = true;
         const getData = async () => {
             if (!id) {
-                setError("ID автора не указан");
+                setError(t.missingId);
                 setLoading(false);
                 return;
             }
@@ -41,7 +44,7 @@ const AuthorPage = () => {
                 if (authorData) {
                     setAuthor(authorData);
                 } else {
-                    setError("Автор не найден");
+                    setError(t.notFound);
                 }
 
                 if (artsData) {
@@ -49,7 +52,7 @@ const AuthorPage = () => {
                 }
             } catch (err) {
                 console.error("Error fetching author data:", err);
-                setError("Ошибка при загрузке данных");
+                setError(t.loadError);
             } finally {
                 if (active) setLoading(false);
             }
@@ -57,12 +60,12 @@ const AuthorPage = () => {
 
         getData();
         return () => { active = false; };
-    }, [id, language]);
+    }, [id, language, t]);
 
     if (loading) {
         return (
             <main className="author-page">
-                <div className="author-page__loading">Загрузка...</div>
+                <div className="author-page__loading">{commonTranslations[language].loading}</div>
             </main>
         );
     }
@@ -70,7 +73,7 @@ const AuthorPage = () => {
     if (error || !author) {
         return (
             <main className="author-page">
-                <div className="author-page__error">{error || "Автор не найден"}</div>
+                <div className="author-page__error">{error || t.notFound}</div>
             </main>
         );
     }

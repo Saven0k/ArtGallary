@@ -8,7 +8,7 @@ const load = (file, apiFetch, requestOverrides = {}) => {
     const source = fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
     const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
     const module = { exports: {} };
-    const requireMock = (name) => name.endsWith('main.api') ? { BASE_URL_API: 'https://gallery.test', contentType: { 'Content-Type': 'application/json' } } : { apiFetch, apiRequest: apiFetch, refreshSession: () => Promise.resolve(null), ...requestOverrides };
+    const requireMock = (name) => name.endsWith('/lang') ? load(path.join(path.dirname(file), name + '.ts'), apiFetch, requestOverrides) : name.endsWith('main.api') ? { BASE_URL_API: 'https://gallery.test', contentType: { 'Content-Type': 'application/json' } } : { apiFetch, apiRequest: apiFetch, refreshSession: () => Promise.resolve(null), ...requestOverrides };
     new Function('require', 'module', 'exports', code)(requireMock, module, module.exports);
     return module.exports;
 };
@@ -97,6 +97,22 @@ test('authenticated logout uses the shared refresh-capable request', async () =>
     assert.deepEqual(await api.logout(), { message: 'Logged out' });
     assert.equal(request.url, 'https://gallery.test/auth/logout');
     assert.equal(request.method, 'POST');
+});
+
+test('API fallback errors follow the selected language while preserving server validation messages', async () => {
+    const storage = global.localStorage;
+    try {
+        for (const language of ['ru', 'en', 'zh']) {
+            global.localStorage = { getItem: () => language };
+            const copy = load('api/lang.ts').apiTranslations[language];
+            await assert.rejects(load('api/auth/main.api.ts', async () => json({}, 400)).requestResetCode({ email: 'me@example.test' }), { message: copy.sendCode });
+            await assert.rejects(load('api/subscription/main.api.ts', async () => json({}, 503)).getSubscriptionInfo(), { message: copy.requestFailed });
+            await assert.rejects(load('api/cart-history/main.api.ts', async () => json({}, 400)).checkoutCart({ items: [] }), { message: copy.checkout });
+            await assert.rejects(load('api/auth/main.api.ts', async () => json({ message: 'Validation detail' }, 400)).verifyResetCode({ email: 'me@example.test', code: '000000' }), /Validation detail/);
+        }
+        global.localStorage = { getItem: () => 'unsupported' };
+        assert.equal(load('api/lang.ts').apiErrorText('invalidCode'), 'Неверный код');
+    } finally { global.localStorage = storage; }
 });
 
 test('simultaneous expired requests share one refresh and retry once', async () => {

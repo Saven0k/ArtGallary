@@ -3,6 +3,8 @@ import { useCallback, useState } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
 import { getCroppedImg, type PixelCrop } from '../../../utils/cropImage';
 import './AvatarCropModal.scss';
+import { useLanguage } from '../../../hooks/useLanguage';
+import { commonTranslations } from '../../../lang';
 
 interface AvatarCropModalProps {
     src: string;
@@ -21,6 +23,8 @@ const AvatarCropModal = ({
     onCancel,
     onConfirm,
 }: AvatarCropModalProps) => {
+    const { language } = useLanguage();
+    const t = commonTranslations[language];
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<PixelCrop | null>(null);
@@ -45,7 +49,7 @@ const AvatarCropModal = ({
             onConfirm(file);
         } catch (e) {
             console.error('crop error:', e);
-            setError('Не удалось обработать изображение');
+            setError(t.imageError);
         } finally {
             setBusy(false);
         }
@@ -84,7 +88,7 @@ const AvatarCropModal = ({
                         step={0.05}
                         value={zoom}
                         onChange={(e) => setZoom(Number(e.target.value))}
-                        aria-label="Zoom"
+                        aria-label={t.zoom}
                     />
                     <span>+</span>
                 </div>

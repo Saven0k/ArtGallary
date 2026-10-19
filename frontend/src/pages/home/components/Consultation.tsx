@@ -17,7 +17,7 @@ const Consultation = () => {
             </div>
             <Link to="/consultation" className="consultation__button">
                 {t.button}
-                <img src={ArrowIcon} alt="SVG ICON" className="consultation__button-icon" />
+                <img src={ArrowIcon} alt="" className="consultation__button-icon" />
             </Link>
         </section>
     );

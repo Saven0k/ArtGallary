@@ -1,3 +1,4 @@
+import { commonTranslations } from '../../../../../lang';
 
 import { useEffect, useRef, useState } from 'react';
 import { X, Upload, User as UserIcon } from 'lucide-react';
@@ -377,7 +378,7 @@ const AuthorFormModal = ({ busy, onClose, onSubmit }: AuthorFormModalProps) => {
                 <div className="author-form__avatar-row">
                     <div className="author-form__avatar-preview">
                         {avatarPreview ? (
-                            <img src={avatarPreview} alt="avatar" />
+                            <img src={avatarPreview} alt={commonTranslations[language].avatar} />
                         ) : (
                             <UserIcon size={32} />
                         )}

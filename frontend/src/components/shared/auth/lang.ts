@@ -29,6 +29,7 @@ export const registerAuthorTranslations = {
             step3: {
                 title: "Фотография профиля",
                 uploadText: "Выберите фото профиля",
+                emptyFile: "Файл не выбран",
                 uploadHint: "Перетащите изображения сюда в формате PNG до 10 МБ",
                 uploadBtn: "Выбрать изображение",
                 changeBtn: "Изменить"
@@ -102,6 +103,7 @@ export const registerAuthorTranslations = {
             step3: {
                 title: "Profile Photo",
                 uploadText: "Choose profile photo",
+                emptyFile: "No file selected",
                 uploadHint: "Drag and drop images here in PNG format up to 10 MB",
                 uploadBtn: "Choose image",
                 changeBtn: "Change"
@@ -175,6 +177,7 @@ export const registerAuthorTranslations = {
             step3: {
                 title: "个人资料照片",
                 uploadText: "选择个人资料照片",
+                emptyFile: "未选择文件",
                 uploadHint: "将PNG格式图片拖放到此处，最大10MB",
                 uploadBtn: "选择图片",
                 changeBtn: "更改"

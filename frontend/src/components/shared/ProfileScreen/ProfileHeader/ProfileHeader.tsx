@@ -32,7 +32,7 @@ const ProfileHeader = ({
         role === 'author'
             ? professionName
                 ? getProfessionLabel(language, professionName)
-                : role
+                : t.roleAuthor
             : t.roleUser;
 
     const planLabel = getPlanLabel(language, plan);

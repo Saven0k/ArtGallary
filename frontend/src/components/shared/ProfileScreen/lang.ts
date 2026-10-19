@@ -5,6 +5,11 @@ export type Language = 'ru' | 'en' | 'zh';
 
 export const profileTranslations = {
     ru: {
+        sidebar: {
+            personal: 'Личная информация', statistics: 'Статистика', notifications: 'Уведомления',
+            likes: 'Избранное', subscriptions: 'Мои подписки', tariff: 'Тарифный план',
+            cart: 'Корзина', history: 'История покупок', settings: 'Настройки', unread: 'Непрочитанных: {count}',
+        },
         analytics: {
             title: 'Аналитика',
             exhibitions: 'Выставки',
@@ -42,6 +47,11 @@ export const profileTranslations = {
     },
 
     en: {
+        sidebar: {
+            personal: 'Personal information', statistics: 'Statistics', notifications: 'Notifications',
+            likes: 'Favorites', subscriptions: 'Following', tariff: 'Subscription plan',
+            cart: 'Cart', history: 'Purchase history', settings: 'Settings', unread: 'Unread: {count}',
+        },
         analytics: {
             title: 'Analytics',
             exhibitions: 'Exhibitions',
@@ -76,6 +86,11 @@ export const profileTranslations = {
     },
 
     zh: {
+        sidebar: {
+            personal: '个人信息', statistics: '统计', notifications: '通知',
+            likes: '收藏', subscriptions: '我的关注', tariff: '订阅方案',
+            cart: '购物车', history: '购买记录', settings: '设置', unread: '未读：{count}',
+        },
         analytics: {
             title: '分析',
             exhibitions: '展览',

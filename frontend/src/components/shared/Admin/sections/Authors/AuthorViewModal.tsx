@@ -4,6 +4,7 @@ import { useLanguage } from '../../../../../hooks/useLanguage';
 import { adminTranslations } from '../../../../../pages/admin/lang';
 import type { AuthorProfileResponse } from '../../../../../api/authors/main.api';
 import { authorsTranslations } from './lang';
+import { getPlanLabel } from '../../../ProfileScreen/ProfileHeader/lang';
 import './AuthorViewModal.scss';
 
 interface AuthorViewModalProps {
@@ -90,7 +91,7 @@ const AuthorViewModal = ({ author, onClose }: AuthorViewModalProps) => {
                         <dt>{t.viewModal.registeredAt}</dt>
                         <dd>
                             {p?.createdAt
-                                ? new Date(p.createdAt).toLocaleDateString()
+                                ? new Date(p.createdAt).toLocaleDateString(language)
                                 : notSpecified}
                         </dd>
                     </div>
@@ -98,7 +99,7 @@ const AuthorViewModal = ({ author, onClose }: AuthorViewModalProps) => {
                     <div>
                         <dt>{t.viewModal.plan}</dt>
                         <dd>
-                            {p?.plan ?? 'free'}{' '}
+                            {getPlanLabel(language, p?.plan ?? 'free')}{' '}
                             {p?.isSubscriptionActive
                                 ? `· ${t.viewModal.planActive}`
                                 : ''}
@@ -108,7 +109,7 @@ const AuthorViewModal = ({ author, onClose }: AuthorViewModalProps) => {
                         <dt>{t.viewModal.planExpires}</dt>
                         <dd>
                             {p?.planExpiresAt
-                                ? new Date(p.planExpiresAt).toLocaleDateString()
+                                ? new Date(p.planExpiresAt).toLocaleDateString(language)
                                 : notSpecified}
                         </dd>
                     </div>

@@ -1,3 +1,4 @@
+import { apiErrorText } from '../lang';
 import { apiFetch, apiRequest, refreshSession } from '../request';
 
 import { BASE_URL_API, contentType } from "../main.api";
@@ -63,10 +64,10 @@ export const changePassword = async (
             const message =
                 data?.message ||
                 (res.status === 401
-                    ? 'Неверный текущий пароль'
+                    ? apiErrorText('currentPassword')
                     : res.status === 409
-                        ? 'Новый пароль совпадает с текущим'
-                        : 'Не удалось изменить пароль');
+                        ? apiErrorText('samePassword')
+                        : apiErrorText('changePassword'));
             throw new Error(message);
         }
 
@@ -169,7 +170,7 @@ export const requestResetCode = async (payload: RequestCodePayload) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error('Не удалось отправить код');
+    if (!res.ok) throw new Error(apiErrorText('sendCode'));
     return await res.json();
 };
 
@@ -188,7 +189,7 @@ export const verifyResetCode = async (
     });
     if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.message || 'Неверный код');
+        throw new Error(data?.message || apiErrorText('invalidCode'));
     }
     return await res.json();
 };
@@ -208,7 +209,7 @@ export const resetPassword = async (
     });
     if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.message || 'Не удалось изменить пароль');
+        throw new Error(data?.message || apiErrorText('changePassword'));
     }
     return await res.json();
 };
@@ -231,7 +232,7 @@ export const verifyCurrentEmail = async (payload: VerifyCurrentEmailPayload) => 
     });
     if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.message || 'Email не совпадает');
+        throw new Error(data?.message || apiErrorText('emailMismatch'));
     }
     return await res.json();
 };
@@ -245,7 +246,7 @@ export const requestEmailChangeCode = async (payload: RequestEmailChangeCodePayl
     });
     if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.message || 'Не удалось отправить код');
+        throw new Error(data?.message || apiErrorText('sendCode'));
     }
     return await res.json();
 };
@@ -259,7 +260,7 @@ export const confirmEmailChange = async (payload: ConfirmEmailChangePayload) => 
     });
     if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.message || 'Не удалось изменить email');
+        throw new Error(data?.message || apiErrorText('changeEmail'));
     }
     return await res.json();
 };
@@ -273,7 +274,7 @@ export const verifyPassword = async (payload: VerifyPasswordPayload) => {
     });
     if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.message || 'Неверный пароль');
+        throw new Error(data?.message || apiErrorText('invalidPassword'));
     }
     return await res.json();
 };
@@ -286,7 +287,7 @@ export const requestAccountDeletionCode = async (): Promise<{ message: string }>
     });
     if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.message || 'Не удалось отправить код');
+        throw new Error(data?.message || apiErrorText('sendCode'));
     }
     return await res.json();
 };
@@ -302,7 +303,7 @@ export const verifyAccountDeletionCode = async (
     });
     if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.message || 'Неверный код');
+        throw new Error(data?.message || apiErrorText('invalidCode'));
     }
     return await res.json();
 };

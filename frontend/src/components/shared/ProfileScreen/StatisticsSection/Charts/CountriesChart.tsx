@@ -1,3 +1,5 @@
+import { useLanguage } from '../../../../../hooks/useLanguage';
+import { statisticsTranslations } from '../lang';
 import type { TooltipItem } from "chart.js";
 
 import { useMemo } from "react";
@@ -22,24 +24,26 @@ interface CountriesChartProps {
 }
 
 const CountriesChart = ({ data }: CountriesChartProps) => {
+    const { language } = useLanguage();
+    const t = statisticsTranslations[language];
 
     const items = useMemo(() => {
         const total = data.reduce((sum, item) => sum + item.count, 0);
         return data
             .slice(0, 5)
             .map((item) => ({
-                country: item.countryName || `Страна ${item.countryId}`,
+                country: item.countryName || `${t.country} ${item.countryId}`,
                 percentage:
                     total > 0 ? Math.round((item.count / total) * 100) : 0,
             }));
-    }, [data]);
+    }, [data, t.country]);
 
     const chartData = useMemo(
         () => ({
             labels: items.map((i) => i.country),
             datasets: [
                 {
-                    label: "Зрители",
+                    label: t.viewers,
                     data: items.map((i) => i.percentage),
                     backgroundColor: items.map(
                         (_, i) => CHART_COLORS[i % CHART_COLORS.length],
@@ -51,7 +55,7 @@ const CountriesChart = ({ data }: CountriesChartProps) => {
                 },
             ],
         }),
-        [items],
+        [items, t.viewers],
     );
 
     const options = useMemo(
@@ -89,10 +93,10 @@ const CountriesChart = ({ data }: CountriesChartProps) => {
 
     return (
         <div className="chart-container">
-            <h3 className="chart-title">Топ стран</h3>
+            <h3 className="chart-title">{t.countries}</h3>
             <div className="chart-wrapper chart-wrapper--bar">
                 {items.length === 0 ? (
-                    <div className="chart-empty">Нет данных</div>
+                    <div className="chart-empty">{t.empty}</div>
                 ) : (
                     <Bar data={chartData} options={options} />
                 )}

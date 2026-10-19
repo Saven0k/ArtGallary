@@ -1,4 +1,6 @@
 import "./index.scss";
+import { useLanguage } from '../../../hooks/useLanguage';
+import { commonTranslations } from '../../../lang';
 
 type ConfirmComponentProps = {
     title: string;
@@ -14,12 +16,14 @@ type ConfirmComponentProps = {
 export const ConfirmComponent = ({
     title,
     message,
-    confirmText = "Да",
-    cancelText = "Нет",
+    confirmText,
+    cancelText,
     type = "danger",
     onConfirm,
     onCancel,
 }: ConfirmComponentProps) => {
+    const { language } = useLanguage();
+    const t = commonTranslations[language];
     return (
         <div className="confirm-overlay" onClick={onCancel}>
             <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
@@ -32,10 +36,10 @@ export const ConfirmComponent = ({
                 <p className="confirm-message">{message}</p>
                 <div className="confirm-buttons">
                     <button className="confirm-button confirm-button--cancel" onClick={onCancel}>
-                        {cancelText}
+                        {cancelText ?? t.no}
                     </button>
                     <button className={`confirm-button confirm-button--${type}`} onClick={onConfirm}>
-                        {confirmText}
+                        {confirmText ?? t.yes}
                     </button>
                 </div>
             </div>

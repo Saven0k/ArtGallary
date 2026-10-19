@@ -1,3 +1,4 @@
+import { commonTranslations } from '../../../../lang';
 import { useState, useEffect, useRef } from "react";
 import { useLanguage } from "../../../../hooks/useLanguage";
 import { useAuth } from "../../../../hooks/useAuth";
@@ -355,7 +356,7 @@ const PersonalInfo = ({ id, role }: PersonalInfoProps) => {
                     <div className="personal-info__avatar-row">
                         <div className="personal-info__avatar-preview">
                             {avatarPreview ? (
-                                <img src={avatarPreview} alt="avatar" />
+                                <img src={avatarPreview} alt={commonTranslations[language].avatar} />
                             ) : (
                                 <div className="personal-info__avatar-placeholder">
                                     {(formData.name?.[0] ||

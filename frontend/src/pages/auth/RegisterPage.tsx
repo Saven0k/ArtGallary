@@ -42,7 +42,7 @@ const RegisterPage = () => {
     return (
         <div className="register-page auth-page">
             <div className="register__box auth__box">
-                <img src={AuthImage} alt="Картинка регистрации" className="register__img auth__img" />
+                <img src={AuthImage} alt="" className="register__img auth__img" />
 
                 <div className="register__content auth__content">
                     <div className="register__tabs">

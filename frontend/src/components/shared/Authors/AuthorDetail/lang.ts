@@ -4,6 +4,9 @@ export type Language = 'ru' | 'en' | 'zh';
 
 export const authorTranslations = {
     ru: {
+        missingId: 'ID автора не указан',
+        notFound: 'Автор не найден',
+        loadError: 'Не удалось загрузить данные автора',
         header: {
             readMore: 'Читать дальше',
             collapse: 'Свернуть',
@@ -21,7 +24,7 @@ export const authorTranslations = {
         },
         profile: {
             followers: 'подписчиков',
-            about: 'О авторе',
+            about: 'Об авторе',
             system: 'Системная информация',
             noBio: 'Биография автора пока не заполнена',
             readMore: 'ЧИТАТЬ ПОЛНОСТЬЮ',
@@ -34,6 +37,9 @@ export const authorTranslations = {
         },
     },
     en: {
+        missingId: 'Author ID is missing',
+        notFound: 'Author not found',
+        loadError: 'Could not load the author’s details',
         header: {
             readMore: 'Read more',
             collapse: 'Collapse',
@@ -63,6 +69,9 @@ export const authorTranslations = {
         },
     },
     zh: {
+        missingId: '缺少作者 ID',
+        notFound: '未找到作者',
+        loadError: '无法加载作者资料',
         header: {
             readMore: '阅读更多',
             collapse: '收起',

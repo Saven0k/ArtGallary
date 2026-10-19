@@ -2,8 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { getSubscriptionInfo, purchaseSubscription, cancelSubscription, getAvailablePlans, confirmSubscriptionPayment, type SubscriptionInfo, type AvailablePlans, type PurchaseSubscriptionDto } from '../api/subscription/main.api';
 import { useAuth } from './useAuth';
 import { errorMessage } from '../utils/errors';
+import { useLanguage } from './useLanguage';
+import { apiTranslations } from '../api/lang';
 
 export const useSubscription = () => {
+    const { language } = useLanguage();
+    const t = apiTranslations[language];
     const { user, refetch } = useAuth();
     const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
     const [plans, setPlans] = useState<AvailablePlans | null>(null);
@@ -44,9 +48,9 @@ export const useSubscription = () => {
                 sessionStorage.setItem(pendingKey, paymentId);
                 await verifyPayment(paymentId);
             }
-        }).catch((e: unknown) => { if (active) setError(errorMessage(e, 'Не удалось загрузить тарифы')); }).finally(() => { if (active) setLoading(false); });
+        }).catch((e: unknown) => { if (active) setError(errorMessage(e, t.loadPlans)); }).finally(() => { if (active) setLoading(false); });
         return () => { active = false; };
-    }, [pendingKey, verifyPayment]);
+    }, [pendingKey, verifyPayment, language, t.loadPlans]);
     const purchase = async (data: PurchaseSubscriptionDto) => {
         setLoading(true);
         setError('');
@@ -56,10 +60,10 @@ export const useSubscription = () => {
             setPendingPayment(payment.paymentId);
             if (payment.paymentUrl) {
                 const url = new URL(payment.paymentUrl);
-                if (url.protocol !== 'https:' || url.username || url.password) throw new Error('Некорректная ссылка на оплату');
+                if (url.protocol !== 'https:' || url.username || url.password) throw new Error(t.paymentLink);
                 window.location.assign(url.href);
             } else await verifyPayment(payment.paymentId);
-        } catch (e) { setError(errorMessage(e, 'Не удалось открыть оплату')); }
+        } catch (e) { setError(errorMessage(e, t.openPayment)); }
         finally { setLoading(false); }
     };
     const cancel = async () => {
@@ -70,7 +74,7 @@ export const useSubscription = () => {
             setMessage(result.message);
             await loadSubscription();
             await refetch();
-        } catch (e) { setError(errorMessage(e, 'Не удалось отменить подписку')); }
+        } catch (e) { setError(errorMessage(e, t.cancelSubscription)); }
         finally { setLoading(false); }
     };
     const confirmPayment = async () => {
@@ -78,7 +82,7 @@ export const useSubscription = () => {
         setLoading(true);
         setError('');
         try { await verifyPayment(pendingPayment); }
-        catch (e) { setError(errorMessage(e, 'Не удалось проверить оплату')); }
+        catch (e) { setError(errorMessage(e, t.verifyPayment)); }
         finally { setLoading(false); }
     };
     return { subscription, loading, plans, error, message, pendingPayment, loadSubscription, purchase, cancel, confirmPayment };

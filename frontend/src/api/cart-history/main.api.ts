@@ -1,3 +1,4 @@
+import { apiErrorText } from '../lang';
 import { apiFetch } from '../request';
 
 import { BASE_URL_API } from "../main.api";
@@ -70,7 +71,7 @@ export const checkoutCart = async (payload: { items: { artId: number; quantity: 
     const res = await apiFetch(`${BASE_URL}/checkout`, json(payload));
     if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.message || 'Не удалось оформить заказ');
+        throw new Error(data?.message || apiErrorText('checkout'));
     }
     return res.json();
 };

@@ -1,3 +1,4 @@
+import { apiErrorText } from '../lang';
 import { apiFetch } from '../request';
 
 import type { Genre } from "../genres/main.api";
@@ -28,7 +29,7 @@ export const getAllArtTypes = async (): Promise<ArtType[]> => {
             method: "GET",
             credentials: "include",
         });
-        if (!res.ok) throw new Error("Ошибка при загрузке типов искусства");
+        if (!res.ok) throw new Error(apiErrorText('loadOptions'));
         return await res.json();
     } catch (e) {
         console.error("getAllArtTypes error:", e);
@@ -42,7 +43,7 @@ export const getArtTypeById = async (id: number): Promise<ArtType> => {
             method: "GET",
             credentials: "include",
         });
-        if (!res.ok) throw new Error("Ошибка при получении типа искусства");
+        if (!res.ok) throw new Error(apiErrorText('loadOptions'));
         return await res.json();
     } catch (e) {
         console.error("getArtTypeById error:", e);
@@ -58,7 +59,7 @@ export const createArtType = async (data: CreateArtTypeData): Promise<ArtType> =
             credentials: "include",
             body: JSON.stringify(data),
         });
-        if (!res.ok) throw new Error("Ошибка при создании типа искусства");
+        if (!res.ok) throw new Error(apiErrorText('saveChanges'));
         return await res.json();
     } catch (e) {
         console.error("createArtType error:", e);
@@ -74,7 +75,7 @@ export const updateArtType = async (id: number, data: UpdateArtTypeData): Promis
             credentials: "include",
             body: JSON.stringify(data),
         });
-        if (!res.ok) throw new Error("Ошибка при обновлении типа искусства");
+        if (!res.ok) throw new Error(apiErrorText('saveChanges'));
         return await res.json();
     } catch (e) {
         console.error("updateArtType error:", e);
@@ -88,7 +89,7 @@ export const deleteArtType = async (id: number): Promise<{ success: boolean; mes
             method: "DELETE",
             credentials: "include",
         });
-        if (!res.ok) throw new Error("Ошибка при удалении типа искусства");
+        if (!res.ok) throw new Error(apiErrorText('deleteRecord'));
         return await res.json();
     } catch (e) {
         console.error("deleteArtType error:", e);
@@ -102,7 +103,7 @@ export const seedArtTypes = async (): Promise<ArtType[]> => {
             method: "POST",
             credentials: "include",
         });
-        if (!res.ok) throw new Error("Ошибка при заполнении начальных данных");
+        if (!res.ok) throw new Error(apiErrorText('seedOptions'));
         return await res.json();
     } catch (e) {
         console.error("seedArtTypes error:", e);

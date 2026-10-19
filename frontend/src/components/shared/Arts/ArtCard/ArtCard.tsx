@@ -39,13 +39,13 @@ const ArtCard = ({ art_id, art }: ArtCardProps) => {
     const handleLike = async () => {
         if (busy || loading) return;
         setBusy(true);
-        if (!await toggleLikeArt(art_id)) showNotification('Не удалось изменить избранное', 'error');
+        if (!await toggleLikeArt(art_id)) showNotification(t.likeError, 'error');
         setBusy(false);
     };
     const handleAddToCart = async () => {
         if (busy || loading || inCart) return;
         setBusy(true);
-        if (!await addToCart(art_id)) showNotification('Не удалось добавить работу в корзину', 'error');
+        if (!await addToCart(art_id)) showNotification(t.cartError, 'error');
         setBusy(false);
     };
 

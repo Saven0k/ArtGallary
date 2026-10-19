@@ -6,6 +6,7 @@ import GenderChart from "./Charts/GenderChart";
 import AgeChart from "./Charts/AgeChart";
 import CountriesChart from "./Charts/CountriesChart";
 import { useLanguage } from '../../../../hooks/useLanguage';
+import { statisticsTranslations } from './lang';
 
 type Period = "week" | "month" | "year";
 
@@ -27,6 +28,7 @@ const periodToFilter = (period: Period): StatsQuery => {
 
 const Statistics = ({ authorId }: ProfileStatsProps) => {
     const { language } = useLanguage();
+    const t = statisticsTranslations[language];
     const [stats, setStats] = useState<AuthorStatsData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -38,38 +40,38 @@ const Statistics = ({ authorId }: ProfileStatsProps) => {
         setLoading(true);
         setError(null);
         const res = await getAuthorStats(authorId, filter, language);
-        if (!res) setError("Не удалось загрузить статистику");
+        if (!res) setError(t.error);
         setStats(res);
         setLoading(false);
-    }, [authorId, filter, language]);
+    }, [authorId, filter, language, t.error]);
 
     useEffect(() => {
         load();
     }, [load]);
 
-    if (loading) return <div className="stats-loading">Загрузка статистики…</div>;
+    if (loading) return <div className="stats-loading">{t.loading}</div>;
     if (error) return <div className="stats-error">{error}</div>;
-    if (!stats) return <div className="stats-empty">Нет данных</div>;
+    if (!stats) return <div className="stats-empty">{t.empty}</div>;
 
     return (
         <div className="profile-stats">
             {                      }
             <div className="stats-cards">
                 <div className="stats-card">
-                    <span className="stats-card__label">Лайков</span>
+                    <span className="stats-card__label">{t.likes}</span>
                     <span className="stats-card__value">{stats.totalLikes}</span>
                 </div>
                 <div className="stats-card">
-                    <span className="stats-card__label">Просмотров</span>
+                    <span className="stats-card__label">{t.views}</span>
                     <span className="stats-card__value">{stats.totalViews}</span>
                 </div>
                 <div className="stats-card">
-                    <span className="stats-card__label">Уникальных зрителей</span>
+                    <span className="stats-card__label">{t.unique}</span>
                     <span className="stats-card__value">{stats.uniqueUsers}</span>
                 </div>
                 <div className="stats-card">
                     <span className="stats-card__label">
-                        Картины / профиль
+                        {t.artworksProfile}
                     </span>
                     <span className="stats-card__value">
                         {stats.artViews} / {stats.authorViews}

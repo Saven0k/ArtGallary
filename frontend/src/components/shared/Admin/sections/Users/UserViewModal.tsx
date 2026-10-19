@@ -95,7 +95,7 @@ const UserViewModal = ({ user, onClose }: UserViewModalProps) => {
                         <dt>{t.viewModal.registeredAt}</dt>
                         <dd>
                             {user.createdAt
-                                ? new Date(user.createdAt).toLocaleString()
+                                ? new Date(user.createdAt).toLocaleString(language)
                                 : notSpecified}
                         </dd>
                     </div>
@@ -103,7 +103,7 @@ const UserViewModal = ({ user, onClose }: UserViewModalProps) => {
                         <dt>{t.viewModal.updatedAt}</dt>
                         <dd>
                             {user.updatedAt
-                                ? new Date(user.updatedAt).toLocaleString()
+                                ? new Date(user.updatedAt).toLocaleString(language)
                                 : notSpecified}
                         </dd>
                     </div>

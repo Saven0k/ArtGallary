@@ -1,3 +1,4 @@
+import { commonTranslations } from '../../../lang';
 
 import { memo, useState, useEffect } from 'react';
 import { useSidebarTranslation } from './lang';
@@ -140,7 +141,7 @@ const ProfileSideBar = memo(({
                     <button
                         className="sidebarProfile__close"
                         onClick={onClose}
-                        aria-label="Закрыть меню"
+                        aria-label={commonTranslations[language].closeMenu}
                     >
                         ✕
                     </button>
@@ -166,7 +167,7 @@ const ProfileSideBar = memo(({
                             <button
                                 className="sidebarProfile__action-btn sidebarProfile__action-btn--danger"
                                 onClick={handleLogout}
-                                aria-label="Logout"
+                                aria-label={commonTranslations[language].logout}
                             >
                                 🚪
                             </button>

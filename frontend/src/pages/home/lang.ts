@@ -15,12 +15,12 @@ export const translations = {
                 button: 'Стать участником галереи',
                 nav: {
                     paintings: 'Картины',
-                    guohua: 'Guó Huà (国画)',
+                    guohua: 'Гохуа',
                     engravings: 'Гравюры',
                     painting: 'Живопись',
                     sculptures: 'Скульптуры',
                     decorative: 'Декоративно-прикладное искусство',
-                    gameArt: 'Game Art',
+                    gameArt: 'Игровое искусство',
                     posters: 'Постеры',
                     kintsugi: 'Кинцуги',
                     cinema: 'Кино'
@@ -30,6 +30,12 @@ export const translations = {
                 title: 'Работаем с 2026 года',
                 text: 'это современная площадка для знакомства с произведениями искусства и творческими проектами. Наша цель заключается в популяризации художественной культуры и предоставлении удобного доступа к работам талантливых авторов.',
                 highlight: 'TILININ\'S GALLERY - ',
+                imageAlt: 'Галерея',
+                benefits: [
+                    'На сайте представлены оригинальные авторские работы',
+                    'Работаем напрямую с художниками',
+                    'Каждое произведение создано вручную',
+                ],
                 stats: {
                     works: 'Работ в каталоге',
                     authors: 'Художников',
@@ -41,7 +47,7 @@ export const translations = {
                 title: 'Преимущества',
                 items: [
                     {
-                        title: 'Уникальная коллекция произведения искусств',
+                        title: 'Уникальная коллекция произведений искусства',
                         description: 'Тщательно отобранные работы современных и классических художников',
                         icon: CanvasIcon
                     },
@@ -69,10 +75,16 @@ export const translations = {
             },
             gallery: {
                 title: 'Подборка галереи',
-                link: 'Перейти в галерею'
+                link: 'Перейти в галерею',
+                like: 'Нравится',
+                buy: 'Добавить в корзину',
+                saveError: 'Не удалось сохранить изменение',
             },
             events: {
                 title: 'События галереи',
+                loading: 'Загрузка событий…',
+                empty: 'Событий пока нет',
+                error: 'Не удалось загрузить события',
                 button: 'ЧИТАТЬ ПОЛНОСТЬЮ',
                 link: 'УЗНАТЬ БОЛЬШЕ'
             },
@@ -92,7 +104,7 @@ export const translations = {
                 button: 'Become a gallery member',
                 nav: {
                     paintings: 'Paintings',
-                    guohua: 'Guó Huà (国画)',
+                    guohua: 'Guohua (Chinese painting)',
                     engravings: 'Engravings',
                     painting: 'Painting',
                     sculptures: 'Sculptures',
@@ -106,7 +118,13 @@ export const translations = {
             about: {
                 title: 'Working since 2026',
                 text: 'is a modern platform for getting acquainted with works of art and creative projects. Our goal is to popularize artistic culture and provide convenient access to the works of talented authors.',
-                highlight: 'TILININ\'S GALLERY',
+                highlight: 'TILININ\'S GALLERY ',
+                imageAlt: 'Gallery',
+                benefits: [
+                    'Discover original artworks by independent artists',
+                    'We work directly with artists',
+                    'Every artwork is made by hand',
+                ],
                 stats: {
                     works: 'Works in catalog',
                     authors: 'Artists',
@@ -146,10 +164,16 @@ export const translations = {
             },
             gallery: {
                 title: 'Gallery selection',
-                link: 'Go to gallery'
+                link: 'Go to gallery',
+                like: 'Like',
+                buy: 'Add to cart',
+                saveError: 'Could not save the change',
             },
             events: {
                 title: 'Gallery events',
+                loading: 'Loading events…',
+                empty: 'No events yet',
+                error: 'Could not load events',
                 button: 'READ FULL',
                 link: 'LEARN MORE'
             },
@@ -184,6 +208,12 @@ export const translations = {
                 title: '自2026年开始运营',
                 text: '是一个现代化的平台，用于欣赏艺术作品和创意项目。我们的目标是推广艺术文化，并为才华横溢的作者作品提供便捷的访问渠道。',
                 highlight: 'TILININ\'S GALLERY',
+                imageAlt: '画廊',
+                benefits: [
+                    '网站展示的均为艺术家原创作品',
+                    '我们与艺术家直接合作',
+                    '每件作品均由手工创作',
+                ],
                 stats: {
                     works: '目录中的作品',
                     authors: '艺术家',
@@ -223,10 +253,16 @@ export const translations = {
             },
             gallery: {
                 title: '画廊精选',
-                link: '进入画廊'
+                link: '进入画廊',
+                like: '点赞',
+                buy: '加入购物车',
+                saveError: '无法保存更改',
             },
             events: {
                 title: '画廊活动',
+                loading: '正在加载活动…',
+                empty: '暂无活动',
+                error: '无法加载活动',
                 button: '阅读全文',
                 link: '了解更多'
             },

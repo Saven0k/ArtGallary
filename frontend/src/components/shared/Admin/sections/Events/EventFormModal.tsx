@@ -1,3 +1,4 @@
+import { commonTranslations } from '../../../../../lang';
 
 import { useRef, useState } from 'react';
 import { X, Upload, Image as ImageIcon } from 'lucide-react';
@@ -195,7 +196,7 @@ const EventFormModal = (props: EventFormModalProps) => {
                         <div className="event-form__image-row">
                             <div className="event-form__image-preview">
                                 {imagePreview ? (
-                                    <img src={imagePreview} alt="preview" />
+                                    <img src={imagePreview} alt={commonTranslations[language].preview} />
                                 ) : (
                                     <ImageIcon size={28} />
                                 )}

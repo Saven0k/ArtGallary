@@ -43,6 +43,7 @@ export const settingsTranslations = {
                 languages: {
                     ru: "Русский",
                     en: "English",
+                    zh: "中文",
                 },
             },
         }
@@ -86,6 +87,7 @@ export const settingsTranslations = {
                 languages: {
                     ru: "Russian",
                     en: "English",
+                    zh: "Chinese",
                 },
             },
         }
@@ -116,6 +118,7 @@ export const settingsTranslations = {
             }
         },
         settings: {
+            cards: { language: { title: "语言" } },
             language: {
                 title: "界面语言",
                 description: "请选择您偏好的语言",

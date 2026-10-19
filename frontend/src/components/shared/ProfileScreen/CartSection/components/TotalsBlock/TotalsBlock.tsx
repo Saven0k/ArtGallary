@@ -16,14 +16,14 @@ const TotalsBlock = ({ totals, language }: TotalsBlockProps) => {
         <div className="cart-totals">
             <div className="cart-totals__row">
                 <span>{t.totals.subtotal}</span>
-                <span>{formatPrice(totals.subtotal, totals.currency)}</span>
+                <span>{formatPrice(totals.subtotal, totals.currency, language)}</span>
             </div>
 
             {totals.discount > 0 && (
                 <div className="cart-totals__row cart-totals__row--discount">
                     <span>{t.totals.discount}</span>
                     <span>
-                        − {formatPrice(totals.discount, totals.currency)}
+                        − {formatPrice(totals.discount, totals.currency, language)}
                     </span>
                 </div>
             )}
@@ -31,7 +31,7 @@ const TotalsBlock = ({ totals, language }: TotalsBlockProps) => {
             <div className="cart-totals__row cart-totals__row--final">
                 <span>{t.totals.total}</span>
                 <span className="cart-totals__final-value">
-                    {formatPrice(totals.total, totals.currency)}
+                    {formatPrice(totals.total, totals.currency, language)}
                 </span>
             </div>
 

@@ -139,7 +139,7 @@ const ModeratorFormModal = (props: ModeratorFormModalProps) => {
 
                 <div className="moderator-form__body">
                     <div className="moderator-form__row">
-                        <label className="moderator-form__field">{language === 'ru' ? 'Пол' : language === 'zh' ? '性别' : 'Gender'}<select value={gender} onChange={(e) => setGender(e.target.value as 'M' | 'F' | '')}><option value="">—</option><option value="M">{language === 'ru' ? 'Мужской' : 'M'}</option><option value="F">{language === 'ru' ? 'Женский' : 'F'}</option></select>{errors.gender && <span className="moderator-form__err">{errors.gender}</span>}</label>
+                        <label className="moderator-form__field">{language === 'ru' ? 'Пол' : language === 'zh' ? '性别' : 'Gender'}<select value={gender} onChange={(e) => setGender(e.target.value as 'M' | 'F' | '')}><option value="">—</option><option value="M">{language === 'ru' ? 'Мужской' : language === 'zh' ? '男' : 'Male'}</option><option value="F">{language === 'ru' ? 'Женский' : language === 'zh' ? '女' : 'Female'}</option></select>{errors.gender && <span className="moderator-form__err">{errors.gender}</span>}</label>
                         <label className="moderator-form__field">{language === 'ru' ? 'Дата рождения' : language === 'zh' ? '出生日期' : 'Birthday'}<input type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} />{errors.birthday && <span className="moderator-form__err">{errors.birthday}</span>}</label>
                     </div>
                     <div className="moderator-form__row">

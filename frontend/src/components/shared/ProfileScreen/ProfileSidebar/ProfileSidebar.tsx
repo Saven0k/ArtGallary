@@ -8,6 +8,8 @@ import {
     SettingsIcon,
     LikeIcon,
 } from "../icons/icons";
+import { useLanguage } from '../../../../hooks/useLanguage';
+import { profileTranslations } from '../lang';
 import type { UserRole } from "../../../../api/users/main.api";
 import { getUnreadCount } from "../../../../api/notification/main.api";
 
@@ -41,6 +43,8 @@ const ProfileSidebar = ({
     onChange,
     role,
 }: ProfileSidebarProps) => {
+    const { language } = useLanguage();
+    const labels = profileTranslations[language].sidebar;
     const [unreadCount, setUnreadCount] = useState<number>(0);
 
 
@@ -79,45 +83,45 @@ const ProfileSidebar = ({
     const items: SidebarItem[] = [
         {
             id: "personal",
-            title: "Личная информация",
+            title: labels.personal,
             icon: LockIcon,
         },
         {
             id: "statistics",
-            title: "Статистика",
+            title: labels.statistics,
             icon: StatIcon,
             authorOnly: true,
         },
         {
             id: "notifications",
-            title: "Уведомления",
+            title: labels.notifications,
             icon: NotificationIcon,
         },
         {
             id: "likes",
-            title: "Избранное",
+            title: labels.likes,
             icon: LikeIcon,
         },
         {
             id: "subscriptions",
-            title: "Мои подписки",
+            title: labels.subscriptions,
             icon: NotificationIcon,
         },
         {
             id: "tariff",
-            title: "Тарифный план",
+            title: labels.tariff,
             icon: SettingsIcon,
             authorOnly: true,
         },
         {
             id: "cart",
-            title: "Корзина",
+            title: labels.cart,
             icon: SettingsIcon,
         },
-        { id: "history", title: "История покупок", icon: SettingsIcon },
+        { id: "history", title: labels.history, icon: SettingsIcon },
         {
             id: "settings",
-            title: "Настройки",
+            title: labels.settings,
             icon: SettingsIcon,
         },
     ];
@@ -152,7 +156,7 @@ const ProfileSidebar = ({
                             {showBadge && (
                                 <span
                                     className="profile-sidebar__badge"
-                                    aria-label={`${unreadCount} unread`}
+                                    aria-label={labels.unread.replace("{count}", String(unreadCount))}
                                 >
                                     {unreadCount > 99 ? "99+" : unreadCount}
                                 </span>

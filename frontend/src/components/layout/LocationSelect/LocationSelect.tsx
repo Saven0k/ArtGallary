@@ -12,6 +12,8 @@ import {
   type CitySuggestion,
 } from '../../../api/location/main.api';
 import './LocationSelect.scss';
+import { commonTranslations } from '../../../lang';
+import { useLanguage } from '../../../hooks/useLanguage';
 
 interface LocationSelectProps {
   countryValue?: string | number;
@@ -37,8 +39,11 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
   onCountryChange,
   onCityChange,
   isEditing = true,
-  lang = 'ru',
+  lang: requestedLanguage,
 }) => {
+  const { language } = useLanguage();
+  const lang = requestedLanguage ?? language;
+  const t = commonTranslations[lang];
   const [countryDisplay, setCountryDisplay] = useState('');
   const [cityDisplay, setCityDisplay] = useState('');
   const [countryQuery, setCountryQuery] = useState('');
@@ -171,13 +176,13 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
     return (
       <div className="location-select location-select--view">
         <div className="location-select__group">
-          <label className="location-select__label">Страна</label>
-          <div className="location-select__value">{countryDisplay || 'Не указано'}</div>
+          <label className="location-select__label">{t.country}</label>
+          <div className="location-select__value">{countryDisplay || t.notSpecified}</div>
         </div>
         {selectedCountryCode && (
           <div className="location-select__group">
-            <label className="location-select__label">Город</label>
-            <div className="location-select__value">{cityDisplay || 'Не указано'}</div>
+            <label className="location-select__label">{t.city}</label>
+            <div className="location-select__value">{cityDisplay || t.notSpecified}</div>
           </div>
         )}
       </div>
@@ -188,7 +193,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
   return (
     <div className="location-select">
       <div className="location-select__group" ref={countryRef}>
-        <label className="location-select__label">Страна</label>
+        <label className="location-select__label">{t.country}</label>
         <div className="location-select__input-wrapper">
           <input
             type="text"
@@ -214,7 +219,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
                 }
               }, 150);
             }}
-            placeholder="Начните вводить страну..."
+            placeholder={t.searchCountry}
             autoComplete="off"
           />
           {loading && <span className="location-select__spinner" aria-hidden="true" />}
@@ -239,7 +244,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
       </div>
 
       <div className="location-select__group" ref={cityRef}>
-        <label className="location-select__label">Город</label>
+        <label className="location-select__label">{t.city}</label>
         <div className="location-select__input-wrapper">
           <input
             type="text"
@@ -266,7 +271,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
                 }
               }, 150);
             }}
-            placeholder={selectedCountryCode ? 'Начните вводить город...' : 'Сначала выберите страну'}
+            placeholder={selectedCountryCode ? t.searchCity : t.selectCountryFirst}
             disabled={!selectedCountryCode}
             autoComplete="off"
           />

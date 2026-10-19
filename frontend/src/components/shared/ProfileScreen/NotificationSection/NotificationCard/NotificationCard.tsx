@@ -1,3 +1,5 @@
+import { commonTranslations } from '../../../../../lang';
+import { useLanguage } from '../../../../../hooks/useLanguage';
 import type { ReactNode } from 'react';
 
 import { X } from 'lucide-react';
@@ -22,6 +24,7 @@ const NotificationCard = ({
     onClick,
     onDelete,
 }: NotificationCardProps) => {
+    const { language } = useLanguage();
     return (
         <div
             className={`notification-card ${
@@ -48,7 +51,7 @@ const NotificationCard = ({
                     <button
                         type="button"
                         className="notification-card__delete"
-                        aria-label="Delete notification"
+                        aria-label={commonTranslations[language].deleteNotification}
                         onClick={(e) => {
                             e.stopPropagation();
                             onDelete();

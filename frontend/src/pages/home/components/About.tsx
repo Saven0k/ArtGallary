@@ -9,7 +9,7 @@ const About = () => {
 
     return (
         <section className="about">
-            <img src={AboutImage} alt="Галерея" className="about__image" />
+            <img src={AboutImage} alt={t.imageAlt} className="about__image" />
             <div className="about__content">
                 <h2 className="about__title">{t.title}</h2>
                 <p className="about__text">
@@ -17,9 +17,7 @@ const About = () => {
                     {t.text}
                 </p>
                 <ul className="about__pros">
-                    <li className="about__plus">Все представленные авторские работы на нашем сайте-оригинльная ручная работа</li>
-                    <li className="about__plus">Работаем только с настоящими авторами</li>
-                    <li className="about__plus">Все представленные авторские работы на нашем сайте-ручная работа</li>
+                    {t.benefits.map((benefit) => <li key={benefit} className="about__plus">{benefit}</li>)}
                 </ul>
                 <ul className="about__stats">
                     <li className="about__stat">

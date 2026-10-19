@@ -1,3 +1,4 @@
+import { commonTranslations } from '../../lang';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getModeratedArts, searchArts, type ArtsResponse } from '../../api/arts/main.api';
@@ -32,7 +33,7 @@ const ArtsPage = () => {
         </div>
         <form className="gallery-page__search" onSubmit={(event) => { event.preventDefault(); setSearch(query.trim()); setPage(1); }}><input aria-label={language === 'ru' ? 'Поиск работ' : language === 'zh' ? '搜索作品' : 'Search artworks'} placeholder={language === 'ru' ? 'Название работы' : language === 'zh' ? '作品名称' : 'Artwork title'} type="search" value={query} onChange={(event) => setQuery(event.target.value)} /><button type="submit">{language === 'ru' ? 'Найти' : language === 'zh' ? '搜索' : 'Search'}</button></form>
         {loading ? <p>…</p> : error ? <p role="alert">{language === 'ru' ? 'Не удалось загрузить работы' : language === 'zh' ? '无法加载作品' : 'Failed to load artworks'}</p> : <ArtsList data={data ?? { arts: [] }} />}
-        {data?.pagination && data.pagination.totalPages > 1 && <nav className="gallery-page__pagination" aria-label="Pagination"><button aria-label={language === 'ru' ? 'Предыдущая страница' : language === 'zh' ? '上一页' : 'Previous page'} disabled={loading || !data.pagination.hasPreviousPage} onClick={() => setPage((value) => value - 1)}>←</button><span>{page} / {data.pagination.totalPages}</span><button aria-label={language === 'ru' ? 'Следующая страница' : language === 'zh' ? '下一页' : 'Next page'} disabled={loading || !data.pagination.hasNextPage} onClick={() => setPage((value) => value + 1)}>→</button></nav>}
+        {data?.pagination && data.pagination.totalPages > 1 && <nav className="gallery-page__pagination" aria-label={commonTranslations[language].pagination}><button aria-label={language === 'ru' ? 'Предыдущая страница' : language === 'zh' ? '上一页' : 'Previous page'} disabled={loading || !data.pagination.hasPreviousPage} onClick={() => setPage((value) => value - 1)}>←</button><span>{page} / {data.pagination.totalPages}</span><button aria-label={language === 'ru' ? 'Следующая страница' : language === 'zh' ? '下一页' : 'Next page'} disabled={loading || !data.pagination.hasNextPage} onClick={() => setPage((value) => value + 1)}>→</button></nav>}
         </div>
     </main>;
 };

@@ -34,7 +34,7 @@ const AuthorCard = (data: AuthorCardProps) => {
                         {t.viewWorks}
                         <img
                             src={ArrowIcon}
-                            alt="Перейти"
+                            alt=""
                             className="author-card__link-icon"
                         />
                     </Link>

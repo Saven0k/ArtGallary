@@ -7,6 +7,7 @@ import { getAuthors, type AuthorProfileResponse } from '../../../api/authors/mai
 import { useAuth } from '../../../hooks/useAuth';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { errorMessage } from '../../../utils/errors';
+import { artFormTranslations } from './lang';
 import '../ProfileScreen/PersonalInfoSection/PersonalInfoSection.scss';
 
 const ArtForm = ({ art }: { art?: Art }) => {
@@ -30,14 +31,15 @@ const ArtForm = ({ art }: { art?: Art }) => {
     const [authorId, setAuthorId] = useState(user?.role === 'author' ? user.id : art?.author_id ?? 0);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
-    const labels = language === 'ru' ? ['Название', 'Описание', 'Материалы и размер', 'Цена', 'Валюта', 'Дата', 'Жанр', 'Стиль', 'Теги через запятую', 'Для взрослых', 'Изображение', 'Сохранить'] : language === 'zh' ? ['标题', '描述', '材料和尺寸', '价格', '货币', '日期', '流派', '风格', '标签（逗号分隔）', '成人内容', '图片', '保存'] : ['Title', 'Description', 'Materials and size', 'Price', 'Currency', 'Date', 'Genre', 'Style', 'Tags separated by commas', 'Adult content', 'Image', 'Save'];
+    const t = artFormTranslations[language];
+    const labels = t.labels;
     useEffect(() => {
         let active = true;
         Promise.all([getAllGenres(language), getAllStyles()]).then(([nextGenres, nextStyles]) => {
             if (active) { setGenres(nextGenres); setStyles(nextStyles); }
-        }).catch((e: unknown) => { if (active) setError(errorMessage(e, 'Не удалось загрузить справочники')); });
+        }).catch((e: unknown) => { if (active) setError(errorMessage(e, t.loadError)); });
         return () => { active = false; };
-    }, [language]);
+    }, [language, t.loadError]);
     useEffect(() => {
         if (art || user?.role !== 'admin') return;
         let active = true;
@@ -52,15 +54,15 @@ const ArtForm = ({ art }: { art?: Art }) => {
         const data: CreateArtData = { title: title.trim(), description: description.trim(), specifications: specifications.trim(), cost: cost === '' ? null : Number(cost), currency: cost === '' ? null : currency, date_published: datePublished, genre_id: genreId || null, style_id: styleId || null, is_adult: adult, tags: [...new Set(tags.split(',').map((tag) => tag.trim()).filter(Boolean))] };
         try {
             const result = art ? await updateArt(art.id, data) : await createArt({ ...data, image_path: image, author_id: authorId });
-            if (!result) throw new Error('Не удалось сохранить работу');
+            if (!result) throw new Error(t.saveError);
             navigate(`/arts/${result.id}`);
-        } catch (e) { setError(errorMessage(e, 'Не удалось сохранить работу')); }
+        } catch (e) { setError(errorMessage(e, t.saveError)); }
         finally { setBusy(false); }
     };
     return <form className="personal-info__form" onSubmit={submit}>
         {error && <p role="alert" className="personal-info__error">{error}</p>}
         <div className="personal-info__grid">
-            {!art && user?.role === 'admin' && <label className="personal-info__field">{language === 'ru' ? 'Автор' : language === 'zh' ? '作者' : 'Author'}<select required value={authorId || ''} onChange={(event) => setAuthorId(Number(event.target.value))}><option value="">—</option>{authors.map((author) => <option key={author.id} value={author.id}>{author.surname} {author.name}</option>)}</select></label>}
+            {!art && user?.role === 'admin' && <label className="personal-info__field">{t.author}<select required value={authorId || ''} onChange={(event) => setAuthorId(Number(event.target.value))}><option value="">—</option>{authors.map((author) => <option key={author.id} value={author.id}>{author.surname} {author.name}</option>)}</select></label>}
             <label className="personal-info__field">{labels[0]}<input required value={title} onChange={(e) => setTitle(e.target.value)} maxLength={255} /></label>
             <label className="personal-info__field">{labels[1]}<textarea required value={description} onChange={(e) => setDescription(e.target.value)} /></label>
             <label className="personal-info__field">{labels[2]}<input value={specifications} onChange={(e) => setSpecifications(e.target.value)} /></label>

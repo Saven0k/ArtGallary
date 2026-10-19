@@ -1,3 +1,4 @@
+import { commonTranslations } from '../../../../lang';
 import { errorMessage } from '../../../../utils/errors';
 
 import { useState, useEffect } from "react";
@@ -130,12 +131,12 @@ const RegisterUser = ({ onClose }: { onClose?: () => void }) => {
             case "surname":
                 if (!String(value).trim()) return t.errors.required;
                 if (String(value).trim().length < 2)
-                    return t.errors.minLength?.replace("{min}", "2") || "Минимум 2 символа";
+                    return t.errors.minLength.replace("{min}", "2");
                 return undefined;
             case "name":
                 if (!String(value).trim()) return t.errors.required;
                 if (String(value).trim().length < 2)
-                    return t.errors.minLength?.replace("{min}", "2") || "Минимум 2 символа";
+                    return t.errors.minLength.replace("{min}", "2");
                 return undefined;
             case "birthday":
                 if (!value) return t.errors.required;
@@ -278,17 +279,17 @@ const RegisterUser = ({ onClose }: { onClose?: () => void }) => {
                 onClose?.();
                 navigate("/");
             } else {
-                setApiError(t.errors.registerFailed || "Ошибка при регистрации");
+                setApiError(t.errors.registerFailed);
             }
         } catch (error: unknown) {
             console.error("Registration error:", error);
             if (errorMessage(error, "").includes("существует")) {
                 setApiError(
-                    t.errors.emailExists || "Пользователь с таким email уже существует",
+                    t.errors.emailExists,
                 );
             } else {
                 setApiError(
-                    errorMessage(error, t.errors.registerFailed || "Ошибка при регистрации"),
+                    errorMessage(error, t.errors.registerFailed),
                 );
             }
         } finally {
@@ -525,7 +526,7 @@ const RegisterUser = ({ onClose }: { onClose?: () => void }) => {
                             >
                                 <option value="">
                                     {loadingCountries
-                                        ? "Загрузка..."
+                                        ? t.buttons.loading
                                         : t.step3.fields.country}
                                 </option>
                                 {countries.map((country) => (
@@ -549,9 +550,9 @@ const RegisterUser = ({ onClose }: { onClose?: () => void }) => {
                             >
                                 <option value="">
                                     {!formData.countryId
-                                        ? "Сначала выберите страну"
+                                        ? commonTranslations[language].selectCountryFirst
                                         : loadingCities
-                                          ? "Загрузка..."
+                                          ? t.buttons.loading
                                           : t.step3.fields.city}
                                 </option>
                                 {cities.map((city) => (

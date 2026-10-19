@@ -1,3 +1,4 @@
+import { commonTranslations } from '../../../../lang';
 import { login } from '../../../../api/auth/main.api';
 
 import { useState, useEffect } from "react";
@@ -152,12 +153,12 @@ const RegisterAuthor = ({ onClose }: { onClose?: () => void }) => {
             case "surname":
                 if (!value || !String(value).trim()) return t.errors.required;
                 if (String(value).trim().length < 2)
-                    return t.errors.minLength?.replace("{min}", "2") || "Минимум 2 символа";
+                    return t.errors.minLength.replace("{min}", "2");
                 return undefined;
             case "name":
                 if (!value || !String(value).trim()) return t.errors.required;
                 if (String(value).trim().length < 2)
-                    return t.errors.minLength?.replace("{min}", "2") || "Минимум 2 символа";
+                    return t.errors.minLength.replace("{min}", "2");
                 return undefined;
             case "birthday":
                 if (!value) return t.errors.required;
@@ -316,10 +317,10 @@ const RegisterAuthor = ({ onClose }: { onClose?: () => void }) => {
                 onClose?.();
                 navigate("/profile");
             } else {
-                setError("Ошибка при регистрации");
+                setError(t.errors.registerFailed);
             }
         } catch {
-            setError("Произошла ошибка");
+            setError(t.errors.registerFailed);
         } finally {
             setLoading(false);
         }
@@ -554,7 +555,7 @@ const RegisterAuthor = ({ onClose }: { onClose?: () => void }) => {
                                     <div className="register-author__upload-preview">
                                         <img
                                             src={URL.createObjectURL(avatarFile)}
-                                            alt="Preview"
+                                            alt={commonTranslations[language].preview}
                                             className="register-author__upload-preview-img"
                                         />
                                         <span className="register-author__upload-filename">
@@ -574,7 +575,7 @@ const RegisterAuthor = ({ onClose }: { onClose?: () => void }) => {
                                             🖼️
                                         </span>
                                         <span className="register-author__upload-placeholder-text">
-                                            Файл не выбран
+                                            {t.step3.emptyFile}
                                         </span>
                                     </div>
                                 )}
@@ -617,7 +618,7 @@ const RegisterAuthor = ({ onClose }: { onClose?: () => void }) => {
                             >
                                 <option value="">
                                     {loadingCountries
-                                        ? "Загрузка..."
+                                        ? t.buttons.loading
                                         : t.step4.fields.country}
                                 </option>
                                 {countries.map((country) => (
@@ -641,9 +642,9 @@ const RegisterAuthor = ({ onClose }: { onClose?: () => void }) => {
                             >
                                 <option value="">
                                     {!formData.countryId
-                                        ? "Сначала выберите страну"
+                                        ? commonTranslations[language].selectCountryFirst
                                         : loadingCities
-                                          ? "Загрузка..."
+                                          ? t.buttons.loading
                                           : t.step4.fields.city}
                                 </option>
                                 {cities.map((city) => (
@@ -673,7 +674,7 @@ const RegisterAuthor = ({ onClose }: { onClose?: () => void }) => {
                             >
                                 <option value="">
                                     {loadingProfessions
-                                        ? "Загрузка..."
+                                        ? t.buttons.loading
                                         : t.step4.fields.profession}
                                 </option>
                                 {professions.map((profession) => (

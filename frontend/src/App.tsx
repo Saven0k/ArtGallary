@@ -12,6 +12,8 @@ import { LanguageProvider } from './context/LanguageContext';
 import Footer from './components/layout/Footer/Footer';
 import HelpPage from './pages/help/HelpPage';
 import SettingsPage from './pages/settings/SettingsPage';
+import { useLanguage } from './hooks/useLanguage';
+import { commonTranslations } from './lang';
 import { SettingsProvider } from './context/SettingsContext';
 const AdminPage = lazy(() => import('./pages/admin/AdminPage'));
 import AboutPage from './pages/about/AboutPage';
@@ -37,6 +39,11 @@ const LazyAuthorsPage = lazy(() => import('./pages/author/AuthorsPage/AuthorsPag
 
 const LazyRegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 
+const PageLoading = () => {
+  const { language } = useLanguage();
+  return <div role="status">{commonTranslations[language].loading}</div>;
+};
+
 function App() {
   return (
     <>
@@ -47,7 +54,7 @@ function App() {
                 <AuthProvider>
                   <SettingsProvider>
                   <GalleryProvider>
-                  <Suspense fallback={<>Загрузка</>}>
+                  <Suspense fallback={<PageLoading />}>
                     <Header />
                     <Routes>
                       <Route path="login" element={<LazyLoginPage />} />

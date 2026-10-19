@@ -47,7 +47,7 @@ const AuthorProfile = ({ author }: AuthorProfileProps) => {
                             </span>
                         </div>
                         <p className="author-profile__followers">
-                            <img src={Human} alt="Human" className="author-profile__followers-icon" />
+                            <img src={Human} alt="" className="author-profile__followers-icon" />
                             {author.authorProfile?.followers_count || 0}  {t.followers}
                         </p>
                     </div>

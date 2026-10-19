@@ -9,9 +9,9 @@ export const PROMO_CODES: Record<PromoCode, number> = {
 export const isPromoCode = (code: string): code is PromoCode =>
     Object.prototype.hasOwnProperty.call(PROMO_CODES, code);
 
-export const formatPrice = (value: number, currency = 'RUB'): string => {
+export const formatPrice = (value: number, currency: string, language: string): string => {
     const symbol = currency === 'RUB' ? '₽' : currency;
-    return `${value.toLocaleString('ru-RU')} ${symbol}`;
+    return `${value.toLocaleString(language)} ${symbol}`;
 };
 
 export const isOriginalByPrice = (price: number): boolean => price > 5000;

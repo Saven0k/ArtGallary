@@ -1,3 +1,4 @@
+import { apiErrorText } from '../lang';
 import { BASE_URL_API } from '../main.api';
 import { apiFetch } from '../request';
 
@@ -37,7 +38,7 @@ export interface PaymentInit {
 const request = async <T>(url: string, init?: RequestInit): Promise<T> => {
     const res = await apiFetch(url, init);
     const data = await res.json().catch(() => null);
-    if (!res.ok) throw new Error(typeof data?.message === 'string' ? data.message : 'Не удалось выполнить запрос');
+    if (!res.ok) throw new Error(typeof data?.message === 'string' ? data.message : apiErrorText('requestFailed'));
     return data as T;
 };
 const json = (data: unknown): RequestInit => ({ method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });

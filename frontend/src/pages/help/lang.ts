@@ -67,6 +67,7 @@ export const translations = {
       knowledge: {
         title: 'База знаний',
         subtitle: 'Инструкции и руководства',
+        read: 'Читать',
         items: [
           {
             title: 'Как начать работать с платформой?',
@@ -292,6 +293,7 @@ export const translations = {
       knowledge: {
         title: 'Knowledge Base',
         subtitle: 'Instructions and guides',
+        read: 'Read',
         items: [
           {
             title: 'How to start working with the platform?',
@@ -517,6 +519,7 @@ export const translations = {
       knowledge: {
         title: '知识库',
         subtitle: '说明和指南',
+        read: '阅读',
         items: [
           {
             title: '如何开始使用平台？',

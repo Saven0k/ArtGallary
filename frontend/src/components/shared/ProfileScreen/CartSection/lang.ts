@@ -38,6 +38,7 @@ export interface CartTranslations {
         loadFailed: string;
         removeFailed: string;
         clearFailed: string;
+        mixedCurrencies: string;
     };
 }
 
@@ -74,6 +75,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
             loadFailed: 'Не удалось загрузить корзину',
             removeFailed: 'Не удалось удалить позицию',
             clearFailed: 'Не удалось очистить корзину',
+            mixedCurrencies: 'Работы в разных валютах нужно оформить отдельно',
         },
     },
     en: {
@@ -108,6 +110,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
             loadFailed: 'Failed to load cart',
             removeFailed: 'Failed to remove item',
             clearFailed: 'Failed to clear cart',
+            mixedCurrencies: 'Please order artworks in different currencies separately',
         },
     },
     zh: {
@@ -142,6 +145,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
             loadFailed: '加载购物车失败',
             removeFailed: '删除商品失败',
             clearFailed: '清空购物车失败',
+            mixedCurrencies: '不同货币的作品请分开结算',
         },
     },
 };

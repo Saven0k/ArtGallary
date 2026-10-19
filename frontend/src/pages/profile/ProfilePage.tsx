@@ -21,6 +21,7 @@ import Follows from "../../components/shared/ProfileScreen/FollowsSection/Follow
 import PurchaseHistory from "../../components/shared/ProfileScreen/PurchaseHistorySection/PurchaseHistorySection";
 import { useLanguage } from "../../hooks/useLanguage";
 import Cart from "../../components/shared/ProfileScreen/CartSection/CartSection";
+import { commonTranslations } from '../../lang';
 
 const sectionIds: Record<ProfileSection, string> = {
     personal: "personal",
@@ -145,7 +146,7 @@ const ProfilePage = () => {
         return (
             <main className="profile-page">
                 <div className="profile-page__container">
-                    <div className="profile-page__loading">Загрузка...</div>
+                    <div className="profile-page__loading">{commonTranslations[language].loading}</div>
                 </div>
             </main>
         );
@@ -153,7 +154,7 @@ const ProfilePage = () => {
 
     const displayName = profile
         ? `${profile.name} ${profile.surname}`
-        : "Пользователь";
+        : commonTranslations[language].user;
     const displayRole = profile?.role || "user";
     const displayPlan =
         profile?.role === "author"

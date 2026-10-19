@@ -13,7 +13,7 @@ const Advantages = () => {
             <ul className="advantages__list">
                 {t.items.map((item, index) => (
                     <li key={index} className="advantages__item">
-                        <img src={item.icon} alt="SVG icon" className="advantages__item-icon" />
+                        <img src={item.icon} alt="" className="advantages__item-icon" />
                         <h4 className="advantages__item-title">{item.title}</h4>
                         <p className="advantages__item-description">{item.description}</p>
                     </li>

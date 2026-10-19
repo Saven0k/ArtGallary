@@ -1,3 +1,5 @@
+import { useLanguage } from '../../../../../hooks/useLanguage';
+import { statisticsTranslations } from '../lang';
 import type { TooltipItem } from "chart.js";
 
 import { useMemo } from "react";
@@ -22,6 +24,8 @@ interface AgeChartProps {
 const ORDER: (keyof AgeStatsData)[] = ["18-25", "26-35", "36-50", "50+"];
 
 const AgeChart = ({ data }: AgeChartProps) => {
+    const { language } = useLanguage();
+    const t = statisticsTranslations[language];
     const total = ORDER.reduce((sum, key) => sum + data[key], 0);
 
     const items = useMemo(
@@ -68,10 +72,10 @@ const AgeChart = ({ data }: AgeChartProps) => {
 
     return (
         <div className="chart-container">
-            <h3 className="chart-title">Возраст аудитории</h3>
+            <h3 className="chart-title">{t.age}</h3>
             <div className="chart-wrapper chart-wrapper--donut">
                 {items.length === 0 ? (
-                    <div className="chart-empty">Нет данных</div>
+                    <div className="chart-empty">{t.empty}</div>
                 ) : (
                     <Doughnut data={chartData} options={options} />
                 )}

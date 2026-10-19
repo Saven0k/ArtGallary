@@ -20,10 +20,10 @@ export const toPercent = (value: number, total: number): number =>
     total > 0 ? Math.round((value / total) * 100) : 0;
 
 
-export const formatShortDate = (iso: string): string => {
+export const formatShortDate = (iso: string, language: string): string => {
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return iso;
-    return `${d.getDate()} ${d.toLocaleString("ru", { month: "short" })}`;
+    return d.toLocaleDateString(language, { day: "numeric", month: "short" });
 };
 
 

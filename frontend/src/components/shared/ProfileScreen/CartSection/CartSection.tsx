@@ -185,7 +185,7 @@ const Cart = () => {
                 onRemove={() => setAppliedPromo(null)}
             />
 
-            {(error || mixedCurrencies) && <div className="profile-cart__error" role="alert">{error || "Работы в разных валютах нужно оформить отдельно"}</div>}
+            {(error || mixedCurrencies) && <div className="profile-cart__error" role="alert">{error || t.errors.mixedCurrencies}</div>}
 
             <TotalsBlock totals={totals} language={language as Language} />
 

@@ -29,7 +29,7 @@ const KnowledgeBase = ({ items }: KnowledgeBaseProps) => {
                         <p className="knowledge-base__card-description">{item.description}</p>
                         {item.link && (
                             <a href={item.link} className="knowledge-base__card-link">
-                                Читать →
+                                {t.read} →
                             </a>
                         )}
                     </article>

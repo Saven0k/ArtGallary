@@ -32,7 +32,7 @@ const LoginPage = () => {
     return (
         <div className="login-page auth-page">
             <div className="login__box auth__box">
-                <img src={AuthImage} alt="Картинка входа" className="login__img auth__img" />
+                <img src={AuthImage} alt="" className="login__img auth__img" />
                 <div className="login__content auth__content">
                     <LoginForm />
                 </div>

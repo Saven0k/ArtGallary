@@ -1,3 +1,5 @@
+import { useLanguage } from '../../../../../hooks/useLanguage';
+import { statisticsTranslations } from '../lang';
 import type { TooltipItem } from "chart.js";
 
 import { useMemo } from "react";
@@ -36,19 +38,17 @@ interface ViewsChartProps {
     onPeriodChange: (p: Period) => void;
 }
 
-const PERIODS: { value: Period; label: string }[] = [
-    { value: "week", label: "Неделя" },
-    { value: "month", label: "Месяц" },
-    { value: "year", label: "Год" },
-];
+const PERIODS: Period[] = ["week", "month", "year"];
 
 const ViewsChart = ({ data, period, onPeriodChange }: ViewsChartProps) => {
+    const { language } = useLanguage();
+    const t = statisticsTranslations[language];
     const chartData = useMemo(
         () => ({
-            labels: data.map((item) => formatShortDate(item.date)),
+            labels: data.map((item) => formatShortDate(item.date, language)),
             datasets: [
                 {
-                    label: "Просмотры",
+                    label: t.views,
                     data: data.map((item) => item.count),
                     borderColor: "#BC9547",
                     backgroundColor: "rgba(188, 149, 71, 0.1)",
@@ -62,7 +62,7 @@ const ViewsChart = ({ data, period, onPeriodChange }: ViewsChartProps) => {
                 },
             ],
         }),
-        [data],
+        [data, language, t.views],
     );
 
     const options = useMemo(
@@ -74,7 +74,7 @@ const ViewsChart = ({ data, period, onPeriodChange }: ViewsChartProps) => {
                 tooltip: {
                     ...tooltipStyle,
                     callbacks: {
-                        label: (ctx: TooltipItem<"line">) => `${ctx.parsed.y} просмотров`,
+                        label: (ctx: TooltipItem<"line">) => t.viewsCount.replace("{count}", String(ctx.parsed.y)),
                     },
                 },
             },
@@ -90,24 +90,24 @@ const ViewsChart = ({ data, period, onPeriodChange }: ViewsChartProps) => {
                 },
             },
         }),
-        [],
+        [t.viewsCount],
     );
 
     return (
         <div className="chart-container">
             <div className="chart-header">
-                <h3 className="chart-title">Просмотры</h3>
+                <h3 className="chart-title">{t.views}</h3>
                 <div className="chart-period-buttons">
                     {PERIODS.map((p) => (
                         <button
-                            key={p.value}
+                            key={p}
                             className={`chart-period-btn ${
-                                period === p.value ? "active" : ""
+                                period === p ? "active" : ""
                             }`}
-                            onClick={() => onPeriodChange(p.value)}
+                            onClick={() => onPeriodChange(p)}
                             type="button"
                         >
-                            {p.label}
+                            {t[p]}
                         </button>
                     ))}
                 </div>
@@ -115,7 +115,7 @@ const ViewsChart = ({ data, period, onPeriodChange }: ViewsChartProps) => {
 
             <div className="chart-wrapper chart-wrapper--line">
                 {data.length === 0 ? (
-                    <div className="chart-empty">Нет данных</div>
+                    <div className="chart-empty">{t.empty}</div>
                 ) : (
                     <Line data={chartData} options={options} />
                 )}

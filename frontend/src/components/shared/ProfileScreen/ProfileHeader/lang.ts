@@ -4,12 +4,13 @@ export type Language = 'ru' | 'en' | 'zh';
 
 export interface ProfileHeaderTranslations {
     roleUser: string;
+    roleAuthor: string;
 }
 
 export const profileHeaderTranslations: Record<Language, ProfileHeaderTranslations> = {
-    ru: { roleUser: 'Пользователь' },
-    en: { roleUser: 'User' },
-    zh: { roleUser: '用户' },
+    ru: { roleUser: 'Пользователь', roleAuthor: 'Автор' },
+    en: { roleUser: 'User', roleAuthor: 'Artist' },
+    zh: { roleUser: '用户', roleAuthor: '艺术家' },
 };
 
 

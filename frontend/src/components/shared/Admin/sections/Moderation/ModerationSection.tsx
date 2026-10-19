@@ -214,7 +214,7 @@ const ModerationSection = () => {
                     <div className="moderation-author-card__footer">
                         {created && (
                             <span className="moderation-author-card__footer-item">
-                                <Calendar size={13} /> {t.viewModal.dateCreated || 'Добавление'}: {created}
+                                <Calendar size={13} /> {t.viewModal.dateCreated}: {created}
                             </span>
                         )}
                         {moderatorId != null && moderatedAt && (
@@ -283,7 +283,7 @@ const ModerationSection = () => {
                     <div className="moderation-art-card__footer">
                         {created && (
                             <span className="moderation-art-card__footer-item">
-                                <Calendar size={13} /> {t.viewModal.dateCreated || 'Добавление'}: {created}
+                                <Calendar size={13} /> {t.viewModal.dateCreated}: {created}
                             </span>
                         )}
                         {moderatorId != null && moderatedAt && (

@@ -23,7 +23,7 @@ const Events = () => {
             if (cancelled) return;
 
             if (!data) {
-                setError('Не удалось загрузить события');
+                setError(t.error);
                 setEvents([]);
             } else {
                 setEvents(data);
@@ -33,14 +33,14 @@ const Events = () => {
 
         load();
         return () => { cancelled = true; };
-    }, [language]);
+    }, [language, t.error]);
 
     return (
         <section className="events">
             <h2 className="events__title">{t.title}</h2>
 
             {loading && (
-                <p className="events__state">Загрузка...</p>
+                <p className="events__state">{t.loading}</p>
             )}
 
             {!loading && error && (
@@ -48,7 +48,7 @@ const Events = () => {
             )}
 
             {!loading && !error && events.length === 0 && (
-                <p className="events__state">Событий пока нет</p>
+                <p className="events__state">{t.empty}</p>
             )}
 
             {!loading && !error && events.length > 0 && (

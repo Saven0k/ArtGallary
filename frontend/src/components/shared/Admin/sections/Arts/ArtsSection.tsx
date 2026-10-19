@@ -410,7 +410,7 @@ const ArtsSection = () => {
                                         {viewArt.date_published
                                             ? new Date(
                                                   viewArt.date_published,
-                                              ).toLocaleDateString()
+                                              ).toLocaleDateString(language)
                                             : t.viewModal.notSpecified}
                                     </dd>
                                 </div>

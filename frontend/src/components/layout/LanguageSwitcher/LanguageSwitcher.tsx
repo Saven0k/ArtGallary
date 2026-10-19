@@ -3,6 +3,7 @@ import Global from './global.svg';
 import Arrow from './arrow.svg';
 import './LanguageSwitcher.scss';
 import { useLanguage } from '../../../hooks/useLanguage';
+import { commonTranslations } from '../../../lang';
 
 const LanguageSwitcher = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -41,14 +42,14 @@ const LanguageSwitcher = () => {
             <button
                 className={`lang-switcher__btn ${isOpen ? 'lang-switcher__btn--open' : ''}`}
                 onClick={handleToggle}
-                aria-label="Сменить язык"
+                aria-label={commonTranslations[language].changeLanguage}
                 aria-expanded={isOpen}
             >
-                <img src={Global} alt="global icon" className="lang-switcher__icon" />
+                <img src={Global} alt="" className="lang-switcher__icon" />
                 <span className="lang-switcher__text">{displayCode}</span>
                 <img
                     src={Arrow}
-                    alt="arrow icon"
+                    alt=""
                     className={`lang-switcher__arrow ${isOpen ? 'lang-switcher__arrow--rotated' : ''}`}
                 />
             </button>

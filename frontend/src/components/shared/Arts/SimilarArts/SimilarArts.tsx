@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { getSimilarArts, type Art } from "../../../../api/arts/main.api";
 import ArtCard from "../ArtCard/ArtCard";
 import "./SimilarArts.scss";
+import { useLanguage } from '../../../../hooks/useLanguage';
+import { commonTranslations } from '../../../../lang';
+import { artsListTranslations } from '../ArtsList/lang';
 
 interface SimilarArtsProps {
     artId: number;
@@ -9,6 +12,7 @@ interface SimilarArtsProps {
 }
 
 const SimilarArts = ({ artId, limit = 20 }: SimilarArtsProps) => {
+    const { language } = useLanguage();
     const [arts, setArts] = useState<Art[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -24,14 +28,14 @@ const SimilarArts = ({ artId, limit = 20 }: SimilarArtsProps) => {
         return () => {
             cancelled = true;
         };
-    }, [artId, limit]);
+    }, [artId, limit, language]);
 
-    if (loading) return <div className="similar-arts__loading">Загрузка...</div>;
+    if (loading) return <div className="similar-arts__loading">{commonTranslations[language].loading}</div>;
     if (!arts.length) return null;
 
     return (
         <section className="similar-arts">
-            <h2 className="similar-arts__title">Похожие работы</h2>
+            <h2 className="similar-arts__title">{artsListTranslations[language].similar}</h2>
             <ul className="similar-arts__list">
                 {arts.map((art) => (
                     <li key={art.id} className="similar-arts__item">

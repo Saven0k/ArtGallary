@@ -18,7 +18,7 @@ const FAQItem = ({ question, answer, isOpen, onClick }: FAQItemProps) => {
                 aria-expanded={isOpen}
             >
                 <span className="faq-item__question-text">{question}</span>
-                <img src={ArrowIcon} alt="Svg icon" className={`faq-item__icon ${isOpen ? "faq-item__icon--rotated" : ""}`} />
+                <img src={ArrowIcon} alt="" className={`faq-item__icon ${isOpen ? "faq-item__icon--rotated" : ""}`} />
             </button>
 
             <div className={`faq-item__answer-wrapper ${isOpen ? "faq-item__answer-wrapper--expanded" : ""}`}>

@@ -21,7 +21,7 @@ const Footer = memo(() => {
                     <div className="footer__grid">
                         <div className="footer__column">
                             <div className="footer__logo">
-                                <img src={Logo} alt="Logo" className="footer__logo-icon" />
+                                <img src={Logo} alt="TILININ’S GALLERY" className="footer__logo-icon" />
                             </div>
                             <p className="footer__description">
                                 {lang.description}

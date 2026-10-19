@@ -1,3 +1,5 @@
+import { useLanguage } from '../../../../../hooks/useLanguage';
+import { statisticsTranslations } from '../lang';
 import type { TooltipItem } from "chart.js";
 
 import { useMemo } from "react";
@@ -14,15 +16,17 @@ interface GenderChartProps {
 }
 
 const GenderChart = ({ data }: GenderChartProps) => {
+    const { language } = useLanguage();
+    const t = statisticsTranslations[language];
     const total = data.male + data.female + data.unknown;
 
     const items = useMemo(() => {
         return [
-            { name: "Женщины", value: toPercent(data.female, total) },
-            { name: "Мужчины", value: toPercent(data.male, total) },
-            { name: "Неизвестно", value: toPercent(data.unknown, total) },
+            { name: t.female, value: toPercent(data.female, total) },
+            { name: t.male, value: toPercent(data.male, total) },
+            { name: t.unknown, value: toPercent(data.unknown, total) },
         ].filter((item) => item.value > 0);
-    }, [data, total]);
+    }, [data, total, t]);
 
     const chartData = useMemo(
         () => ({
@@ -59,10 +63,10 @@ const GenderChart = ({ data }: GenderChartProps) => {
 
     return (
         <div className="chart-container">
-            <h3 className="chart-title">Кто смотрит ваши работы</h3>
+            <h3 className="chart-title">{t.audience}</h3>
             <div className="chart-wrapper chart-wrapper--donut">
                 {items.length === 0 ? (
-                    <div className="chart-empty">Нет данных</div>
+                    <div className="chart-empty">{t.empty}</div>
                 ) : (
                     <Doughnut data={chartData} options={options} />
                 )}

@@ -1,3 +1,4 @@
+import { apiErrorText } from '../lang';
 import { apiFetch } from '../request';
 import { BASE_URL_API } from "../main.api";
 
@@ -21,13 +22,13 @@ export interface CreateStyleDto {
 
 export const getAllStyles = async (): Promise<Style[]> => {
     const res = await apiFetch(BASE_URL, { method: "GET", credentials: "include" });
-    if (!res.ok) throw new Error("Ошибка при загрузке стилей");
+    if (!res.ok) throw new Error(apiErrorText('loadOptions'));
     return res.json();
 };
 
 export const getStyleById = async (id: number): Promise<Style> => {
     const res = await apiFetch(`${BASE_URL}/${id}`, { method: "GET", credentials: "include" });
-    if (!res.ok) throw new Error("Ошибка при получении стиля");
+    if (!res.ok) throw new Error(apiErrorText('loadOptions'));
     return res.json();
 };
 
@@ -38,13 +39,13 @@ export const createStyle = async (data: CreateStyleDto): Promise<Style> => {
         credentials: "include",
         body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error("Ошибка при создании стиля");
+    if (!res.ok) throw new Error(apiErrorText('saveChanges'));
     return res.json();
 };
 
 export const deleteStyle = async (id: number): Promise<boolean> => {
     const res = await apiFetch(`${BASE_URL}/${id}`, { method: "DELETE", credentials: "include" });
-    if (!res.ok) throw new Error("Ошибка при удалении стиля");
+    if (!res.ok) throw new Error(apiErrorText('deleteRecord'));
     return res.json();
 };
 
