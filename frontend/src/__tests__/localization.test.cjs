@@ -26,6 +26,7 @@ function loader(language = 'ru') {
         new Function('require', 'module', 'exports', code)(name => {
             if (/\.(svg|png|jpg|jpeg|webp|scss)$/.test(name)) return 'asset';
             if (name.endsWith('/useLanguage')) return { useLanguage: () => ({ language }) };
+            if (name.endsWith('/useAuth')) return { useAuth: () => ({ logout() {} }) };
             if (name.endsWith('/useLikes')) return { useLikes: () => ({ loading: false, isArtLiked: () => false }) };
             if (name.endsWith('/useCart')) return { useCart: () => ({ isInCart: () => false }) };
             if (name.endsWith('/useNotification')) return { useNotification: () => ({ showNotification() {} }) };
@@ -100,6 +101,35 @@ test('home, artwork lists and profile navigation render in the selected language
             if (language === 'zh') assert.match(html, /\p{Script=Han}/u, file);
         }
     }
+});
+
+test('guest sidebar uses the selected language and keeps signed-in role menus', () => {
+    for (const language of ['ru', 'en', 'zh']) {
+        const load = loader(language);
+        const Sidebar = load(path.join(root, 'components/layout/ProfileSidebar/ProfileSidebar.tsx')).default;
+        const copy = load(path.join(root, 'components/layout/ProfileSidebar/lang.ts')).sidebarTranslations[language];
+        const props = { onClose() {}, onNavigate() {} };
+        const guest = renderToStaticMarkup(React.createElement(Sidebar, props));
+        assert.match(guest, /sidebarProfile--guest/);
+        for (const text of [copy.guest.title, copy.guest.login, copy.guest.register, copy.guest.settings]) {
+            assert.ok(guest.includes(text), `${language}: ${text}`);
+        }
+        for (const userRole of ['user', 'author', 'moderator', 'admin']) {
+            const html = renderToStaticMarkup(React.createElement(Sidebar, {
+                ...props, isAuthenticated: true, userRole,
+                userData: { name: 'Test', surname: 'Account', email: 'test@example.com' },
+            }));
+            assert.doesNotMatch(html, /sidebarProfile--guest|sidebarProfile__guest-content/);
+            assert.match(html, /sidebarProfile__nav/);
+            assert.match(html, /Test Account/);
+        }
+    }
+});
+
+test('Chinese language badge reads CH while the application retains the zh locale', () => {
+    const Switcher = loader('zh')(path.join(root, 'components/layout/LanguageSwitcher/LanguageSwitcher.tsx')).default;
+    const html = renderToStaticMarkup(React.createElement(Switcher));
+    assert.match(html, /class="lang-switcher__text">CH<\/span>/);
 });
 
 test('chart dates use the selected language and preserve invalid dates', () => {

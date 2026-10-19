@@ -407,6 +407,8 @@
 }
 
 
+
+
 .sidebarProfile__moderation-banner {
     display: flex;
     align-items: center;
@@ -776,4 +778,179 @@
 .sidebarProfile__guest-btn:hover {
     border-color: #667eea;
     background: rgba(102, 126, 234, 0.05);
+}
+
+.sidebarProfile--guest {
+    width: min(420px, 100%);
+    max-width: 100%;
+    padding: 0;
+    background: var(--bg-default);
+    border-left: 1px solid var(--brand-gold-light);
+    box-shadow: -16px 0 48px rgb(53 40 30 / 12%);
+    color: var(--nav-brown);
+
+    .sidebarProfile__header {
+        min-height: 88px;
+        padding: calc(20px + env(safe-area-inset-top)) 24px 20px;
+        background: transparent;
+        border-color: var(--neutral-grey);
+    }
+
+    .sidebarProfile__guest-brand {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        line-height: 1.6;
+    }
+
+    .sidebarProfile__close {
+        width: 44px;
+        height: 44px;
+        margin: 0;
+        color: var(--nav-brown);
+        background: #fff;
+        border: 1px solid var(--neutral-grey);
+        border-radius: var(--radius-full);
+
+        &:hover {
+            background: var(--brand-gold-light);
+            border-color: var(--brand-primary-gold);
+        }
+    }
+
+    .sidebarProfile__guest-content {
+        min-height: 0;
+        gap: 28px;
+        padding: 32px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        justify-content: flex-start;
+        scrollbar-width: thin;
+        scrollbar-color: var(--brand-gold-light) transparent;
+    }
+
+    .sidebarProfile__guest-mark {
+        display: grid;
+        place-items: center;
+        width: 72px;
+        height: 72px;
+        margin-top: auto;
+        flex-shrink: 0;
+        color: var(--nav-brown);
+        background: var(--overlay-gold);
+        border: 1px solid var(--brand-gold-light);
+        border-radius: var(--radius-xl);
+    }
+
+    .sidebarProfile__guest {
+        width: 100%;
+        margin-bottom: auto;
+        flex-shrink: 0;
+    }
+
+    .sidebarProfile__guest-title {
+        margin: 0 0 12px;
+        font-size: clamp(26px, 4vw, 32px);
+        font-weight: 500;
+        line-height: 1.2;
+        letter-spacing: -0.04em;
+        color: var(--nav-brown);
+    }
+
+    .sidebarProfile__guest-subtitle {
+        max-width: 30ch;
+        margin: 0 auto 28px;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.7;
+        color: var(--neutral-grey-600);
+    }
+
+    .sidebarProfile__guest-actions {
+        max-width: none;
+        margin: 0;
+        gap: 12px;
+    }
+
+    .sidebarProfile__guest-btn {
+        min-height: 48px;
+        padding: 12px 20px;
+        border: 1px solid var(--brand-primary-gold);
+        border-radius: var(--radius-full);
+        color: var(--nav-brown);
+        background: transparent;
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 1.5;
+        transition: background 0.2s ease, border-color 0.2s ease;
+
+        &--primary {
+            background: var(--brand-primary-gold);
+        }
+
+        &:hover {
+            background: var(--brand-gold-light);
+            border-color: var(--brand-primary-gold);
+            transform: none;
+            box-shadow: none;
+        }
+    }
+
+    .sidebarProfile__footer {
+        padding: 20px 24px calc(20px + env(safe-area-inset-bottom));
+        background: #fff;
+        border-color: var(--neutral-grey);
+    }
+
+    .sidebarProfile__actions {
+        margin-bottom: 16px;
+    }
+
+    .sidebarProfile__action-btn {
+        min-height: 44px;
+        border: 1px solid var(--neutral-grey);
+        border-radius: var(--radius-full);
+        background: transparent;
+        color: var(--nav-brown);
+        font-size: 13px;
+
+        &:hover {
+            background: var(--overlay-gold);
+            border-color: var(--brand-gold-light);
+            transform: none;
+        }
+    }
+
+    .sidebarProfile__meta {
+        gap: 8px 16px;
+    }
+
+    .sidebarProfile__meta-link {
+        color: var(--neutral-grey-600);
+        line-height: 1.6;
+
+        &:hover {
+            color: var(--nav-brown);
+        }
+    }
+
+    button:focus-visible {
+        outline: 2px solid var(--brand-primary-gold);
+        outline-offset: 3px;
+    }
+
+    @media (max-width: 480px) {
+        .sidebarProfile__header {
+            padding-inline: 20px;
+        }
+
+        .sidebarProfile__guest-content {
+            padding: 24px 20px;
+            gap: 20px;
+        }
+
+        .sidebarProfile__footer {
+            padding-inline: 20px;
+        }
+    }
 }

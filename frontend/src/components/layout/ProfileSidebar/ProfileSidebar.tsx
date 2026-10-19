@@ -1,4 +1,5 @@
 import { commonTranslations } from '../../../lang';
+import { Settings, UserRound } from 'lucide-react';
 
 import { memo, useState, useEffect } from 'react';
 import { useSidebarTranslation } from './lang';
@@ -114,11 +115,12 @@ const ProfileSideBar = memo(({
             />
             <aside
                 id="sidebarProfile"
-                className={`sidebarProfile ${
+                className={`sidebarProfile ${!isAuthenticated ? 'sidebarProfile--guest' : ''} ${
                     isEntered ? 'sidebarProfile--open' : ''
                 } ${isClosing ? 'sidebarProfile--closing' : ''}`}
                 role="dialog"
                 aria-modal="true"
+                aria-label={t('profile')}
                 onTransitionEnd={(e) =>
                     e.propertyName === 'transform' &&
                     isClosing &&
@@ -126,7 +128,9 @@ const ProfileSideBar = memo(({
                 }
             >
                 <div className="sidebarProfile__header">
-                    {isAuthenticated && userData ? (
+                    {!isAuthenticated ? (
+                        <span className="sidebarProfile__guest-brand">TILININ’S GALLERY</span>
+                    ) : userData ? (
                         <UserHeader
                             userData={userData}
                             onEdit={() => onNavigate('/profile?section=personal')}
@@ -147,6 +151,15 @@ const ProfileSideBar = memo(({
                     </button>
                 </div>
 
+                {!isAuthenticated && (
+                    <div className="sidebarProfile__guest-content">
+                        <div className="sidebarProfile__guest-mark" aria-hidden="true">
+                            <UserRound size={32} strokeWidth={1.25} />
+                        </div>
+                        <GuestHeader onNavigate={onNavigate} onClose={onClose} />
+                    </div>
+                )}
+
                 {isAuthenticated && (
                     <>
                         {userRole === 'author' && <ModerationBanner />}
@@ -159,9 +172,9 @@ const ProfileSideBar = memo(({
                         <button
                             className="sidebarProfile__action-btn sidebarProfile__action-btn--secondary"
                             onClick={handleSettings}
-                            aria-label={t('common.notifications')  }
+                            aria-label={isAuthenticated ? t('common.notifications') : t('guest.settings')}
                         >
-                            ⚙️
+                            {isAuthenticated ? '⚙️' : <><Settings size={18} aria-hidden="true" />{t('guest.settings')}</>}
                         </button>
                         {isAuthenticated && (
                             <button

@@ -11,9 +11,9 @@ const LanguageSwitcher = () => {
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const languages = [
-        { code: 'ru' },
-        { code: 'en' },
-        { code: 'zh' },
+        { code: 'ru', label: 'RU' },
+        { code: 'en', label: 'EN' },
+        { code: 'zh', label: 'CH' },
     ];
 
     const handleToggle = () => {
@@ -35,7 +35,7 @@ const LanguageSwitcher = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const displayCode = language.toUpperCase();
+    const displayCode = languages.find((item) => item.code === language)?.label;
 
     return (
         <div className="lang-switcher" ref={dropdownRef}>
@@ -62,7 +62,7 @@ const LanguageSwitcher = () => {
                                 className={`lang-switcher__option ${language === lang.code ? 'lang-switcher__option--active' : ''}`}
                                 onClick={() => handleSelect(lang.code as 'ru' | 'en' | 'zh')}
                             >
-                                <span className="lang-switcher__option-code">{lang.code.toUpperCase()}</span>
+                                <span className="lang-switcher__option-code">{lang.label}</span>
                             </button>
                         </li>
                     ))}

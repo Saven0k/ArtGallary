@@ -29,6 +29,7 @@ export const sidebarTranslations = {
 
 
         guest: {
+            settings: 'Настройки сайта',
             title: 'Добро пожаловать!',
             subtitle: 'Войдите или зарегистрируйтесь, чтобы получить доступ ко всем возможностям',
             login: 'Войти',
@@ -105,6 +106,7 @@ export const sidebarTranslations = {
         terms: 'Terms of Service',
 
         guest: {
+            settings: 'Site settings',
             title: 'Welcome!',
             subtitle: 'Log in or register to access all features',
             login: 'Login',
@@ -176,6 +178,7 @@ export const sidebarTranslations = {
         terms: '服务条款',
 
         guest: {
+            settings: '网站设置',
             title: '欢迎！',
             subtitle: '登录或注册以访问所有功能',
             login: '登录',
