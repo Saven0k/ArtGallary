@@ -32,9 +32,17 @@
     }
 
     &__value {
+        min-width: 0;
+        font-variant-numeric: tabular-nums;
         font-size: 22px;
         font-weight: 600;
         color: #222222;
+    }
+}
+
+@media (max-width: 380px) {
+    .stats-cards {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 

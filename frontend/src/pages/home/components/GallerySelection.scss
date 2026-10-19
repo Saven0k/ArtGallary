@@ -10,7 +10,7 @@
 
     &__list {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 24px;
         list-style: none;
     }
@@ -41,6 +41,8 @@
 
         &-info {
             display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
             justify-content: start;
             align-items: center;
             padding: 24px 0 0;
@@ -52,6 +54,7 @@
             gap: 4px;
             margin-right: auto;
             min-width: 0;
+            flex: 1 1 160px;
         }
 
         &-author {
@@ -75,8 +78,9 @@
 
         &-like,
         &-cart {
-            width: 40px;
-            height: 40px;
+            flex: 0 0 44px;
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -146,7 +150,7 @@
         padding: 64px 40px;
 
         &__list {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 16px;
         }
 
@@ -175,8 +179,8 @@
 
             &-like,
             &-cart {
-                width: 32px;
-                height: 32px;
+                width: 44px;
+                height: 44px;
 
                 img {
                     width: 16px;
@@ -205,7 +209,7 @@
         }
 
         &__list {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 14px;
         }
 
@@ -234,8 +238,8 @@
 
             &-like,
             &-cart {
-                width: 28px;
-                height: 28px;
+                width: 44px;
+                height: 44px;
 
                 img {
                     width: 14px;

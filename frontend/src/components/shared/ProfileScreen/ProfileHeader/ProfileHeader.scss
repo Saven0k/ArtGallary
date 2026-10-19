@@ -116,6 +116,7 @@
 }
 
 .profile-header__badge {
+    max-width: 100%;
     display: inline-flex;
     align-items: center;
     gap: 5px;
@@ -155,9 +156,7 @@
     font-weight: 700;
     color: var(--neutral-grey-800);
     line-height: 1.2;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
 
     @media (max-width: 1280px) {
         font-size: 21px;
@@ -181,6 +180,7 @@
 }
 
 .profile-header__role {
+    overflow-wrap: anywhere;
     margin-top: 4px;
     font-size: 15px;
     color: var(--neutral-grey-600);

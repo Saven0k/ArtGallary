@@ -61,19 +61,18 @@
         }
 
         &__nav {
-            flex-direction: row;
-            flex-wrap: nowrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr));
             gap: 8px;
-            padding: 3px 2px 10px;
-            overflow-x: auto;
-            overscroll-behavior-x: contain;
-            scrollbar-width: thin;
+            padding: 3px 0;
         }
 
         &__item {
             flex: 0 0 auto;
             min-height: 44px;
-            white-space: nowrap;
+            min-width: 0;
+            white-space: normal;
+            overflow-wrap: anywhere;
             border: 1px solid rgba(188, 149, 71, .15);
             border-radius: 12px;
         }

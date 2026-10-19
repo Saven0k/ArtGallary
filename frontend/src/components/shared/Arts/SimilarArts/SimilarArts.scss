@@ -33,4 +33,10 @@
             gap: 12px;
         }
     }
+
+    @media (max-width: 380px) {
+        &__list {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
 }

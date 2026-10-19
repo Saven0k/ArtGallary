@@ -63,9 +63,9 @@
   --success-border: #DEEFD1;
 
 
-  --font-h1: 96px;
-  --font-h2: 64px;
-  --font-h3: 52px;
+  --font-h1: clamp(32px, 5vw, 96px);
+  --font-h2: clamp(28px, 3.4vw, 64px);
+  --font-h3: clamp(24px, 2.8vw, 52px);
   --font-h4: 36px;
   --font-h5: 32px;
   --font-body-large: 24px;
@@ -100,12 +100,13 @@
 }
 
 html {
-  min-width: 320px;
+  min-width: 0;
   font-size: 16px;
   scroll-behavior: smooth;
 }
 
 body {
+  overflow-wrap: anywhere;
   font-family: var(--font-family-base);
   font-size: var(--font-size-base);
   line-height: var(--line-height-base);
@@ -116,10 +117,16 @@ body {
 }
 
 #root {
+  min-width: 0;
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+}
+
+#root > main {
+  min-width: 0;
+  flex: 1;
 }
 
 img,
@@ -133,6 +140,8 @@ input,
 select,
 textarea {
   font: inherit;
+  min-width: 0;
+  max-width: 100%;
 }
 
 button,
@@ -228,7 +237,7 @@ h5 {
   .grid-cols-2,
   .grid-cols-3,
   .grid-cols-4 {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .timeline::before {

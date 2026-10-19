@@ -18,7 +18,7 @@
 
     &__summary {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
         gap: 16px;
         margin-bottom: 24px;
     }
@@ -76,7 +76,7 @@
 
     &__dist-row {
         display: grid;
-        grid-template-columns: 40px 1fr 50px;
+        grid-template-columns: 40px minmax(0, 1fr) 50px;
         align-items: center;
         gap: 12px;
         margin-bottom: 10px;
@@ -210,7 +210,7 @@
 
     &__cards {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
         gap: 16px;
     }
 

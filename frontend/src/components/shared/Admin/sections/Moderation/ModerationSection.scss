@@ -1,7 +1,7 @@
 .moderation-section {
     &__summary {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
         gap: 12px;
         margin-bottom: 16px;
     }
@@ -223,7 +223,7 @@
 
 .moderation-author-card {
     display: grid;
-    grid-template-columns: 180px 1fr;
+    grid-template-columns: 180px minmax(0, 1fr);
     gap: 24px;
     padding: 20px 24px;
     border-radius: var(--radius-l);
@@ -232,24 +232,24 @@
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 
     @media (max-width: 1200px) {
-        grid-template-columns: 160px 1fr;
+        grid-template-columns: 160px minmax(0, 1fr);
         gap: 20px;
     }
 
     @media (max-width: 992px) {
-        grid-template-columns: 140px 1fr;
+        grid-template-columns: 140px minmax(0, 1fr);
         gap: 18px;
         padding: 18px 20px;
     }
 
     @media (max-width: 768px) {
-        grid-template-columns: 120px 1fr;
+        grid-template-columns: 120px minmax(0, 1fr);
         gap: 16px;
         padding: 16px;
     }
 
     @media (max-width: 600px) {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 14px;
         padding: 16px;
         justify-items: center;
@@ -427,7 +427,7 @@
 
 .moderation-art-card {
     display: grid;
-    grid-template-columns: 180px 1fr;
+    grid-template-columns: 180px minmax(0, 1fr);
     gap: 24px;
     padding: 20px 24px;
     border-radius: var(--radius-l);
@@ -436,24 +436,24 @@
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 
     @media (max-width: 1200px) {
-        grid-template-columns: 160px 1fr;
+        grid-template-columns: 160px minmax(0, 1fr);
         gap: 20px;
     }
 
     @media (max-width: 992px) {
-        grid-template-columns: 140px 1fr;
+        grid-template-columns: 140px minmax(0, 1fr);
         gap: 18px;
         padding: 18px 20px;
     }
 
     @media (max-width: 768px) {
-        grid-template-columns: 120px 1fr;
+        grid-template-columns: 120px minmax(0, 1fr);
         gap: 16px;
         padding: 16px;
     }
 
     @media (max-width: 600px) {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 14px;
         padding: 16px;
         justify-items: center;

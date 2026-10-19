@@ -1,10 +1,11 @@
 .faq-tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 24px;
 
     @media (max-width: 768px) {
         gap: 10px;
-        overflow-x: auto;
+        overflow: visible;
         padding-bottom: 6px;
         scrollbar-width: none;
 
@@ -19,7 +20,9 @@
 }
 
 .faq-tab {
-    height: 48px;
+    min-height: 48px;
+    max-width: 100%;
+    height: auto;
     padding: 9px 20px;
     display: flex;
     align-items: center;
@@ -58,16 +61,17 @@
     }
 
     @media (max-width: 992px) {
-        height: 44px;
+        min-height: 44px;
         padding: 8px 18px;
         font-size: 14px;
     }
 
     @media (max-width: 768px) {
-        flex-shrink: 0;
+        flex: 1 1 120px;
         min-width: 44px;
-        height: 44px;
-        padding: 0 18px;
+        height: auto;
+        min-height: 44px;
+        padding: 10px 14px;
         font-size: 14px;
         border-radius: 12px;
     }
