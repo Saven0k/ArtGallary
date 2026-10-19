@@ -1,0 +1,1080 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="4480" height="2400" viewBox="0 0 4480 2400">
+<title>GalleryTema — актуальная схема базы данных</title>
+<desc>Схема по моделям Sequelize и SQL-миграциям проекта. Подробные поля находятся на страницах файла drawio.</desc>
+<rect width="100%" height="100%" fill="#F5F7FA"/>
+<text x="56" y="62" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#627487" text-anchor="start">GALLERYTEMA / DATABASE</text>
+<text x="56" y="108" font-family="Arial, sans-serif" font-size="36" font-weight="700" fill="#172B3A" text-anchor="start">Вся база данных</text>
+<text x="56" y="143" font-family="Arial, sans-serif" font-size="18" font-weight="400" fill="#627487" text-anchor="start">PostgreSQL  ·  20.10.2026  ·  35 таблиц  /  277 полей  /  39 FK ORM</text>
+<text x="56" y="181" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#627487" text-anchor="start">PK — первичный   FK — внешний   UQ — уникальный   ● NOT NULL   ○ NULL   — FK ORM   - - REF / JSON / SQL*</text>
+<text x="56" y="211" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#627487" text-anchor="start">ГЕОГРАФИЯ / ПРОФЕССИИ</text>
+<text x="700" y="211" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#627487" text-anchor="start">ПОЛЬЗОВАТЕЛИ</text>
+<text x="1344" y="211" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#627487" text-anchor="start">КАТАЛОГ</text>
+<text x="1988" y="211" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#627487" text-anchor="start">АКТИВНОСТЬ / ЗАКАЗЫ</text>
+<text x="2632" y="211" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#627487" text-anchor="start">ТАРИФЫ / УВЕДОМЛЕНИЯ</text>
+<text x="3276" y="211" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#627487" text-anchor="start">БЕЗОПАСНОСТЬ</text>
+<text x="3920" y="211" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#627487" text-anchor="start">TELEGRAM / СЕРВИС</text>
+<polyline points="1848,1218 1876,1218 1876,854 1848,854" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,1212 1861,1218" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,1218 1861,1218" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,1224 1861,1218" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1865" y="1215" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1855,848 1855,860" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1863" y="851" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1848,630 1876,630 1876,378 1848,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,624 1861,630" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,630 1861,630" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,636 1861,630" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1865" y="627" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1855,372 1855,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1861,372 1861,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1848,1694 1876,1694 1876,1442 1848,1442" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,1688 1861,1694" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,1694 1861,1694" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,1700 1861,1694" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1865" y="1691" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1855,1436 1855,1448" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1861,1436 1861,1448" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="560,630 588,630 588,378 560,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="562,624 573,630" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="562,630 573,630" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="562,636 573,630" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="577" y="627" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="567,372 567,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="573,372 573,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3136,658 3164,658 3164,378 3136,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3138,652 3149,658" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3138,658 3149,658" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3138,664 3149,658" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="3153" y="655" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="3143,372 3143,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3149,372 3149,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="4424,658 4452,658 4452,378 4424,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="4426,652 4437,658" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="4426,658 4437,658" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="4426,664 4437,658" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="4441" y="655" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="4431,372 4431,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="4437,372 4437,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="4424,406 4438,406 4438,630 4424,630" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="4435,635 4424,630 4435,625" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1204,658 1232,658 1232,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1211,652 1211,664" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1219" y="655" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,372 1217,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1848,1190 1862,1190 1862,602 1848,602" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,1184 1861,1190" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,1190 1861,1190" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,1196 1861,1190" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1865" y="1187" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1855,596 1855,608" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1863" y="599" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1204,938 1218,938 1218,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1211,932 1211,944" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1219" y="935" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,372 1217,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1204,1246 1232,1246 1232,658 1204,658" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1206,1240 1217,1246" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1206,1246 1217,1246" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1206,1252 1217,1246" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1221" y="1243" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,652 1211,664" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,652 1217,664" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1204,966 1246,966 1246,378 1204,378" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="1215,383 1204,378 1215,373" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1848,1666 1890,1666 1890,1078 1848,1078" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,1660 1861,1666" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,1666 1861,1666" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1850,1672 1861,1666" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1865" y="1663" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1855,1072 1855,1084" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1861,1072 1861,1084" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="700,406 672,406 672,378 560,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="698,412 687,406" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="698,406 687,406" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="698,400 687,406" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="677" y="403" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="567,372 567,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="575" y="375" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1204,1218 1260,1218 1260,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1206,1212 1217,1218" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1206,1218 1217,1218" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1206,1224 1217,1218" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1221" y="1215" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,372 1217,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="700,686 588,686 588,854 560,854" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="698,692 687,686" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="698,686 687,686" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="698,680 687,686" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="677" y="683" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="567,848 567,860" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="575" y="851" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="700,434 672,434 672,602 560,602" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="698,440 687,434" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="698,434 687,434" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="698,428 687,434" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="677" y="431" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="567,596 567,608" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="575" y="599" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1988,1414 1960,1414 1960,1078 1848,1078" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="1859,1083 1848,1078 1859,1073" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1988,742 1960,742 1960,1064 1876,1064 1876,1078 1848,1078" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,748 1975,742" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,742 1975,742" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,736 1975,742" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1965" y="739" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1855,1072 1855,1084" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1861,1072 1861,1084" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1344,1106 1316,1106 1316,658 1204,658" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1342,1112 1331,1106" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1342,1106 1331,1106" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1342,1100 1331,1106" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1321" y="1103" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,652 1211,664" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1219" y="655" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1204,1498 1274,1498 1274,364 1232,364 1232,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1206,1492 1217,1498" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1206,1498 1217,1498" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1206,1504 1217,1498" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1221" y="1495" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1219" y="375" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1988,1694 1904,1694 1904,1092 1876,1092 1876,1078 1848,1078" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="1859,1083 1848,1078 1859,1073" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1988,434 1288,434 1288,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,440 1975,434" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,434 1975,434" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,428 1975,434" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1965" y="431" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,372 1217,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1204,1750 1288,1750 1288,392 1232,392 1232,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1211,1744 1211,1756" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1219" y="1747" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,372 1217,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1988,406 1890,406 1890,1078 1848,1078" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,412 1975,406" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,406 1975,406" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,400 1975,406" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1965" y="403" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1855,1072 1855,1084" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1861,1072 1861,1084" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1988,770 1904,770 1904,448 1302,448 1302,350 1232,350 1232,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,776 1975,770" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,770 1975,770" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,764 1975,770" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1965" y="767" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1219" y="375" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1988,1078 1974,1078 1974,686 1232,686 1232,658 1204,658" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1084 1975,1078" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1078 1975,1078" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1072 1975,1078" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1965" y="1075" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,652 1211,664" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,652 1217,664" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1344,1162 1218,1162 1218,1022 686,1022 686,616 588,616 588,602 560,602" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1342,1168 1331,1162" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1342,1162 1331,1162" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1342,1156 1331,1162" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1321" y="1159" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="567,596 567,608" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="575" y="599" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1988,490 602,490 602,378 560,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,496 1975,490" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,490 1975,490" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,484 1975,490" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1965" y="487" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="567,372 567,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="575" y="375" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1988,1106 1918,1106 1918,910 1330,910 1330,364 1232,364 1232,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1112 1975,1106" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1106 1975,1106" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1100 1975,1106" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1965" y="1103" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1219" y="375" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1344,1134 1246,1134 1246,1036 574,1036 574,378 560,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1342,1140 1331,1134" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1342,1134 1331,1134" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1342,1128 1331,1134" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1321" y="1131" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="567,372 567,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="575" y="375" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1988,798 1876,798 1876,742 602,742 602,602 560,602" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,804 1975,798" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,798 1975,798" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,792 1975,798" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1965" y="795" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="567,596 567,608" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="575" y="599" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1988,462 1302,462 1302,546 602,546 602,588 588,588 588,602 560,602" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,468 1975,462" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,462 1975,462" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,456 1975,462" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1965" y="459" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="567,596 567,608" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="575" y="599" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="2632,406 2604,406 2604,602 1918,602 1918,700 1302,700 1302,672 1232,672 1232,658 1204,658" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2625,412 2625,400" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="2611" y="403" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,652 1211,664" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,652 1217,664" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1988,826 1932,826 1932,266 588,266 588,378 560,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,832 1975,826" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,826 1975,826" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,820 1975,826" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1965" y="823" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="567,372 567,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="575" y="375" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1988,1386 1946,1386 1946,476 1316,476 1316,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1981,1392 1981,1380" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1967" y="1383" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,372 1217,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1988,1134 1932,1134 1932,924 1302,924 1302,756 616,756 616,602 560,602" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1140 1975,1134" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1134 1975,1134" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1128 1975,1134" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1965" y="1131" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="567,596 567,608" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="575" y="599" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="2632,910 2506,910 2506,252 1218,252 1218,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2630,916 2619,910" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2630,910 2619,910" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2630,904 2619,910" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="2609" y="907" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,372 1217,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1988,1666 1918,1666 1918,1092 1904,1092 1904,714 1316,714 1316,476 1232,476 1232,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1672 1975,1666" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1666 1975,1666" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1660 1975,1666" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1965" y="1663" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,372 1217,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3276,406 3248,406 3248,238 1232,238 1232,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3274,412 3263,406" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3274,406 3263,406" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3274,400 3263,406" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="3253" y="403" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,372 1217,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1988,1162 1932,1162 1932,1302 630,1302 630,392 588,392 588,378 560,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1168 1975,1162" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1162 1975,1162" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1986,1156 1975,1162" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1965" y="1159" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="567,372 567,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="575" y="375" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="2632,1134 2520,1134 2520,224 1246,224 1246,378 1204,378" fill="none" stroke="#80619C" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="1215,383 1204,378 1215,373" fill="none" stroke="#80619C" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3276,658 3248,658 3248,518 2534,518 2534,546 1974,546 1974,420 1862,420 1862,434 1330,434 1330,406 1232,406 1232,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3274,664 3263,658" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3274,658 3263,658" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3274,652 3263,658" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="3253" y="655" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,372 1217,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2632,1386 2506,1386 2506,924 1988,924 1988,882 1918,882 1918,728 1302,728 1302,504 1218,504 1218,378 1204,378" fill="none" stroke="#80619C" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="1215,383 1204,378 1215,373" fill="none" stroke="#80619C" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3920,686 3892,686 3892,770 2618,770 2618,938 1876,938 1876,1078 1848,1078" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="1859,1083 1848,1078 1859,1073" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3276,910 3248,910 3248,714 2534,714 2534,560 1862,560 1862,448 1246,448 1246,392 1232,392 1232,378 1204,378" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="1215,383 1204,378 1215,373" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3920,378 3892,378 3892,266 1330,266 1330,336 1232,336 1232,378 1204,378" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3913,384 3913,372" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<rect x="3899" y="375" width="6" height="6" rx="3" fill="#F5F7FA" stroke="#7F94A6"/>
+<polyline points="1211,372 1211,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1217,372 1217,384" fill="none" stroke="#7F94A6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3920,686 3794,686 3794,756 2534,756 2534,896 1862,896 1862,938 1302,938 1302,714 1232,714 1232,658 1204,658" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="1215,663 1204,658 1215,653" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="3276,1162 3150,1162 3150,728 2548,728 2548,574 1918,574 1918,462 1260,462 1260,378 1204,378" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="1215,383 1204,378 1215,373" fill="none" stroke="#8A6B2D" stroke-width="2" stroke-linejoin="round"/>
+<rect x="56" y="280" width="504" height="140" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="56" y="280" width="504" height="56" rx="0" fill="#586F7C" stroke="none"/>
+<text x="72" y="305" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">countries</text>
+<text x="72" y="325" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Страны</text>
+<rect x="56" y="336" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="68" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="136" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="354" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="520" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="56" y="364" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="68" y="383" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#586F7C" text-anchor="start">PK</text>
+<text x="136" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="354" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="520" y="383" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="56" y="392" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="68" y="411" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 10 других полей  ·  подробности: стр. 03</text>
+<rect x="56" y="504" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="56" y="504" width="504" height="56" rx="0" fill="#586F7C" stroke="none"/>
+<text x="72" y="529" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">cities</text>
+<text x="72" y="549" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Города</text>
+<rect x="56" y="560" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="68" y="579" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="136" y="579" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="354" y="579" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="520" y="579" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="56" y="588" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="68" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#586F7C" text-anchor="start">PK</text>
+<text x="136" y="607" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="354" y="607" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="520" y="607" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="56" y="616" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="68" y="635" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#586F7C" text-anchor="start">FK</text>
+<text x="136" y="635" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">country_id</text>
+<text x="354" y="635" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="520" y="635" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="56" y="644" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="68" y="663" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 11 других полей  ·  подробности: стр. 03</text>
+<rect x="56" y="756" width="504" height="140" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="56" y="756" width="504" height="56" rx="0" fill="#284B63" stroke="none"/>
+<text x="72" y="781" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">professions</text>
+<text x="72" y="801" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Профессии авторов</text>
+<rect x="56" y="812" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="68" y="831" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="136" y="831" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="354" y="831" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="520" y="831" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="56" y="840" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="68" y="859" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#284B63" text-anchor="start">PK</text>
+<text x="136" y="859" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="354" y="859" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="520" y="859" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="56" y="868" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="68" y="887" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 4 других полей  ·  подробности: стр. 02</text>
+<rect x="700" y="280" width="504" height="196" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="700" y="280" width="504" height="56" rx="0" fill="#284B63" stroke="none"/>
+<text x="716" y="305" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">users</text>
+<text x="716" y="325" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Учётные записи</text>
+<rect x="700" y="336" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="712" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="780" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="998" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="1164" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="700" y="364" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="712" y="383" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#284B63" text-anchor="start">PK</text>
+<text x="780" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="998" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="383" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="700" y="392" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="712" y="411" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#284B63" text-anchor="start">FK</text>
+<text x="780" y="411" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">country_id</text>
+<text x="998" y="411" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="411" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="700" y="420" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="712" y="439" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#284B63" text-anchor="start">FK</text>
+<text x="780" y="439" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">city_id</text>
+<text x="998" y="439" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="439" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="700" y="448" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="712" y="467" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 12 других полей  ·  подробности: стр. 02</text>
+<rect x="700" y="560" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="700" y="560" width="504" height="56" rx="0" fill="#284B63" stroke="none"/>
+<text x="716" y="585" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">author_profiles</text>
+<text x="716" y="605" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Профили авторов</text>
+<rect x="700" y="616" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="712" y="635" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="780" y="635" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="998" y="635" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="1164" y="635" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="700" y="644" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="712" y="663" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#284B63" text-anchor="start">PK/FK</text>
+<text x="780" y="663" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="998" y="663" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="663" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="700" y="672" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="712" y="691" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#284B63" text-anchor="start">FK</text>
+<text x="780" y="691" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">profession_id</text>
+<text x="998" y="691" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="691" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="700" y="700" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="712" y="719" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 8 других полей  ·  подробности: стр. 02</text>
+<rect x="700" y="812" width="504" height="196" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="700" y="812" width="504" height="56" rx="0" fill="#284B63" stroke="none"/>
+<text x="716" y="837" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">moderators</text>
+<text x="716" y="857" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Модераторы</text>
+<rect x="700" y="868" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="712" y="887" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="780" y="887" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="998" y="887" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="1164" y="887" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="700" y="896" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="712" y="915" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#284B63" text-anchor="start">PK</text>
+<text x="780" y="915" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="998" y="915" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="915" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="700" y="924" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="712" y="943" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#284B63" text-anchor="start">UQ/FK</text>
+<text x="780" y="943" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="998" y="943" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="943" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="700" y="952" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="712" y="971" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#284B63" text-anchor="start">REF</text>
+<text x="780" y="971" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">assigned_by</text>
+<text x="998" y="971" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="971" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="700" y="980" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="712" y="999" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 2 других полей  ·  подробности: стр. 02</text>
+<rect x="700" y="1092" width="504" height="196" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="700" y="1092" width="504" height="56" rx="0" fill="#226E65" stroke="none"/>
+<text x="716" y="1117" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">author_follows</text>
+<text x="716" y="1137" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Подписки на авторов</text>
+<rect x="700" y="1148" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="712" y="1167" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="780" y="1167" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="998" y="1167" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="1164" y="1167" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="700" y="1176" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="712" y="1195" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#226E65" text-anchor="start">PK</text>
+<text x="780" y="1195" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="998" y="1195" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="1195" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="700" y="1204" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="712" y="1223" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="780" y="1223" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="998" y="1223" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="1223" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="700" y="1232" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="712" y="1251" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="780" y="1251" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">author_id</text>
+<text x="998" y="1251" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="1251" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="700" y="1260" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="712" y="1279" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 3 других полей  ·  подробности: стр. 04</text>
+<rect x="700" y="1372" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="700" y="1372" width="504" height="56" rx="0" fill="#226E65" stroke="none"/>
+<text x="716" y="1397" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">site_visits</text>
+<text x="716" y="1417" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Посещения сайта</text>
+<rect x="700" y="1428" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="712" y="1447" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="780" y="1447" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="998" y="1447" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="1164" y="1447" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="700" y="1456" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="712" y="1475" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#226E65" text-anchor="start">PK</text>
+<text x="780" y="1475" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="998" y="1475" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="1475" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="700" y="1484" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="712" y="1503" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="780" y="1503" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="998" y="1503" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="1503" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="700" y="1512" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="712" y="1531" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 4 других полей  ·  подробности: стр. 04</text>
+<rect x="700" y="1624" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="700" y="1624" width="504" height="56" rx="0" fill="#226E65" stroke="none"/>
+<text x="716" y="1649" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">site_ratings</text>
+<text x="716" y="1669" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Оценки сайта</text>
+<rect x="700" y="1680" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="712" y="1699" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="780" y="1699" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="998" y="1699" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="1164" y="1699" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="700" y="1708" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="712" y="1727" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#226E65" text-anchor="start">PK</text>
+<text x="780" y="1727" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="998" y="1727" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="1727" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="700" y="1736" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="712" y="1755" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">UQ/FK</text>
+<text x="780" y="1755" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="998" y="1755" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1164" y="1755" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="700" y="1764" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="712" y="1783" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 3 других полей  ·  подробности: стр. 04</text>
+<rect x="1344" y="280" width="504" height="140" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="1344" y="280" width="504" height="56" rx="0" fill="#8A652D" stroke="none"/>
+<text x="1360" y="305" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">art_types</text>
+<text x="1360" y="325" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Виды искусства</text>
+<rect x="1344" y="336" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="1424" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="1642" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="1808" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="1344" y="364" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="1356" y="383" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#8A652D" text-anchor="start">PK</text>
+<text x="1424" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="1642" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="383" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1344" y="392" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="411" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 4 других полей  ·  подробности: стр. 03</text>
+<rect x="1344" y="504" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="1344" y="504" width="504" height="56" rx="0" fill="#8A652D" stroke="none"/>
+<text x="1360" y="529" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">genres</text>
+<text x="1360" y="549" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Жанры</text>
+<rect x="1344" y="560" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="579" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="1424" y="579" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="1642" y="579" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="1808" y="579" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="1344" y="588" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="1356" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#8A652D" text-anchor="start">PK</text>
+<text x="1424" y="607" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="1642" y="607" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="607" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1344" y="616" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="1356" y="635" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#8A652D" text-anchor="start">FK</text>
+<text x="1424" y="635" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">art_type_id</text>
+<text x="1642" y="635" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="635" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1344" y="644" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="663" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 4 других полей  ·  подробности: стр. 03</text>
+<rect x="1344" y="756" width="504" height="140" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="1344" y="756" width="504" height="56" rx="0" fill="#8A652D" stroke="none"/>
+<text x="1360" y="781" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">styles</text>
+<text x="1360" y="801" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Стили</text>
+<rect x="1344" y="812" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="831" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="1424" y="831" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="1642" y="831" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="1808" y="831" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="1344" y="840" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="1356" y="859" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#8A652D" text-anchor="start">PK</text>
+<text x="1424" y="859" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="1642" y="859" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="859" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1344" y="868" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="887" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 4 других полей  ·  подробности: стр. 03</text>
+<rect x="1344" y="980" width="504" height="280" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="1344" y="980" width="504" height="56" rx="0" fill="#8A652D" stroke="none"/>
+<text x="1360" y="1005" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">arts</text>
+<text x="1360" y="1025" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Произведения искусства</text>
+<rect x="1344" y="1036" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="1055" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="1424" y="1055" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="1642" y="1055" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="1808" y="1055" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="1344" y="1064" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="1356" y="1083" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#8A652D" text-anchor="start">PK</text>
+<text x="1424" y="1083" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="1642" y="1083" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="1083" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1344" y="1092" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="1356" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#8A652D" text-anchor="start">FK</text>
+<text x="1424" y="1111" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">author_id</text>
+<text x="1642" y="1111" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="1111" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="1344" y="1120" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="1356" y="1139" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#8A652D" text-anchor="start">FK</text>
+<text x="1424" y="1139" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">country_id</text>
+<text x="1642" y="1139" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="1139" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="1344" y="1148" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="1356" y="1167" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#8A652D" text-anchor="start">FK</text>
+<text x="1424" y="1167" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">city_id</text>
+<text x="1642" y="1167" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="1167" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="1344" y="1176" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="1356" y="1195" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#8A652D" text-anchor="start">FK</text>
+<text x="1424" y="1195" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">genre_id</text>
+<text x="1642" y="1195" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="1195" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="1344" y="1204" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="1356" y="1223" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#8A652D" text-anchor="start">FK</text>
+<text x="1424" y="1223" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">style_id</text>
+<text x="1642" y="1223" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="1223" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="1344" y="1232" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="1251" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 18 других полей  ·  подробности: стр. 03</text>
+<rect x="1344" y="1344" width="504" height="140" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="1344" y="1344" width="504" height="56" rx="0" fill="#8A652D" stroke="none"/>
+<text x="1360" y="1369" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">tags</text>
+<text x="1360" y="1389" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Теги</text>
+<rect x="1344" y="1400" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="1419" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="1424" y="1419" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="1642" y="1419" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="1808" y="1419" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="1344" y="1428" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="1356" y="1447" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#8A652D" text-anchor="start">PK</text>
+<text x="1424" y="1447" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="1642" y="1447" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="1447" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1344" y="1456" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="1475" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 4 других полей  ·  подробности: стр. 03</text>
+<rect x="1344" y="1568" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="1344" y="1568" width="504" height="56" rx="0" fill="#8A652D" stroke="none"/>
+<text x="1360" y="1593" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">art_tags</text>
+<text x="1360" y="1613" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Связь работ и тегов</text>
+<rect x="1344" y="1624" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="1643" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="1424" y="1643" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="1642" y="1643" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="1808" y="1643" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="1344" y="1652" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="1356" y="1671" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#8A652D" text-anchor="start">PK/FK</text>
+<text x="1424" y="1671" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">art_id</text>
+<text x="1642" y="1671" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="1671" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1344" y="1680" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="1356" y="1699" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#8A652D" text-anchor="start">PK/FK</text>
+<text x="1424" y="1699" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">tag_id</text>
+<text x="1642" y="1699" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="1699" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1344" y="1708" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="1727" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 2 других полей  ·  подробности: стр. 03</text>
+<rect x="1344" y="1820" width="504" height="140" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="1344" y="1820" width="504" height="56" rx="0" fill="#8A652D" stroke="none"/>
+<text x="1360" y="1845" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">events</text>
+<text x="1360" y="1865" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">События галереи</text>
+<rect x="1344" y="1876" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="1895" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="1424" y="1895" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="1642" y="1895" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="1808" y="1895" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="1344" y="1904" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="1356" y="1923" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#8A652D" text-anchor="start">PK</text>
+<text x="1424" y="1923" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="1642" y="1923" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="1808" y="1923" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1344" y="1932" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="1356" y="1951" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 7 других полей  ·  подробности: стр. 03</text>
+<rect x="1988" y="280" width="504" height="252" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="1988" y="280" width="504" height="56" rx="0" fill="#226E65" stroke="none"/>
+<text x="2004" y="305" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">art_likes</text>
+<text x="2004" y="325" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Лайки работ</text>
+<rect x="1988" y="336" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2000" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="2068" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="2286" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="2452" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="1988" y="364" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2000" y="383" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#226E65" text-anchor="start">PK</text>
+<text x="2068" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="2286" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="383" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1988" y="392" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="2000" y="411" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="2068" y="411" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">art_id</text>
+<text x="2286" y="411" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="411" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1988" y="420" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2000" y="439" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="2068" y="439" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="2286" y="439" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="439" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1988" y="448" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="2000" y="467" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="2068" y="467" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">city_id</text>
+<text x="2286" y="467" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="467" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="1988" y="476" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2000" y="495" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="2068" y="495" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">country_id</text>
+<text x="2286" y="495" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="495" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="1988" y="504" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2000" y="523" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 7 других полей  ·  подробности: стр. 04</text>
+<rect x="1988" y="616" width="504" height="252" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="1988" y="616" width="504" height="56" rx="0" fill="#226E65" stroke="none"/>
+<text x="2004" y="641" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">art_views</text>
+<text x="2004" y="661" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Просмотры работ</text>
+<rect x="1988" y="672" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2000" y="691" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="2068" y="691" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="2286" y="691" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="2452" y="691" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="1988" y="700" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2000" y="719" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#226E65" text-anchor="start">PK</text>
+<text x="2068" y="719" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="2286" y="719" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="719" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1988" y="728" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="2000" y="747" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="2068" y="747" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">art_id</text>
+<text x="2286" y="747" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="747" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1988" y="756" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2000" y="775" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="2068" y="775" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="2286" y="775" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="775" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="1988" y="784" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="2000" y="803" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="2068" y="803" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">city_id</text>
+<text x="2286" y="803" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="803" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="1988" y="812" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2000" y="831" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="2068" y="831" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">country_id</text>
+<text x="2286" y="831" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="831" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="1988" y="840" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2000" y="859" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 7 других полей  ·  подробности: стр. 04</text>
+<rect x="1988" y="952" width="504" height="252" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="1988" y="952" width="504" height="56" rx="0" fill="#226E65" stroke="none"/>
+<text x="2004" y="977" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">author_views</text>
+<text x="2004" y="997" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Просмотры авторов</text>
+<rect x="1988" y="1008" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2000" y="1027" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="2068" y="1027" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="2286" y="1027" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="2452" y="1027" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="1988" y="1036" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2000" y="1055" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#226E65" text-anchor="start">PK</text>
+<text x="2068" y="1055" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="2286" y="1055" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="1055" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1988" y="1064" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="2000" y="1083" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="2068" y="1083" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">author_id</text>
+<text x="2286" y="1083" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="1083" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1988" y="1092" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2000" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="2068" y="1111" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="2286" y="1111" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="1111" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="1988" y="1120" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="2000" y="1139" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="2068" y="1139" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">city_id</text>
+<text x="2286" y="1139" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="1139" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="1988" y="1148" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2000" y="1167" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="2068" y="1167" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">country_id</text>
+<text x="2286" y="1167" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="1167" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="1988" y="1176" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2000" y="1195" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 7 других полей  ·  подробности: стр. 04</text>
+<rect x="1988" y="1288" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="1988" y="1288" width="504" height="56" rx="0" fill="#226E65" stroke="none"/>
+<text x="2004" y="1313" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">carts</text>
+<text x="2004" y="1333" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Корзины</text>
+<rect x="1988" y="1344" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2000" y="1363" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="2068" y="1363" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="2286" y="1363" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="2452" y="1363" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="1988" y="1372" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2000" y="1391" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#226E65" text-anchor="start">PK/FK</text>
+<text x="2068" y="1391" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="2286" y="1391" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="1391" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1988" y="1400" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="2000" y="1419" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">REF</text>
+<text x="2068" y="1419" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">art_ids</text>
+<text x="2286" y="1419" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">JSONB</text>
+<text x="2452" y="1419" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1988" y="1428" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2000" y="1447" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 2 других полей  ·  подробности: стр. 04</text>
+<rect x="1988" y="1540" width="504" height="196" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="1988" y="1540" width="504" height="56" rx="0" fill="#226E65" stroke="none"/>
+<text x="2004" y="1565" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">cart_history</text>
+<text x="2004" y="1585" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">История заказов</text>
+<rect x="1988" y="1596" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2000" y="1615" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="2068" y="1615" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="2286" y="1615" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="2452" y="1615" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="1988" y="1624" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2000" y="1643" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#226E65" text-anchor="start">PK</text>
+<text x="2068" y="1643" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="2286" y="1643" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="1643" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1988" y="1652" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="2000" y="1671" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">FK</text>
+<text x="2068" y="1671" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="2286" y="1671" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="2452" y="1671" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1988" y="1680" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2000" y="1699" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#226E65" text-anchor="start">REF</text>
+<text x="2068" y="1699" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">art_ids</text>
+<text x="2286" y="1699" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">JSONB</text>
+<text x="2452" y="1699" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="1988" y="1708" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2000" y="1727" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 5 других полей  ·  подробности: стр. 04</text>
+<rect x="2632" y="280" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="2632" y="280" width="504" height="56" rx="0" fill="#72548A" stroke="none"/>
+<text x="2648" y="305" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">subscriptions</text>
+<text x="2648" y="325" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Тарифы авторов</text>
+<rect x="2632" y="336" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2644" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="2712" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="2930" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="3096" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="2632" y="364" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2644" y="383" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#72548A" text-anchor="start">PK</text>
+<text x="2712" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="2930" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3096" y="383" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="2632" y="392" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="2644" y="411" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#72548A" text-anchor="start">UQ/FK</text>
+<text x="2712" y="411" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">author_id</text>
+<text x="2930" y="411" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3096" y="411" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="2632" y="420" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2644" y="439" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 5 других полей  ·  подробности: стр. 05</text>
+<rect x="2632" y="532" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="2632" y="532" width="504" height="56" rx="0" fill="#72548A" stroke="none"/>
+<text x="2648" y="557" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">subscription_history</text>
+<text x="2648" y="577" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">История тарифов и платежей</text>
+<rect x="2632" y="588" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2644" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="2712" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="2930" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="3096" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="2632" y="616" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2644" y="635" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#72548A" text-anchor="start">PK</text>
+<text x="2712" y="635" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="2930" y="635" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3096" y="635" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="2632" y="644" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="2644" y="663" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#72548A" text-anchor="start">FK</text>
+<text x="2712" y="663" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">subscription_id</text>
+<text x="2930" y="663" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3096" y="663" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="2632" y="672" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2644" y="691" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 14 других полей  ·  подробности: стр. 05</text>
+<rect x="2632" y="784" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="2632" y="784" width="504" height="56" rx="0" fill="#72548A" stroke="none"/>
+<text x="2648" y="809" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">notifications</text>
+<text x="2648" y="829" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Уведомления</text>
+<rect x="2632" y="840" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2644" y="859" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="2712" y="859" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="2930" y="859" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="3096" y="859" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="2632" y="868" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2644" y="887" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#72548A" text-anchor="start">PK</text>
+<text x="2712" y="887" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="2930" y="887" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3096" y="887" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="2632" y="896" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="2644" y="915" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#72548A" text-anchor="start">FK</text>
+<text x="2712" y="915" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="2930" y="915" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3096" y="915" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="2632" y="924" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2644" y="943" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 13 других полей  ·  подробности: стр. 05</text>
+<rect x="2632" y="1036" width="504" height="140" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="2632" y="1036" width="504" height="56" rx="0" fill="#72548A" stroke="none"/>
+<text x="2648" y="1061" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">notification_settings</text>
+<text x="2648" y="1081" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Настройки уведомлений</text>
+<rect x="2632" y="1092" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2644" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="2712" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="2930" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="3096" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="2632" y="1120" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2644" y="1139" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#72548A" text-anchor="start">PK/SQL*</text>
+<text x="2712" y="1139" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="2930" y="1139" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3096" y="1139" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="2632" y="1148" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2644" y="1167" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 4 других полей  ·  подробности: стр. 05</text>
+<rect x="2632" y="1260" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="2632" y="1260" width="504" height="56" rx="0" fill="#72548A" stroke="none"/>
+<text x="2648" y="1285" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">push_subscriptions</text>
+<text x="2648" y="1305" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Браузерные push-подписки</text>
+<rect x="2632" y="1316" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2644" y="1335" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="2712" y="1335" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="2930" y="1335" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="3096" y="1335" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="2632" y="1344" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="2644" y="1363" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#72548A" text-anchor="start">PK</text>
+<text x="2712" y="1363" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="2930" y="1363" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">VARCHAR(64)</text>
+<text x="3096" y="1363" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="2632" y="1372" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="2644" y="1391" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#72548A" text-anchor="start">SQL*</text>
+<text x="2712" y="1391" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="2930" y="1391" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3096" y="1391" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="2632" y="1400" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="2644" y="1419" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 3 других полей  ·  подробности: стр. 05</text>
+<rect x="3276" y="280" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="3276" y="280" width="504" height="56" rx="0" fill="#284B63" stroke="none"/>
+<text x="3292" y="305" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">refresh_tokens</text>
+<text x="3292" y="325" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Сессии и refresh-токены</text>
+<rect x="3276" y="336" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3288" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="3356" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="3574" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="3740" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="3276" y="364" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="3288" y="383" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#284B63" text-anchor="start">PK</text>
+<text x="3356" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="3574" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">UUID</text>
+<text x="3740" y="383" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3276" y="392" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="3288" y="411" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#284B63" text-anchor="start">FK</text>
+<text x="3356" y="411" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">userId</text>
+<text x="3574" y="411" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3740" y="411" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3276" y="420" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3288" y="439" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 5 других полей  ·  подробности: стр. 02</text>
+<rect x="3276" y="532" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="3276" y="532" width="504" height="56" rx="0" fill="#284B63" stroke="none"/>
+<text x="3292" y="557" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">password_reset_codes</text>
+<text x="3292" y="577" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Восстановление пароля</text>
+<rect x="3276" y="588" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3288" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="3356" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="3574" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="3740" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="3276" y="616" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="3288" y="635" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#284B63" text-anchor="start">PK</text>
+<text x="3356" y="635" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="3574" y="635" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3740" y="635" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3276" y="644" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="3288" y="663" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#284B63" text-anchor="start">FK</text>
+<text x="3356" y="663" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="3574" y="663" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3740" y="663" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3276" y="672" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3288" y="691" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 3 других полей  ·  подробности: стр. 02</text>
+<rect x="3276" y="784" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="3276" y="784" width="504" height="56" rx="0" fill="#284B63" stroke="none"/>
+<text x="3292" y="809" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">email_change_codes</text>
+<text x="3292" y="829" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Смена email</text>
+<rect x="3276" y="840" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3288" y="859" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="3356" y="859" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="3574" y="859" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="3740" y="859" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="3276" y="868" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="3288" y="887" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#284B63" text-anchor="start">PK</text>
+<text x="3356" y="887" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="3574" y="887" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3740" y="887" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3276" y="896" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="3288" y="915" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#284B63" text-anchor="start">REF</text>
+<text x="3356" y="915" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="3574" y="915" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3740" y="915" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3276" y="924" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3288" y="943" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 4 других полей  ·  подробности: стр. 02</text>
+<rect x="3276" y="1036" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="3276" y="1036" width="504" height="56" rx="0" fill="#284B63" stroke="none"/>
+<text x="3292" y="1061" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">account_deletion_codes</text>
+<text x="3292" y="1081" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Удаление аккаунта</text>
+<rect x="3276" y="1092" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3288" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="3356" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="3574" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="3740" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="3276" y="1120" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="3288" y="1139" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#284B63" text-anchor="start">PK</text>
+<text x="3356" y="1139" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="3574" y="1139" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3740" y="1139" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3276" y="1148" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="3288" y="1167" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#284B63" text-anchor="start">REF</text>
+<text x="3356" y="1167" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="3574" y="1167" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="3740" y="1167" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3276" y="1176" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3288" y="1195" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 3 других полей  ·  подробности: стр. 02</text>
+<rect x="3920" y="280" width="504" height="168" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="3920" y="280" width="504" height="56" rx="0" fill="#365F89" stroke="none"/>
+<text x="3936" y="305" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">telegram_accounts</text>
+<text x="3936" y="325" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Привязки Telegram</text>
+<rect x="3920" y="336" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3932" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="4000" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="4218" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="4384" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="3920" y="364" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="3932" y="383" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#365F89" text-anchor="start">PK/FK</text>
+<text x="4000" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="4218" y="383" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="4384" y="383" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3920" y="392" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="3932" y="411" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#365F89" text-anchor="start">REF</text>
+<text x="4000" y="411" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">pending_delivery_id</text>
+<text x="4218" y="411" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="4384" y="411" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">○</text>
+<rect x="3920" y="420" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3932" y="439" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 6 других полей  ·  подробности: стр. 06</text>
+<rect x="3920" y="532" width="504" height="196" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="3920" y="532" width="504" height="56" rx="0" fill="#365F89" stroke="none"/>
+<text x="3936" y="557" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">telegram_moderation_deliveries</text>
+<text x="3936" y="577" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Доставка задач модерации</text>
+<rect x="3920" y="588" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3932" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="4000" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="4218" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="4384" y="607" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="3920" y="616" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="3932" y="635" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#365F89" text-anchor="start">PK</text>
+<text x="4000" y="635" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="4218" y="635" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="4384" y="635" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3920" y="644" width="504" height="28" rx="0" fill="#F6F9FB" stroke="none"/>
+<text x="3932" y="663" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#365F89" text-anchor="start">FK</text>
+<text x="4000" y="663" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">user_id</text>
+<text x="4218" y="663" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="4384" y="663" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3920" y="672" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="3932" y="691" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#365F89" text-anchor="start">REF</text>
+<text x="4000" y="691" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">entity_id</text>
+<text x="4218" y="691" font-family="Consolas, monospace" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">INT</text>
+<text x="4384" y="691" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3920" y="700" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3932" y="719" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 3 других полей  ·  подробности: стр. 06</text>
+<rect x="3920" y="812" width="504" height="140" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="3920" y="812" width="504" height="56" rx="0" fill="#365F89" stroke="none"/>
+<text x="3936" y="837" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">telegram_bot_state</text>
+<text x="3936" y="857" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Состояние Telegram-бота</text>
+<rect x="3920" y="868" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3932" y="887" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="4000" y="887" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="4218" y="887" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="4384" y="887" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="3920" y="896" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="3932" y="915" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#365F89" text-anchor="start">PK</text>
+<text x="4000" y="915" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">id</text>
+<text x="4218" y="915" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">INT</text>
+<text x="4384" y="915" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3920" y="924" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3932" y="943" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 1 других полей  ·  подробности: стр. 06</text>
+<rect x="3920" y="1036" width="504" height="140" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="3920" y="1036" width="504" height="56" rx="0" fill="#365F89" stroke="none"/>
+<text x="3936" y="1061" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">content_translations</text>
+<text x="3936" y="1081" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Кеш перевода контента</text>
+<rect x="3920" y="1092" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3932" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="4000" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="4218" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="4384" y="1111" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="3920" y="1120" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="3932" y="1139" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#365F89" text-anchor="start">PK</text>
+<text x="4000" y="1139" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">key</text>
+<text x="4218" y="1139" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">VARCHAR(64)</text>
+<text x="4384" y="1139" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3920" y="1148" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3932" y="1167" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 5 других полей  ·  подробности: стр. 06</text>
+<rect x="3920" y="1260" width="504" height="140" rx="8" fill="#FFFFFF" stroke="#C9D4DF"/>
+<rect x="3920" y="1260" width="504" height="56" rx="0" fill="#365F89" stroke="none"/>
+<text x="3936" y="1285" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="start">_schema_migrations</text>
+<text x="3936" y="1305" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#E3EBF1" text-anchor="start">Журнал SQL-миграций</text>
+<rect x="3920" y="1316" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3932" y="1335" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">КЛЮЧ</text>
+<text x="4000" y="1335" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ПОЛЕ</text>
+<text x="4218" y="1335" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">ТИП</text>
+<text x="4384" y="1335" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#627487" text-anchor="start">NULL</text>
+<rect x="3920" y="1344" width="504" height="28" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="3932" y="1363" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#365F89" text-anchor="start">PK</text>
+<text x="4000" y="1363" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">name</text>
+<text x="4218" y="1363" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">TEXT</text>
+<text x="4384" y="1363" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172B3A" text-anchor="start">●</text>
+<rect x="3920" y="1372" width="504" height="28" rx="0" fill="#EDF2F6" stroke="none"/>
+<text x="3932" y="1391" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#627487" text-anchor="start">+ 2 других полей  ·  подробности: стр. 06</text>
+<rect x="56" y="2100" width="4368" height="258" rx="8" fill="#EAF0F5" stroke="none"/>
+<text x="76" y="2131" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#172B3A" text-anchor="start">ОБОЗНАЧЕНИЯ И ВАЖНЫЕ ДЕТАЛИ</text>
+<text x="76" y="2162" font-family="Arial, sans-serif" font-size="15" font-weight="400" fill="#627487" text-anchor="start">Обзор показывает все 35 таблиц и их ключи. Все 277 полей раскрыты на страницах 02–06.</text>
+<text x="76" y="2190" font-family="Arial, sans-serif" font-size="15" font-weight="400" fill="#627487" text-anchor="start">34 модели приложения + журнал _schema_migrations. Схема построена по коду 2814251 от 20.10.2026.</text>
+<text x="76" y="2218" font-family="Arial, sans-serif" font-size="15" font-weight="400" fill="#627487" text-anchor="start">FK — ограничение из ORM. REF / JSON — связь приложения без SQL FK. SQL* — условие из SQL-миграции.</text>
+<text x="76" y="2246" font-family="Arial, sans-serif" font-size="15" font-weight="400" fill="#627487" text-anchor="start">SQL*: CREATE TABLE IF NOT EXISTS не добавляет FK к уже существующим notification_settings / push_subscriptions.</text>
+<text x="76" y="2274" font-family="Arial, sans-serif" font-size="15" font-weight="400" fill="#627487" text-anchor="start">arts.author_id → author_profiles.user_id. В author_profiles нет отдельного id; art_tags имеет составной PK.</text>
+<text x="76" y="2302" font-family="Arial, sans-serif" font-size="15" font-weight="400" fill="#627487" text-anchor="start">events, content_translations, telegram_bot_state и _schema_migrations не имеют внешних ключей.</text>
+</svg>
