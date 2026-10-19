@@ -53,6 +53,49 @@ This downloads large public GeoNames archives and may take significant time and 
 It upserts geography rather than deleting user data. Do not run multiple seeders at once.
 Verify `/api/location/countries` and `/api/location/cities/search?q=Moscow` afterwards.
 
+## Gmail: почта галереи
+
+В Compose подготовлен отправитель **Tilinin’s Gallery <tilininsgallery@gmail.com>**.
+Используется `smtp.gmail.com:587` с STARTTLS. Для отправки нужен пароль приложения Google.
+
+1. Войдите в Google под `tilininsgallery@gmail.com` и включите двухэтапную аутентификацию.
+2. Откройте [пароли приложений Google](https://myaccount.google.com/apppasswords), создайте пароль для `Tilinin’s Gallery`.
+   [Инструкция Google](https://support.google.com/accounts/answer/185833?hl=ru) описывает требования и случаи, когда этот раздел недоступен.
+3. В Coolify откройте приложение → **Environment Variables** и заполните переменные окружения работающего контейнера:
+
+   ```dotenv
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=tilininsgallery@gmail.com
+   SMTP_PASS=
+   SMTP_FROM="Tilinin’s Gallery <tilininsgallery@gmail.com>"
+   FRONTEND_URL=https://artgallary.178-64-25-131.sslip.io
+   ```
+
+   В `SMTP_PASS` вставьте созданный пароль приложения без пробелов. В репозиторий пароль не сохраняйте.
+   `FRONTEND_URL` должен совпадать с актуальным публичным адресом сайта: он используется в ссылках внутри писем.
+   Остальные существующие переменные приложения сохраните.
+4. Сохраните переменные и выполните **Redeploy** с обновлённым Compose из ветки `main`.
+   После следующих изменений только SMTP-переменных достаточно пересоздания контейнера через Restart в Coolify.
+
+Пока `SMTP_PASS` пустой, сервис сообщает, что почта не подключена. Пароль Google-аккаунта для SMTP не используется.
+
+### Пробное письмо
+
+После настройки откройте Terminal компонента **server** в Coolify. Следующая команда отправит одно пробное письмо
+на согласованный адрес `tilininsgallery@gmail.com`, не раскрывая пароль:
+
+```sh
+node -e 'const n=require("nodemailer"); const p=Number(process.env.SMTP_PORT||587); const t=n.createTransport({host:process.env.SMTP_HOST,port:p,secure:p===465,requireTLS:p!==465,connectionTimeout:5000,socketTimeout:10000,auth:{user:process.env.SMTP_USER,pass:process.env.SMTP_PASS}}); t.sendMail({from:process.env.SMTP_FROM||process.env.SMTP_USER,to:"tilininsgallery@gmail.com",subject:"Tilinin’s Gallery — проверка почты",text:"Проверка отправки писем галереи через Gmail."}).then(()=>console.log("Почтовый сервер принял пробное письмо. Проверьте входящие и спам.")).catch(e=>{console.error("SMTP test failed:",e.code||"unknown");process.exitCode=1})'
+```
+
+Успешный ответ SMTP означает принятие письма сервером; проверьте его получение во входящих или спаме.
+Уведомления о событиях отправляются пользователям, включившим email-уведомления в настройках сайта.
+Встроенная кнопка пробного email отправляет письмо на адрес текущего аккаунта сайта.
+
+Настройка выполнена по [документации Gmail](https://support.google.com/mail/answer/7104828?hl=en)
+и [переменных окружения Coolify](https://coolify.io/docs/applications/configuration/environment-variables).
+
 ## Logs and checks
 
 API file logs persist in `server-logs` at `/app/logs/app.log` and `/app/logs/error.log`, with size rotation.
@@ -64,4 +107,5 @@ sudo journalctl -f -t artgallary-api -t artgallary-db -t artgallary-web
 
 Check the three containers are healthy, website and both health URLs return 200, administrator login works,
 and the database contains the administrator with role admin. The health URL itself does not issue a database query.
-Translation/Ollama, Telegram, SMTP, push and payments are not configured by this Compose file.
+Translation/Ollama, Telegram, push and payments are not configured by this Compose file.
+SMTP defaults to the gallery Gmail account and becomes available after setting `SMTP_PASS` as described above.

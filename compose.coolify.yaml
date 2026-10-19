@@ -46,6 +46,11 @@ services:
       FRONTEND_URL: ${FRONTEND_URL:-http://192.168.1.97:3101}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://192.168.1.97:3101}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-tilininsgallery@gmail.com}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: "${SMTP_FROM:-Tilinin’s Gallery <tilininsgallery@gmail.com>}"
       SWAGGER_ENABLED: "false"
       TRANSLATION_ENABLED: "false"
       TELEGRAM_BOT_ENABLED: "false"
