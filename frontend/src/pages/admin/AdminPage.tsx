@@ -87,7 +87,7 @@ const AdminPage = () => {
                     sections={available}
                     active={active}
                     onChange={handleChange}
-                    title={t.title}
+                    title={role === 'moderator' ? t.sections.moderation : t.title}
                     labels={t.sections}
                 />
 

@@ -93,10 +93,6 @@ function App() {
 
 
                       <Route element={<ProtectedRoute allowedRoles={['admin', 'moderator']} redirectTo="/" />}>
-
-                      </Route>
-
-                      <Route element={<ProtectedRoute allowedRoles={['admin']} redirectTo="/" />}>
                         <Route path="/admin" element={<AdminPage />} />
                       </Route>
 

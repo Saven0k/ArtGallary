@@ -71,7 +71,7 @@ test('every translation dictionary has matching nonempty RU, EN and ZH text and 
 });
 
 test('page copy and accessible labels are not hardcoded outside the translation dictionaries', () => {
-    const allowed = new Set(['ArtGallery.', 'ART GALLERY', 'AG', 'Art Gallery', "TILININ'S GALLERY", 'TILININ’S GALLERY', 'Facebook', 'Instagram', 'Twitter', 'Telegram', 'support@artgallery.com']);
+    const allowed = new Set(['ArtGallery.', 'Tilinin`s Gallary', 'AG', 'Art Gallery', "TILININ'S GALLERY", 'TILININ’S GALLERY', 'Facebook', 'Instagram', 'Twitter', 'Telegram', 'support@artgallery.com']);
     for (const file of files(root).filter(file => file.endsWith('.tsx'))) {
         const source = ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
         function visit(node) {

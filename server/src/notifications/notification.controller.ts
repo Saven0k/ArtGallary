@@ -77,7 +77,7 @@ export class NotificationController {
   }
 
   @Get()
-  @Roles(Role.User, Role.Author, Role.Admin)
+  @Roles(Role.User, Role.Author, Role.Admin, Role.Moderator)
   @ApiOperation({ summary: 'Получить уведомления пользователя' })
   async getUserNotifications(
     @CurrentUser() user: { id: number; role: string },
@@ -88,28 +88,28 @@ export class NotificationController {
   }
 
   @Get('unread/count')
-  @Roles(Role.User, Role.Author, Role.Admin)
+  @Roles(Role.User, Role.Author, Role.Admin, Role.Moderator)
   @ApiOperation({ summary: 'Получить количество непрочитанных уведомлений' })
   async getUnreadCount(@CurrentUser() user: { id: number; role: string }) {
     return { count: await this.notificationService.getUnreadCount(user.id) };
   }
 
   @Patch('read/all')
-  @Roles(Role.User, Role.Author, Role.Admin)
+  @Roles(Role.User, Role.Author, Role.Admin, Role.Moderator)
   @ApiOperation({ summary: 'Отметить все уведомления как прочитанные' })
   async markAllAsRead(@CurrentUser() user: { id: number; role: string }) {
     return this.notificationService.markAllAsRead(user.id);
   }
 
   @Delete('delete/all')
-  @Roles(Role.User, Role.Author, Role.Admin)
+  @Roles(Role.User, Role.Author, Role.Admin, Role.Moderator)
   @ApiOperation({ summary: 'Удалить все уведомления пользователя' })
   async deleteAll(@CurrentUser() user: { id: number; role: string }) {
     return this.notificationService.deleteAll(user.id);
   }
 
   @Patch(':id/read')
-  @Roles(Role.User, Role.Author, Role.Admin)
+  @Roles(Role.User, Role.Author, Role.Admin, Role.Moderator)
   @ApiOperation({ summary: 'Отметить уведомление как прочитанное' })
   async markAsRead(
     @Param('id', ParseIntPipe) notificationId: number,
@@ -119,7 +119,7 @@ export class NotificationController {
   }
 
   @Delete(':id')
-  @Roles(Role.User, Role.Author, Role.Admin)
+  @Roles(Role.User, Role.Author, Role.Admin, Role.Moderator)
   @ApiOperation({ summary: 'Удалить одно уведомление' })
   async deleteOne(
     @Param('id', ParseIntPipe) notificationId: number,

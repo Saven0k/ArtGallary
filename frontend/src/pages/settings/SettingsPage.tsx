@@ -97,7 +97,7 @@ const SettingsPage = () => {
                         <div className="notification-settings__previews" aria-label={copy.preview}>
                             <div className="notification-settings__preview notification-settings__preview--mail">
                                 <span className="notification-settings__preview-label">{copy.email} · {copy.preview}</span>
-                                <div className="notification-settings__brand">ART GALLERY</div>
+                                <div className="notification-settings__brand">Tilinin`s Gallary</div>
                                 <strong>{copy.previewTitle}</strong><p>{copy.previewBody}</p>
                                 <span className="notification-settings__preview-link">{copy.open}</span>
                             </div>

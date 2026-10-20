@@ -29,7 +29,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
     };
 
     return (
-        <div className="sidebarProfile__section">
+        <div className={`sidebarProfile__section ${section.titleKey === 'moderation' ? 'sidebarProfile__section--moderation' : ''}`}>
             <h3 className="sidebarProfile__section-title">
                 {getTitle(section.titleKey)}
             </h3>

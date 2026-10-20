@@ -1,6 +1,13 @@
 import { ConfigService } from '@nestjs/config';
+import { type ExecutionContext } from '@nestjs/common';
+import { GUARDS_METADATA } from '@nestjs/common/constants';
+import { Reflector } from '@nestjs/core';
+import { NotificationController } from './notification.controller';
+import { Role } from '../auth/enums/role.enum';
+import { JwtAccessGuard } from '../auth/guards/jwt.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { NotificationService } from './notification.service';
-import { NotificationType } from './notification.model';
+import { NotificationStatus, NotificationType } from './notification.model';
 import {
   NotificationSettingsDto,
   PushSubscriptionDto,
@@ -49,6 +56,7 @@ function fixture(email = false, push = false) {
   const device = { ...subscription, ...subscription.keys, destroy: jest.fn() };
   const dependencies = {
     notificationModel: {
+      count: jest.fn().mockResolvedValue(3),
       findAll: jest.fn().mockResolvedValue([{ id: 1 }]),
       findOne: jest.fn().mockResolvedValue(notification),
       create: jest.fn().mockResolvedValue(notification),
@@ -98,6 +106,37 @@ beforeEach(() => {
   jest
     .mocked(webPush.sendNotification)
     .mockResolvedValue({} as webPush.SendResult);
+});
+
+test('personal notification endpoints allow moderators alongside regular accounts', () => {
+  expect(Reflect.getMetadata(GUARDS_METADATA, NotificationController)).toEqual(
+    expect.arrayContaining([JwtAccessGuard, RolesGuard]),
+  );
+  const guard = new RolesGuard(new Reflector());
+  for (const name of Object.getOwnPropertyNames(NotificationController.prototype)) {
+    if (name === 'constructor') continue;
+    const handler = NotificationController.prototype[name as keyof NotificationController];
+    for (const role of [Role.User, Role.Author, Role.Admin, Role.Moderator, Role.Visitor, undefined]) {
+      const context = {
+        getHandler: () => handler,
+        getClass: () => NotificationController,
+        switchToHttp: () => ({ getRequest: () => ({ user: role ? { role } : undefined }) }),
+      } as unknown as ExecutionContext;
+      if (role && role !== Role.Visitor) expect(guard.canActivate(context)).toBe(true);
+      else expect(() => guard.canActivate(context)).toThrow();
+    }
+  }
+});
+
+test('unread counts use only the authenticated account for users and moderators', async () => {
+  const f = fixture();
+  const controller = new NotificationController(f.service);
+  for (const user of [{ id: 7, role: Role.Moderator }, { id: 12, role: Role.User }]) {
+    expect(await controller.getUnreadCount(user)).toEqual({ count: 3 });
+    expect(f.notificationModel.count).toHaveBeenLastCalledWith({
+      where: { user_id: user.id, status: NotificationStatus.UNREAD },
+    });
+  }
 });
 
 test('account preferences default to opt-out and delivery ignores disabled channels', async () => {

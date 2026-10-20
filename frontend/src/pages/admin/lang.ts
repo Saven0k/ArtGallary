@@ -131,7 +131,7 @@ export interface AdminSectionConfig {
 export const ADMIN_SECTIONS: AdminSectionConfig[] = [
     { id: 'dashboard',   translationKey: 'dashboard',   roles: ['admin'] },
     { id: 'moderation',  translationKey: 'moderation',  roles: ['admin', 'moderator'] },
-    { id: 'arts',        translationKey: 'arts',        roles: ['admin', 'moderator'] },
+    { id: 'arts',        translationKey: 'arts',        roles: ['admin'] },
     { id: 'authors',     translationKey: 'authors',     roles: ['admin'] },
     { id: 'users',       translationKey: 'users',       roles: ['admin'] },
     { id: 'moderators',  translationKey: 'moderators',  roles: ['admin'] },

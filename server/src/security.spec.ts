@@ -7,6 +7,7 @@ import { UsersController } from './users/users.controller';
 import 'reflect-metadata';
 import fs from 'fs/promises';
 import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
 import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { HttpException } from '@nestjs/common';
 import { JwtAccessStrategy } from './auth/strategies/jwt-access.strategy';
@@ -210,6 +211,33 @@ test('protected author mutations and subscriptions require authentication and ro
     expect(guards).toEqual(
       expect.arrayContaining([JwtAccessGuard, RolesGuard]),
     );
+  }
+});
+
+test('moderation queues and decisions allow moderators and admins only', () => {
+  const guard = new RolesGuard(new Reflector());
+  const handlers = [
+    [ArtsController, ArtsController.prototype.getUnmoderatedArts],
+    [ArtsController, ArtsController.prototype.moderateArt],
+    [AuthorsController, AuthorsController.prototype.getUnmoderatedAuthors],
+    [AuthorsController, AuthorsController.prototype.moderateAuthor],
+  ] as const;
+  for (const [controller, handler] of handlers) {
+    expect(Reflect.getMetadata(GUARDS_METADATA, handler)).toEqual(
+      expect.arrayContaining([JwtAccessGuard, RolesGuard]),
+    );
+    for (const role of [Role.Admin, Role.Moderator, Role.Author, Role.User, Role.Visitor]) {
+      const context = {
+        getHandler: () => handler,
+        getClass: () => controller,
+        switchToHttp: () => ({ getRequest: () => ({ user: { role } }) }),
+      } as unknown as ExecutionContext;
+      if (role === Role.Admin || role === Role.Moderator) {
+        expect(guard.canActivate(context)).toBe(true);
+      } else {
+        expect(() => guard.canActivate(context)).toThrow();
+      }
+    }
   }
 });
 

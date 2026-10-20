@@ -191,6 +191,35 @@
     margin-top: 0;
 }
 
+.sidebarProfile__section--moderation {
+    padding: 14px 10px 10px;
+    border: 1px solid var(--brand-gold-light);
+    border-radius: var(--radius-l);
+    background: var(--overlay-gold);
+
+    .sidebarProfile__section-title {
+        color: var(--nav-brown);
+    }
+
+    .sidebarProfile__link {
+        min-height: 48px;
+        margin-top: 6px;
+        background: var(--bg-default);
+        color: var(--nav-brown);
+
+        &:hover {
+            background: var(--brand-gold-light);
+            color: var(--nav-brown);
+            transform: none;
+        }
+
+        &::after {
+            content: '→';
+            color: var(--nav-brown);
+        }
+    }
+}
+
 .sidebarProfile__section-title {
     font-size: 11px;
     font-weight: 600;

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
     Check, X, Image as ImageIcon, User as UserIcon, ShieldCheck, Mail, Calendar,
 } from 'lucide-react';
@@ -97,7 +98,9 @@ const ModerationSection = () => {
     const t = moderationTranslations[language];
     const common = adminTranslations[language].common;
 
-    const [tab, setTab] = useState<Tab>('all');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const requestedTab = searchParams.get('tab');
+    const tab: Tab = requestedTab === 'arts' || requestedTab === 'authors' ? requestedTab : 'all';
     const [arts, setArts] = useState<Art[]>([]);
     const [authors, setAuthors] = useState<AuthorProfileResponse[]>([]);
     const [loading, setLoading] = useState(true);
@@ -115,6 +118,7 @@ const ModerationSection = () => {
                 getUnmoderatedArts(1, 100, language),
                 getUnmoderatedAuthors(1, 100, language),
             ]);
+            if (!artsRes || !authorsRes) throw new Error(t.errors.loadFailed);
             setArts(artsRes?.arts ?? []);
             setAuthors(authorsRes?.data ?? []);
         } catch (e) {
@@ -147,8 +151,10 @@ const ModerationSection = () => {
         try {
             const { item, approve } = moderateTarget;
             const payload = { moderate: approve, moderator_id: user.id, comment: moderateComment.trim() || null, errors: {} };
-            if (item.kind === 'art') await moderateArt(item.data.id, payload);
-            else await moderateAuthor(item.data.id, payload);
+            const result = item.kind === 'art'
+                ? await moderateArt(item.data.id, payload)
+                : await moderateAuthor(item.data.id, payload);
+            if (!result) throw new Error(t.errors.moderateFailed);
             setModerateTarget(null);
             setModerateComment('');
             await load();
@@ -350,7 +356,11 @@ const ModerationSection = () => {
 
             <div className="moderation-section__tabs">
                 {tabs.map((x) => (
-                    <button key={x.value} type="button" className={`moderation-section__tab ${tab === x.value ? 'is-active' : ''}`} onClick={() => setTab(x.value)}>
+                    <button key={x.value} type="button" aria-pressed={tab === x.value} className={`moderation-section__tab ${tab === x.value ? 'is-active' : ''}`} onClick={() => setSearchParams((params) => {
+                        const next = new URLSearchParams(params);
+                        next.set('tab', x.value);
+                        return next;
+                    })}>
                         {x.label}
                         {x.count > 0 && <span className="moderation-section__tab-count">{x.count}</span>}
                     </button>

@@ -94,8 +94,8 @@ export const menuSectionsModerator: MenuSection[] = [
     {
         titleKey: 'moderation',
         items: [
-            { icon: '🖼️',    labelKey: 'common.moderationArts',    path: '/admin?section=moderation' },
-            { icon: '👨‍🎨', labelKey: 'common.moderationAuthors', path: '/admin?section=moderation' },
+            { icon: '🖼️',    labelKey: 'common.moderationArts',    path: '/admin?section=moderation&tab=arts' },
+            { icon: '👨‍🎨', labelKey: 'common.moderationAuthors', path: '/admin?section=moderation&tab=authors' },
         ],
     },
     {
