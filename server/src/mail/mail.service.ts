@@ -1,15 +1,12 @@
-import {
-  Injectable,
-  Logger,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { mailTemplate } from './mail-template';
+import { mailCodeContent } from './mail-code-content';
+import { type ContentLanguage } from '../translation/translation-text';
 
 @Injectable()
 export class MailService {
-  private readonly logger = new Logger(MailService.name);
   private transporter: nodemailer.Transporter;
 
   constructor(private config: ConfigService) {
@@ -80,12 +77,8 @@ export class MailService {
     code: string,
     subject: string,
     bodyText: string,
+    language: ContentLanguage,
   ): Promise<void> {
-    if (!this.isConfigured && process.env.NODE_ENV !== 'production') {
-      this.logger.log(`[DEV] ${subject} → ${to}: code=${code}`);
-      return;
-    }
-
     if (!this.isConfigured)
       throw new ServiceUnavailableException('Почта не подключена');
 
@@ -93,20 +86,25 @@ export class MailService {
       from: this.config.get('SMTP_FROM') || this.config.get('SMTP_USER'),
       to,
       subject,
-      text: `${bodyText}: ${code}. Никому не сообщайте код.`,
+      text: `${bodyText}: ${code}\n\n${mailCodeContent[language].warning}`,
       html: mailTemplate(
         subject,
-        bodyText,
+        `${bodyText}. ${mailCodeContent[language].warning}`,
         this.siteUrl,
         this.siteUrl,
-        'ru',
+        language,
         code,
       ),
     });
   }
 
-  async sendPasswordResetCode(to: string, code: string): Promise<void> {
-    await this.sendCode(to, code, 'Смена пароля', 'Ваш код для смены пароля');
+  async sendPasswordResetCode(
+    to: string,
+    code: string,
+    language: ContentLanguage = 'ru',
+  ): Promise<void> {
+    const [title, body] = mailCodeContent[language].password;
+    await this.sendCode(to, code, title, body, language);
   }
 
   private async sendMail(options: nodemailer.SendMailOptions) {
@@ -117,21 +115,28 @@ export class MailService {
     }
   }
 
-  async sendEmailChangeCode(to: string, code: string): Promise<void> {
+  async sendEmailChangeCode(
+    to: string,
+    code: string,
+    newEmail: string,
+    language: ContentLanguage = 'ru',
+  ): Promise<void> {
+    const [title, body] = mailCodeContent[language].email;
     await this.sendCode(
       to,
       code,
-      'Подтверждение нового email',
-      'Ваш код для подтверждения нового email',
+      title,
+      body.replace('{email}', newEmail),
+      language,
     );
   }
 
-  async sendAccountDeletionCode(to: string, code: string): Promise<void> {
-    await this.sendCode(
-      to,
-      code,
-      'Подтверждение удаления аккаунта',
-      'Ваш код для подтверждения удаления аккаунта',
-    );
+  async sendAccountDeletionCode(
+    to: string,
+    code: string,
+    language: ContentLanguage = 'ru',
+  ): Promise<void> {
+    const [title, body] = mailCodeContent[language].deletion;
+    await this.sendCode(to, code, title, body, language);
   }
 }

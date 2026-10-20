@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Length, MinLength } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsEmail, IsString, MinLength } from 'class-validator';
+import { VerifyAccountCodeDto } from './request-code.dto';
 
 export class VerifyCurrentEmailDto {
   @ApiProperty({ example: 'user@mail.ru' })
@@ -10,23 +12,19 @@ export class VerifyCurrentEmailDto {
 export class RequestEmailChangeCodeDto {
   @ApiProperty({ example: 'new@mail.ru' })
   @IsEmail()
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : value,
+  )
   newEmail: string;
 }
 
-export class ConfirmEmailChangeDto {
+export class ConfirmEmailChangeDto extends VerifyAccountCodeDto {
   @ApiProperty({ example: 'new@mail.ru' })
   @IsEmail()
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : value,
+  )
   newEmail: string;
-
-  @ApiProperty({ example: '482193' })
-  @IsString()
-  @Length(6, 6)
-  code: string;
-
-  @ApiProperty({ example: 'myPassword123' })
-  @IsString()
-  @MinLength(6)
-  password: string;
 }
 
 export class VerifyPasswordDto {

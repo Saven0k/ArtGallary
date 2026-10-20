@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -26,7 +27,12 @@ import { RolesGuard } from './guards/roles.guard';
 import { Role } from './enums/role.enum';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { Roles } from './decorators/roles.decorator';
-import { RequestCodeDto, VerifyCodeDto } from './dto/request-code.dto';
+import {
+  RequestCodeDto,
+  VerifyCodeDto,
+  VerifyAccountCodeDto,
+} from './dto/request-code.dto';
+import { contentLanguage } from '../translation/translation-text';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
 import {
@@ -92,21 +98,46 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAccessGuard, RolesGuard)
   @ApiResponse({ status: 200, description: 'Пароль успешно изменён' })
-  @ApiResponse({ status: 401, description: 'Неверный текущий пароль' })
+  @ApiResponse({
+    status: 401,
+    description: 'Код не подтверждён или подтверждение истекло',
+  })
   @ApiResponse({ status: 409, description: 'Новый пароль совпадает с текущим' })
   changePassword(
     @CurrentUser('id') userId: number,
     @Body() dto: ChangePasswordDto,
     @Res({ passthrough: true }) res: ExpressResponse,
-    @Req() req: ExpressRequest,
   ) {
-    return this.authService.changePassword(userId, dto, res, req);
+    return this.authService.changePassword(userId, dto, res);
   }
 
   @Post('password-reset/request-code')
   @HttpCode(HttpStatus.OK)
-  requestResetCode(@Body() dto: RequestCodeDto) {
-    return this.authService.requestResetCode(dto);
+  requestResetCode(@Body() dto: RequestCodeDto, @Query('lang') lang?: string) {
+    return this.authService.requestResetCode(dto, contentLanguage(lang));
+  }
+
+  @Post('password-change/request-code')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAccessGuard)
+  requestPasswordChangeCode(
+    @CurrentUser('id') userId: number,
+    @Query('lang') lang?: string,
+  ) {
+    return this.authService.requestPasswordChangeCode(
+      userId,
+      contentLanguage(lang),
+    );
+  }
+
+  @Post('password-change/verify-code')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAccessGuard)
+  verifyPasswordChangeCode(
+    @CurrentUser('id') userId: number,
+    @Body() dto: VerifyAccountCodeDto,
+  ) {
+    return this.authService.verifyPasswordChangeCode(userId, dto);
   }
 
   @Post('password-reset/verify-code')
@@ -137,8 +168,13 @@ export class AuthController {
   requestEmailChangeCode(
     @CurrentUser('id') userId: number,
     @Body() dto: RequestEmailChangeCodeDto,
+    @Query('lang') lang?: string,
   ) {
-    return this.authService.requestEmailChangeCode(userId, dto);
+    return this.authService.requestEmailChangeCode(
+      userId,
+      dto,
+      contentLanguage(lang),
+    );
   }
 
   @Post('email-change/confirm')
@@ -164,8 +200,14 @@ export class AuthController {
   @Post('account/delete/request-code')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAccessGuard, RolesGuard)
-  requestAccountDeletionCode(@CurrentUser('id') userId: number) {
-    return this.authService.requestAccountDeletionCode(userId);
+  requestAccountDeletionCode(
+    @CurrentUser('id') userId: number,
+    @Query('lang') lang?: string,
+  ) {
+    return this.authService.requestAccountDeletionCode(
+      userId,
+      contentLanguage(lang),
+    );
   }
 
   @Post('account/delete/verify-code')

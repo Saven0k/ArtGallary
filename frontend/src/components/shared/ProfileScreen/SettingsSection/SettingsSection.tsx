@@ -11,6 +11,7 @@ import DeleteAccountModal from './DeleteAccountModal/DeleteAccountModal';
 import { deleteAuthor } from '../../../../api/authors/main.api';
 import { deleteUser } from '../../../../api/users/main.api';
 import './SettingsSection.scss';
+import './AccountSecurityModal.scss';
 import TelegramSettings from './TelegramSettings';
 
 interface SettingsProps {

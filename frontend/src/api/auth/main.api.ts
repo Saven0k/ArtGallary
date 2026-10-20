@@ -17,7 +17,7 @@ export interface AuthResponse {
 }
 
 export interface ChangePasswordPayload {
-    currentPassword: string;
+    resetToken: string;
     newPassword: string;
 }
 
@@ -64,7 +64,7 @@ export const changePassword = async (
             const message =
                 data?.message ||
                 (res.status === 401
-                    ? apiErrorText('currentPassword')
+                    ? apiErrorText('invalidCode')
                     : res.status === 409
                         ? apiErrorText('samePassword')
                         : apiErrorText('changePassword'));
@@ -179,6 +179,26 @@ export interface VerifyCodeResponse {
     message: string;
 }
 
+export const requestPasswordChangeCode = async (): Promise<{ message: string }> => {
+    const res = await apiFetch(`${BASE_URL}/password-change/request-code`, { method: 'POST' });
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || apiErrorText('sendCode'));
+    }
+    return res.json();
+};
+
+export const verifyPasswordChangeCode = async (code: string): Promise<VerifyCodeResponse> => {
+    const res = await apiRequest(`${BASE_URL}/password-change/verify-code`, {
+        method: 'POST', headers: contentType, body: JSON.stringify({ code }),
+    });
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || apiErrorText('invalidCode'));
+    }
+    return res.json();
+};
+
 export const verifyResetCode = async (
     payload: VerifyCodePayload,
 ): Promise<VerifyCodeResponse> => {
@@ -219,7 +239,6 @@ export interface RequestEmailChangeCodePayload { newEmail: string; }
 export interface ConfirmEmailChangePayload {
     newEmail: string;
     code: string;
-    password: string;
 }
 export interface VerifyPasswordPayload { password: string; }
 
@@ -252,7 +271,7 @@ export const requestEmailChangeCode = async (payload: RequestEmailChangeCodePayl
 };
 
 export const confirmEmailChange = async (payload: ConfirmEmailChangePayload) => {
-    const res = await apiFetch(`${BASE_URL}/email-change/confirm`, {
+    const res = await apiRequest(`${BASE_URL}/email-change/confirm`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -295,7 +314,7 @@ export const requestAccountDeletionCode = async (): Promise<{ message: string }>
 export const verifyAccountDeletionCode = async (
     code: string,
 ): Promise<{ ok: true; deletionToken: string }> => {
-    const res = await apiFetch(`${BASE_URL}/account/delete/verify-code`, {
+    const res = await apiRequest(`${BASE_URL}/account/delete/verify-code`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

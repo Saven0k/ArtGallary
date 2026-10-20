@@ -42,6 +42,7 @@ export interface ArtsTranslations {
         author: string;
         description: string;
         cost: string;
+        currency: string;
         notSpecified: string;
         genre: string;
         style: string;
@@ -110,6 +111,7 @@ export const artsTranslations: Record<Language, ArtsTranslations> = {
             author: 'Автор',
             description: 'Описание',
             cost: 'Стоимость',
+            currency: 'Валюта',
             notSpecified: 'Не указано',
             genre: 'Жанр',
             style: 'Стиль',
@@ -173,6 +175,7 @@ export const artsTranslations: Record<Language, ArtsTranslations> = {
             author: 'Author',
             description: 'Description',
             cost: 'Cost',
+            currency: 'Currency',
             notSpecified: 'Not specified',
             genre: 'Genre',
             style: 'Style',
@@ -236,6 +239,7 @@ export const artsTranslations: Record<Language, ArtsTranslations> = {
             author: '作者',
             description: '描述',
             cost: '价格',
+            currency: '货币',
             notSpecified: '未指定',
             genre: '体裁',
             style: '风格',

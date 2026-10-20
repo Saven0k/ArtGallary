@@ -46,6 +46,27 @@ function fixture() {
 }
 
 describe('cart mutations', () => {
+  it.each(['RUB', 'USD', 'CNY'])(
+    'accepts the supported artwork currency %s',
+    async (currency) => {
+      const { service, art, cart } = fixture();
+      art.currency = currency;
+      await service.addItem(3, 7);
+      expect(cart.art_ids).toEqual([7]);
+    },
+  );
+
+  it.each(['EUR', 'UAH', 'XXX'])(
+    'rejects unsupported currencies %s for new orders',
+    async (currency) => {
+      const { service, art } = fixture();
+      art.currency = currency;
+      await expect(service.addItem(3, 7)).rejects.toMatchObject({
+        status: 400,
+      });
+    },
+  );
+
   it('keeps concurrent additions instead of overwriting a JSON snapshot', async () => {
     const { service, cart, model, transaction } = fixture();
     await Promise.all([service.addItem(3, 7), service.addItem(3, 8)]);

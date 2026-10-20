@@ -1,0 +1,97 @@
+:is(.code-modal-overlay, .change-email-overlay, .change-password-overlay, .delete-account-overlay) {
+    background: rgba(38, 32, 22, 0.58);
+    backdrop-filter: blur(4px);
+    padding: 16px;
+
+    :is(.code-modal, .change-email, .change-password, .delete-account) {
+        min-width: 0;
+        max-height: calc(100dvh - 32px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        border: 1px solid rgba(168, 139, 77, 0.3);
+        border-radius: 20px;
+        background: #fffdf9;
+        box-shadow: 0 24px 80px rgba(38, 32, 22, 0.24);
+    }
+
+    :is(
+        .code-modal__header,
+        .change-email__header,
+        .change-password__header,
+        .delete-account__header
+    ) {
+        gap: 12px;
+    }
+
+    :is(.code-modal__title, .change-email__title, .change-password__title, .delete-account__title) {
+        min-width: 0;
+        color: var(--brand-primary-gold, #a88b4d);
+        font-size: 22px;
+        line-height: 1.25;
+    }
+
+    :is(.code-modal__close, .change-email__close, .change-password__close, .delete-account__close) {
+        flex-shrink: 0;
+        min-width: 40px;
+        min-height: 40px;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    :is(.code-modal__hint, .change-email__hint, .delete-account__hint, .change-email__current) {
+        overflow-wrap: anywhere;
+        line-height: 1.6;
+    }
+
+    input {
+        width: 100%;
+        min-width: 0;
+        min-height: 46px;
+        box-sizing: border-box;
+        border-radius: 10px;
+        border-color: #ded5c4;
+        background: #fff;
+
+        &:focus-visible {
+            outline: 2px solid var(--brand-primary-gold, #a88b4d);
+            outline-offset: 2px;
+        }
+    }
+
+    button:focus-visible {
+        outline: 2px solid var(--brand-primary-gold, #a88b4d);
+        outline-offset: 3px;
+    }
+
+    .change-email__actions {
+        flex-wrap: wrap;
+    }
+
+    .delete-account__btn--primary {
+        color: #fff;
+        background: var(--brand-primary-gold, #a88b4d);
+    }
+
+    @media (max-width: 480px) {
+        padding: 12px;
+
+        :is(.code-modal, .change-email, .change-password, .delete-account) {
+            max-height: calc(100dvh - 24px);
+            padding: 18px;
+            border-radius: 16px;
+        }
+
+        :is(
+            .code-modal__title,
+            .change-email__title,
+            .change-password__title,
+            .delete-account__title
+        ) {
+            font-size: 20px;
+        }
+
+        input {
+            font-size: 16px;
+        }
+    }
+}

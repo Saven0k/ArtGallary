@@ -12,7 +12,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { type CurrencyType } from '../arts.model';
+import { ART_CURRENCIES, type CurrencyType } from '../arts.model';
 import {
   formBoolean,
   formTags,
@@ -22,10 +22,12 @@ import {
 export class UpdateArtDTO {
   @IsOptional() @IsString() @IsNotEmpty() title?: string;
   @IsOptional() @IsString() description?: string;
-  @IsOptional() @Transform(nullableNumber) @IsNumber() @Min(0) cost?:
-    | number
-    | null;
-  @IsOptional() @IsIn(['USD', 'EUR', 'RUB', 'UAH']) currency?: CurrencyType;
+  @IsOptional()
+  @Transform(nullableNumber)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  cost?: number | null;
+  @IsOptional() @IsIn(ART_CURRENCIES) currency?: CurrencyType;
   @IsOptional() @IsDateString() date_published?: Date;
   @IsOptional() @Transform(nullableNumber) @IsInt() @Min(1) city_id?:
     | number

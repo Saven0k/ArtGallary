@@ -30,6 +30,7 @@ export interface CartTranslations {
         discount: string;
         total: string;
         withoutDelivery: string;
+        originalCurrency: string;
     };
 
     checkout: string;
@@ -69,6 +70,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
             discount: 'Скидка',
             total: 'Итог',
             withoutDelivery: 'Без учёта доставки',
+            originalCurrency: 'Пересчёт приблизительный. Заказ оформляется в валюте автора: {price}',
         },
         checkout: 'Оформить заказ',
         errors: {
@@ -104,6 +106,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
             discount: 'Discount',
             total: 'Total',
             withoutDelivery: 'Delivery not included',
+            originalCurrency: 'Converted prices are approximate. The order uses the artist’s currency: {price}',
         },
         checkout: 'Checkout',
         errors: {
@@ -139,6 +142,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
             discount: '折扣',
             total: '合计',
             withoutDelivery: '不含运费',
+            originalCurrency: '换算价格仅供参考。订单使用艺术家设定的货币：{price}',
         },
         checkout: '去结算',
         errors: {

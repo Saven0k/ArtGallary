@@ -18,9 +18,17 @@ import { AuthorProfile } from 'src/authors/author.model';
 import { AuthorFollow } from 'src/authors/author-follow.model';
 import { NotificationModule } from 'src/notifications/notifications.module';
 import { ArtLike } from './art-like.model';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ArtPricingService } from './art-pricing.service';
+import { ArtPricingInterceptor } from './art-pricing.interceptor';
 
 @Module({
-  providers: [ArtsService, ArtsCron],
+  providers: [
+    ArtsService,
+    ArtsCron,
+    ArtPricingService,
+    { provide: APP_INTERCEPTOR, useClass: ArtPricingInterceptor },
+  ],
   controllers: [ArtsController],
   exports: [ArtsService],
   imports: [

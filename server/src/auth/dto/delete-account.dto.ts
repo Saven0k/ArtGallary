@@ -1,9 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Length } from 'class-validator';
+import { VerifyAccountCodeDto } from './request-code.dto';
 
-export class ConfirmDeleteAccountDto {
-  @ApiProperty({ example: '482193' })
-  @IsString()
-  @Length(6, 6)
-  code: string;
-}
+export class ConfirmDeleteAccountDto extends VerifyAccountCodeDto {}

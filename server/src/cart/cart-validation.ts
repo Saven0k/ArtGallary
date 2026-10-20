@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { Art, ART_STATUS } from '../arts/arts.model';
+import { Art, ART_STATUS, ART_CURRENCIES } from '../arts/arts.model';
 import { AuthorProfile } from '../authors/author.model';
 import { User } from '../users/users.model';
 
@@ -38,7 +38,7 @@ export function assertPurchasable(art: Art | null): asserts art is Art {
   if (
     !Number.isSafeInteger(cents) ||
     cents <= 0 ||
-    !['RUB', 'USD', 'EUR', 'UAH'].includes(art.currency ?? 'RUB')
+    !ART_CURRENCIES.some((currency) => currency === (art.currency ?? 'RUB'))
   ) {
     throw new BadRequestException('Для картины не задана корректная цена');
   }

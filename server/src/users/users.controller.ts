@@ -129,8 +129,7 @@ export class UsersController {
       );
     }
     if (
-      user.role !== Role.Admin &&
-      user.role !== Role.Moderator &&
+      user.id === id &&
       (dto.email !== undefined || dto.password !== undefined)
     ) {
       throw new ForbiddenException(

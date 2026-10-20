@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { Art } from '../../../../api/arts/main.api';
 import { HeartIcon } from './HeartIcon';
 import { likesTranslations } from './lang';
+import { formatArtPrice } from '../../../../utils/art-price';
 
 interface LikeCardProps {
     art: Art;
@@ -20,10 +21,7 @@ const LikeCard = ({ art, onUnlike, t }: LikeCardProps) => {
         setIsUnliking(false);
     };
 
-    const priceText =
-        art.cost == null
-            ? t.priceNotSpecified
-            : `${new Intl.NumberFormat(t.locale).format(art.cost)} ${art.currency ?? t.currencySymbol}`;
+    const priceText = formatArtPrice(art, t.locale) ?? t.priceNotSpecified;
 
     const authorName = art.author?.user
         ? `${art.author.user.name ?? ''} ${art.author.user.surname ?? ''}`.trim() || t.unknownAuthor

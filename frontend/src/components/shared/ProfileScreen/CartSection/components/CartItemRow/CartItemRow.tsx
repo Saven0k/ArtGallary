@@ -1,5 +1,5 @@
 import { cartTranslations } from '../../lang';
-import { formatPrice } from '../../utils';
+import { formatDisplayPrice } from '../../utils';
 import type { CartLine } from '../../types';
 import './CartItemRow.scss';
 import type { Language } from '../../../../../../context/LanguageContext';
@@ -59,7 +59,7 @@ const CartItemRow = ({
                 )}
 
                 <div className="cart-item__price">
-                    {formatPrice(line.total, line.currency, language)}
+                    {formatDisplayPrice(line.total, line.currency, line.displayPrice, language)}
                 </div>
 
                 <button

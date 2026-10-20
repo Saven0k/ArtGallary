@@ -26,6 +26,7 @@ export interface ChangePasswordTranslations {
         mismatch: string;
         sameAsCurrent: string;
         generic: string;
+        pattern: string;
     };
 }
 
@@ -53,6 +54,7 @@ export const changePasswordTranslations: Record<Language, ChangePasswordTranslat
             mismatch: 'Пароли не совпадают',
             sameAsCurrent: 'Новый пароль совпадает с текущим',
             generic: 'Не удалось изменить пароль',
+            pattern: 'Добавьте в пароль хотя бы одну латинскую букву и одну цифру',
         },
     },
 
@@ -79,6 +81,7 @@ export const changePasswordTranslations: Record<Language, ChangePasswordTranslat
             mismatch: 'Passwords do not match',
             sameAsCurrent: 'New password matches the current one',
             generic: 'Failed to change password',
+            pattern: 'Include at least one Latin letter and one number',
         },
     },
 
@@ -105,6 +108,7 @@ export const changePasswordTranslations: Record<Language, ChangePasswordTranslat
             mismatch: '密码不匹配',
             sameAsCurrent: '新密码与当前密码相同',
             generic: '修改密码失败',
+            pattern: '密码须包含至少一个拉丁字母和一个数字',
         },
     },
 };

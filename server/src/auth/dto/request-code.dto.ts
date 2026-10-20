@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Length } from 'class-validator';
+import { IsEmail, IsString, Matches } from 'class-validator';
 
 export class RequestCodeDto {
   @ApiProperty({ example: 'user@mail.ru' })
@@ -7,13 +7,15 @@ export class RequestCodeDto {
   email: string;
 }
 
-export class VerifyCodeDto {
+export class VerifyAccountCodeDto {
+  @ApiProperty({ example: '482193' })
+  @IsString()
+  @Matches(/^\d{6}$/)
+  code: string;
+}
+
+export class VerifyCodeDto extends VerifyAccountCodeDto {
   @ApiProperty({ example: 'user@mail.ru' })
   @IsEmail()
   email: string;
-
-  @ApiProperty({ example: '482193' })
-  @IsString()
-  @Length(6, 6)
-  code: string;
 }

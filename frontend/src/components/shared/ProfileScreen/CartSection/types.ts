@@ -1,3 +1,5 @@
+import type { DisplayPrice } from '../../../../api/arts/main.api';
+
 export interface ArtPreview {
     id: number;
     title: string;
@@ -5,6 +7,7 @@ export interface ArtPreview {
     authorName: string;
     price: number;
     currency: string;
+    displayPrice?: DisplayPrice;
     isOriginal: boolean;
 }
 
@@ -20,4 +23,5 @@ export interface CartTotals {
     discount: number;
     total: number;
     currency: string;
+    displayPrice?: DisplayPrice;
 }

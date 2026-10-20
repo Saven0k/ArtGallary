@@ -88,27 +88,12 @@ export class ProfessionsService {
           'Проектирует здания и сооружения с учетом эстетики и функциональности',
       },
       {
-        name: 'Музыкант',
-        description: 'Исполняет и создает музыкальные произведения',
+        name: 'Керамист',
+        description: 'Создает художественные изделия из глины и керамики',
       },
       {
-        name: 'Танцор',
-        description:
-          'Выражает художественные идеи через движение и хореографию',
-      },
-      {
-        name: 'Актер',
-        description: 'Исполняет роли в театре, кино и на телевидении',
-      },
-      {
-        name: 'Режиссер',
-        description:
-          'Руководит творческим процессом создания фильмов, спектаклей или других проектов',
-      },
-      {
-        name: 'Кинооператор',
-        description:
-          'Отвечает за визуальное воплощение замысла режиссера в кино и на ТВ',
+        name: 'Реставратор',
+        description: 'Сохраняет и восстанавливает произведения искусства',
       },
       {
         name: 'Художник по костюмам',
@@ -120,19 +105,18 @@ export class ProfessionsService {
 
     for (const professionDto of defaultProfessions) {
       try {
-        const existing = await this.professionRepository.findOne({
+        const [, created] = await this.professionRepository.findOrCreate({
           where: { name: professionDto.name },
+          defaults: professionDto,
         });
 
-        if (!existing) {
-          await this.professionRepository.create(professionDto);
-          createdCount++;
-        }
+        if (created) createdCount++;
       } catch (error: unknown) {
         console.error(
           `Ошибка при создании профессии "${professionDto.name}":`,
           error instanceof Error ? error.message : inspect(error),
         );
+        throw error;
       }
     }
 

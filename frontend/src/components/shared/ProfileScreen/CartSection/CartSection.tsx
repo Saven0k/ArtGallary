@@ -47,6 +47,7 @@ const Cart = () => {
                     id: art.id, title: art.title, imagePath: art.image_path,
                     authorName: [art.author?.user?.surname, art.author?.user?.name].filter(Boolean).join(' ') || t.item.unknownAuthor,
                     price: Number(art.cost) || 0, currency: art.currency ?? 'RUB',
+                    displayPrice: art.display_price,
                     isOriginal: isOriginalByPrice(Number(art.cost) || 0),
                 };
             });
@@ -78,6 +79,7 @@ const Cart = () => {
             discount,
             total: subtotal - discount,
             currency: lines[0]?.currency ?? 'RUB',
+            displayPrice: lines[0]?.displayPrice,
         };
     }, [lines, appliedPromo]);
 
@@ -187,7 +189,7 @@ const Cart = () => {
 
             {(error || mixedCurrencies) && <div className="profile-cart__error" role="alert">{error || t.errors.mixedCurrencies}</div>}
 
-            <TotalsBlock totals={totals} language={language as Language} />
+            {!mixedCurrencies && <TotalsBlock totals={totals} language={language as Language} />}
 
             <button
                 type="button"

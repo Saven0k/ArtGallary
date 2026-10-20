@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ProfessionsController } from './professions.controller';
 import { ProfessionsService } from './professions.service';
@@ -10,4 +10,10 @@ import { Profession } from './profession.model';
   providers: [ProfessionsService],
   exports: [ProfessionsService],
 })
-export class ProfessionsModule {}
+export class ProfessionsModule implements OnModuleInit {
+  constructor(private professionsService: ProfessionsService) {}
+
+  async onModuleInit() {
+    await this.professionsService.seedProfessions();
+  }
+}

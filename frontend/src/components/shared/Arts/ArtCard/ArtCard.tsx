@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { useNotification } from "../../../../hooks/useNotification";
 import { useLikes } from "../../../../hooks/useLikes";
 import { useCart } from "../../../../hooks/useCart";
+import { formatArtPrice } from '../../../../utils/art-price';
 
 export interface ArtCardProps {
     art_id: number;
@@ -62,8 +63,8 @@ const ArtCard = ({ art_id, art }: ArtCardProps) => {
 
             <div className="art-card__content">
                 <div className="art-card__top">
-                    <span className="art-card__price">
-                        {art.cost ? `${art.cost} ${art.currency || ''}` : t.priceOnRequest}
+                    <span className="art-card__price" title={art.display_price?.rate_date ? `${formatArtPrice({ ...art, display_price: undefined }, language)} · ${art.display_price.rate_date}` : undefined}>
+                        {formatArtPrice(art, language) ?? t.priceOnRequest}
                     </span>
                     <span className="art-card__title">{art.title}</span>
                     <span className="art-card__author">

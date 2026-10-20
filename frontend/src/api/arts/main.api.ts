@@ -6,7 +6,15 @@ import type { Style } from "../styles/main.api";
 
 const BASE_URL = `${BASE_URL_API}/arts`;
 
-export type CurrencyType = "USD" | "EUR" | "RUB" | "UAH";
+export const ART_CURRENCIES = ['RUB', 'USD', 'CNY'] as const;
+export type CurrencyType = typeof ART_CURRENCIES[number];
+
+export interface DisplayPrice {
+    amount: number;
+    currency: CurrencyType;
+    rate: number;
+    rate_date: string | null;
+}
 
 export const ART_STATUS = {
     ON_SALE: "on_sale",
@@ -31,6 +39,7 @@ export interface Art {
     image_path: string;
     cost?: number | null;
     currency?: string | null;
+    display_price?: DisplayPrice;
     likes?: number;
     views?: number;
     specifications: string;
@@ -80,7 +89,7 @@ export interface CreateArtData {
     title: string;
     description: string;
     cost?: number | null;
-    currency?: string | null;
+    currency?: CurrencyType | null;
     image_path?: File | null;
     specifications?: string;
     date_published: string;
@@ -104,7 +113,7 @@ export type UpdateArtData = Partial<{
     title: string;
     description: string;
     cost: number | null;
-    currency: string | null;
+    currency: CurrencyType | null;
     specifications: string;
     date_published: string;
     author_id: number;

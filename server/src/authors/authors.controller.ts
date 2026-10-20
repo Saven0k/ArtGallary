@@ -329,7 +329,7 @@ export class AuthorsController {
       );
     }
     if (
-      user.role === Role.Author &&
+      user.id === id &&
       (dto.email !== undefined || dto.password !== undefined)
     ) {
       throw new ForbiddenException(

@@ -14,6 +14,8 @@ export interface CodeModalTranslations {
     resend: string;
     verify: string;
     checking: string;
+    close: string;
+    cooldown: string;
     errors: {
         generic: string;
     };
@@ -22,7 +24,7 @@ export interface CodeModalTranslations {
 export const codeModalTranslations: Record<Language, CodeModalTranslations> = {
     ru: {
         title: 'Подтверждение',
-        emailHint: 'Введите email — мы отправим на него 6-значный код.',
+        emailHint: 'Код для смены пароля придёт на почту вашего аккаунта: {email}',
         emailPlaceholder: 'Введите email',
         sendCode: 'Отправить код',
         sending: 'Отправка…',
@@ -31,13 +33,15 @@ export const codeModalTranslations: Record<Language, CodeModalTranslations> = {
         resend: 'Отправить код повторно',
         verify: 'Подтвердить',
         checking: 'Проверка…',
+        close: 'Закрыть',
+        cooldown: 'Код действует 15 минут. Повторная отправка доступна через минуту.',
         errors: {
             generic: 'Не удалось выполнить действие',
         },
     },
     en: {
         title: 'Verification',
-        emailHint: 'Enter your email — we will send a 6-digit code to it.',
+        emailHint: 'Your password change code will be sent to your account email: {email}',
         emailPlaceholder: 'Enter your email',
         sendCode: 'Send code',
         sending: 'Sending…',
@@ -46,13 +50,15 @@ export const codeModalTranslations: Record<Language, CodeModalTranslations> = {
         resend: 'Resend code',
         verify: 'Confirm',
         checking: 'Checking…',
+        close: 'Close',
+        cooldown: 'The code is valid for 15 minutes. You can resend it after one minute.',
         errors: {
             generic: 'Action failed',
         },
     },
     zh: {
         title: '验证',
-        emailHint: '请输入邮箱，我们将向该邮箱发送 6 位验证码。',
+        emailHint: '密码修改验证码将发送至您的账户邮箱：{email}',
         emailPlaceholder: '请输入邮箱',
         sendCode: '发送验证码',
         sending: '发送中…',
@@ -61,6 +67,8 @@ export const codeModalTranslations: Record<Language, CodeModalTranslations> = {
         resend: '重新发送验证码',
         verify: '确认',
         checking: '验证中…',
+        close: '关闭',
+        cooldown: '验证码有效期为15分钟，一分钟后可重新发送。',
         errors: {
             generic: '操作失败',
         },

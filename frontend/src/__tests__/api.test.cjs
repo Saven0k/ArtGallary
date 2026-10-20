@@ -14,6 +14,44 @@ const load = (file, apiFetch, requestOverrides = {}) => {
 };
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
+test('account security requests use email codes without current passwords or a client-selected account', async () => {
+    const calls = [];
+    const api = load('api/auth/main.api.ts', async (url, init) => { calls.push({ url, ...init }); return json({ resetToken: 'proof', deletionToken: 'deletion-proof', message: 'OK' }); });
+    await api.requestPasswordChangeCode();
+    await api.verifyPasswordChangeCode('123456');
+    await api.changePassword({ resetToken: 'proof', newPassword: 'NewPassword1' });
+    await api.requestEmailChangeCode({ newEmail: 'new@example.test' });
+    await api.confirmEmailChange({ newEmail: 'new@example.test', code: '123456' });
+    await api.requestAccountDeletionCode();
+    await api.verifyAccountDeletionCode('123456');
+    assert.deepEqual(calls.map(call => [call.url.replace('https://gallery.test/auth/', ''), call.body ? JSON.parse(call.body) : null]), [
+        ['password-change/request-code', null], ['password-change/verify-code', { code: '123456' }],
+        ['change-password', { resetToken: 'proof', newPassword: 'NewPassword1' }],
+        ['email-change/request-code', { newEmail: 'new@example.test' }], ['email-change/confirm', { newEmail: 'new@example.test', code: '123456' }],
+        ['account/delete/request-code', null], ['account/delete/verify-code', { code: '123456' }],
+    ]);
+    const failed = load('api/auth/main.api.ts', async () => json({ message: 'Wait one minute' }, 429));
+    await assert.rejects(failed.requestPasswordChangeCode(), /Wait one minute/);
+});
+
+test('art creation and editing send separate price and currency fields, including zero and clearing', async () => {
+    const calls = [];
+    const api = load('api/arts/main.api.ts', async (url, init) => { calls.push({ url, ...init }); return json({ id: 7 }); });
+    for (const currency of ['RUB', 'USD', 'CNY']) {
+        await api.createArt({ title: 'Art', description: '', date_published: '2026-10-20', author_id: 7, cost: 0, currency });
+        const request = calls.at(-1);
+        assert.equal(request.body.get('cost'), '0');
+        assert.equal(request.body.get('currency'), currency);
+        await api.updateArt(7, { cost: 1234.56, currency });
+        assert.deepEqual(JSON.parse(calls.at(-1).body), { cost: 1234.56, currency });
+    }
+    await api.updateArt(7, { cost: null, currency: null });
+    assert.equal(calls.at(-1).method, 'PATCH');
+    assert.deepEqual(JSON.parse(calls.at(-1).body), { cost: null, currency: null });
+    await api.getArtById(7, 'zh', true);
+    assert.equal(calls.at(-1).url, 'https://gallery.test/arts/7?lang=zh&original=true');
+});
+
 test('notification preferences preserve opt-out and expose transport errors', async () => {
     let body;
     const api = load('api/notification/settings.api.ts', async (url, init) => { body = init.body; return json({ emailEnabled: false, pushEnabled: false }); });

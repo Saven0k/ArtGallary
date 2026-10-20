@@ -370,9 +370,13 @@ const ArtsSection = () => {
                                     <dt>{t.viewModal.cost}</dt>
                                     <dd>
                                         {viewArt.cost != null
-                                            ? `${viewArt.cost} ${viewArt.currency ?? ''}`.trim()
+                                            ? viewArt.cost.toLocaleString(language)
                                             : t.viewModal.notSpecified}
                                     </dd>
+                                </div>
+                                <div>
+                                    <dt>{t.viewModal.currency}</dt>
+                                    <dd>{viewArt.cost == null ? t.viewModal.notSpecified : viewArt.currency ?? 'RUB'}</dd>
                                 </div>
                                 <div>
                                     <dt>{t.viewModal.genre}</dt>

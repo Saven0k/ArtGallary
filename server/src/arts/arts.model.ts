@@ -17,7 +17,8 @@ import { Country } from 'src/location/models/country.model';
 import { City } from 'src/location/models/city.model';
 import { AuthorProfile } from 'src/authors/author.model';
 
-export type CurrencyType = 'USD' | 'EUR' | 'RUB' | 'UAH' | null;
+export const ART_CURRENCIES = ['RUB', 'USD', 'CNY'] as const;
+export type CurrencyType = (typeof ART_CURRENCIES)[number] | null;
 
 export const ART_STATUS = {
   ON_SALE: 'on_sale',
@@ -67,11 +68,15 @@ export class Art extends Model<Art, ArtCreationAttrs> {
   @Column({ type: DataType.TEXT, allowNull: false })
   description: string;
 
-  @ApiProperty({ example: '4500$', description: 'цена' })
+  @ApiProperty({ example: 4500, description: 'Цена в исходной валюте' })
   @Column({ type: DataType.FLOAT, allowNull: true })
   cost: number;
 
-  @ApiProperty({ example: '$', description: 'Валюта' })
+  @ApiProperty({
+    example: 'RUB',
+    enum: ART_CURRENCIES,
+    description: 'Валюта цены',
+  })
   @Column({ type: DataType.STRING, allowNull: true })
   currency: string | null;
 
