@@ -196,17 +196,17 @@
         &__container {
             flex-direction: column;
             align-items: stretch;
-            padding: 32px 16px 40px;
-            gap: 28px;
+            padding: 24px 16px 32px;
+            gap: 20px;
         }
 
         &__image-wrapper {
             width: 100%;
-            max-width: 480px;
+            max-width: 360px;
             height: auto;
-            aspect-ratio: 4 / 5;
+            aspect-ratio: 4 / 3;
             margin: 0 auto;
-            padding: 24px;
+            padding: 16px;
         }
 
         &__content {
@@ -215,19 +215,19 @@
         }
 
         &__title {
-            font-size: clamp(30px, 6vw, 42px);
+            font-size: var(--font-h2);
             text-align: left;
             overflow-wrap: anywhere;
         }
 
         &__text {
-            margin: 20px 0;
-            font-size: 16px;
-            line-height: 1.65;
+            margin: 16px 0;
+            font-size: 15px;
+            line-height: 1.6;
             text-align: left;
 
             &:not(:last-of-type)::after {
-                bottom: -20px;
+                bottom: -16px;
                 left: 0;
                 width: 56px;
                 height: 2px;

@@ -18,7 +18,11 @@
     }
 
     @media (max-width: 768px) {
-        padding-bottom: 40px;
+        padding-bottom: 32px;
+
+        h1 {
+            font-size: var(--font-h2);
+        }
 
         &__container {
             padding: 0 16px;
@@ -204,11 +208,11 @@
             }
 
             &__content {
-                padding: 20px;
+                padding: 16px;
             }
 
             &__price {
-                font-size: 22px;
+                font-size: 20px;
             }
         }
     }

@@ -327,14 +327,11 @@
     }
 
     @media (max-width: 768px) {
-        padding: 40px 16px;
-        gap: 28px;
+        padding: 32px 16px;
+        gap: 20px;
 
         &__image {
-            height: auto;
-            max-height: 420px;
-            aspect-ratio: 4 / 3;
-            border-radius: var(--radius-l);
+            display: none;
         }
 
         &__content {
@@ -342,23 +339,23 @@
         }
 
         &__title {
-            margin-bottom: 20px;
-            font-size: clamp(28px, 5vw, 36px);
+            margin-bottom: 16px;
+            font-size: var(--font-h2);
         }
 
         &__text,
         &__plus {
-            font-size: 16px;
-            line-height: 1.6;
+            font-size: 15px;
+            line-height: 1.55;
         }
 
         &__text {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         &__pros {
-            gap: 16px;
-            margin-bottom: 28px;
+            gap: 12px;
+            margin-bottom: 24px;
         }
 
         &__plus {
@@ -372,19 +369,18 @@
         }
 
         &__stats {
-            grid-template-columns: minmax(0, 1fr);
-            gap: 0;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
             margin: 0 0 20px;
         }
 
         &__stat {
             min-height: 0;
             height: auto;
-            padding: 16px 0;
-            flex-direction: row;
-            align-items: center;
-            gap: 20px;
-            border-bottom: 1px solid var(--neutral-grey);
+            padding: 0;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
 
             &::after {
                 display: none;
@@ -392,13 +388,13 @@
         }
 
         &__stat-number {
-            min-width: 80px;
-            font-size: 30px;
+            min-width: 0;
+            font-size: 26px;
         }
 
         &__stat-label {
             max-width: none;
-            font-size: 14px;
+            font-size: 12px;
             line-height: 1.5;
             text-transform: none;
         }
@@ -408,7 +404,7 @@
             align-items: center;
             min-height: 44px;
             padding: 10px 0;
-            font-size: 15px;
+            font-size: 14px;
         }
     }
 }

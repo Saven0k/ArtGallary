@@ -296,13 +296,13 @@
 @media (max-width: 768px) {
     .navigation {
         align-items: center;
-        gap: 12px;
-        padding: 16px;
+        gap: 10px;
+        padding: 8px 16px;
     }
 
     .navigation__back {
         min-height: 44px;
-        padding: 10px 16px;
+        padding: 8px 12px;
         flex-shrink: 0;
         font-size: 14px;
     }
@@ -317,6 +317,6 @@
     .navigation__path-link,
     .navigation__path-name,
     .navigation__path-separator {
-        font-size: 14px;
+        font-size: 13px;
     }
 }

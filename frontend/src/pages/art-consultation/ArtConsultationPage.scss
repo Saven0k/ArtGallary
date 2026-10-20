@@ -320,30 +320,31 @@
         &__hero,
         &__section,
         &__request {
-            padding-left: 20px;
-            padding-right: 20px;
+            padding-left: 16px;
+            padding-right: 16px;
         }
 
         &__hero-copy {
-            padding: 56px 0;
+            padding: 32px 0;
             min-width: 0;
         }
 
         h1 {
-            font-size: clamp(34px, 8vw, 48px);
+            font-size: var(--font-h1);
             line-height: 1.12;
             overflow-wrap: anywhere;
         }
 
         h2 {
-            margin-bottom: 28px;
+            margin-bottom: 20px;
+            font-size: var(--font-h2);
             line-height: 1.2;
         }
 
         &__button,
         &__request button {
             width: 100%;
-            min-height: 48px;
+            min-height: 44px;
             font-size: 14px;
             line-height: 1.5;
         }
@@ -367,7 +368,7 @@
         }
 
         &__section {
-            padding-top: 64px;
+            padding-top: 40px;
         }
 
         &__benefit-grid,
@@ -389,13 +390,13 @@
         }
 
         &__process {
-            padding-bottom: 64px;
+            padding-bottom: 40px;
         }
 
         &__request {
-            gap: 32px;
-            padding-top: 48px;
-            padding-bottom: 48px;
+            gap: 24px;
+            padding-top: 32px;
+            padding-bottom: 32px;
         }
     }
 }

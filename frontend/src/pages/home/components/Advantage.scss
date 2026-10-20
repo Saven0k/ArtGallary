@@ -211,22 +211,22 @@
     }
 
     @media (max-width: 768px) {
-        padding: 40px 16px;
+        padding: 32px 16px;
 
         &__title {
-            margin-bottom: 28px;
-            font-size: clamp(28px, 5vw, 36px);
+            margin-bottom: 20px;
+            font-size: var(--font-h2);
         }
 
         &__list {
             grid-template-columns: minmax(0, 1fr);
-            gap: 28px;
+            gap: 20px;
         }
 
         &__item {
             display: grid;
-            grid-template-columns: 48px minmax(0, 1fr);
-            gap: 8px 16px;
+            grid-template-columns: 40px minmax(0, 1fr);
+            gap: 6px 12px;
             align-items: start;
             min-width: 0;
         }
@@ -234,21 +234,21 @@
         &__item-icon,
         &__item:nth-child(5) .advantages__item-icon {
             grid-row: span 2;
-            width: 48px;
-            height: 48px;
+            width: 40px;
+            height: 40px;
             margin: 0;
         }
 
         &__item-title {
             margin: 0;
-            font-size: 18px;
+            font-size: 16px;
             line-height: 1.35;
         }
 
         &__item-description {
             grid-column: 2;
-            font-size: 15px;
-            line-height: 1.6;
+            font-size: 14px;
+            line-height: 1.5;
         }
     }
 }
