@@ -4,7 +4,7 @@
     left: 0;
     z-index: 1000;
     padding: 12px 0 20px;
-    background: var(--neutral-black-900);
+    background: var(--nav-brown);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     display: flex;
     justify-content: center;
@@ -351,9 +351,10 @@
     position: absolute;
     width: 100%;
     height: 177px;
-    background: var(--nav-brown);
+    background: rgba(0, 0, 0, 0.52);
 
     @media (max-width: 1100px) {
         height: auto;
+        background: rgba(0, 0, 0, 0.86);
     }
 }
