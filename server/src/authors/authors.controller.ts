@@ -405,6 +405,7 @@ export class AuthorsController {
 
   @ApiOperation({ summary: 'Записать просмотр автора' })
   @Post(':id/view')
+  @UseGuards(OptionalJwtAccessGuard)
   viewAuthor(
     @Param('id', ParseIntPipe) authorId: number,
     @CurrentUser() user: CurrentUserData,

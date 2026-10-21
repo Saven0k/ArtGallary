@@ -1,7 +1,8 @@
+import { Bell, CircleHelp, Gem, Heart, Image, LayoutDashboard, Mail, Palette, Plus, UserRound, type LucideIcon } from 'lucide-react';
 
 
 export interface MenuItem {
-    icon: string;
+    icon: LucideIcon;
 
     labelKey: string;
     path: string;
@@ -22,34 +23,34 @@ export const menuSectionsAuthor: MenuSection[] = [
     {
         titleKey: 'profile',
         items: [
-            { icon: '👤', labelKey: 'author.myProfile', path: '/profile' },
+            { icon: UserRound, labelKey: 'author.myProfile', path: '/profile' },
         ],
     },
     {
         titleKey: 'activity',
         items: [
-            { icon: '❤️', labelKey: 'common.likesArts',     path: '/profile?section=likes' },
-            { icon: '🔔', labelKey: 'common.subscriptions', path: '/profile?section=subscriptions' },
+            { icon: Heart, labelKey: 'common.likesArts',     path: '/profile?section=likes' },
+            { icon: Bell, labelKey: 'common.subscriptions', path: '/profile?section=subscriptions' },
         ],
     },
     {
         titleKey: 'account',
         items: [
-            { icon: '📩', labelKey: 'common.notifications', path: '/profile?section=notifications' },
-            { icon: '💎', labelKey: 'common.tariff',        path: '/profile?section=tariff' },
+            { icon: Mail, labelKey: 'common.notifications', path: '/profile?section=notifications' },
+            { icon: Gem, labelKey: 'common.tariff',        path: '/profile?section=tariff' },
         ],
     },
     {
         titleKey: 'arts',
         items: [
-            { icon: '🎨', labelKey: 'author.addPainting', path: '/arts/new' },
-            { icon: '🖼️', labelKey: 'author.myPaintings', path: '/arts/my' },
+            { icon: Plus, labelKey: 'author.addPainting', path: '/arts/new' },
+            { icon: Image, labelKey: 'author.myPaintings', path: '/arts/my' },
         ],
     },
     {
         titleKey: 'support',
         items: [
-            { icon: '❓', labelKey: 'author.help', path: '/help' },
+            { icon: CircleHelp, labelKey: 'author.help', path: '/help' },
         ],
     },
 ];
@@ -62,20 +63,20 @@ export const menuSectionsUser: MenuSection[] = [
     {
         titleKey: 'profile',
         items: [
-            { icon: '👤', labelKey: 'user.myProfile', path: '/profile' },
+            { icon: UserRound, labelKey: 'user.myProfile', path: '/profile' },
         ],
     },
     {
         titleKey: 'features',
         items: [
-            { icon: '❤️', labelKey: 'common.likesArts',     path: '/profile?section=likes' },
-            { icon: '🔔', labelKey: 'common.subscriptions', path: '/profile?section=subscriptions' },
+            { icon: Heart, labelKey: 'common.likesArts',     path: '/profile?section=likes' },
+            { icon: Bell, labelKey: 'common.subscriptions', path: '/profile?section=subscriptions' },
         ],
     },
     {
         titleKey: 'support',
         items: [
-            { icon: '❓', labelKey: 'user.help', path: '/help' },
+            { icon: CircleHelp, labelKey: 'user.help', path: '/help' },
         ],
     },
 ];
@@ -88,20 +89,20 @@ export const menuSectionsModerator: MenuSection[] = [
     {
         titleKey: 'profile',
         items: [
-            { icon: '👤', labelKey: 'moderator.myProfile', path: '/profile' },
+            { icon: UserRound, labelKey: 'moderator.myProfile', path: '/profile' },
         ],
     },
     {
         titleKey: 'moderation',
         items: [
-            { icon: '🖼️',    labelKey: 'common.moderationArts',    path: '/admin?section=moderation&tab=arts' },
-            { icon: '👨‍🎨', labelKey: 'common.moderationAuthors', path: '/admin?section=moderation&tab=authors' },
+            { icon: Image,    labelKey: 'common.moderationArts',    path: '/admin?section=moderation&tab=arts' },
+            { icon: Palette, labelKey: 'common.moderationAuthors', path: '/admin?section=moderation&tab=authors' },
         ],
     },
     {
         titleKey: 'support',
         items: [
-            { icon: '❓', labelKey: 'moderator.help', path: '/help' },
+            { icon: CircleHelp, labelKey: 'moderator.help', path: '/help' },
         ],
     },
 ];
@@ -114,14 +115,14 @@ export const menuSectionsAdmin: MenuSection[] = [
     {
         titleKey: 'adminka',
         items: [
-            { icon: '👥', labelKey: 'admin.panel', path: '/admin' },
+            { icon: LayoutDashboard, labelKey: 'admin.panel', path: '/admin' },
         ],
     },
     {
         titleKey: 'support',
         items: [
-            { icon: '❓', labelKey: 'admin.help',     path: '/help' },
-            { icon: '📧', labelKey: 'admin.feedback', path: '/contacts' },
+            { icon: CircleHelp, labelKey: 'admin.help',     path: '/help' },
+            { icon: Mail, labelKey: 'admin.feedback', path: '/contacts' },
         ],
     },
 ];

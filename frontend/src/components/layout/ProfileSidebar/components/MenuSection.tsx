@@ -36,6 +36,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
             <ul className="sidebarProfile__menu">
                 {section.items.map((item, index) => {
                     const label = getLabel(item.labelKey);
+                    const Icon = item.icon;
                     return (
                         <li key={index} className="sidebarProfile__menu-item">
                             <button
@@ -47,7 +48,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                                     className="sidebarProfile__icon"
                                     aria-hidden="true"
                                 >
-                                    {item.icon}
+                                    <Icon size={20} strokeWidth={1.5} />
                                 </span>
                                 <span className="sidebarProfile__label">
                                     {label}

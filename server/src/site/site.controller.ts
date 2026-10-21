@@ -12,7 +12,10 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { JwtAccessGuard } from '../auth/guards/jwt.guard';
+import {
+  JwtAccessGuard,
+  OptionalJwtAccessGuard,
+} from '../auth/guards/jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/enums/role.enum';
@@ -31,6 +34,7 @@ export class SiteController {
   ) {}
 
   @Post('visit')
+  @UseGuards(OptionalJwtAccessGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Зафиксировать посещение' })
   async track(

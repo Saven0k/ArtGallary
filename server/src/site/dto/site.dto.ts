@@ -1,11 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  Matches,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class TrackVisitDto {
   @ApiProperty({ example: '/', required: false })
   @IsOptional()
   @IsString()
+  @MaxLength(255)
+  @Matches(/^\/[^?#]*$/)
   path?: string;
 }
 

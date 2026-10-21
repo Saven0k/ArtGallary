@@ -1,13 +1,7 @@
 
 import { useEffect, useState } from "react";
 import "./ProfileSidebar.scss";
-import {
-    NotificationIcon,
-    LockIcon,
-    StatIcon,
-    SettingsIcon,
-    LikeIcon,
-} from "../icons/icons";
+import { Bell, ChartNoAxesCombined, Gem, Heart, History, Settings, ShoppingBag, UserRound, UsersRound, type LucideIcon } from 'lucide-react';
 import { useLanguage } from '../../../../hooks/useLanguage';
 import { profileTranslations } from '../lang';
 import type { UserRole } from "../../../../api/users/main.api";
@@ -33,7 +27,7 @@ interface ProfileSidebarProps {
 interface SidebarItem {
     id: ProfileSection;
     title: string;
-    icon: React.FC<{ className?: string }>;
+    icon: LucideIcon;
 
     authorOnly?: boolean;
 }
@@ -84,45 +78,45 @@ const ProfileSidebar = ({
         {
             id: "personal",
             title: labels.personal,
-            icon: LockIcon,
+            icon: UserRound,
         },
         {
             id: "statistics",
             title: labels.statistics,
-            icon: StatIcon,
+            icon: ChartNoAxesCombined,
             authorOnly: true,
         },
         {
             id: "notifications",
             title: labels.notifications,
-            icon: NotificationIcon,
+            icon: Bell,
         },
         {
             id: "likes",
             title: labels.likes,
-            icon: LikeIcon,
+            icon: Heart,
         },
         {
             id: "subscriptions",
             title: labels.subscriptions,
-            icon: NotificationIcon,
+            icon: UsersRound,
         },
         {
             id: "tariff",
             title: labels.tariff,
-            icon: SettingsIcon,
+            icon: Gem,
             authorOnly: true,
         },
         {
             id: "cart",
             title: labels.cart,
-            icon: SettingsIcon,
+            icon: ShoppingBag,
         },
-        { id: "history", title: labels.history, icon: SettingsIcon },
+        { id: "history", title: labels.history, icon: History },
         {
             id: "settings",
             title: labels.settings,
-            icon: SettingsIcon,
+            icon: Settings,
         },
     ];
 
@@ -143,6 +137,7 @@ const ProfileSidebar = ({
                     <button
                         key={item.id}
                         type="button"
+                        aria-current={active === item.id ? 'page' : undefined}
                         onClick={() => onChange(item.id)}
                         className={`profile-sidebar__item ${
                             active === item.id

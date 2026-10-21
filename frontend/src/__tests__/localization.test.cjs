@@ -123,6 +123,11 @@ test('guest sidebar uses the selected language and keeps signed-in role menus', 
             assert.match(html, /sidebarProfile__nav/);
             assert.match(html, /Test Account/);
         }
+        const loading = renderToStaticMarkup(React.createElement(Sidebar, {
+            ...props, isAuthenticated: true, userRole: 'author',
+        }));
+        assert.doesNotMatch(loading, /sidebarProfile__guest-actions|sidebarProfile__guest-title/);
+        assert.match(loading, /sidebarProfile__nav/);
     }
 });
 

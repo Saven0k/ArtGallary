@@ -1,5 +1,5 @@
 import { commonTranslations } from '../../../lang';
-import { Settings, UserRound } from 'lucide-react';
+import { LogOut, Settings, UserRound, X } from 'lucide-react';
 
 import { memo, useState, useEffect } from 'react';
 import { useSidebarTranslation } from './lang';
@@ -137,17 +137,17 @@ const ProfileSideBar = memo(({
                             onClose={onClose}
                         />
                     ) : (
-                        <GuestHeader
-                            onNavigate={onNavigate}
-                            onClose={onClose}
-                        />
+                        <div className="sidebarProfile__user-info">
+                            <span className="sidebarProfile__avatar" aria-hidden="true"><UserRound size={22} /></span>
+                            <h2 className="sidebarProfile__user-name">{t('profile')}</h2>
+                        </div>
                     )}
                     <button
                         className="sidebarProfile__close"
                         onClick={onClose}
                         aria-label={commonTranslations[language].closeMenu}
                     >
-                        ✕
+                        <X size={20} aria-hidden="true" />
                     </button>
                 </div>
 
@@ -172,9 +172,9 @@ const ProfileSideBar = memo(({
                         <button
                             className="sidebarProfile__action-btn sidebarProfile__action-btn--secondary"
                             onClick={handleSettings}
-                            aria-label={isAuthenticated ? t('common.notifications') : t('guest.settings')}
+                            aria-label={t('guest.settings')}
                         >
-                            {isAuthenticated ? '⚙️' : <><Settings size={18} aria-hidden="true" />{t('guest.settings')}</>}
+                            <Settings size={18} aria-hidden="true" />{t('guest.settings')}
                         </button>
                         {isAuthenticated && (
                             <button
@@ -182,7 +182,7 @@ const ProfileSideBar = memo(({
                                 onClick={handleLogout}
                                 aria-label={commonTranslations[language].logout}
                             >
-                                🚪
+                                <LogOut size={18} aria-hidden="true" />{commonTranslations[language].logout}
                             </button>
                         )}
                     </div>

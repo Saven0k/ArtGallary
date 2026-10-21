@@ -5,7 +5,6 @@ import { useLanguage } from '../../../../../hooks/useLanguage';
 import { adminTranslations } from '../../../../../pages/admin/lang';
 import { getSiteStats, type SiteStatsData } from '../../../../../api/site/main.api';
 import SectionHeader from '../../SectionHeader/SectionHeader';
-import EmptyState from '../../EmptyState/EmptyState';
 import { ratingsTranslations } from './lang';
 import './RatingsSection.scss';
 
@@ -55,14 +54,7 @@ const RatingsSection = () => {
     }
 
 
-    if (!stats || stats.ratingsCount === 0) {
-        return (
-            <div className="admin-section ratings-section">
-                <SectionHeader title={t.title} subtitle={t.subtitle} />
-                <EmptyState text={t.empty} icon={<Star size={24} />} />
-            </div>
-        );
-    }
+    if (!stats) return null;
 
 
     const average = stats.averageRating;
@@ -73,6 +65,15 @@ const RatingsSection = () => {
             <SectionHeader title={t.title} subtitle={t.subtitle} />
 
             <div className="ratings-section__cards">
+                {(['totalVisits', 'todayVisits', 'weekVisits', 'monthVisits'] as const).map((key) => (
+                    <div className="ratings-section__card" key={key}>
+                        <div className="ratings-section__card-icon"><TrendingUp size={22} /></div>
+                        <div className="ratings-section__card-body">
+                            <span className="ratings-section__card-label">{t.summary[key]}</span>
+                            <span className="ratings-section__card-value">{stats[key]}</span>
+                        </div>
+                    </div>
+                ))}
                 {                    }
                 <div className="ratings-section__card">
                     <div className="ratings-section__card-icon">
@@ -83,7 +84,7 @@ const RatingsSection = () => {
                             {t.summary.average}
                         </span>
                         <span className="ratings-section__card-value">
-                            {average.toFixed(2)}
+                            {stats.ratingsCount ? average.toFixed(2) : '—'}
                             <span className="ratings-section__card-suffix">
                                 / 5
                             </span>

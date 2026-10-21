@@ -14,6 +14,7 @@ import Like from "./like.svg";
 import Cart from "./cart.svg";
 import ProfileIcon from "./profile.svg";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
+import { useSiteVisits } from "../../../hooks/useSiteVisits";
 
 interface UserDataForSidebar {
     name: string;
@@ -23,6 +24,7 @@ interface UserDataForSidebar {
 }
 
 const Header = memo(() => {
+    useSiteVisits();
     const location = useLocation();
     const isHome = location.pathname === '/';
     const [isMenuOpen, setIsMenuOpen] = useState(false);

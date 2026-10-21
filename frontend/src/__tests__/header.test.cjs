@@ -23,6 +23,7 @@ function header(language) {
         '../../../hooks/useAuth': { useAuth: () => ({ user: null }) },
         '../../../hooks/useLanguage': { useLanguage: () => ({ language }) },
         '../../../hooks/useCart': { useCart: () => ({ getCartCount: () => 0 }) },
+        '../../../hooks/useSiteVisits': { useSiteVisits() {} },
         './lang': { headerTranslations: { [language]: { logoTitle: 'Gallery', menu: { open: labels[language][0], close: labels[language][1] }, nav: { gallery: 'Gallery', authors: 'Authors', services: 'Services', contacts: 'Contacts', about: 'About' } } } },
     };
     new Function('require', 'module', 'exports', code)(name => {

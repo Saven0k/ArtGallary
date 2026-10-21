@@ -1,4 +1,5 @@
 import React from 'react';
+import { UserRound } from 'lucide-react';
 import type { UserDataForSidebar } from '../ProfileSidebar';
 
 interface UserHeaderProps {
@@ -11,7 +12,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ userData }) => {
     const { name, surname, avatar_path } = userData;
 
 
-    const initials = name && surname ? `${name[0]}${surname[0]}` : '👤';
+    const initials = `${name?.[0] ?? ''}${surname?.[0] ?? ''}`;
 
     return (
         <div className="sidebarProfile__user-info">
@@ -26,7 +27,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ userData }) => {
                 />
             ) : (
                 <div className="sidebarProfile__avatar sidebarProfile__avatar--placeholder">
-                    {initials}
+                    {initials || <UserRound size={22} aria-hidden="true" />}
                 </div>
             )}
             <div className="sidebarProfile__user-details">

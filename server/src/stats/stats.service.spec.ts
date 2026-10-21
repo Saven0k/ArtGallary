@@ -40,11 +40,22 @@ describe('Statistics filters', () => {
     ).toEqual({
       created_at: {
         [Op.gte]: new Date('2026-01-01'),
-        [Op.lte]: new Date('2026-02-01'),
+        [Op.lte]: new Date('2026-02-01T23:59:59.999Z'),
       },
       user_gender: 'F',
       city_id: 3,
       country_id: 4,
     });
+  });
+
+  it('includes the full final day but preserves an explicitly requested time', () => {
+    expect(service['buildFilter']({ endDate: '2026-10-21' })).toEqual({
+      created_at: { [Op.lte]: new Date('2026-10-21T23:59:59.999Z') },
+    });
+    expect(service['buildFilter']({ endDate: '2026-10-21T14:00:00Z' })).toEqual(
+      {
+        created_at: { [Op.lte]: new Date('2026-10-21T14:00:00Z') },
+      },
+    );
   });
 });

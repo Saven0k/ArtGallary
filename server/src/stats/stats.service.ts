@@ -159,7 +159,12 @@ export class StatsService {
       where.created_at = {};
       if (filter.startDate)
         where.created_at[Op.gte] = new Date(filter.startDate);
-      if (filter.endDate) where.created_at[Op.lte] = new Date(filter.endDate);
+      if (filter.endDate) {
+        const end = new Date(filter.endDate);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(filter.endDate))
+          end.setUTCHours(23, 59, 59, 999);
+        where.created_at[Op.lte] = end;
+      }
     }
     if (filter.gender) where.user_gender = filter.gender;
     if (filter.ageFrom !== undefined || filter.ageTo !== undefined) {
