@@ -1,12 +1,16 @@
 import { useCallback } from 'react';
 import { translatedValue } from '../../../../utils/translations';
 
-
 export type Language = 'ru' | 'en' | 'zh';
 
 export const purchaseHistoryTranslations = {
     ru: {
         title: 'История покупок',
+        filter: 'Статус заказа',
+        unknownArtwork: 'Работа недоступна',
+        unknownPrice: 'Цена не сохранена',
+        quantity: 'Количество: {count}',
+        orderTotal: 'Итого по заказу со скидкой',
         tabs: {
             all: 'Все',
             delivered: 'Доставленные',
@@ -28,6 +32,11 @@ export const purchaseHistoryTranslations = {
 
     en: {
         title: 'Purchase history',
+        filter: 'Order status',
+        unknownArtwork: 'Artwork unavailable',
+        unknownPrice: 'Price not recorded',
+        quantity: 'Quantity: {count}',
+        orderTotal: 'Order total after discount',
         tabs: {
             all: 'All',
             delivered: 'Delivered',
@@ -49,6 +58,11 @@ export const purchaseHistoryTranslations = {
 
     zh: {
         title: '购买记录',
+        filter: '订单状态',
+        unknownArtwork: '作品不可用',
+        unknownPrice: '未记录价格',
+        quantity: '数量：{count}',
+        orderTotal: '折扣后订单总额',
         tabs: {
             all: '全部',
             delivered: '已送达',
@@ -69,10 +83,7 @@ export const purchaseHistoryTranslations = {
     },
 };
 
-export const getPurchaseHistoryTranslation = (
-    lang: Language,
-    path: string,
-): string => {
+export const getPurchaseHistoryTranslation = (lang: Language, path: string): string => {
     return translatedValue(purchaseHistoryTranslations[lang], path);
 };
 

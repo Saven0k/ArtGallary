@@ -1,6 +1,7 @@
 import { commonTranslations } from '../../../../../lang';
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import type { ReactNode } from 'react';
+import { notificationsTranslations } from '../lang';
 
 import { X } from 'lucide-react';
 import './NotificationCard.scss';
@@ -10,6 +11,8 @@ interface NotificationCardProps {
     title: string;
     description: string;
     time: string;
+    dateTime?: string;
+    disabled?: boolean;
     unread?: boolean;
     onClick?: () => void;
     onDelete?: () => void;
@@ -20,48 +23,56 @@ const NotificationCard = ({
     title,
     description,
     time,
+    dateTime,
+    disabled = false,
     unread = true,
     onClick,
     onDelete,
 }: NotificationCardProps) => {
     const { language } = useLanguage();
     return (
-        <div
+        <article
             className={`notification-card ${
                 unread ? 'notification-card--unread' : ''
             }`}
-            onClick={onClick}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') onClick?.();
-            }}
         >
-            <div className="notification-card__icon">{icon}</div>
+            <button
+                type="button"
+                className="notification-card__open"
+                onClick={onClick}
+                disabled={disabled}
+            >
+                <span className="notification-card__icon" aria-hidden="true">
+                    {icon}
+                </span>
+                <span className="notification-card__content">
+                    <span className="notification-card__title">{title}</span>
+                    <span className="notification-card__description">
+                        {description}
+                    </span>
+                    {unread && (
+                        <span className="notification-card__sr-only">
+                            {notificationsTranslations[language].unread}
+                        </span>
+                    )}
+                </span>
+                <time className="notification-card__time" dateTime={dateTime}>
+                    {time}
+                </time>
+            </button>
 
-            <div className="notification-card__content">
-                <h3 className="notification-card__title">{title}</h3>
-                <p className="notification-card__description">{description}</p>
-            </div>
-
-            <div className="notification-card__meta">
-                <span className="notification-card__time">{time}</span>
-
-                {onDelete && (
-                    <button
-                        type="button"
-                        className="notification-card__delete"
-                        aria-label={commonTranslations[language].deleteNotification}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete();
-                        }}
-                    >
-                        <X size={16} />
-                    </button>
-                )}
-            </div>
-        </div>
+            {onDelete && (
+                <button
+                    type="button"
+                    className="notification-card__delete"
+                    aria-label={commonTranslations[language].deleteNotification}
+                    disabled={disabled}
+                    onClick={onDelete}
+                >
+                    <X size={16} />
+                </button>
+            )}
+        </article>
     );
 };
 

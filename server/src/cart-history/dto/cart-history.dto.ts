@@ -4,14 +4,14 @@ import {
   ArrayMinSize,
   IsArray,
   IsEnum,
-  IsIn,
+  Matches,
   IsInt,
   IsOptional,
   Max,
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { OrderStatus } from '../cart-history.model';
 
 export class HistoryFilterDto {
@@ -56,8 +56,11 @@ export class CheckoutDto {
   @Type(() => CheckoutItemDto)
   items?: CheckoutItemDto[];
 
-  @ApiPropertyOptional({ enum: ['SALE10', 'SALE15', 'ART20'] })
+  @ApiPropertyOptional({ example: 'GALLERY10', pattern: '^[A-Z0-9_-]{3,32}$' })
   @IsOptional()
-  @IsIn(['SALE10', 'SALE15', 'ART20'])
-  promoCode?: 'SALE10' | 'SALE15' | 'ART20';
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim().toUpperCase() : value,
+  )
+  @Matches(/^[A-Z0-9_-]{3,32}$/)
+  promoCode?: string;
 }

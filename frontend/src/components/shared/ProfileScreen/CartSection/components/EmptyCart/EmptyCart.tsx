@@ -1,4 +1,3 @@
-// src/pages/Profile/components/ProfileContent/Cart/components/EmptyCart/EmptyCart.tsx
 import { ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cartTranslations } from '../../lang';
@@ -14,19 +13,15 @@ const EmptyCart = ({ language }: EmptyCartProps) => {
     const navigate = useNavigate();
 
     return (
-        <section className="empty-cart">
+        <section className="profile-commerce empty-cart">
             <div className="empty-cart__icon">
                 <ShoppingBag size={48} />
             </div>
 
-            <h2 className="empty-cart__title">{t.title}</h2>
+            <h2 className="profile-commerce__title">{t.title}</h2>
             <p className="empty-cart__text">{t.empty}</p>
 
-            <button
-                type="button"
-                className="empty-cart__btn"
-                onClick={() => navigate('/arts')}
-            >
+            <button type="button" className="empty-cart__btn" onClick={() => navigate('/arts')}>
                 {t.emptyAction}
             </button>
         </section>

@@ -7,7 +7,13 @@ export const PURCHASABLE_AUTHOR_INCLUDE = {
   model: AuthorProfile,
   required: true,
   attributes: ['user_id', 'is_deleted'],
-  include: [{ model: User, required: true, attributes: ['id', 'is_deleted'] }],
+  include: [
+    {
+      model: User,
+      required: true,
+      attributes: ['id', 'name', 'surname', 'is_deleted'],
+    },
+  ],
 };
 
 export function assertPurchasable(art: Art | null): asserts art is Art {

@@ -103,6 +103,19 @@ test('home, artwork lists and profile navigation render in the selected language
     }
 });
 
+test('the profile notification section remains available to every signed-in role', () => {
+    for (const language of ['ru', 'en', 'zh']) {
+        const load = loader(language);
+        const Sidebar = load(path.join(root, 'components/shared/ProfileScreen/ProfileSidebar/ProfileSidebar.tsx')).default;
+        const label = load(path.join(root, 'components/shared/ProfileScreen/lang.ts')).profileTranslations[language].sidebar.notifications;
+        for (const role of ['user', 'author', 'moderator', 'admin']) {
+            const html = renderToStaticMarkup(React.createElement(require('react-router-dom').MemoryRouter, null, React.createElement(Sidebar, { active: 'notifications', onChange() {}, role })));
+            assert.ok(html.includes(label), `${language}: ${role}`);
+            assert.match(html, /profile-sidebar__item--active/);
+        }
+    }
+});
+
 test('guest sidebar uses the selected language and keeps signed-in role menus', () => {
     for (const language of ['ru', 'en', 'zh']) {
         const load = loader(language);
@@ -142,6 +155,43 @@ test('chart dates use the selected language and preserve invalid dates', () => {
     for (const language of ['ru', 'en', 'zh']) {
         assert.equal(formatShortDate('2026-03-15', language), new Date('2026-03-15').toLocaleDateString(language, { day: 'numeric', month: 'short' }));
         assert.equal(formatShortDate('invalid', language), 'invalid');
+    }
+});
+
+test('statistics periods include exactly 7, 30 or 365 UTC days across month and year boundaries', () => {
+    const { periodToFilter } = loader()(path.join(root, 'components/shared/ProfileScreen/StatisticsSection/Charts/utils.ts'));
+    for (const now of ['2026-01-01T23:45:00Z', '2024-03-01T00:01:00Z']) {
+        for (const [period, days] of [['week', 7], ['month', 30], ['year', 365]]) {
+            const filter = periodToFilter(period, new Date(now));
+            assert.equal((new Date(filter.endDate) - new Date(filter.startDate)) / 86400000 + 1, days);
+            assert.equal(filter.endDate, now.slice(0, 10));
+        }
+    }
+});
+
+test('statistics audience charts localize empty and unknown data and preserve real age ranges', () => {
+    const folder = 'components/shared/ProfileScreen/StatisticsSection/';
+    const ages = { '<18': 0, '18-24': 0, '25-34': 1, '35-44': 0, '45-54': 0, '55+': 0, unknown: 1 };
+    for (const language of ['ru', 'en', 'zh']) {
+        const load = loader(language);
+        const t = load(path.join(root, folder, 'lang.ts')).statisticsTranslations[language];
+        const Age = load(path.join(root, folder, 'Charts/AgeChart.tsx')).default;
+        const Gender = load(path.join(root, folder, 'Charts/GenderChart.tsx')).default;
+        const Countries = load(path.join(root, folder, 'Charts/CountriesChart.tsx')).default;
+        const ageHtml = renderToStaticMarkup(React.createElement(Age, { data: ages }));
+        assert.ok(ageHtml.includes(t.unknown));
+        assert.match(ageHtml, /25-34/);
+        assert.match(ageHtml, /45-54/);
+        assert.match(ageHtml, /50%/);
+        const countryHtml = renderToStaticMarkup(React.createElement(Countries, { data: [{ countryId: 1, countryName: 'Test', count: 1 }], total: 2 }));
+        assert.ok(countryHtml.includes(t.unknown));
+        assert.match(countryHtml, /50%/);
+        const genderHtml = renderToStaticMarkup(React.createElement(Gender, { data: { male: 0, female: 0, unknown: 1 } }));
+        assert.ok(genderHtml.includes(t.unknown));
+        assert.match(genderHtml, /100%/);
+        const emptyHtml = renderToStaticMarkup(React.createElement(Gender, { data: { male: 0, female: 0, unknown: 0 } }));
+        assert.ok(emptyHtml.includes(t.empty));
+        assert.doesNotMatch(emptyHtml, /NaN|Infinity/);
     }
 });
 

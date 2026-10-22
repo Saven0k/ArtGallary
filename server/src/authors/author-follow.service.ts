@@ -1,4 +1,10 @@
-import { Injectable, HttpException, HttpStatus, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  Inject,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AuthorFollow } from './author-follow.model';
 import { AuthorProfile } from './author.model';
@@ -6,6 +12,8 @@ import { User } from '../users/users.model';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { NotificationService } from 'src/notifications/notification.service';
 import { NotificationType } from 'src/notifications/notification.model';
+import { Profession } from '../professions/profession.model';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class AuthorFollowService {
@@ -119,6 +127,14 @@ export class AuthorFollowService {
   }
 
   async getUserFollowing(userId: number, page: number = 1, limit: number = 20) {
+    if (
+      !Number.isInteger(page) ||
+      page < 1 ||
+      !Number.isInteger(limit) ||
+      limit < 1 ||
+      limit > 100
+    )
+      throw new BadRequestException('Некорректная пагинация');
     this.log('getUserFollowing', { userId, page, limit });
 
     const user = await this.userModel.findByPk(userId);
@@ -132,11 +148,17 @@ export class AuthorFollowService {
       include: [
         {
           model: AuthorProfile,
+          required: true,
+          where: { is_deleted: false },
+          attributes: ['user_id', 'avatar_path', 'biography', 'profession_id'],
           include: [
             {
               model: User,
+              required: true,
+              where: { is_deleted: false },
               attributes: ['id', 'name', 'surname'],
             },
+            { model: Profession, attributes: ['id', 'name'] },
           ],
         },
       ],
@@ -145,22 +167,33 @@ export class AuthorFollowService {
       offset,
     });
 
-    const data = await Promise.all(
-      rows.map(async (follow) => {
-        const author = follow.author;
-        const authorUser = author.user;
-
-        return {
-          author_id: follow.author_id,
-          author_name: authorUser?.name ?? '',
-          author_surname: authorUser?.surname ?? '',
-          avatar_path: author.avatar_path ?? null,
-          description: author.biography || 'Молодой художник',
-          followers_count: await this.getFollowersCount(follow.author_id),
-          followed_at: follow.created_at,
-        };
-      }),
+    const ids = rows.map((follow) => follow.author_id);
+    const counts = ids.length
+      ? await this.followModel.count({
+          where: { author_id: { [Op.in]: ids } },
+          group: ['author_id'],
+        })
+      : [];
+    const followers = new Map(
+      counts.map((row) => [Number(row.author_id), Number(row.count)]),
     );
+    const data = rows.map((follow) => {
+      const author = follow.author;
+      const authorUser = author.user;
+
+      return {
+        author_id: follow.author_id,
+        author_name: authorUser?.name ?? '',
+        author_surname: authorUser?.surname ?? '',
+        avatar_path: author.avatar_path ?? null,
+        description: author.biography || null,
+        profession: author.profession
+          ? { id: author.profession.id, name: author.profession.name }
+          : null,
+        followers_count: followers.get(follow.author_id) ?? 0,
+        followed_at: follow.created_at,
+      };
+    });
 
     return {
       data,
@@ -173,6 +206,17 @@ export class AuthorFollowService {
       where: { user_id: userId, author_id: authorId },
     });
     return { is_following: !!follow };
+  }
+
+  async unfollow(userId: number, authorId: number) {
+    await this.followModel.destroy({
+      where: { user_id: userId, author_id: authorId },
+    });
+    return {
+      success: true,
+      is_following: false,
+      followers_count: await this.getFollowersCount(authorId),
+    };
   }
 
   async getFollowersCount(authorId: number) {

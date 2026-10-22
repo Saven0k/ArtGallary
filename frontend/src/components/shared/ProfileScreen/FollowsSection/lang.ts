@@ -1,49 +1,68 @@
-
-
 export const followsTranslations = {
     ru: {
         follows: {
-            title: "Подписки",
-            empty: "Вы ещё ни на кого не подписаны",
-            error: "Не удалось загрузить подписки",
-            defaultSubtitle: "Молодой художник",
-            defaultAvatar: "/default-avatar.png",
-            goToProfile: "Перейти в профиль",
+            title: 'Подписки',
+            loading: 'Загрузка подписок…',
+            retry: 'Повторить',
+            unfollow: 'Отписаться',
+            unfollowing: 'Отписываем…',
+            unfollowError: 'Не удалось отписаться. Попробуйте ещё раз.',
+            unknownAuthor: 'Автор',
+            empty: 'Вы ещё ни на кого не подписаны',
+            error: 'Не удалось загрузить подписки',
+            defaultSubtitle: 'Автор',
+            defaultAvatar: '/default-avatar.png',
+            goToProfile: 'Перейти в профиль',
             pagination: {
-                prev: "← Назад",
-                next: "Вперёд →",
-                pageOf: "{page} / {total}"
-            }
-        }
+                label: 'Страницы подписок',
+                prev: '← Назад',
+                next: 'Вперёд →',
+                pageOf: '{page} / {total}',
+            },
+        },
     },
     en: {
         follows: {
-            title: "Following",
-            empty: "You are not following anyone yet",
-            error: "Failed to load subscriptions",
-            defaultSubtitle: "Young author",
-            defaultAvatar: "/default-avatar.png",
-            goToProfile: "Go to profile",
+            title: 'Following',
+            loading: 'Loading followed artists…',
+            retry: 'Try again',
+            unfollow: 'Unfollow',
+            unfollowing: 'Unfollowing…',
+            unfollowError: 'Could not unfollow. Please try again.',
+            unknownAuthor: 'Artist',
+            empty: 'You are not following anyone yet',
+            error: 'Failed to load subscriptions',
+            defaultSubtitle: 'Artist',
+            defaultAvatar: '/default-avatar.png',
+            goToProfile: 'Go to profile',
             pagination: {
-                prev: "← Back",
-                next: "Next →",
-                pageOf: "{page} / {total}"
-            }
-        }
+                label: 'Following pages',
+                prev: '← Back',
+                next: 'Next →',
+                pageOf: '{page} / {total}',
+            },
+        },
     },
     zh: {
         follows: {
-            title: "关注",
-            empty: "你还没有关注任何人",
-            error: "加载关注列表失败",
-            defaultSubtitle: "年轻艺术家",
-            defaultAvatar: "/default-avatar.png",
-            goToProfile: "查看主页",
+            title: '关注',
+            loading: '正在加载关注列表…',
+            retry: '重试',
+            unfollow: '取消关注',
+            unfollowing: '正在取消…',
+            unfollowError: '无法取消关注，请重试。',
+            unknownAuthor: '艺术家',
+            empty: '你还没有关注任何人',
+            error: '加载关注列表失败',
+            defaultSubtitle: '艺术家',
+            defaultAvatar: '/default-avatar.png',
+            goToProfile: '查看主页',
             pagination: {
-                prev: "← 上一页",
-                next: "下一页 →",
-                pageOf: "{page} / {total}"
-            }
-        }
-    }
+                label: '关注列表分页',
+                prev: '← 上一页',
+                next: '下一页 →',
+                pageOf: '{page} / {total}',
+            },
+        },
+    },
 };

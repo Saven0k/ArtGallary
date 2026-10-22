@@ -137,6 +137,7 @@ export interface Following {
     author_surname: string;
     avatar_path?: string | null;
     description?: string | null;
+    profession?: { id: number; name: string } | null;
     followers_count: number;
     followed_at: string;
 }
@@ -392,16 +393,29 @@ export const getAuthorFollowers = async (
 
 export const getUserFollowing = async (
     page: number = 1,
-    limit: number = 20
+    limit: number = 20,
+    signal?: AbortSignal,
 ): Promise<PaginatedResponse<Following> | null> => {
     try {
         const res = await apiFetch(`${BASE_URL}/following?page=${page}&limit=${limit}`, {
             credentials: "include",
+            signal,
         });
         if (!res.ok) throw new Error();
         return await res.json();
     } catch (e) {
-        console.error("getUserFollowing error:", e);
+        if (!signal?.aborted) console.error("getUserFollowing error:", e);
+        return null;
+    }
+};
+
+export const unfollowAuthor = async (authorId: number): Promise<{ success: boolean; is_following: boolean } | null> => {
+    try {
+        const response = await apiFetch(`${BASE_URL}/${authorId}/follow`, { method: 'DELETE' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('unfollowAuthor error:', error);
         return null;
     }
 };

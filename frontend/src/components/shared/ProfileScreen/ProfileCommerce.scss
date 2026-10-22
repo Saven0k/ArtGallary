@@ -1,0 +1,90 @@
+.profile-commerce {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    min-width: 0;
+    min-height: 864px;
+    padding: 32px clamp(24px, 3.4vw, 64px) 48px;
+    background: var(--bg-default);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-xl);
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.12);
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    &__title {
+        margin: 0;
+        font-size: clamp(24px, 2.5vw, 36px);
+        line-height: 1.2;
+        font-weight: 500;
+    }
+    &__state {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        min-height: 260px;
+        padding: 24px 0;
+        margin: 0;
+        color: var(--neutral-grey-600);
+        font-size: 14px;
+        line-height: 1.6;
+        text-align: center;
+    }
+    &__state p {
+        margin: 0;
+    }
+    &__retry {
+        display: block;
+        border: 1px solid var(--brand-primary-gold);
+        background: transparent;
+        color: var(--nav-brown);
+        border-radius: 8px;
+        padding: 10px 24px;
+        min-height: 44px;
+        font: inherit;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    &__retry:hover {
+        background: var(--brand-gold-light);
+    }
+    &__error {
+        margin: 0;
+        color: var(--error-background);
+        font-size: 13px;
+        line-height: 1.5;
+    }
+    :is(button, a, input):focus-visible {
+        outline: 2px solid var(--brand-primary-gold);
+        outline-offset: 4px;
+    }
+    button:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-commerce {
+        padding: 24px 20px;
+        min-height: 600px;
+        gap: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-commerce {
+        padding: 20px 14px;
+        min-height: 480px;
+        gap: 20px;
+        border-radius: 18px;
+    }
+}

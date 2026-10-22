@@ -1,4 +1,3 @@
-// src/pages/Profile/components/ProfileContent/Cart/Cart.tsx
 import { useEffect, useMemo, useState } from 'react';
 import { useCart } from '../../../../hooks/useCart';
 import { checkoutCart } from '../../../../api/cart-history/main.api';
@@ -12,14 +11,11 @@ import PromoBlock from './components/PromoBlock/PromoBlock';
 import TotalsBlock from './components/TotalsBlock/TotalsBlock';
 import EmptyCart from './components/EmptyCart/EmptyCart';
 import { cartTranslations } from './lang';
-import type { ArtPreview, CartLine, CartTotals, PromoCode } from './types';
-import {
-    PROMO_CODES,
-    clampQuantity,
-    isOriginalByPrice,
-    isPromoCode,
-} from './utils';
+import type { ArtPreview, CartLine, CartTotals } from './types';
+import { clampQuantity, isOriginalByPrice } from './utils';
+import { validatePromoCode, PromoCodeError, type AppliedPromoCode } from '../../../../api/promo-codes/main.api';
 import './CartSection.scss';
+import '../ProfileCommerce.scss';
 
 const Cart = () => {
     const { language } = useLanguage();
@@ -31,8 +27,9 @@ const Cart = () => {
     const [quantities, setQuantities] = useState<Record<number, number>>({});
     const [loading, setLoading] = useState(true);
     const [busy, setBusy] = useState(false);
-    const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
+    const [appliedPromo, setAppliedPromo] = useState<AppliedPromoCode | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [attempt, setAttempt] = useState(0);
 
     useEffect(() => {
         let active = true;
@@ -44,9 +41,13 @@ const Cart = () => {
             fetched.forEach((art) => {
                 if (!art) return;
                 next[art.id] = {
-                    id: art.id, title: art.title, imagePath: art.image_path,
+                    id: art.id,
+                    title: art.title,
+                    imagePath: art.image_path,
                     authorName: [art.author?.user?.surname, art.author?.user?.name].filter(Boolean).join(' ') || t.item.unknownAuthor,
-                    price: Number(art.cost) || 0, currency: art.currency ?? 'RUB',
+                    specifications: art.specifications ?? '',
+                    price: Math.round((Number(art.cost) || 0) * 100) / 100,
+                    currency: art.currency ?? 'RUB',
                     displayPrice: art.display_price,
                     isOriginal: isOriginalByPrice(Number(art.cost) || 0),
                 };
@@ -55,35 +56,35 @@ const Cart = () => {
             if (fetched.some((art) => !art)) setError(t.errors.loadFailed);
             setLoading(false);
         });
-        return () => { active = false; };
-    }, [artIds, language, t.errors.loadFailed, t.item.unknownAuthor]);
+        return () => {
+            active = false;
+        };
+    }, [artIds, language, t.errors.loadFailed, t.item.unknownAuthor, attempt]);
 
-    // ---------- derived ----------
     const lines: CartLine[] = useMemo(() => {
         return artIds
             .map((id) => {
                 const art = arts[id];
                 if (!art) return null;
                 const quantity = quantities[id] ?? 1;
-                return { ...art, quantity, total: art.price * quantity };
+                return { ...art, quantity, total: Math.round(art.price * quantity * 100) / 100 };
             })
             .filter((line): line is CartLine => line !== null);
     }, [artIds, arts, quantities]);
 
     const totals: CartTotals = useMemo(() => {
-        const subtotal = lines.reduce((sum, l) => sum + l.total, 0);
-        const percent = appliedPromo ? PROMO_CODES[appliedPromo] : 0;
-        const discount = Math.round((subtotal * percent) / 100);
+        const subtotal = Math.round(lines.reduce((sum, l) => sum + l.total, 0) * 100) / 100;
+        const percent = appliedPromo?.percent ?? 0;
+        const discount = Math.round(subtotal * percent) / 100;
         return {
             subtotal,
             discount,
-            total: subtotal - discount,
+            total: Math.round((subtotal - discount) * 100) / 100,
             currency: lines[0]?.currency ?? 'RUB',
             displayPrice: lines[0]?.displayPrice,
         };
     }, [lines, appliedPromo]);
 
-    // ---------- actions ----------
     const handleQuantity = (id: number, quantity: number) => {
         setQuantities((prev) => ({ ...prev, [id]: clampQuantity(quantity) }));
     };
@@ -93,7 +94,6 @@ const Cart = () => {
         setError(null);
         const updated = await removeFromCart(id);
         if (updated) {
-
             setQuantities((prev) => {
                 const copy = { ...prev };
                 delete copy[id];
@@ -110,7 +110,6 @@ const Cart = () => {
         setError(null);
         const updated = await clearCart();
         if (updated) {
-
             setQuantities({});
             setAppliedPromo(null);
         } else {
@@ -119,10 +118,18 @@ const Cart = () => {
         setBusy(false);
     };
 
-    const handleApplyPromo = (code: string): string | null => {
-        if (!isPromoCode(code)) return t.promo.invalid;
-        setAppliedPromo(code);
-        return null;
+    const handleApplyPromo = async (code: string): Promise<'invalid' | 'failed' | null> => {
+        if (busy) return null;
+        setBusy(true);
+        setError(null);
+        try {
+            setAppliedPromo(await validatePromoCode(code));
+            return null;
+        } catch (error) {
+            return error instanceof PromoCodeError && error.status === 400 ? 'invalid' : 'failed';
+        } finally {
+            setBusy(false);
+        }
     };
 
     const mixedCurrencies = new Set(lines.map((line) => line.currency)).size > 1;
@@ -131,19 +138,29 @@ const Cart = () => {
         setBusy(true);
         setError(null);
         try {
-            await checkoutCart({ items: lines.map((line) => ({ artId: line.id, quantity: line.isOriginal ? 1 : line.quantity })), promoCode: appliedPromo ?? undefined });
+            await checkoutCart({
+                items: lines.map((line) => ({ artId: line.id, quantity: line.isOriginal ? 1 : line.quantity })),
+                promoCode: appliedPromo?.code,
+            });
             await reload();
             navigate('/profile?section=history');
         } catch (e) {
-            setError(errorMessage(e, t.errors.loadFailed));
-        } finally { setBusy(false); }
+            if (e instanceof Error && e.message === 'PROMO_CODE_INVALID') {
+                setAppliedPromo(null);
+                setError(t.promo.invalid);
+            } else setError(errorMessage(e, t.errors.checkoutFailed));
+        } finally {
+            setBusy(false);
+        }
     };
 
-    // ---------- render ----------
     if (loading || cartLoading) {
         return (
-            <section className="profile-cart profile-cart--loading">
-                {t.loading}
+            <section className="profile-commerce profile-cart" aria-busy="true">
+                <h2 className="profile-commerce__title">{t.title}</h2>
+                <p className="profile-commerce__state" role="status">
+                    {t.loading}
+                </p>
             </section>
         );
     }
@@ -153,15 +170,12 @@ const Cart = () => {
     }
 
     return (
-        <section className="profile-cart">
-            <header className="profile-cart__header">
-                <h2 className="profile-cart__title">{t.title}</h2>
-                <button
-                    type="button"
-                    className="profile-cart__clear"
-                    onClick={handleClear}
-                    disabled={busy}
-                >
+        <section className="profile-commerce profile-cart" aria-labelledby="cart-title">
+            <header className="profile-commerce__header">
+                <h2 className="profile-commerce__title" id="cart-title">
+                    {t.title}
+                </h2>
+                <button type="button" className="profile-cart__clear" onClick={handleClear} disabled={busy}>
                     {t.clear}
                 </button>
             </header>
@@ -179,17 +193,28 @@ const Cart = () => {
                 ))}
             </div>
 
-            <PromoBlock
-                busy={busy}
-                language={language as Language}
-                appliedPromo={appliedPromo}
-                onApply={handleApplyPromo}
-                onRemove={() => setAppliedPromo(null)}
-            />
+            {lines.length > 0 && (
+                <PromoBlock
+                    busy={busy}
+                    language={language as Language}
+                    appliedPromo={appliedPromo}
+                    onApply={handleApplyPromo}
+                    onRemove={() => setAppliedPromo(null)}
+                />
+            )}
 
-            {(error || mixedCurrencies) && <div className="profile-cart__error" role="alert">{error || t.errors.mixedCurrencies}</div>}
+            {(error || mixedCurrencies) && (
+                <div className="profile-cart__error" role="alert">
+                    {error || t.errors.mixedCurrencies}
+                    {lines.length !== artIds.length && (
+                        <button type="button" className="profile-commerce__retry" onClick={() => setAttempt((value) => value + 1)}>
+                            {t.retry}
+                        </button>
+                    )}
+                </div>
+            )}
 
-            {!mixedCurrencies && <TotalsBlock totals={totals} language={language as Language} />}
+            {!mixedCurrencies && lines.length > 0 && <TotalsBlock totals={totals} language={language as Language} />}
 
             <button
                 type="button"

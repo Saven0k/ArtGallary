@@ -5,10 +5,13 @@ export interface GenderStats {
 }
 
 export interface AgeStats {
-  '18-25': number;
-  '26-35': number;
-  '36-50': number;
-  '50+': number;
+  '<18': number;
+  '18-24': number;
+  '25-34': number;
+  '35-44': number;
+  '45-54': number;
+  '55+': number;
+  unknown: number;
 }
 
 export interface CountryStats {
@@ -24,6 +27,19 @@ export interface TimelineData {
 
 export interface AuthorStatsResponse {
   authorId: number;
+  newFollowers: number;
+  changes: {
+    likes: number | null;
+    views: number | null;
+    followers: number | null;
+  };
+  popularArts: {
+    id: number;
+    title: string;
+    image_path: string;
+    likes: number;
+    views: number;
+  }[];
 
   totalLikes: number;
   totalViews: number;

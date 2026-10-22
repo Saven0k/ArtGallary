@@ -7,6 +7,7 @@
 - `frontend/` — React 19, TypeScript, Vite, SCSS.
 - `server/` — NestJS 11, Sequelize, PostgreSQL.
 - `deploy/` — Docker, nginx/Caddy и обновление на Windows.
+- [Промокоды](docs/PROMO-CODES.md) — управление в админке, проверка в корзине, API и миграция БД.
 - `docs/database/` — [диаграмма БД](docs/database/README.md): 35 таблиц, 277 полей, редактируемый draw.io и обзор в SVG/PNG.
 
 ## Локальный запуск

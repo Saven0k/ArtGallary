@@ -1,77 +1,49 @@
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { statisticsTranslations } from '../lang';
-import type { TooltipItem } from "chart.js";
+import type { GenderStatsData } from '../../../../../api/stats/main.api';
+import { toPercent } from './utils';
 
-import { useMemo } from "react";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Doughnut } from "react-chartjs-2";
-import type { GenderStatsData } from "../../../../../api/stats/main.api";
-import { CHART_COLORS, legendStyle, toPercent, tooltipStyle } from "./utils";
-import "./Charts.scss";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-interface GenderChartProps {
-    data: GenderStatsData;
-}
-
-const GenderChart = ({ data }: GenderChartProps) => {
+const GenderChart = ({ data }: { data: GenderStatsData }) => {
     const { language } = useLanguage();
     const t = statisticsTranslations[language];
     const total = data.male + data.female + data.unknown;
-
-    const items = useMemo(() => {
-        return [
-            { name: t.female, value: toPercent(data.female, total) },
-            { name: t.male, value: toPercent(data.male, total) },
-            { name: t.unknown, value: toPercent(data.unknown, total) },
-        ].filter((item) => item.value > 0);
-    }, [data, total, t]);
-
-    const chartData = useMemo(
-        () => ({
-            labels: items.map((i) => i.name),
-            datasets: [
-                {
-                    data: items.map((i) => i.value),
-                    backgroundColor: CHART_COLORS.slice(0, items.length),
-                    borderColor: "#fff",
-                    borderWidth: 2,
-                },
-            ],
-        }),
-        [items],
-    );
-
-    const options = useMemo(
-        () => ({
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: "60%",
-            plugins: {
-                legend: legendStyle,
-                tooltip: {
-                    ...tooltipStyle,
-                    callbacks: {
-                        label: (ctx: TooltipItem<"doughnut">) => `${ctx.parsed}%`,
-                    },
-                },
-            },
-        }),
-        [],
-    );
-
+    const female = total ? (data.female / total) * 100 : 0;
+    const male = total ? (data.male / total) * 100 : 0;
+    const items = [
+        { label: t.female, value: data.female, color: '#BC9547' },
+        { label: t.male, value: data.male, color: '#D9D9D9' },
+        { label: t.unknown, value: data.unknown, color: '#727272' },
+    ].filter((item) => item.value > 0);
     return (
-        <div className="chart-container">
+        <section className="chart-container gender-chart">
             <h3 className="chart-title">{t.audience}</h3>
-            <div className="chart-wrapper chart-wrapper--donut">
-                {items.length === 0 ? (
-                    <div className="chart-empty">{t.empty}</div>
-                ) : (
-                    <Doughnut data={chartData} options={options} />
-                )}
-            </div>
-        </div>
+            {total ? (
+                <div className="gender-chart__body">
+                    <div
+                        className="gender-chart__donut"
+                        aria-hidden="true"
+                        style={{
+                            background: `conic-gradient(#BC9547 0% ${female}%, #D9D9D9 ${female}% ${female + male}%, #727272 ${female + male}% 100%)`,
+                        }}
+                    />
+                    <ul className="gender-chart__legend">
+                        {items.map((item) => (
+                            <li key={item.label}>
+                                <span
+                                    className="gender-chart__dot"
+                                    style={{ background: item.color }}
+                                    aria-hidden="true"
+                                />
+                                {item.label}
+                                <strong>{toPercent(item.value, total)}%</strong>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            ) : (
+                <p className="chart-empty">{t.empty}</p>
+            )}
+        </section>
     );
 };
 

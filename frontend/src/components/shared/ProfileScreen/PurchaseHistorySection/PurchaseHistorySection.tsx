@@ -1,236 +1,126 @@
+import { useEffect, useState } from 'react';
+import { getCartHistory, type OrderHistoryItem, type OrderStatus } from '../../../../api/cart-history/main.api';
+import { usePurchaseHistoryTranslation, type Language } from './lang';
+import { formatArtPrice } from '../../../../utils/art-price';
+import '../ProfileCommerce.scss';
+import './PurchaseHistorySection.scss';
 
-import { useCallback, useEffect, useState } from "react";
-import {
-    getCartHistory,
-    type OrderHistoryItem,
-    type OrderStatus,
-} from "../../../../api/cart-history/main.api";
-import { getArtById } from "../../../../api/arts/main.api";
-import {
-    usePurchaseHistoryTranslation,
-    type Language,
-} from "./lang";
-import "./PurchaseHistorySection.scss";
+type TabValue = 'all' | OrderStatus;
+const STATUS_TONE = { delivered: 'success', in_transit: 'warning', cancelled: 'danger' } as const;
 
-
-
-type TabValue = "all" | OrderStatus;
-
-interface ArtPreview {
-    id: number;
-    title: string;
-    imagePath: string;
-    authorName: string;
-    price: number;
-    currency: string;
-    specs: string;
-}
-
-interface PurchaseHistoryProps {
-    lang?: Language;
-}
-
-
-
-const STATUS_TONE: Record<OrderStatus, "success" | "warning" | "danger"> = {
-    delivered: "success",
-    in_transit: "warning",
-    cancelled: "danger",
-};
-
-const LOCALES: Record<Language, string> = {
-    ru: "ru-RU",
-    en: "en-US",
-    zh: "zh-CN",
-};
-
-
-
-const PurchaseHistory = ({ lang = "ru" }: PurchaseHistoryProps) => {
+const PurchaseHistory = ({ lang = 'ru' }: { lang?: Language }) => {
     const { t } = usePurchaseHistoryTranslation(lang);
-
-    const [tab, setTab] = useState<TabValue>("all");
+    const [tab, setTab] = useState<TabValue>('all');
     const [orders, setOrders] = useState<OrderHistoryItem[]>([]);
-    const [arts, setArts] = useState<Record<number, ArtPreview>>({});
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-
-
-
-    const formatDate = (iso: string): string => {
-        const d = new Date(iso);
-        if (Number.isNaN(d.getTime())) return iso;
-        return d.toLocaleDateString(LOCALES[lang], {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-        });
-    };
-
-    const formatPrice = (value: number, currency: string = "RUB"): string => {
-        try {
-            return new Intl.NumberFormat(LOCALES[lang], {
-                style: "currency",
-                currency,
-                maximumFractionDigits: 0,
-            }).format(value);
-        } catch {
-            return `${value.toLocaleString(LOCALES[lang])} ${currency}`;
-        }
-    };
-
-    const tabs: { value: TabValue; label: string }[] = [
-        { value: "all", label: t("tabs.all") },
-        { value: "delivered", label: t("tabs.delivered") },
-        { value: "in_transit", label: t("tabs.inTransit") },
-        { value: "cancelled", label: t("tabs.cancelled") },
-    ];
-
-
-    const load = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-
-        const filter = tab === "all" ? undefined : { status: tab };
-        const res = await getCartHistory(filter);
-
-        if (!res) {
-            setError(t("error"));
-            setLoading(false);
-            return;
-        }
-
-        setOrders(res.items);
-
-        const ids = Array.from(new Set(res.items.filter((order) => !order.items?.length).flatMap((o) => o.artIds)));
-        const missing = ids;
-
-        const fetched = await Promise.all(missing.map((id) => getArtById(id, lang)));
-
-        if (fetched.length > 0) {
-            setArts((prev) => {
-                const next = { ...prev };
-                fetched.forEach((art) => {
-                    if (!art) return;
-                    next[art.id] = {
-                        id: art.id,
-                        title: art.title,
-                        imagePath: art.image_path,
-                        authorName: art.author?.user?.surname || art.author?.user?.name || "",
-                        price: Number(art.cost) || 0,
-                        currency: art.currency ?? "RUB",
-                        specs: art.specifications ?? "",
-                    };
-                });
-                return next;
-            });
-        }
-
-        setLoading(false);
-
-    }, [tab, t, lang]);
+    const [error, setError] = useState(false);
+    const [attempt, setAttempt] = useState(0);
 
     useEffect(() => {
-        load();
-    }, [load]);
+        const controller = new AbortController();
+        setLoading(true);
+        setError(false);
+        void getCartHistory(tab === 'all' ? undefined : { status: tab }, controller.signal).then((result) => {
+            if (controller.signal.aborted) return;
+            setOrders(result?.items ?? []);
+            setError(!result);
+            setLoading(false);
+        });
+        return () => controller.abort();
+    }, [tab, lang, attempt]);
 
-
-    if (loading) {
-        return (
-            <section className="purchase-history purchase-history--loading">
-                {t("loading")}
-            </section>
-        );
-    }
-
-    if (error) {
-        return (
-            <section className="purchase-history purchase-history--error">
-                <p>{error}</p>
-                <button type="button" onClick={load}>
-                    {t("retry")}
-                </button>
-            </section>
-        );
-    }
+    const tabs: { value: TabValue; label: string }[] = [
+        { value: 'all', label: t('tabs.all') },
+        { value: 'delivered', label: t('tabs.delivered') },
+        { value: 'in_transit', label: t('tabs.inTransit') },
+        { value: 'cancelled', label: t('tabs.cancelled') },
+    ];
 
     return (
-        <section className="purchase-history">
-            <h2 className="purchase-history__title">{t("title")}</h2>
-
-            <div className="purchase-history__tabs">
-                {tabs.map((tb) => (
+        <section className="profile-commerce purchase-history" aria-labelledby="purchase-history-title" aria-busy={loading}>
+            <h2 className="profile-commerce__title" id="purchase-history-title">
+                {t('title')}
+            </h2>
+            <div className="purchase-history__tabs" role="group" aria-label={t('filter')}>
+                {tabs.map((item) => (
                     <button
-                        key={tb.value}
+                        key={item.value}
                         type="button"
-                        className={`purchase-history__tab ${
-                            tab === tb.value ? "is-active" : ""
-                        }`}
-                        onClick={() => setTab(tb.value)}
+                        className={`purchase-history__tab ${tab === item.value ? 'is-active' : ''}`}
+                        aria-pressed={tab === item.value}
+                        onClick={() => setTab(item.value)}
                     >
-                        {tb.label}
+                        {item.label}
                     </button>
                 ))}
             </div>
-
-            {orders.length === 0 ? (
-                <p className="purchase-history__empty">{t("empty")}</p>
+            {loading ? (
+                <p className="profile-commerce__state" role="status">
+                    {t('loading')}
+                </p>
+            ) : error ? (
+                <div className="profile-commerce__state" role="alert">
+                    <p>{t('error')}</p>
+                    <button type="button" className="profile-commerce__retry" onClick={() => setAttempt((value) => value + 1)}>
+                        {t('retry')}
+                    </button>
+                </div>
+            ) : orders.length === 0 ? (
+                <p className="profile-commerce__state">{t('empty')}</p>
             ) : (
                 <div className="purchase-history__list">
                     {orders.map((order) => (
                         <div className="purchase-history__order" key={order.id}>
                             {order.artIds.map((artId) => {
-                                const snapshot = order.items?.find((item) => item.artId === artId);
-                                const art = snapshot ? { id: snapshot.artId, title: snapshot.title, imagePath: snapshot.imagePath, price: snapshot.total, currency: snapshot.currency, authorName: "", specs: snapshot.quantity > 1 ? `× ${snapshot.quantity}` : "" } : arts[artId];
-                                if (!art) return null;
-
+                                const item = order.items?.find((line) => line.artId === artId);
+                                const title = item?.title || t('unknownArtwork');
                                 return (
-                                    <article
-                                        className="order-card"
-                                        key={`${order.id}-${artId}`}
-                                    >
-                                        <img
-                                            className="order-card__image"
-                                            src={art.imagePath}
-                                            alt={art.title}
-                                            onError={(e) => {
-                                                (e.currentTarget as HTMLImageElement).alt =
-                                                    t("noImage");
-                                            }}
-                                        />
-
+                                    <article className="order-card" key={artId}>
+                                        {item?.imagePath ? (
+                                            <img className="order-card__image" src={item.imagePath} alt={title} loading="lazy" />
+                                        ) : (
+                                            <div className="order-card__image order-card__placeholder">{t('noImage')}</div>
+                                        )}
                                         <div className="order-card__info">
-                                            <h4 className="order-card__title">
-                                                {art.title}
-                                            </h4>
-                                            <p className="order-card__author">
-                                                {art.authorName}
-                                            </p>
-                                            {art.specs && (
+                                            <h3 className="order-card__title">{title}</h3>
+                                            <p className="order-card__author">{item?.authorName || t('unknownAuthor')}</p>
+                                            {item?.specifications && (
+                                                <p className="order-card__specs">{item.specifications}</p>
+                                            )}
+                                            {item && item.quantity > 1 && (
                                                 <p className="order-card__specs">
-                                                    {art.specs}
+                                                    {t('quantity').replace('{count}', String(item.quantity))}
                                                 </p>
                                             )}
                                         </div>
-
                                         <div className="order-card__right">
-                                            <div className="order-card__price">
-                                                {formatPrice(art.price, art.currency)}
-                                            </div>
-                                            <div className="order-card__date">
-                                                {formatDate(order.createdAt)}
-                                            </div>
-                                            <div
-                                                className={`order-card__status order-card__status--${STATUS_TONE[order.status]}`}
+                                            <span className="order-card__price">
+                                                {item?.total != null
+                                                    ? formatArtPrice({ cost: item.total, currency: item.currency }, lang)
+                                                    : t('unknownPrice')}
+                                            </span>
+                                            <time className="order-card__date" dateTime={order.createdAt}>
+                                                {new Date(order.createdAt).toLocaleDateString(lang, {
+                                                    day: 'numeric',
+                                                    month: 'long',
+                                                    year: 'numeric',
+                                                })}
+                                            </time>
+                                            <span
+                                                className={`order-card__status order-card__status--${STATUS_TONE[order.status] ?? 'warning'}`}
                                             >
-                                                <span className="order-card__status-dot" />
+                                                <span className="order-card__status-dot" aria-hidden="true" />
                                                 {t(`statuses.${order.status}`)}
-                                            </div>
+                                            </span>
                                         </div>
                                     </article>
                                 );
                             })}
+                            {order.discount != null && order.discount > 0 && (
+                                <p className="purchase-history__order-total">
+                                    {t('orderTotal')}: {formatArtPrice({ cost: order.total, currency: order.currency }, lang)}
+                                </p>
+                            )}
                         </div>
                     ))}
                 </div>

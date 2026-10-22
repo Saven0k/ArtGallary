@@ -34,6 +34,7 @@ export const adminTranslations: Record<Language, AdminTranslations> = {
             professions: 'Профессии',
             events: 'События',
             ratings: 'Оценки и отзывы',
+            promoCodes: 'Промокоды',
         },
         common: {
             loading: 'Загрузка…',
@@ -63,6 +64,7 @@ export const adminTranslations: Record<Language, AdminTranslations> = {
             professions: 'Professions',
             events: 'Events',
             ratings: 'Ratings & reviews',
+            promoCodes: 'Promo codes',
         },
         common: {
             loading: 'Loading…',
@@ -92,6 +94,7 @@ export const adminTranslations: Record<Language, AdminTranslations> = {
             professions: '职业',
             events: '活动',
             ratings: '评分与评论',
+            promoCodes: '优惠码',
         },
         common: {
             loading: '加载中…',
@@ -120,7 +123,8 @@ export type AdminSectionId =
     | 'artTypes'
     | 'professions'
     | 'events'
-    | 'ratings';
+    | 'ratings'
+    | 'promoCodes';
 
 export interface AdminSectionConfig {
     id: AdminSectionId;
@@ -141,6 +145,7 @@ export const ADMIN_SECTIONS: AdminSectionConfig[] = [
     { id: 'professions', translationKey: 'professions', roles: ['admin'] },
     { id: 'events',      translationKey: 'events',      roles: ['admin'] },
     { id: 'ratings',     translationKey: 'ratings',     roles: ['admin'] },
+    { id: 'promoCodes',  translationKey: 'promoCodes',  roles: ['admin'] },
 ];
 
 export const isValidAdminSection = (s: string | null): s is AdminSectionId =>

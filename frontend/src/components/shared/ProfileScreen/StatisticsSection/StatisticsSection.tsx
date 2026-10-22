@@ -1,107 +1,231 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import "./Charts/Charts.scss";
-import { getAuthorStats, type AuthorStatsData, type StatsQuery } from "../../../../api/stats/main.api";
-import ViewsChart from "./Charts/ViewsChart";
-import GenderChart from "./Charts/GenderChart";
-import AgeChart from "./Charts/AgeChart";
-import CountriesChart from "./Charts/CountriesChart";
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+    getMyAuthorStats,
+    type AuthorStatsData,
+} from '../../../../api/stats/main.api';
 import { useLanguage } from '../../../../hooks/useLanguage';
+import ViewsChart from './Charts/ViewsChart';
+import GenderChart from './Charts/GenderChart';
+import AgeChart from './Charts/AgeChart';
+import CountriesChart from './Charts/CountriesChart';
 import { statisticsTranslations } from './lang';
+import { periodToFilter, type Period } from './Charts/utils';
+import likesIcon from './icons/likes.svg';
+import viewsIcon from './icons/views.svg';
+import followersIcon from './icons/followers.svg';
+import './Charts/Charts.scss';
 
-type Period = "week" | "month" | "year";
+const PERIODS: Period[] = ['week', 'month', 'year'];
 
-interface ProfileStatsProps {
-    authorId: number;
-}
-
-
-const periodToFilter = (period: Period): StatsQuery => {
-    const end = new Date();
-    const start = new Date(end);
-    if (period === "week") start.setDate(end.getDate() - 7);
-    else if (period === "month") start.setDate(end.getDate() - 30);
-    else start.setFullYear(end.getFullYear() - 1);
-
-    const iso = (d: Date) => d.toISOString().split("T")[0];
-    return { startDate: iso(start), endDate: iso(end) };
-};
-
-const Statistics = ({ authorId }: ProfileStatsProps) => {
+const Statistics = () => {
     const { language } = useLanguage();
     const t = statisticsTranslations[language];
     const [stats, setStats] = useState<AuthorStatsData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [period, setPeriod] = useState<Period>("month");
-
-    const filter = useMemo(() => periodToFilter(period), [period]);
-
-    const load = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        const res = await getAuthorStats(authorId, filter, language);
-        if (!res) setError(t.error);
-        setStats(res);
-        setLoading(false);
-    }, [authorId, filter, language, t.error]);
+    const [error, setError] = useState(false);
+    const [period, setPeriod] = useState<Period>('month');
+    const [attempt, setAttempt] = useState(0);
 
     useEffect(() => {
-        load();
-    }, [load]);
+        const controller = new AbortController();
+        setLoading(true);
+        setError(false);
+        setStats(null);
+        void getMyAuthorStats(
+            periodToFilter(period),
+            language,
+            controller.signal,
+        ).then((data) => {
+            if (controller.signal.aborted) return;
+            setStats(data);
+            setError(!data);
+            setLoading(false);
+        });
+        return () => controller.abort();
+    }, [period, language, attempt]);
 
-    if (loading) return <div className="stats-loading">{t.loading}</div>;
-    if (error) return <div className="stats-error">{error}</div>;
-    if (!stats) return <div className="stats-empty">{t.empty}</div>;
+    const number = (value: number) => value.toLocaleString(language);
+    const metrics = stats
+        ? [
+              {
+                  key: 'likes' as const,
+                  label: t.likes,
+                  value: stats.totalLikes,
+                  icon: likesIcon,
+              },
+              {
+                  key: 'views' as const,
+                  label: t.views,
+                  value: stats.totalViews,
+                  icon: viewsIcon,
+              },
+              {
+                  key: 'followers' as const,
+                  label: t.followers,
+                  value: stats.newFollowers,
+                  icon: followersIcon,
+              },
+          ]
+        : [];
 
     return (
-        <div className="profile-stats">
-            {                      }
-            <div className="stats-cards">
-                <div className="stats-card">
-                    <span className="stats-card__label">{t.likes}</span>
-                    <span className="stats-card__value">{stats.totalLikes}</span>
+        <section
+            className="author-statistics"
+            aria-labelledby="author-statistics-title"
+            aria-busy={loading}
+        >
+            <header className="author-statistics__header">
+                <h2 id="author-statistics-title">{t.title}</h2>
+                <div
+                    className="chart-period-buttons"
+                    role="group"
+                    aria-label={t.period}
+                >
+                    {PERIODS.map((item) => (
+                        <button
+                            key={item}
+                            type="button"
+                            className={`chart-period-btn ${period === item ? 'active' : ''}`}
+                            aria-pressed={period === item}
+                            onClick={() => setPeriod(item)}
+                        >
+                            {t[item]}
+                        </button>
+                    ))}
                 </div>
-                <div className="stats-card">
-                    <span className="stats-card__label">{t.views}</span>
-                    <span className="stats-card__value">{stats.totalViews}</span>
+            </header>
+            <p className="author-statistics__note">{t.comparison}</p>
+            {loading ? (
+                <p className="stats-loading" role="status">
+                    {t.loading}
+                </p>
+            ) : error || !stats ? (
+                <div className="stats-error" role="alert">
+                    <p>{t.error}</p>
+                    <button
+                        type="button"
+                        onClick={() => setAttempt((value) => value + 1)}
+                    >
+                        {t.retry}
+                    </button>
                 </div>
-                <div className="stats-card">
-                    <span className="stats-card__label">{t.unique}</span>
-                    <span className="stats-card__value">{stats.uniqueUsers}</span>
-                </div>
-                <div className="stats-card">
-                    <span className="stats-card__label">
-                        {t.artworksProfile}
-                    </span>
-                    <span className="stats-card__value">
-                        {stats.artViews} / {stats.authorViews}
-                    </span>
-                </div>
-            </div>
-
-            {                  }
-            <div className="stats-grid">
-                <div className="stats-grid__wide">
-                    <ViewsChart
-                        data={stats.viewsTimeline}
-                        period={period}
-                        onPeriodChange={setPeriod}
-                    />
-                </div>
-
-                <div className="stats-grid__narrow">
-                    <GenderChart data={stats.viewsByGender} />
-                </div>
-
-                <div className="stats-grid__narrow">
-                    <AgeChart data={stats.viewsByAge} />
-                </div>
-
-                <div className="stats-grid__narrow">
-                    <CountriesChart data={stats.viewsByCountry} />
-                </div>
-            </div>
-        </div>
+            ) : (
+                <>
+                    <div className="author-statistics__summary">
+                        <div className="stats-cards">
+                            {metrics.map((metric) => {
+                                const change = stats.changes[metric.key];
+                                return (
+                                    <article
+                                        className="stats-card"
+                                        key={metric.key}
+                                    >
+                                        <img
+                                            src={metric.icon}
+                                            alt=""
+                                            className="stats-card__icon"
+                                        />
+                                        <div className="stats-card__content">
+                                            <span className="stats-card__value">
+                                                {number(metric.value)}
+                                            </span>
+                                            <h3 className="stats-card__label">
+                                                {metric.label}
+                                            </h3>
+                                            <span
+                                                title={
+                                                    change === null
+                                                        ? t.noComparison
+                                                        : t.comparison
+                                                }
+                                                className={`stats-card__change ${change !== null && change < 0 ? 'stats-card__change--negative' : ''}`}
+                                            >
+                                                {change === null
+                                                    ? '—'
+                                                    : `${change > 0 ? '+' : ''}${number(change)}%`}
+                                            </span>
+                                        </div>
+                                    </article>
+                                );
+                            })}
+                        </div>
+                        <GenderChart data={stats.viewsByGender} />
+                    </div>
+                    <ViewsChart data={stats.viewsTimeline} />
+                    <div className="author-statistics__details">
+                        <div className="author-statistics__audience">
+                            <AgeChart data={stats.viewsByAge} />
+                            <CountriesChart
+                                data={stats.viewsByCountry}
+                                total={stats.artViews}
+                            />
+                        </div>
+                        <section
+                            className="chart-container popular-arts"
+                            aria-labelledby="popular-arts-title"
+                        >
+                            <h3 className="chart-title" id="popular-arts-title">
+                                {t.popular}
+                            </h3>
+                            {stats.popularArts.length ? (
+                                <div className="popular-arts__grid">
+                                    {stats.popularArts.map((art) => (
+                                        <Link
+                                            key={art.id}
+                                            to={`/arts/${art.id}`}
+                                            className="popular-art"
+                                        >
+                                            {art.image_path ? (
+                                                <img
+                                                    className="popular-art__image"
+                                                    src={art.image_path}
+                                                    alt={art.title}
+                                                    loading="lazy"
+                                                />
+                                            ) : (
+                                                <div className="popular-art__placeholder">
+                                                    {t.noImage}
+                                                </div>
+                                            )}
+                                            <h4>{art.title}</h4>
+                                            <div className="popular-art__counts">
+                                                <span>
+                                                    <img
+                                                        src={likesIcon}
+                                                        alt=""
+                                                    />
+                                                    <span className="visually-hidden">
+                                                        {t.likes}:{' '}
+                                                    </span>
+                                                    {number(art.likes)}
+                                                </span>
+                                                <span>
+                                                    <img
+                                                        src={viewsIcon}
+                                                        alt=""
+                                                    />
+                                                    <span className="visually-hidden">
+                                                        {t.views}:{' '}
+                                                    </span>
+                                                    {number(art.views)}
+                                                </span>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="chart-empty">{t.emptyArts}</p>
+                            )}
+                            <p className="author-statistics__note">
+                                {t.ranking}
+                            </p>
+                        </section>
+                    </div>
+                    <p className="author-statistics__note">{t.audienceNote}</p>
+                </>
+            )}
+        </section>
     );
 };
 

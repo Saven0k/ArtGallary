@@ -1,6 +1,5 @@
-
-import { useEffect, useState, type JSX } from 'react';
-import { Heart, UserPlus, BadgeCheck, Palette, Bell, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState, type JSX } from 'react';
+import { Heart, UserRound, BadgeCheck, Palette, Bell } from 'lucide-react';
 import {
     getNotifications,
     markAllNotificationsAsRead,
@@ -16,13 +15,19 @@ import { notificationsTranslations } from './lang';
 import NotificationCard from './NotificationCard/NotificationCard';
 import './NotificationSection.scss';
 
-
 const ICONS: Record<NotificationType, JSX.Element> = {
-    art_like: <Heart size={22} />,
-    author_like: <BadgeCheck size={22} />,
-    new_follower: <UserPlus size={22} />,
-    new_art: <Palette size={22} />,
+    art_like: <Heart size={40} fill="currentColor" strokeWidth={0} />,
+    author_like: <BadgeCheck size={40} strokeWidth={1.5} />,
+    new_follower: <UserRound size={40} strokeWidth={1.5} />,
+    new_art: <Palette size={40} strokeWidth={1.5} />,
 };
+
+const TYPE_LABELS = {
+    art_like: 'artLike',
+    author_like: 'authorLike',
+    new_follower: 'newFollower',
+    new_art: 'newArt',
+} as const;
 
 const formatTime = (iso: string, lang: string) => {
     const d = new Date(iso);
@@ -48,12 +53,21 @@ const Notifications = () => {
     const [page, setPage] = useState(1);
     const [hasNextPage, setHasNextPage] = useState(false);
     const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
-
+    const [loadError, setLoadError] = useState(false);
+    const [actionError, setActionError] = useState(false);
+    const [pending, setPending] = useState(false);
+    const [attempt, setAttempt] = useState(0);
+    const version = useRef(0);
+    const confirmRef = useRef<HTMLDialogElement>(null);
 
     useEffect(() => {
         let alive = true;
+        version.current++;
         (async () => {
             setLoading(true);
+            setLoadingMore(false);
+            setLoadError(false);
+            setActionError(false);
             const res = await getNotifications(1, 20);
             if (!alive) return;
             if (res) {
@@ -61,116 +75,177 @@ const Notifications = () => {
                 setUnreadCount(res.unread_count);
                 setPage(1);
                 setHasNextPage(res.pagination.hasNextPage);
+            } else {
+                setLoadError(true);
             }
             setLoading(false);
         })();
         return () => {
             alive = false;
         };
-    }, [language]);
+    }, [language, attempt]);
+
+    useEffect(() => {
+        if (confirmDeleteAll) confirmRef.current?.showModal();
+    }, [confirmDeleteAll]);
+
+    const runAction = async (
+        action: () => Promise<{ success: boolean } | null>,
+        success: () => void,
+    ) => {
+        if (pending) return;
+        setPending(true);
+        setActionError(false);
+        const result = await action();
+        if (result?.success) {
+            success();
+            if (typeof window !== 'undefined')
+                window.dispatchEvent(
+                    new Event('gallery:notifications-updated'),
+                );
+        } else setActionError(true);
+        setPending(false);
+    };
 
     const handleLoadMore = async () => {
-        if (loadingMore || !hasNextPage) return;
+        if (loadingMore || pending || !hasNextPage) return;
+        const requestVersion = version.current;
+        setActionError(false);
         setLoadingMore(true);
         const next = page + 1;
         const res = await getNotifications(next, 20);
+        if (requestVersion !== version.current) return;
         if (res) {
-            setItems((prev) => [...prev, ...res.data]);
+            setItems((prev) => [
+                ...prev,
+                ...res.data.filter(
+                    (item) => !prev.some((existing) => existing.id === item.id),
+                ),
+            ]);
             setUnreadCount(res.unread_count);
             setPage(next);
             setHasNextPage(res.pagination.hasNextPage);
-        }
+        } else setActionError(true);
         setLoadingMore(false);
     };
 
     const handleCardClick = async (n: NotificationItem) => {
+        if (pending || loadingMore) return;
         if (n.status === 'unread') {
-            const r = await markNotificationAsRead(n.id);
-            if (r) {
-                setItems((prev) =>
-                    prev.map((it) =>
-                        it.id === n.id ? { ...it, status: 'read' } : it,
-                    ),
-                );
-                setUnreadCount((c) => Math.max(0, c - 1));
-            }
+            await runAction(
+                () => markNotificationAsRead(n.id),
+                () => {
+                    setItems((prev) =>
+                        prev.map((it) =>
+                            it.id === n.id ? { ...it, status: 'read' } : it,
+                        ),
+                    );
+                    setUnreadCount((c) => Math.max(0, c - 1));
+                },
+            );
         }
         if (n.link) navigate(n.link);
     };
 
     const handleDeleteOne = async (n: NotificationItem) => {
-        const r = await deleteNotification(n.id);
-        if (r) {
-            setItems((prev) => prev.filter((it) => it.id !== n.id));
-            if (n.status === 'unread') {
-                setUnreadCount((c) => Math.max(0, c - 1));
-            }
-        }
+        await runAction(
+            () => deleteNotification(n.id),
+            () => {
+                setItems((prev) => prev.filter((it) => it.id !== n.id));
+                if (n.status === 'unread') {
+                    setUnreadCount((c) => Math.max(0, c - 1));
+                }
+            },
+        );
     };
 
     const handleMarkAllRead = async () => {
-        const r = await markAllNotificationsAsRead();
-        if (r) {
+        await runAction(markAllNotificationsAsRead, () => {
             setItems((prev) => prev.map((it) => ({ ...it, status: 'read' })));
             setUnreadCount(0);
-        }
+        });
     };
 
     const handleDeleteAll = async () => {
-        const r = await deleteAllNotifications();
-        if (r) {
+        await runAction(deleteAllNotifications, () => {
             setItems([]);
             setUnreadCount(0);
             setHasNextPage(false);
-        }
-        setConfirmDeleteAll(false);
+            setPage(1);
+            setConfirmDeleteAll(false);
+        });
     };
 
-    if (loading) {
-        return (
-            <section className="notifications">
-                <div className="notifications__loading">{t.loading}</div>
-            </section>
-        );
-    }
-
     return (
-        <section className="notifications">
+        <section
+            className="notifications"
+            aria-labelledby="notifications-title"
+            aria-busy={loading}
+        >
             <header className="notifications__header">
                 <div className="notifications__header-row">
-                    <h2 className="notifications__title">
+                    <h2
+                        className="notifications__title"
+                        id="notifications-title"
+                    >
                         {t.title}
-                        {unreadCount > 0 && (
-                            <span className="notifications__badge">{unreadCount}</span>
+                        {!loading && !loadError && unreadCount > 0 && (
+                            <span className="notifications__badge">
+                                {unreadCount}
+                            </span>
                         )}
                     </h2>
 
                     <div className="notifications__actions">
-                        {unreadCount > 0 && (
+                        {!loading && !loadError && unreadCount > 0 && (
                             <button
                                 type="button"
                                 className="notifications__mark-all"
                                 onClick={handleMarkAllRead}
+                                disabled={pending || loadingMore}
                             >
                                 {t.markAllRead}
                             </button>
                         )}
 
-                        {items.length > 0 && (
+                        {!loading && !loadError && items.length > 0 && (
                             <button
                                 type="button"
                                 className="notifications__delete-all"
-                                onClick={() => setConfirmDeleteAll(true)}
+                                onClick={() => {
+                                    setActionError(false);
+                                    setConfirmDeleteAll(true);
+                                }}
+                                disabled={pending || loadingMore}
                             >
                                 {t.deleteAll}
-                                <Trash2 size={14} />
                             </button>
                         )}
                     </div>
                 </div>
             </header>
 
-            {items.length === 0 ? (
+            {actionError && !confirmDeleteAll && (
+                <p className="notifications__error" role="alert">
+                    {t.actionError}
+                </p>
+            )}
+            {loading ? (
+                <div className="notifications__loading" role="status">
+                    {t.loading}
+                </div>
+            ) : loadError ? (
+                <div className="notifications__empty" role="alert">
+                    <p>{t.error}</p>
+                    <button
+                        type="button"
+                        className="notifications__more"
+                        onClick={() => setAttempt((value) => value + 1)}
+                    >
+                        {t.retry}
+                    </button>
+                </div>
+            ) : items.length === 0 ? (
                 <div className="notifications__empty">
                     <Bell size={32} />
                     <p>{t.empty}</p>
@@ -180,20 +255,20 @@ const Notifications = () => {
                     {items.map((n) => (
                         <NotificationCard
                             key={n.id}
-                            icon={ICONS[n.type] ?? <Bell size={22} />}
+                            icon={
+                                ICONS[n.type] ?? (
+                                    <Bell size={40} strokeWidth={1.5} />
+                                )
+                            }
                             title={
-                                t.types[
-                                    n.type === 'art_like'
-                                        ? 'artLike'
-                                        : n.type === 'author_like'
-                                        ? 'authorLike'
-                                        : n.type === 'new_follower'
-                                        ? 'newFollower'
-                                        : 'newArt'
-                                ]
+                                TYPE_LABELS[n.type]
+                                    ? t.types[TYPE_LABELS[n.type]]
+                                    : t.fallbackUnknown
                             }
                             description={n.message}
                             time={formatTime(n.created_at, language)}
+                            dateTime={n.created_at}
+                            disabled={pending || loadingMore}
                             unread={n.status === 'unread'}
                             onClick={() => handleCardClick(n)}
                             onDelete={() => handleDeleteOne(n)}
@@ -205,7 +280,7 @@ const Notifications = () => {
                             type="button"
                             className="notifications__more"
                             onClick={handleLoadMore}
-                            disabled={loadingMore}
+                            disabled={loadingMore || pending}
                         >
                             {loadingMore ? t.loading : t.loadMore}
                         </button>
@@ -214,33 +289,41 @@ const Notifications = () => {
             )}
 
             {confirmDeleteAll && (
-                <div
-                    className="notifications__confirm-overlay"
-                    onClick={() => setConfirmDeleteAll(false)}
+                <dialog
+                    ref={confirmRef}
+                    className="notifications__confirm"
+                    aria-labelledby="notifications-confirm-title"
+                    onCancel={(event) => {
+                        if (pending) event.preventDefault();
+                        else setConfirmDeleteAll(false);
+                    }}
                 >
-                    <div
-                        className="notifications__confirm"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <p>{t.deleteAllConfirm}</p>
-                        <div className="notifications__confirm-actions">
-                            <button
-                                type="button"
-                                className="notifications__confirm-btn notifications__confirm-btn--secondary"
-                                onClick={() => setConfirmDeleteAll(false)}
-                            >
-                                {t.cancel}
-                            </button>
-                            <button
-                                type="button"
-                                className="notifications__confirm-btn notifications__confirm-btn--danger"
-                                onClick={handleDeleteAll}
-                            >
-                                {t.yesDeleteAll}
-                            </button>
-                        </div>
+                    <h3 id="notifications-confirm-title">{t.deleteAll}</h3>
+                    <p>{t.deleteAllConfirm}</p>
+                    {actionError && (
+                        <p className="notifications__error" role="alert">
+                            {t.actionError}
+                        </p>
+                    )}
+                    <div className="notifications__confirm-actions">
+                        <button
+                            type="button"
+                            className="notifications__confirm-btn notifications__confirm-btn--secondary"
+                            onClick={() => setConfirmDeleteAll(false)}
+                            disabled={pending}
+                        >
+                            {t.cancel}
+                        </button>
+                        <button
+                            type="button"
+                            className="notifications__confirm-btn notifications__confirm-btn--danger"
+                            onClick={handleDeleteAll}
+                            disabled={pending}
+                        >
+                            {t.yesDeleteAll}
+                        </button>
                     </div>
-                </div>
+                </dialog>
             )}
         </section>
     );

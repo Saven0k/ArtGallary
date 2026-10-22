@@ -124,7 +124,7 @@ const ProfilePage = () => {
             case "notifications":
                 return <Notifications />;
             case "statistics":
-                return isAuthor ? <Statistics authorId={userId} /> : null;
+                return isAuthor ? <Statistics key={authUser?.id} /> : null;
             case "settings":
                 return <Settings id={userId} role={userRole} />;
             case "likes":

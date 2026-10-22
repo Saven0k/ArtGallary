@@ -154,6 +154,7 @@ node deploy/windows/prepare.cjs
 ```powershell
 & 'C:\Program Files\PostgreSQL\17\bin\psql.exe' -h 127.0.0.1 -p 5432 -U postgres -d gallery -v ON_ERROR_STOP=1 -f .\deploy\sql\20261008-cart-history-pricing.sql
 & 'C:\Program Files\PostgreSQL\17\bin\psql.exe' -h 127.0.0.1 -p 5432 -U postgres -d gallery -v ON_ERROR_STOP=1 -f .\deploy\sql\20261008-notification-delivery.sql
+& 'C:\Program Files\PostgreSQL\17\bin\psql.exe' -h 127.0.0.1 -p 5432 -U postgres -d gallery -v ON_ERROR_STOP=1 -f .\deploy\sql\20261022-promo-codes.sql
 ```
 
 Повторный запуск этих SQL на актуальной схеме предусмотрен. Если старая БД существенно отличается и SQL заканчивается ошибкой, не включай `alter` наугад.

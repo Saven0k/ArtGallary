@@ -15,7 +15,7 @@ export interface OrderHistoryItem {
     artIds: number[];
     status: OrderStatus;
     createdAt: string;
-    items?: { artId: number; title: string; imagePath: string; price: number; quantity: number; currency: string; total: number }[];
+    items?: { artId: number; title: string; imagePath: string; authorName?: string; specifications?: string; price: number | null; quantity: number; currency: string; total: number | null }[];
     subtotal?: number;
     discount?: number;
     total?: number;
@@ -46,7 +46,7 @@ const request = async <T>(
         }
         return (await res.json()) as T;
     } catch (e) {
-        console.error("cart-history api error:", e);
+        if (!init?.signal?.aborted) console.error("cart-history api error:", e);
         return null;
     }
 };
@@ -64,14 +64,14 @@ const json = (body: unknown): RequestInit => ({
 
 
 
-export const getCartHistory = (filter?: HistoryFilter) =>
-    request<OrderHistoryResponse>(`${BASE_URL}${buildQuery(filter)}`);
+export const getCartHistory = (filter?: HistoryFilter, signal?: AbortSignal) =>
+    request<OrderHistoryResponse>(`${BASE_URL}${buildQuery(filter)}`, { signal });
 
 export const checkoutCart = async (payload: { items: { artId: number; quantity: number }[]; promoCode?: string }): Promise<OrderHistoryItem> => {
     const res = await apiFetch(`${BASE_URL}/checkout`, json(payload));
     if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.message || apiErrorText('checkout'));
+        throw new Error(data?.code || data?.message || apiErrorText('checkout'));
     }
     return res.json();
 };

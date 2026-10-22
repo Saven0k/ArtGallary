@@ -7,6 +7,7 @@ export interface CartTranslations {
     loading: string;
     empty: string;
     emptyAction: string;
+    retry: string;
 
     item: {
         original: string;
@@ -23,6 +24,7 @@ export interface CartTranslations {
         applied: string;
         remove: string;
         invalid: string;
+        failed: string;
     };
 
     totals: {
@@ -40,6 +42,7 @@ export interface CartTranslations {
         removeFailed: string;
         clearFailed: string;
         mixedCurrencies: string;
+        checkoutFailed: string;
     };
 }
 
@@ -50,6 +53,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
         loading: 'Загрузка…',
         empty: 'В корзине пока пусто',
         emptyAction: 'Перейти к покупкам',
+        retry: 'Повторить',
         item: {
             original: 'Оригинал',
             poster: 'Постер',
@@ -64,6 +68,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
             applied: 'Применён',
             remove: 'Убрать промокод',
             invalid: 'Промокод недействителен',
+            failed: 'Не удалось проверить промокод. Попробуйте ещё раз.',
         },
         totals: {
             subtotal: 'Товары',
@@ -75,6 +80,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
         checkout: 'Оформить заказ',
         errors: {
             loadFailed: 'Не удалось загрузить корзину',
+            checkoutFailed: 'Не удалось оформить заказ',
             removeFailed: 'Не удалось удалить позицию',
             clearFailed: 'Не удалось очистить корзину',
             mixedCurrencies: 'Работы в разных валютах нужно оформить отдельно',
@@ -86,6 +92,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
         loading: 'Loading…',
         empty: 'Your cart is empty',
         emptyAction: 'Browse artworks',
+        retry: 'Try again',
         item: {
             original: 'Original',
             poster: 'Poster',
@@ -100,6 +107,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
             applied: 'Applied',
             remove: 'Remove promo code',
             invalid: 'Invalid promo code',
+            failed: 'Could not check the promo code. Please try again.',
         },
         totals: {
             subtotal: 'Items',
@@ -111,6 +119,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
         checkout: 'Checkout',
         errors: {
             loadFailed: 'Failed to load cart',
+            checkoutFailed: 'Could not place the order',
             removeFailed: 'Failed to remove item',
             clearFailed: 'Failed to clear cart',
             mixedCurrencies: 'Please order artworks in different currencies separately',
@@ -122,6 +131,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
         loading: '加载中…',
         empty: '购物车为空',
         emptyAction: '去逛逛',
+        retry: '重试',
         item: {
             original: '原作',
             poster: '海报',
@@ -136,6 +146,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
             applied: '已应用',
             remove: '移除优惠码',
             invalid: '优惠码无效',
+            failed: '无法验证优惠码，请重试。',
         },
         totals: {
             subtotal: '商品',
@@ -147,6 +158,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
         checkout: '去结算',
         errors: {
             loadFailed: '加载购物车失败',
+            checkoutFailed: '无法提交订单',
             removeFailed: '删除商品失败',
             clearFailed: '清空购物车失败',
             mixedCurrencies: '不同货币的作品请分开结算',
@@ -154,10 +166,7 @@ export const cartTranslations: Record<Language, CartTranslations> = {
     },
 };
 
-export const getCartTranslation = (
-    lang: Language,
-    path: string,
-): string => {
+export const getCartTranslation = (lang: Language, path: string): string => {
     return translatedValue(cartTranslations[lang], path);
 };
 

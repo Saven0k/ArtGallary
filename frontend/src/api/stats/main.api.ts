@@ -1,10 +1,8 @@
 import { apiFetch } from '../request';
 
-import { BASE_URL_API } from "../main.api";
+import { BASE_URL_API } from '../main.api';
 
 const BASE_URL = `${BASE_URL_API}/stats`;
-
-
 
 export interface GenderStatsData {
     male: number;
@@ -13,10 +11,13 @@ export interface GenderStatsData {
 }
 
 export interface AgeStatsData {
-    '18-25': number;
-    '26-35': number;
-    '36-50': number;
-    '50+': number;
+    '<18': number;
+    '18-24': number;
+    '25-34': number;
+    '35-44': number;
+    '45-54': number;
+    '55+': number;
+    unknown: number;
 }
 
 export interface CountryStatsItem {
@@ -49,6 +50,19 @@ export interface BaseStats {
 
 export interface AuthorStatsData extends BaseStats {
     authorId: number;
+    newFollowers: number;
+    changes: {
+        likes: number | null;
+        views: number | null;
+        followers: number | null;
+    };
+    popularArts: {
+        id: number;
+        title: string;
+        image_path: string;
+        likes: number;
+        views: number;
+    }[];
     artViews: number;
     authorViews: number;
 }
@@ -69,8 +83,6 @@ export interface StatsQuery {
     countryId?: number;
 }
 
-
-
 const buildQuery = (filter?: StatsQuery): string => {
     if (!filter) return '';
     const params = new URLSearchParams();
@@ -83,36 +95,34 @@ const buildQuery = (filter?: StatsQuery): string => {
     return qs ? `?${qs}` : '';
 };
 
-
-
-export const getAuthorStats = async (
-    authorId: number,
+export const getMyAuthorStats = async (
     filter?: StatsQuery,
     lang = 'ru',
+    signal?: AbortSignal,
 ): Promise<AuthorStatsData | null> => {
     try {
         const query = buildQuery(filter);
         const res = await apiFetch(
-            `${BASE_URL}/author/${authorId}${query}${query ? '&' : '?'}lang=${lang}`,
-            { credentials: 'include' },
+            `${BASE_URL}/me${query}${query ? '&' : '?'}lang=${lang}`,
+            { credentials: 'include', signal },
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return await res.json();
     } catch (e) {
-        console.error('getAuthorStats error:', e);
+        if (!signal?.aborted) console.error('getMyAuthorStats error:', e);
         return null;
     }
 };
 
-
-
 export const getArtStats = async (
     artId: number,
     filter?: StatsQuery,
+    lang = 'ru',
 ): Promise<ArtStatsData | null> => {
     try {
+        const query = buildQuery(filter);
         const res = await apiFetch(
-            `${BASE_URL}/art/${artId}${buildQuery(filter)}`,
+            `${BASE_URL}/art/${artId}${query}${query ? '&' : '?'}lang=${lang}`,
             { credentials: 'include' },
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);

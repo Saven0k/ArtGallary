@@ -1,5 +1,3 @@
-
-
 export type Language = 'ru' | 'en' | 'zh';
 
 export interface NotificationsTranslations {
@@ -13,6 +11,10 @@ export interface NotificationsTranslations {
     deleteAllConfirm: string;
     yesDeleteAll: string;
     cancel: string;
+    unread: string;
+    error: string;
+    actionError: string;
+    retry: string;
 
     types: {
         artLike: string;
@@ -24,9 +26,16 @@ export interface NotificationsTranslations {
     fallbackUnknown: string;
 }
 
-export const notificationsTranslations: Record<Language, NotificationsTranslations> = {
+export const notificationsTranslations: Record<
+    Language,
+    NotificationsTranslations
+> = {
     ru: {
         title: 'Уведомления',
+        unread: 'Не прочитано',
+        error: 'Не удалось загрузить уведомления',
+        actionError: 'Не удалось выполнить действие. Попробуйте ещё раз.',
+        retry: 'Повторить',
         subtitle: 'Последние события вашего аккаунта',
         empty: 'Уведомлений пока нет',
         loadMore: 'Загрузить ещё',
@@ -46,6 +55,10 @@ export const notificationsTranslations: Record<Language, NotificationsTranslatio
     },
     en: {
         title: 'Notifications',
+        unread: 'Unread',
+        error: 'Could not load notifications',
+        actionError: 'Could not complete this action. Please try again.',
+        retry: 'Try again',
         subtitle: 'Latest events of your account',
         empty: 'No notifications yet',
         loadMore: 'Load more',
@@ -59,12 +72,17 @@ export const notificationsTranslations: Record<Language, NotificationsTranslatio
         },
         fallbackUnknown: 'New notification',
         deleteAll: 'Delete all',
-        deleteAllConfirm: 'Delete all notifications? This action cannot be undone.',
+        deleteAllConfirm:
+            'Delete all notifications? This action cannot be undone.',
         yesDeleteAll: 'Yes, delete',
         cancel: 'Cancel',
     },
     zh: {
         title: '通知',
+        unread: '未读',
+        error: '无法加载通知',
+        actionError: '操作未能完成，请重试。',
+        retry: '重试',
         subtitle: '您账户的最新动态',
         empty: '暂无通知',
         loadMore: '加载更多',

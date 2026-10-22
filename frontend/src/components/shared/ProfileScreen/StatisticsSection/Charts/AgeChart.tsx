@@ -1,86 +1,58 @@
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { statisticsTranslations } from '../lang';
-import type { TooltipItem } from "chart.js";
+import type { AgeStatsData } from '../../../../../api/stats/main.api';
+import { toPercent } from './utils';
 
-import { useMemo } from "react";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Doughnut } from "react-chartjs-2";
-import type { AgeStatsData } from "../../../../../api/stats/main.api";
-import {
-    AGE_RANGE_LABELS,
-    CHART_COLORS,
-    legendStyle,
-    toPercent,
-    tooltipStyle,
-} from "./utils";
-import "./Charts.scss";
+const ORDER: (keyof AgeStatsData)[] = [
+    '<18',
+    '18-24',
+    '25-34',
+    '35-44',
+    '45-54',
+    '55+',
+    'unknown',
+];
 
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-interface AgeChartProps {
-    data: AgeStatsData;
-}
-
-const ORDER: (keyof AgeStatsData)[] = ["18-25", "26-35", "36-50", "50+"];
-
-const AgeChart = ({ data }: AgeChartProps) => {
+const AgeChart = ({ data }: { data: AgeStatsData }) => {
     const { language } = useLanguage();
     const t = statisticsTranslations[language];
     const total = ORDER.reduce((sum, key) => sum + data[key], 0);
-
-    const items = useMemo(
-        () =>
-            ORDER.map((key) => ({
-                name: AGE_RANGE_LABELS[key as string] ?? key,
-                value: toPercent(data[key], total),
-            })).filter((i) => i.value > 0),
-        [data, total],
+    const items = ORDER.filter(
+        (key) => !['<18', 'unknown'].includes(key) || data[key] > 0,
     );
-
-    const chartData = useMemo(
-        () => ({
-            labels: items.map((i) => i.name),
-            datasets: [
-                {
-                    data: items.map((i) => i.value),
-                    backgroundColor: CHART_COLORS.slice(0, items.length),
-                    borderColor: "#fff",
-                    borderWidth: 2,
-                },
-            ],
-        }),
-        [items],
-    );
-
-    const options = useMemo(
-        () => ({
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: "60%",
-            plugins: {
-                legend: legendStyle,
-                tooltip: {
-                    ...tooltipStyle,
-                    callbacks: {
-                        label: (ctx: TooltipItem<"doughnut">) => `${ctx.parsed}%`,
-                    },
-                },
-            },
-        }),
-        [],
-    );
-
     return (
-        <div className="chart-container">
+        <section className="chart-container">
             <h3 className="chart-title">{t.age}</h3>
-            <div className="chart-wrapper chart-wrapper--donut">
-                {items.length === 0 ? (
-                    <div className="chart-empty">{t.empty}</div>
-                ) : (
-                    <Doughnut data={chartData} options={options} />
-                )}
-            </div>
-        </div>
+            {total ? (
+                <ul className="stats-bars">
+                    {items.map((key) => {
+                        const label =
+                            key === 'unknown'
+                                ? t.unknown
+                                : key === '<18'
+                                  ? t.under18
+                                  : key;
+                        const value = toPercent(data[key], total);
+                        return (
+                            <li key={key}>
+                                <span className="stats-bars__label">
+                                    {label}
+                                </span>
+                                <div
+                                    className="stats-bars__track"
+                                    aria-hidden="true"
+                                >
+                                    <span style={{ width: `${value}%` }} />
+                                </div>
+                                <strong>{value}%</strong>
+                            </li>
+                        );
+                    })}
+                </ul>
+            ) : (
+                <p className="chart-empty">{t.empty}</p>
+            )}
+        </section>
     );
 };
 

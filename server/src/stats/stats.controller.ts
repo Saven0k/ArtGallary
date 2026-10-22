@@ -31,8 +31,18 @@ import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 export class StatsController {
   constructor(private readonly statsService: StatsService) {}
 
+  @Get('me')
+  @Roles(Role.Author)
+  @ApiOperation({ summary: 'Статистика текущего автора' })
+  getMyStats(
+    @Query() filter: StatsFilterDto,
+    @CurrentUser() user: { id: number; role: Role },
+  ) {
+    return this.statsService.getAuthorStats(Number(user.id), filter);
+  }
+
   @Get('author/:id')
-  @Roles(Role.Author, Role.Admin)
+  @Roles(Role.Author)
   @ApiOperation({
     summary: 'Полная статистика по автору',
     description:
@@ -45,14 +55,14 @@ export class StatsController {
     @Query() filter: StatsFilterDto,
     @CurrentUser() user: { id: number; role: Role },
   ) {
-    if (user.role !== Role.Admin && Number(user.id) !== id) {
+    if (Number(user.id) !== id) {
       throw new ForbiddenException('Доступ запрещен');
     }
     return this.statsService.getAuthorStats(id, filter);
   }
 
   @Get('art/:id')
-  @Roles(Role.Author, Role.Admin)
+  @Roles(Role.Author)
   @ApiOperation({ summary: 'Полная статистика по картине' })
   @ApiOkResponse({ description: 'ArtStatsResponse' })
   async getArtStats(
@@ -64,7 +74,7 @@ export class StatsController {
     if (!art) {
       throw new ForbiddenException('Доступ запрещен');
     }
-    if (user.role !== Role.Admin && Number(art.author_id) !== Number(user.id)) {
+    if (Number(art.author_id) !== Number(user.id)) {
       throw new ForbiddenException('Доступ запрещен');
     }
     return this.statsService.getArtStats(id, filter);

@@ -8,6 +8,7 @@ import { AccountDeletionCode } from '../auth/models/account-deletion-code.model'
 import { EmailChangeCode } from '../auth/models/email-change-code.model';
 import { Cart } from '../cart/cart.model';
 import { CartHistory } from '../cart-history/cart-history.model';
+import { PromoCode } from '../promo-codes/promo-code.model';
 import { ArtView } from '../arts/art-view.model';
 import { Moderator } from '../moderators/moderator.model';
 import { ArtType } from '../art-types/art-type.model';
@@ -46,6 +47,7 @@ export const GALLERY_MODELS = [
   EmailChangeCode,
   Cart,
   CartHistory,
+  PromoCode,
   ArtView,
   Moderator,
   ArtType,

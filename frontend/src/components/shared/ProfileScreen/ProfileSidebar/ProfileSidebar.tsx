@@ -51,6 +51,7 @@ const ProfileSidebar = ({
         };
 
         fetchUnread();
+        window.addEventListener('gallery:notifications-updated', fetchUnread);
 
 
         const interval = setInterval(fetchUnread, 30_000);
@@ -58,6 +59,7 @@ const ProfileSidebar = ({
         return () => {
             alive = false;
             clearInterval(interval);
+            window.removeEventListener('gallery:notifications-updated', fetchUnread);
         };
     }, []);
 

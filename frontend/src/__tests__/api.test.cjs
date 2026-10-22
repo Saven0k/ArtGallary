@@ -14,6 +14,55 @@ const load = (file, apiFetch, requestOverrides = {}) => {
 };
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
+test('promo code management and cart validation use protected JSON endpoints and preserve server errors', async () => {
+    const calls = [];
+    const api = load('api/promo-codes/main.api.ts', async (url, init) => { calls.push({ url, ...init }); return json({ code: 'WELCOME', percent: 10 }); });
+    const signal = new AbortController().signal;
+    await api.getPromoCodes(2, signal);
+    await api.createPromoCode({ code: 'WELCOME', percent: 10, expiresAt: null });
+    await api.setPromoCodeActive(7, false);
+    await api.validatePromoCode('WELCOME');
+    assert.deepEqual(calls.map(call => [call.url.replace('https://gallery.test/promo-codes', ''), call.method ?? 'GET', call.body ? JSON.parse(call.body) : null]), [
+        ['?page=2&limit=20', 'GET', null], ['', 'POST', { code: 'WELCOME', percent: 10, expiresAt: null }], ['/7', 'PATCH', { active: false }], ['/validate', 'POST', { code: 'WELCOME' }],
+    ]);
+    assert.equal(calls[0].signal, signal);
+    const denied = load('api/promo-codes/main.api.ts', async () => json({ code: 'PROMO_CODE_INVALID', message: '优惠码无效' }, 400));
+    await assert.rejects(denied.validatePromoCode('MISSING'), error => error instanceof denied.PromoCodeError && error.status === 400 && error.message === 'PROMO_CODE_INVALID');
+    const checkout = load('api/cart-history/main.api.ts', async () => json({ code: 'PROMO_CODE_INVALID', message: '优惠码无效' }, 400));
+    await assert.rejects(checkout.checkoutCart({ items: [{ artId: 7, quantity: 1 }], promoCode: 'MISSING' }), /PROMO_CODE_INVALID/);
+});
+
+test('profile commerce reads can be cancelled and unfollow is an idempotent DELETE', async () => {
+    const calls = [];
+    const fetch = async (url, init) => { calls.push({ url, ...init }); return json({ success: true, is_following: false }); };
+    const signal = new AbortController().signal;
+    const authors = load('api/authors/main.api.ts', fetch);
+    await authors.getUserFollowing(2, 20, signal);
+    await authors.unfollowAuthor(8);
+    await load('api/cart-history/main.api.ts', fetch).getCartHistory({ status: 'delivered' }, signal);
+    assert.deepEqual(calls.map(call => [call.url, call.method ?? 'GET']), [
+        ['https://gallery.test/authors/following?page=2&limit=20', 'GET'],
+        ['https://gallery.test/authors/8/follow', 'DELETE'],
+        ['https://gallery.test/cart-history?status=delivered', 'GET'],
+    ]);
+    assert.equal(calls[0].signal, signal);
+    assert.equal(calls[2].signal, signal);
+    assert.equal(calls[0].credentials, 'include');
+    assert.equal(calls[2].credentials, 'include');
+});
+
+test('private statistics requests use the current author session, localized filters and cancellation', async () => {
+    const calls = [];
+    const api = load('api/stats/main.api.ts', async (url, init) => { calls.push({ url, ...init }); return json({ authorId: 7 }); });
+    const controller = new AbortController();
+    await api.getMyAuthorStats({ startDate: '2026-10-01', endDate: '2026-10-22' }, 'zh', controller.signal);
+    await api.getArtStats(10, { ageFrom: 18, countryId: 1 }, 'en');
+    assert.equal(calls[0].url, 'https://gallery.test/stats/me?startDate=2026-10-01&endDate=2026-10-22&lang=zh');
+    assert.equal(calls[0].signal, controller.signal);
+    assert.equal(calls[0].credentials, 'include');
+    assert.equal(calls[1].url, 'https://gallery.test/stats/art/10?ageFrom=18&countryId=1&lang=en');
+});
+
 test('account security requests use email codes without current passwords or a client-selected account', async () => {
     const calls = [];
     const api = load('api/auth/main.api.ts', async (url, init) => { calls.push({ url, ...init }); return json({ resetToken: 'proof', deletionToken: 'deletion-proof', message: 'OK' }); });

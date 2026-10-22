@@ -5,6 +5,7 @@ export interface ArtPreview {
     title: string;
     imagePath: string;
     authorName: string;
+    specifications?: string;
     price: number;
     currency: string;
     displayPrice?: DisplayPrice;
@@ -15,8 +16,6 @@ export interface CartLine extends ArtPreview {
     quantity: number;
     total: number;
 }
-
-export type PromoCode = 'SALE10' | 'SALE15' | 'ART20';
 
 export interface CartTotals {
     subtotal: number;

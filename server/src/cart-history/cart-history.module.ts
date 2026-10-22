@@ -6,11 +6,15 @@ import { CartHistoryController } from './cart-history.controller';
 import { Cart } from '../cart/cart.model';
 import { User } from '../users/users.model';
 import { Art } from '../arts/arts.model';
+import { PromoCodesModule } from '../promo-codes/promo-codes.module';
 
 @Module({
   controllers: [CartHistoryController],
   providers: [CartHistoryService],
-  imports: [SequelizeModule.forFeature([CartHistory, Cart, User, Art])],
+  imports: [
+    SequelizeModule.forFeature([CartHistory, Cart, User, Art]),
+    PromoCodesModule,
+  ],
   exports: [CartHistoryService],
 })
 export class CartHistoryModule {}

@@ -21,6 +21,7 @@ import ArtTypesSection from '../../components/shared/Admin/sections/ArtTypes/Art
 import ProfessionsSection from '../../components/shared/Admin/sections/Professions/ProfessionsSection';
 import EventsSection from '../../components/shared/Admin/sections/Events/EventsSection';
 import RatingsSection from '../../components/shared/Admin/sections/Ratings/RatingsSection';
+import PromoCodesSection from '../../components/shared/Admin/sections/PromoCodes/PromoCodesSection';
 import './AdminPage.scss';
 
 const AdminPage = () => {
@@ -76,6 +77,7 @@ const AdminPage = () => {
             case 'professions': return <ProfessionsSection />;
             case 'events':      return <EventsSection />;
             case 'ratings':     return <RatingsSection />;
+            case 'promoCodes':  return <PromoCodesSection />;
             default:            return null;
         }
     };

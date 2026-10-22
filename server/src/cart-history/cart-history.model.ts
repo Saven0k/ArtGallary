@@ -15,6 +15,8 @@ export interface OrderLine {
   artId: number;
   title: string;
   imagePath: string;
+  authorName?: string;
+  specifications?: string;
   price: number;
   quantity: number;
   currency: string;

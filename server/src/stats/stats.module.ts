@@ -8,6 +8,8 @@ import { Art } from '../arts/arts.model';
 import { User } from '../users/users.model';
 import { AuthorProfile } from 'src/authors/author.model';
 import { AuthorView } from 'src/authors/author-view.model';
+import { AuthorFollow } from '../authors/author-follow.model';
+import { Country } from '../location/models/country.model';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { AuthorView } from 'src/authors/author-view.model';
       AuthorProfile,
       Art,
       User,
+      AuthorFollow,
+      Country,
     ]),
   ],
   controllers: [StatsController],

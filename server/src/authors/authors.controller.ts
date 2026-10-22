@@ -272,6 +272,17 @@ export class AuthorsController {
     return this.followService.checkFollow(user.id, authorId);
   }
 
+  @Delete(':id/follow')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(Role.User, Role.Author, Role.Admin, Role.Moderator)
+  @ApiOperation({ summary: 'Отписаться от автора' })
+  unfollow(
+    @Param('id', ParseIntPipe) authorId: number,
+    @CurrentUser() user: CurrentUserData,
+  ) {
+    return this.followService.unfollow(user.id, authorId);
+  }
+
   @ApiOperation({ summary: 'Подписаться/отписаться от автора' })
   @Post(':id/follow')
   @UseGuards(JwtAccessGuard, RolesGuard)

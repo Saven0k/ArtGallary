@@ -20,7 +20,7 @@ test('commerce routes validate their bodies without a global pipe', () => {
 test.each([
   { items: 'invalid' },
   { items: [{ artId: 1, quantity: 0 }] },
-  { items: [{ artId: 1, quantity: 1 }], promoCode: 'FREE' },
+  { items: [{ artId: 1, quantity: 1 }], promoCode: 'BAD CODE' },
 ])(
   'checkout rejects malformed quantities, collections and discounts',
   async (body) => {
@@ -32,6 +32,15 @@ test.each([
     ).rejects.toMatchObject({ status: 400 });
   },
 );
+
+test('checkout accepts normalized custom promo codes for subsequent database validation', async () => {
+  expect(
+    await new ValidationPipe().transform(
+      { items: [{ artId: 1, quantity: 1 }], promoCode: ' gallery_new ' },
+      { type: 'body', metatype: CheckoutDto },
+    ),
+  ).toEqual({ items: [{ artId: 1, quantity: 1 }], promoCode: 'GALLERY_NEW' });
+});
 
 test('order status updates reject values outside the supported lifecycle', async () => {
   await expect(

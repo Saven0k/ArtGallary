@@ -1,107 +1,54 @@
 import { useLanguage } from '../../../../../hooks/useLanguage';
 import { statisticsTranslations } from '../lang';
-import type { TooltipItem } from "chart.js";
+import type { CountryStatsItem } from '../../../../../api/stats/main.api';
+import { toPercent } from './utils';
 
-import { useMemo } from "react";
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-} from "chart.js";
-import { Bar } from "react-chartjs-2";
-import type { CountryStatsItem } from "../../../../../api/stats/main.api";
-import { CHART_COLORS, tooltipStyle } from "./utils";
-import "./Charts.scss";
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-interface CountriesChartProps {
+const CountriesChart = ({
+    data,
+    total,
+}: {
     data: CountryStatsItem[];
-}
-
-const CountriesChart = ({ data }: CountriesChartProps) => {
+    total: number;
+}) => {
     const { language } = useLanguage();
     const t = statisticsTranslations[language];
-
-    const items = useMemo(() => {
-        const total = data.reduce((sum, item) => sum + item.count, 0);
-        return data
-            .slice(0, 5)
-            .map((item) => ({
-                country: item.countryName || `${t.country} ${item.countryId}`,
-                percentage:
-                    total > 0 ? Math.round((item.count / total) * 100) : 0,
-            }));
-    }, [data, t.country]);
-
-    const chartData = useMemo(
-        () => ({
-            labels: items.map((i) => i.country),
-            datasets: [
-                {
-                    label: t.viewers,
-                    data: items.map((i) => i.percentage),
-                    backgroundColor: items.map(
-                        (_, i) => CHART_COLORS[i % CHART_COLORS.length],
-                    ),
-                    borderColor: "#fff",
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    barThickness: 20,
-                },
-            ],
-        }),
-        [items, t.viewers],
-    );
-
-    const options = useMemo(
-        () => ({
-            indexAxis: "y" as const,
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    ...tooltipStyle,
-                    callbacks: {
-                        label: (ctx: TooltipItem<"bar">) => `${ctx.parsed.x}%`,
-                    },
-                },
-            },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: {
-                        color: "#727272",
-                        font: { size: 12 },
-                        callback: (v: string | number) => `${v}%`,
-                    },
-                    max: 100,
-                },
-                y: {
-                    grid: { display: false },
-                    ticks: { color: "#222222", font: { size: 12 } },
-                },
-            },
-        }),
-        [],
-    );
-
+    const known = data.reduce((sum, item) => sum + item.count, 0);
+    const items = data
+        .slice(0, 4)
+        .map((item) => ({
+            label: item.countryName || t.unknown,
+            count: item.count,
+        }));
+    const other = data.slice(4).reduce((sum, item) => sum + item.count, 0);
+    if (other) items.push({ label: t.other, count: other });
+    if (total > known) items.push({ label: t.unknown, count: total - known });
     return (
-        <div className="chart-container">
+        <section className="chart-container">
             <h3 className="chart-title">{t.countries}</h3>
-            <div className="chart-wrapper chart-wrapper--bar">
-                {items.length === 0 ? (
-                    <div className="chart-empty">{t.empty}</div>
-                ) : (
-                    <Bar data={chartData} options={options} />
-                )}
-            </div>
-        </div>
+            {total ? (
+                <ul className="stats-bars stats-bars--countries">
+                    {items.map((item, index) => {
+                        const value = toPercent(item.count, total);
+                        return (
+                            <li key={index}>
+                                <span className="stats-bars__label">
+                                    {item.label}
+                                </span>
+                                <div
+                                    className="stats-bars__track"
+                                    aria-hidden="true"
+                                >
+                                    <span style={{ width: `${value}%` }} />
+                                </div>
+                                <strong>{value}%</strong>
+                            </li>
+                        );
+                    })}
+                </ul>
+            ) : (
+                <p className="chart-empty">{t.empty}</p>
+            )}
+        </section>
     );
 };
 
