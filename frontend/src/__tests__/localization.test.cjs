@@ -150,6 +150,25 @@ test('Chinese language badge reads CH while the application retains the zh local
     assert.match(html, /class="lang-switcher__text">CH<\/span>/);
 });
 
+test('White Glove delivery renders all sections, contacts links and service navigation in three languages', () => {
+    for (const language of ['ru', 'en', 'zh']) {
+        const load = loader(language);
+        const Page = load(path.join(root, 'pages/white-glove/WhiteGlovePage.tsx')).default;
+        const Services = load(path.join(root, 'pages/services/ServicesPage.tsx')).default;
+        const t = load(path.join(root, 'pages/white-glove/lang.ts')).whiteGloveTranslations[language];
+        const render = Component => renderToStaticMarkup(React.createElement(require('react-router-dom').MemoryRouter, { initialEntries: ['/services/white-glove'] }, React.createElement(Component)));
+        const markup = render(Page);
+        assert.equal((markup.match(/<section /g) ?? []).length, 5);
+        for (const text of [t.title, t.benefitsTitle, t.artworksTitle, t.placementTitle, t.installationTitle]) assert.ok(markup.includes(text), text);
+        assert.equal((markup.match(/href="\/contacts"/g) ?? []).length, 5);
+        assert.ok(markup.includes(`aria-label="${t.previous}"`));
+        assert.ok(markup.includes(`aria-label="${t.next}"`));
+        if (language !== 'ru') assert.doesNotMatch(markup, /[А-Яа-яЁё]/);
+        if (language === 'zh') assert.match(markup, /\p{Script=Han}/u);
+        assert.match(render(Services), /href="\/services\/white-glove"/);
+    }
+});
+
 test('chart dates use the selected language and preserve invalid dates', () => {
     const { formatShortDate } = loader()(path.join(root, 'components/shared/ProfileScreen/StatisticsSection/Charts/utils.ts'));
     for (const language of ['ru', 'en', 'zh']) {

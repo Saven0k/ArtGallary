@@ -21,6 +21,7 @@ const Navigation = () => {
         '/arts': t.arts,
         '/authors': t.authors,
         '/services': t.services,
+        '/services/white-glove': t.whiteGlove,
         '/consultation': t.consultation,
         '/contacts': t.contacts,
         '/about': t.about,

@@ -45,7 +45,7 @@ const ServicesPage = () => {
 
                             <p className="service-card__price-label">{t.priceLabel}</p>
 
-                            <Link to={`/services/${card.id}`} className="service-card__more">
+                            <Link to={card.id === 2 ? '/services/white-glove' : `/services/${card.id}`} className="service-card__more">
                                 <span>{t.more}</span>
                             </Link>
                         </article>

@@ -19,6 +19,7 @@ const AdminPage = lazy(() => import('./pages/admin/AdminPage'));
 import AboutPage from './pages/about/AboutPage';
 import ArtConsultationPage from './pages/art-consultation/ArtConsultationPage';
 import ServicesPage from './pages/services/ServicesPage';
+import WhiteGlovePage from './pages/white-glove/WhiteGlovePage';
 import EventsPage from './pages/events/EventsPage/EventsPage';
 import EventPage from "./pages/events/EventPage/EventPage"
 
@@ -79,6 +80,8 @@ function App() {
                       <Route path="/about" element={<AboutPage />} />
                       <Route path="/consultation" element={<ArtConsultationPage />} />
                       <Route path="/services" element={<ServicesPage />} />
+                      <Route path="/services/white-glove" element={<WhiteGlovePage />} />
+                      <Route path="/services/2" element={<Navigate to="/services/white-glove" replace />} />
 
                       <Route element={<ProtectedRoute allowedRoles={['admin', 'author']} />}>
                         { }
